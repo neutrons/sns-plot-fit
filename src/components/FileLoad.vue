@@ -1,0 +1,224 @@
+<template>
+  <div class="fileuploads">
+    <div class="row">
+      <div>
+        <h3>GET File(s): <button class="btn btn-xs btn-primary" @click="FETCHDATA"><span class="glyphicon glyphicon-download"></span></button></h3>
+      </div>
+      <table class="table table-condensed tabletop">
+      <thead>
+        <tr>
+          <th class="col-sm-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
+          <th class="col-sm-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
+          <th class="col-sm-9">File Name</th>
+        </tr>
+      </thead>
+      </table>
+      <div class="getloads-list">
+        <table class="table table-condensed table-hover table-bordered">
+          <tbody>
+            <tr v-for="data in this.DATAFILES" :class="isPlotted(data.fileName)">
+              <td><input type="radio" :value="data.fileName" v-model="fileToFit" :disabled="isPlotted(data.fileName) == 'info' ? false : true"></td>
+              <td><input class="checks" type="checkbox" :id="data.fileName" :value="data.fileName" v-model="checkedFiles"></td>
+              <td>{{ data.fileName }}</td>
+            </tr>
+          </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="row">
+      <h3>Uploaded File(s):</h3>
+      <table class="table table-condensed tabletop">
+      <thead>
+        <tr>
+          <th class="col-sm-1">Fit</th>
+          <th class="col-sm-1">Plot</th>
+          <th class="col-sm-6">File Name</th>
+          <th class="col-sm-4">Delete</th>
+        </tr>
+      </thead>
+      </table>
+      <div class="uploads-list">
+        <table class="table table-condensed table-hover table-bordered">
+          <tbody>
+            <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
+              <td><input type="radio" :value="file.fileName" v-model="fileToFit" :disabled="isPlotted(file.fileName) == 'info' ? false : true"></td>
+              <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="checkedFiles"></td>
+              <td>{{ file.fileName }}</td>
+              <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | DELETEFILE(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
+            </tr>
+          </tbody>
+      </table>
+      </div>
+      <br>
+      <div>
+          <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
+          <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
+          <button class="btn btn-danger btn-xs btn-files" @click="uncheckUploaded" :disabled="!ISUPLOADED">Delete Files <span class="glyphicon glyphicon-trash"></span></button>
+      </div>
+      <br>
+      <div class="dropzone-area" drag-over="handleDragOver">
+        <div class="dropzone-text">
+          <span class="dropzone-title">Drop file(s) here or click to select</span>
+        </div>
+        <input type="file" id="input" multiple @change="READFILE">
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: ["DATAFILES", "BUTTONDIS", "DISABLEBUTTONS", "RESETALL", "SETCURRENTDATA", "READFILE", "UPLOADEDFILES", "FETCHDATA", "DELETEFILE", "REMOVEUPLOADED", "ISUPLOADED", "SETFITFILE"],
+  data: function () {
+    return {
+      checkedFiles: [],
+      fileToFit: "None",
+      hovering: false
+    }
+  },
+  methods: {
+    clearSelected: function () {
+      this.checkedFiles = [];
+      this.RESETALL
+    },
+    isPlotted: function(filename) {
+      //this function dynamically styles the files being plotted
+      if(this.checkedFiles.indexOf(filename) > -1){
+        return "info";
+      } else {
+        return "default";
+      }
+    },
+    uncheckFile: function(filename) {
+      if(this.checkedFiles.indexOf(filename) > -1) {
+        this.checkedFiles.splice(this.checkedFiles.indexOf(filename),1);
+      }
+    },
+    uncheckUploaded: function() {
+      for(var i = 0; i < this.UPLOADEDFILES.length; i++) {
+        if(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName) > -1) {
+          this.checkedFiles.splice(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName),1);
+        }
+      }
+      this.REMOVEUPLOADED();
+    },
+    checkAll: function() {
+      for(let i = 0; i < this.DATAFILES.length; i++) {
+        if(this.checkedFiles.indexOf(this.DATAFILES[i].fileName) === -1) {
+          this.checkedFiles.push(this.DATAFILES[i].fileName);
+        }
+      }
+      for(let i = 0; i < this.UPLOADEDFILES.length; i++) {
+        if(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName) === -1) {
+          this.checkedFiles.push(this.UPLOADEDFILES[i].fileName);
+        }
+      }
+    }
+  },
+  watch: {
+    checkedFiles: {
+      handler: function () {
+        this.DISABLEBUTTONS(true);
+        this.SETCURRENTDATA(this.checkedFiles);
+      },
+      deep: true
+    },
+    fileToFit: function() {
+      this.SETFITFILE(this.fileToFit);
+    }
+  }
+}
+</script>
+
+<style scoped>
+.fileuploads {
+  text-align: center;
+  min-height: 90vh;
+  margin-bottom: 0px;
+  padding: 25px;
+  background-color: gainsboro;
+  border-left: 1px solid rgba(0,0,0,0.25);
+}
+
+.btn-files {
+  font-size: 11px;
+}
+.tabletop {
+  margin: 0;
+  padding: 0;
+}
+
+.uploads-list,
+.getloads-list {
+  height: 125px;
+  overflow-y: scroll;
+  background-color: whitesmoke;
+}
+
+li {
+  list-style: none;
+}
+
+.dropzone-area {
+  width: auto;
+  height: 175px;
+  position: relative;
+  border: 1.5px dashed white;
+  border-radius: 10px;
+}
+
+.dropzone-area:hover {
+  border: 1.5px dashed black;
+  color: black;
+  background-color: white;
+  border-radius: 10px;
+}
+
+.dropzone-area:hover .dropzone-title {
+  color: gray;
+}
+
+.dropzone-area input {
+  position: absolute;
+  cursor: pointer;
+  top: 0px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.dropzone-text {
+  position: absolute;
+  top: 50%;
+  text-align: center;
+  transform: translate(0, -50%);
+  width: 100%;
+}
+
+.dropzone-text span {
+  display: block;
+  font-family: Arial, Helvetica;
+  line-height: 1.9;
+}
+
+.dropzone-title {
+  font-size: 13px;
+  color: black;
+  letter-spacing: 0.4px;
+}
+
+.dropzone-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+}
+
+th {
+  text-align: center;
+}
+
+</style>
