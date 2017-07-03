@@ -10,6 +10,7 @@
         :RESETPLOT="resetPlot"
         :BUTTONDIS="buttonDis"
         :PLOTPARAMS="plotParams"
+        :RESETPARAMS="resetParams"
         ></app-controls>
       </div>
 
@@ -82,7 +83,7 @@ export default {
         yAxisTitle: 'I(Q)',
         fitName: 'None',
         equation: 'a*X+b',
-        fileToFit: undefined
+        fileToFit: null
       },
       isUploaded: false,
       isCollapseRight: false,
@@ -216,18 +217,19 @@ export default {
     },
     resetParams: function() {
       this.plotParams.fitName = "None";
-      this.plotParams.dataToFit = undefined;
+      this.plotParams.fileToFit = null;
       this.plotParams.xScale = "X";
       this.plotParams.yScale = "Y";
       this.plotParams.xAxisTitle = "X";
-      this.plotParams.yAxisTitle = "Y";
+      this.plotParams.yAxisTitle = "I(Q)";
       this.plotParams.equation = "a*X+b";
-      this.plotParams.data = [];
+      //this.plotParams.data = [];
     },
     setCurrentData: function(checkedfiles) {
       if(checkedfiles.length == 0) {
         this.disableButtons(false);
-        this.resetParams();
+        this.plotParams.data = [];
+        //this.resetParams();
       } else {
           var tempdata = []
 

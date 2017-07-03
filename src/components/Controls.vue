@@ -24,9 +24,11 @@
         <div class="btn-group-vertical">
         <button class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
         <br>
+        <button class="btn btn-warning btn-sm" @click="RESETPLOT" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
+        <br>
         <button class="btn btn-danger btn-sm" @click="resetFit" :disabled="!BUTTONDIS">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
         <br>
-        <button class="btn btn-warning btn-sm" @click="RESETPLOT" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
+        <button class="btn btn-danger btn-sm" @click="RESETPARAMS">Reset All <span class="glyphicon glyphicon-refresh"></span></button>
         </div>
       </div>
   </div>
@@ -35,7 +37,7 @@
 <script>
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "RESETPLOT", "PLOTPARAMS"],
+  props: ["BUTTONDIS", "RESETPLOT", "PLOTPARAMS", "RESETPARAMS"],
   data: function() {
     return {
       xScales: ["X", "X^2", "LOG(X)"],
@@ -50,6 +52,8 @@ export default {
     },
     resetFit: function() {
       this.PLOTPARAMS.fitName = 'None'
+      //also need to un-transform data, so re-add the checked file list then plot
+      /* code for that will go here */
     }
   }
 }

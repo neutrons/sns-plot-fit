@@ -68,7 +68,7 @@
 
 <script>
 export default {
-  props: ["DATAFILES", "BUTTONDIS", "DISABLEBUTTONS", "RESETALL", "SETCURRENTDATA", "READFILE", "UPLOADEDFILES", "FETCHDATA", "DELETEFILE", "REMOVEUPLOADED", "ISUPLOADED", "SETFITFILE"],
+  props: ["DATAFILES", "BUTTONDIS", "DISABLEBUTTONS", "SETCURRENTDATA", "READFILE", "UPLOADEDFILES", "FETCHDATA", "DELETEFILE", "REMOVEUPLOADED", "ISUPLOADED", "SETFITFILE"],
   data: function () {
     return {
       checkedFiles: [],
@@ -79,7 +79,6 @@ export default {
   methods: {
     clearSelected: function () {
       this.checkedFiles = [];
-      this.RESETALL
     },
     isPlotted: function(filename) {
       //this function dynamically styles the files being plotted

@@ -10,7 +10,7 @@ export default {
             d3.select(".tooltip").remove();
 
             //Check if there is a fit select, if so transform data
-            if(parameters.fitName !== 'None' && parameters.fileToFit !== undefined) {
+            if(parameters.fitName !== 'None' && parameters.fileToFit !== null) {
                 // var data = fd.transformData(parameters.data, parameters.fitName, parameters.equation);
 
                 // //pull data to be fit
