@@ -16,7 +16,7 @@
       <div class="getloads-list">
         <table class="table table-condensed table-hover table-bordered">
           <tbody>
-            <tr v-for="data in this.DATAFILES" :class="isPlotted(data.fileName)">
+            <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
               <td><input type="radio" :value="data.fileName" v-model="fileToFit" :disabled="isPlotted(data.fileName) == 'info' ? false : true"></td>
               <td><input class="checks" type="checkbox" :id="data.fileName" :value="data.fileName" v-model="checkedFiles"></td>
               <td>{{ data.fileName }}</td>
@@ -68,7 +68,7 @@
 
 <script>
 export default {
-  props: ["DATAFILES", "BUTTONDIS", "DISABLEBUTTONS", "SETCURRENTDATA", "READFILE", "UPLOADEDFILES", "FETCHDATA", "DELETEFILE", "REMOVEUPLOADED", "ISUPLOADED", "SETFITFILE"],
+  props: ["GETFILES", "BUTTONDIS", "DISABLEBUTTONS", "SETCURRENTDATA", "READFILE", "UPLOADEDFILES", "FETCHDATA", "DELETEFILE", "REMOVEUPLOADED", "ISUPLOADED", "SETFITFILE"],
   data: function () {
     return {
       checkedFiles: [],
@@ -102,9 +102,9 @@ export default {
       this.REMOVEUPLOADED();
     },
     checkAll: function() {
-      for(let i = 0; i < this.DATAFILES.length; i++) {
-        if(this.checkedFiles.indexOf(this.DATAFILES[i].fileName) === -1) {
-          this.checkedFiles.push(this.DATAFILES[i].fileName);
+      for(let i = 0; i < this.GETFILES.length; i++) {
+        if(this.checkedFiles.indexOf(this.GETFILES[i].fileName) === -1) {
+          this.checkedFiles.push(this.GETFILES[i].fileName);
         }
       }
       for(let i = 0; i < this.UPLOADEDFILES.length; i++) {

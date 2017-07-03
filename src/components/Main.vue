@@ -43,7 +43,7 @@
         <app-file-load
         :BUTTONDIS="buttonDis"
         :DISABLEBUTTONS="disableButtons"
-        :DATAFILES="dataFiles"
+        :GETFILES="getFiles"
         :SETCURRENTDATA="setCurrentData"
         :READFILE="readFile"
         :UPLOADEDFILES="uploadedFiles"
@@ -72,7 +72,7 @@ export default {
   },
   data: function () {
     return {
-      dataFiles: [],
+      getFiles: [],
       uploadedFiles: [],
       colorDomain: [],
       plotParams: {
@@ -95,7 +95,7 @@ export default {
     fetchData: function () {
       var url = document.getElementById("urlid").getAttribute("data-urlid");
       var files = JSON.parse(url);
-      this.dataFiles = [];
+      this.getFiles = [];
 
       //For loop to GET multiple files and push them to an array
       for (var i = 0; i < files.length; i++) {
@@ -103,7 +103,7 @@ export default {
         //call get files passing in i each time to access appropriate elements in files array
         getFiles(i);
 
-        //Set a variable to call 'this' to essentially reference the dataFiles variable in the getFiles function
+        //Set a variable to call 'this' to essentially reference the getFiles variable in the getFiles function
         var vthis = this;
 
         function getFiles(i, test) {
@@ -129,7 +129,7 @@ export default {
             data = data.splice(1, data.length);
             /***** END CSV FILE CODE*/
 
-            vthis.dataFiles.push({
+            vthis.getFiles.push({
               data: data,
               fileName: files[i].name,
             });
@@ -235,9 +235,9 @@ export default {
 
           //add selected files from the GET requested data
           for(var i = 0; i < checkedfiles.length; i++) {
-            for(var j = 0; j < this.dataFiles.length; j++) {
-              if(this.dataFiles[j].fileName === checkedfiles[i]) {
-                tempdata.push(this.dataFiles[j].data);
+            for(var j = 0; j < this.getFiles.length; j++) {
+              if(this.getFiles[j].fileName === checkedfiles[i]) {
+                tempdata.push(this.getFiles[j].data);
               }
             }
           }
