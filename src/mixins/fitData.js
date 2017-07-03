@@ -63,32 +63,14 @@ import math from 'mathjs';
 
 var fd = {};
 
-fd.transformData = function(data, fit, equation) {
+fd.transformData = function(data, equation) {
 
+    //code to transform data
     console.log("Transforming data...");
-    if ('Guinier') {
-
-        //code to transform data
-        parameters.data = [];
-
-        //code to fit line to selected data
-        parameters.fittedLine = [];
-
-
-    } else if ('Porod') {
-
-    } else if ('Kratky') {
-
-    } else if ('Debye Beuche') {
-
-    } else {
-        //If none just return data un-transformed
-    }
-
-    return (someTransformedData); //return transformed data
+    return (data); //return transformed data
 }
 
-fd.fitLine = function(fit, data, equation) {
+fd.fitLine = function(data, equation) {
 
     return (someFitData); //returned fitted data
 }

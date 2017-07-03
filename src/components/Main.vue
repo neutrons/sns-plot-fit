@@ -11,6 +11,9 @@
         :BUTTONDIS="buttonDis"
         :PLOTPARAMS="plotParams"
         :RESETPARAMS="resetParams"
+        :SETSCALES="setScales"
+        :FILETOFIT="fileToFit"
+        :SETFIT="setFit"
         ></app-controls>
       </div>
 
@@ -75,16 +78,15 @@ export default {
       getFiles: [],
       uploadedFiles: [],
       colorDomain: [],
-      plotParams: {
-        data: [],
-        xScale: "X",
-        yScale: "Y",
-        xAxisTitle: 'X',
-        yAxisTitle: 'I(Q)',
-        fitName: 'None',
-        equation: 'a*X+b',
-        fileToFit: null
-      },
+      selectedData: [],
+      xScale: 'X',
+      yScale: 'Y',
+      fitName: 'None',
+      equation: 'a*X+b',
+      fileToFit: null,
+      xTitle: 'X',
+      yTitle: 'I(Q)',
+      plotParams: {},
       isUploaded: false,
       isCollapseRight: false,
       isCollapseLeft: false,
@@ -210,25 +212,44 @@ export default {
         return false;
     },
     resetPlot: function() {
-      this.plotCurrentData(this.plotParams, this.colorDomain);
+      this.plotCurrentData({
+          colorDomain: this.colorDomain,
+          data: this.selectedData,
+          equation: this.equation,
+          fitName: this.fitName,
+          xScale: this.xScale,
+          yScale: this.yScale,
+          fileToFit: this.fileToFit,
+          xTitle: this.xTitle,
+          yTitle: this.yTitle
+        });
     },
     disableButtons: function (bool) {
       this.buttonDis = bool;
     },
     resetParams: function() {
-      this.plotParams.fitName = "None";
-      this.plotParams.fileToFit = null;
-      this.plotParams.xScale = "X";
-      this.plotParams.yScale = "Y";
-      this.plotParams.xAxisTitle = "X";
-      this.plotParams.yAxisTitle = "I(Q)";
-      this.plotParams.equation = "a*X+b";
+      // this.plotParams.fitName = "None";
+      // this.plotParams.fileToFit = null;
+      // this.plotParams.xScale = "X";
+      // this.plotParams.yScale = "Y";
+      // this.plotParams.xAxisTitle = "X";
+      // this.plotParams.yAxisTitle = "I(Q)";
+      // this.plotParams.equation = "a*X+b";
       //this.plotParams.data = [];
+      this.fitName = 'None';
+      this.xTitle = 'X';
+      this.yTitle = 'I(Q)';
+      this.equation = 'a*X+b';
+      this.fileToFit = null;
     },
     setCurrentData: function(checkedfiles) {
       if(checkedfiles.length == 0) {
         this.disableButtons(false);
-        this.plotParams.data = [];
+        //Remove any elements previously plotted
+        d3.select("svg").remove();
+        d3.select(".tooltip").remove();
+        // this.plotParams.data = [];
+        this.selectedData = [];
         //this.resetParams();
       } else {
           var tempdata = []
@@ -254,7 +275,8 @@ export default {
         //merge tempdata so that you have one large array of objects
         //this is to make plotting easier for multiple files selected
         var mergearrays = d3.merge(tempdata);
-        this.plotParams.data = mergearrays;
+        // this.plotParams.data = mergearrays;
+        this.selectedData = mergearrays;
       }
     },
     deleteFile: function(filename) {
@@ -269,13 +291,74 @@ export default {
       this.uploadedFiles = [];
     },
     setFitFile: function(filename) {
-      this.plotParams.fileToFit = filename;
+      // this.plotParams.fileToFit = filename;
+      this.fileToFit = filename;
+    },
+    setScales: function(x,y) {
+      this.xScale = x;
+      this.yScale = y;
+    },
+    setFit: function(fitname) {
+      this.fitName = fitname;
+    },
+    setPlotParams: function() {
+      this.plotParams = {
+        data: this.selectedData,
+        colorDomain: this.colorDomain,
+        equation: this.equation,
+        fitName: this.fitName,
+        xScale: this.xScale,
+        yScale: this.yScale,
+        xTitle: this.xTitle,
+        yTitle: this.yTitle,
+        fileToFit: this.fileToFit
+      }
     }
   },
     watch: {
+      xScale: function() {
+        //watch if xScale changes, if so plot data with new parameters
+        this.setPlotParams();
+      },
+      yScale: function() {
+        //watch if yScale changes, if so plot data with new parameters
+        this.setPlotParams();
+      },
+      fitName: function() {
+        //watch if fit name changes from 'None', if so transform data with new equation
+        if(this.fitName === 'None') {
+          this.equation = 'a*X+b';
+        } else if (this.fitName === 'Guinier') {
+          this.equation = 'b - (Rg^2)/3';
+        } else if (this.fitName === 'Porod') {
+          this.equation = '';
+        } else if (this.fitName === 'Zimm') {
+          this.equation = '';
+        } else if (this.fitName === 'Kratky') {
+          this.equation = '';
+        } else if (this.fitName === 'Debye Beuche') {
+          this.equation = '';
+        }
+      },
+      fileToFit: function() {
+        //watch if fileToFit changes from null, if so transform data with new equation
+        this.setPlotParams();
+      },
+      equation: function() {
+        //watch if equation changes, if so re-transform data
+        this.setPlotParams();
+      },
+      selectedData: function() {
+        //watch if selectedData changes, if so plot data with new parameters
+        if(this.selectedData.length > 0) {
+          this.setPlotParams();
+        } else {
+          this.plotParams = {};
+        }
+      },
       plotParams: {
         handler: function() {
-          if(this.plotParams.data.length > 0) {
+          if(this.selectedData.length > 0) {
             // console.log(this.plotParams);
             this.plotCurrentData(this.plotParams, this.colorDomain);
           } else {

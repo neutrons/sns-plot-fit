@@ -3,14 +3,14 @@ import fd from './fitData';
 
 export default {
     methods: {
-        plotCurrentData: function (parameters, colordomain) {
+        plotCurrentData: function (parameters) {
 
             //Remove any elements previously plotted
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
 
             //Check if there is a fit select, if so transform data
-            if(parameters.fitName !== 'None' && parameters.fileToFit !== null) {
+            if(parameters.fileToFit !== null) {
                 // var data = fd.transformData(parameters.data, parameters.fitName, parameters.equation);
 
                 // //pull data to be fit
@@ -21,11 +21,38 @@ export default {
                 // }
 
                 // var fitLine = fd.fitLine(fitData, parameters.fitName, parameters.equation);
-                console.log("In fitter mode");
-                var data = parameters.data;
+                console.log("Plotting fitted data");
+
+                    if(parameters.fitName === 'None') {
+                        var data = fd.transformData(parameters.data, parameters.equation);
+                    } else if (parameters.fitName === 'Guinier') {
+                        //check if equation is default (None = a*X+b) and set to Guinier default equation, else set to current equation state
+                        console.log("Fitting Guinier...");
+                        //this.equation = this.equation === 'a*X+b' ? 'b-(Rg^2)/3' : this.equation; 
+                        var data = fd.transformData(parameters.data, parameters.equation);
+                    } else if (parameters.fitName === 'Porod') {
+                        //check if equation is default (None = a*X+b) and set to Porod default equation, else set to current equation state
+                        console.log("Fitting Porod...");
+                        var data = fd.transformData(parameters.data, parameters.equation);
+                    } else if (parameters.fitName === 'Zimm') {
+                        //check if equation is default (None = a*X+b) and set to Zimm default equation, else set to current equation state
+                        console.log("Fitting Zimm...");
+                        var data = fd.transformData(parameters.data, parameters.equation);
+                    } else if (parameters.fitName === 'Kratky') {
+                        //check if equation is default (None = a*X+b) and set to Kratky default equation, else set to current equation state
+                        console.log("Fitting Kratky...");
+                        var data = fd.transformData(parameters.data, parameters.equation);
+                    } else if (parameters.fitName === 'Debye Beuche') {
+                        //check if equation is default (None = a*X+b) and set to Debye Beuche default equation, else set to current equation state
+                        console.log("Fitting Debye Beuche...");
+                        var data = fd.transformData(parameters.data, parameters.equation);
+                    }
             } else {
+                console.log("Plotting regular old data");
                 var data = parameters.data;
             }
+
+            console.log(data);
 
             //Set chart dimensions
             var margin = {
@@ -185,7 +212,7 @@ export default {
             // color values to the plots causing confusion at first glance
             // reference: https://stackoverflow.com/questions/20590396/d3-scale-category10-not-behaving-as-expected
             var color = d3.scaleOrdinal(d3.schemeCategory20)
-                .domain(colordomain);
+                .domain(parameters.colorDomain);
 
             // Loop through each name / key
             dataNest.forEach(function (d, i) {

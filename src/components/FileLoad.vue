@@ -53,7 +53,7 @@
       <div>
           <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
           <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
-          <button class="btn btn-danger btn-xs btn-files" @click="uncheckUploaded" :disabled="!ISUPLOADED">Delete Files <span class="glyphicon glyphicon-trash"></span></button>
+          <button class="btn btn-danger btn-xs btn-files" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete Files <span class="glyphicon glyphicon-trash"></span></button>
       </div>
       <br>
       <div class="dropzone-area" drag-over="handleDragOver">
@@ -72,12 +72,13 @@ export default {
   data: function () {
     return {
       checkedFiles: [],
-      fileToFit: "None",
+      fileToFit: null,
       hovering: false
     }
   },
   methods: {
     clearSelected: function () {
+      this.fileToFit = null;
       this.checkedFiles = [];
     },
     isPlotted: function(filename) {
@@ -93,7 +94,7 @@ export default {
         this.checkedFiles.splice(this.checkedFiles.indexOf(filename),1);
       }
     },
-    uncheckUploaded: function() {
+    deleteAllUploaded: function() {
       for(var i = 0; i < this.UPLOADEDFILES.length; i++) {
         if(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName) > -1) {
           this.checkedFiles.splice(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName),1);
