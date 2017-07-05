@@ -27,8 +27,6 @@
         <button class="btn btn-warning btn-sm" @click="RESETPLOT" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
         <br>
         <button class="btn btn-danger btn-sm" @click="resetFit" :disabled="!FILETOFIT">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
-        <br>
-        <button class="btn btn-danger btn-sm" @click="this.resetAll">Reset All <span class="glyphicon glyphicon-refresh"></span></button>
         </div>
       </div>
   </div>
@@ -37,7 +35,7 @@
 <script>
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "RESETPLOT", "PLOTPARAMS", "FILETOFIT", "RESETPARAMS", "SETSCALES", "SETFIT"],
+  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETSCALES", "SETFIT"],
   data: function() {
     return {
       xScale: 'X',
@@ -57,14 +55,7 @@ export default {
     },
     resetFit: function() {
       // this.PLOTPARAMS.fitName = 'None'
-      this.SETFIT('None', true);
-      //also need to un-transform data, so re-add the checked file list then plot
-      /* code for that will go here */
-    },
-    resetAll: function() {
-      this.fit = 'None';
-      this.resetScales();
-      this.RESETPARAMS();
+      this.SETFIT('None');
     }
   },
   watch: {

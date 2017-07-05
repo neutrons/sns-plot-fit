@@ -72,8 +72,7 @@ export default {
   data: function () {
     return {
       checkedFiles: [],
-      fileToFit: null,
-      hovering: false
+      fileToFit: null
     }
   },
   methods: {
@@ -82,7 +81,8 @@ export default {
       this.checkedFiles = [];
     },
     isPlotted: function(filename) {
-      //this function dynamically styles the files being plotted
+      //this function dynamically styles the file lists
+      //blue for selected, default 
       if(this.checkedFiles.indexOf(filename) > -1){
         return "info";
       } else {

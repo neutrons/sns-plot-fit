@@ -10,7 +10,7 @@ export default {
             d3.select(".tooltip").remove();
 
             //Check if there is a fit select, if so transform data
-            if(parameters.fileToFit !== null) {
+            if(parameters.fitName !== 'None' && parameters.fileToFit !== null) {
                 // var data = fd.transformData(parameters.data, parameters.fitName, parameters.equation);
 
                 // //pull data to be fit
@@ -23,30 +23,34 @@ export default {
                 // var fitLine = fd.fitLine(fitData, parameters.fitName, parameters.equation);
                 console.log("Plotting fitted data");
 
-                    if(parameters.fitName === 'None') {
-                        var data = fd.transformData(parameters.data, parameters.equation);
-                    } else if (parameters.fitName === 'Guinier') {
-                        //check if equation is default (None = a*X+b) and set to Guinier default equation, else set to current equation state
-                        console.log("Fitting Guinier...");
-                        //this.equation = this.equation === 'a*X+b' ? 'b-(Rg^2)/3' : this.equation; 
-                        var data = fd.transformData(parameters.data, parameters.equation);
-                    } else if (parameters.fitName === 'Porod') {
-                        //check if equation is default (None = a*X+b) and set to Porod default equation, else set to current equation state
-                        console.log("Fitting Porod...");
-                        var data = fd.transformData(parameters.data, parameters.equation);
-                    } else if (parameters.fitName === 'Zimm') {
-                        //check if equation is default (None = a*X+b) and set to Zimm default equation, else set to current equation state
-                        console.log("Fitting Zimm...");
-                        var data = fd.transformData(parameters.data, parameters.equation);
-                    } else if (parameters.fitName === 'Kratky') {
-                        //check if equation is default (None = a*X+b) and set to Kratky default equation, else set to current equation state
-                        console.log("Fitting Kratky...");
-                        var data = fd.transformData(parameters.data, parameters.equation);
-                    } else if (parameters.fitName === 'Debye Beuche') {
-                        //check if equation is default (None = a*X+b) and set to Debye Beuche default equation, else set to current equation state
-                        console.log("Fitting Debye Beuche...");
-                        var data = fd.transformData(parameters.data, parameters.equation);
-                    }
+                    // if(parameters.fitName === 'None') {
+                    //     var data = fd.transformData(parameters.data, parameters.equation);
+                    // } else if (parameters.fitName === 'Guinier') {
+                    //     //check if equation is default (None = a*X+b) and set to Guinier default equation, else set to current equation state
+                    //     console.log("Fitting Guinier...");
+                    //     //this.equation = this.equation === 'a*X+b' ? 'b-(Rg^2)/3' : this.equation; 
+                    //     var data = fd.transformData(parameters.data, parameters.equation);
+                    // } else if (parameters.fitName === 'Porod') {
+                    //     //check if equation is default (None = a*X+b) and set to Porod default equation, else set to current equation state
+                    //     console.log("Fitting Porod...");
+                    //     var data = fd.transformData(parameters.data, parameters.equation);
+                    // } else if (parameters.fitName === 'Zimm') {
+                    //     //check if equation is default (None = a*X+b) and set to Zimm default equation, else set to current equation state
+                    //     console.log("Fitting Zimm...");
+                    //     var data = fd.transformData(parameters.data, parameters.equation);
+                    // } else if (parameters.fitName === 'Kratky') {
+                    //     //check if equation is default (None = a*X+b) and set to Kratky default equation, else set to current equation state
+                    //     console.log("Fitting Kratky...");
+                    //     var data = fd.transformData(parameters.data, parameters.equation);
+                    // } else if (parameters.fitName === 'Debye Beuche') {
+                    //     //check if equation is default (None = a*X+b) and set to Debye Beuche default equation, else set to current equation state
+                    //     console.log("Fitting Debye Beuche...");
+                    //     var data = fd.transformData(parameters.data, parameters.equation);
+                    // }
+                
+                //Set data to transformed data
+                // var data = fd.transformData(parameters.data, parameters.fitName);
+                var data = parameters.data;
             } else {
                 console.log("Plotting regular old data");
                 var data = parameters.data;
@@ -78,13 +82,13 @@ export default {
 
             if (parameters.yScale === "LOG(Y)") {
                 var yScale = d3.scaleLog().clamp(true).range([height, 0]);
-                var yTitle = "LOG(Y)";
+                var yTitle = "LOG( I(Q) )";
             } else if (parameters.yScale === "Y^2") {
                 var yScale = d3.scalePow().exponent(2).range([height, 0]);
-                var yTitle = "Y^2";
+                var yTitle = "I(Q)^2";
             } else {
                 var yScale = d3.scaleLinear().range([height, 0]);
-                var yTitle = "Y";
+                var yTitle = "I(Q)";
             }
 
             //Set Axes

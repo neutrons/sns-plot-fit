@@ -9,8 +9,6 @@
         <app-controls
         :RESETPLOT="resetPlot"
         :BUTTONDIS="buttonDis"
-        :PLOTPARAMS="plotParams"
-        :RESETPARAMS="resetParams"
         :SETSCALES="setScales"
         :FILETOFIT="fileToFit"
         :SETFIT="setFit"
@@ -86,7 +84,6 @@ export default {
       fileToFit: null,
       xTitle: 'X',
       yTitle: 'I(Q)',
-      plotParams: {},
       isUploaded: false,
       isCollapseRight: false,
       isCollapseLeft: false,
@@ -228,14 +225,6 @@ export default {
       this.buttonDis = bool;
     },
     resetParams: function() {
-      // this.plotParams.fitName = "None";
-      // this.plotParams.fileToFit = null;
-      // this.plotParams.xScale = "X";
-      // this.plotParams.yScale = "Y";
-      // this.plotParams.xAxisTitle = "X";
-      // this.plotParams.yAxisTitle = "I(Q)";
-      // this.plotParams.equation = "a*X+b";
-      //this.plotParams.data = [];
       this.fitName = 'None';
       this.xTitle = 'X';
       this.yTitle = 'I(Q)';
@@ -248,9 +237,7 @@ export default {
         //Remove any elements previously plotted
         d3.select("svg").remove();
         d3.select(".tooltip").remove();
-        // this.plotParams.data = [];
         this.selectedData = [];
-        //this.resetParams();
       } else {
           var tempdata = []
 
@@ -274,9 +261,7 @@ export default {
         
         //merge tempdata so that you have one large array of objects
         //this is to make plotting easier for multiple files selected
-        var mergearrays = d3.merge(tempdata);
-        // this.plotParams.data = mergearrays;
-        this.selectedData = mergearrays;
+        this.selectedData = d3.merge(tempdata);
       }
     },
     deleteFile: function(filename) {
@@ -291,7 +276,6 @@ export default {
       this.uploadedFiles = [];
     },
     setFitFile: function(filename) {
-      // this.plotParams.fileToFit = filename;
       this.fileToFit = filename;
     },
     setScales: function(x,y) {
@@ -301,28 +285,34 @@ export default {
     setFit: function(fitname) {
       this.fitName = fitname;
     },
-    setPlotParams: function() {
-      this.plotParams = {
-        data: this.selectedData,
-        colorDomain: this.colorDomain,
-        equation: this.equation,
-        fitName: this.fitName,
-        xScale: this.xScale,
-        yScale: this.yScale,
-        xTitle: this.xTitle,
-        yTitle: this.yTitle,
-        fileToFit: this.fileToFit
+    plotParameters: function() {
+      
+      //make sure there is selected data to plot
+      //then pass all parameters into an object
+      //when plotting selected data
+      if(this.selectedData.length > 0) {
+          this.plotCurrentData({
+          data: this.selectedData,
+          colorDomain: this.colorDomain,
+          equation: this.equation,
+          fitName: this.fitName,
+          xScale: this.xScale,
+          yScale: this.yScale,
+          xTitle: this.xTitle,
+          yTitle: this.yTitle,
+          fileToFit: this.fileToFit
+        });
       }
     }
   },
     watch: {
       xScale: function() {
         //watch if xScale changes, if so plot data with new parameters
-        this.setPlotParams();
+        this.plotParameters();
       },
       yScale: function() {
         //watch if yScale changes, if so plot data with new parameters
-        this.setPlotParams();
+        this.plotParameters();
       },
       fitName: function() {
         //watch if fit name changes from 'None', if so transform data with new equation
@@ -341,35 +331,21 @@ export default {
         }
       },
       fileToFit: function() {
-        //watch if fileToFit changes from null, if so transform data with new equation
-        this.setPlotParams();
+        //watch if fileToFit changes from null, if so re-plot data to fitted data
+        this.plotParameters();
       },
       equation: function() {
-        //watch if equation changes, if so re-transform data
-        this.setPlotParams();
+        //watch if equation changes, if so re-plot data to transformed data
+        this.plotParameters();
       },
       selectedData: function() {
         //watch if selectedData changes, if so plot data with new parameters
         if(this.selectedData.length > 0) {
-          this.setPlotParams();
-        } else {
-          this.plotParams = {};
+          this.plotParameters();
         }
       },
-      plotParams: {
-        handler: function() {
-          if(this.selectedData.length > 0) {
-            // console.log(this.plotParams);
-            this.plotCurrentData(this.plotParams, this.colorDomain);
-          } else {
-            //this will be the code to reset plot to nothing
-            d3.select("svg").remove();
-            d3.select(".tooltip").remove();
-          }
-        },
-        deep: true
-    },
       uploadedFiles: function(){
+        //watch if a file is uploaded, if so enable delete file button
         if(this.uploadedFiles.length > 0) {
           this.isUploaded = true;
         } else {
