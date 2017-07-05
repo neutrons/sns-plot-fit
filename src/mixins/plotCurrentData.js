@@ -10,54 +10,55 @@ export default {
             d3.select(".tooltip").remove();
 
             //Check if there is a fit select, if so transform data
-            if(parameters.fitName !== 'None' && parameters.fileToFit !== null) {
-                // var data = fd.transformData(parameters.data, parameters.fitName, parameters.equation);
+            // if(parameters.fitName !== 'None' && parameters.fileToFit !== null) {
+            //     // var data = fd.transformData(parameters.data, parameters.fitName, parameters.equation);
 
-                // //pull data to be fit
-                // for(let i = 0; i < parameters.data.length; i++) {
-                //     if( parameters.data[i].name === parameters.fileToFit) {
-                //         var fitData = parameters.data[i];
-                //     }
-                // }
+            //     // //pull data to be fit
+            //     // for(let i = 0; i < parameters.data.length; i++) {
+            //     //     if( parameters.data[i].name === parameters.fileToFit) {
+            //     //         var fitData = parameters.data[i];
+            //     //     }
+            //     // }
 
-                // var fitLine = fd.fitLine(fitData, parameters.fitName, parameters.equation);
-                console.log("Plotting fitted data");
+            //     // var fitLine = fd.fitLine(fitData, parameters.fitName, parameters.equation);
+            //     console.log("Plotting fitted data");
 
-                    // if(parameters.fitName === 'None') {
-                    //     var data = fd.transformData(parameters.data, parameters.equation);
-                    // } else if (parameters.fitName === 'Guinier') {
-                    //     //check if equation is default (None = a*X+b) and set to Guinier default equation, else set to current equation state
-                    //     console.log("Fitting Guinier...");
-                    //     //this.equation = this.equation === 'a*X+b' ? 'b-(Rg^2)/3' : this.equation; 
-                    //     var data = fd.transformData(parameters.data, parameters.equation);
-                    // } else if (parameters.fitName === 'Porod') {
-                    //     //check if equation is default (None = a*X+b) and set to Porod default equation, else set to current equation state
-                    //     console.log("Fitting Porod...");
-                    //     var data = fd.transformData(parameters.data, parameters.equation);
-                    // } else if (parameters.fitName === 'Zimm') {
-                    //     //check if equation is default (None = a*X+b) and set to Zimm default equation, else set to current equation state
-                    //     console.log("Fitting Zimm...");
-                    //     var data = fd.transformData(parameters.data, parameters.equation);
-                    // } else if (parameters.fitName === 'Kratky') {
-                    //     //check if equation is default (None = a*X+b) and set to Kratky default equation, else set to current equation state
-                    //     console.log("Fitting Kratky...");
-                    //     var data = fd.transformData(parameters.data, parameters.equation);
-                    // } else if (parameters.fitName === 'Debye Beuche') {
-                    //     //check if equation is default (None = a*X+b) and set to Debye Beuche default equation, else set to current equation state
-                    //     console.log("Fitting Debye Beuche...");
-                    //     var data = fd.transformData(parameters.data, parameters.equation);
-                    // }
+            //         // if(parameters.fitName === 'None') {
+            //         //     var data = fd.transformData(parameters.data, parameters.equation);
+            //         // } else if (parameters.fitName === 'Guinier') {
+            //         //     //check if equation is default (None = a*X+b) and set to Guinier default equation, else set to current equation state
+            //         //     console.log("Fitting Guinier...");
+            //         //     //this.equation = this.equation === 'a*X+b' ? 'b-(Rg^2)/3' : this.equation; 
+            //         //     var data = fd.transformData(parameters.data, parameters.equation);
+            //         // } else if (parameters.fitName === 'Porod') {
+            //         //     //check if equation is default (None = a*X+b) and set to Porod default equation, else set to current equation state
+            //         //     console.log("Fitting Porod...");
+            //         //     var data = fd.transformData(parameters.data, parameters.equation);
+            //         // } else if (parameters.fitName === 'Zimm') {
+            //         //     //check if equation is default (None = a*X+b) and set to Zimm default equation, else set to current equation state
+            //         //     console.log("Fitting Zimm...");
+            //         //     var data = fd.transformData(parameters.data, parameters.equation);
+            //         // } else if (parameters.fitName === 'Kratky') {
+            //         //     //check if equation is default (None = a*X+b) and set to Kratky default equation, else set to current equation state
+            //         //     console.log("Fitting Kratky...");
+            //         //     var data = fd.transformData(parameters.data, parameters.equation);
+            //         // } else if (parameters.fitName === 'Debye Beuche') {
+            //         //     //check if equation is default (None = a*X+b) and set to Debye Beuche default equation, else set to current equation state
+            //         //     console.log("Fitting Debye Beuche...");
+            //         //     var data = fd.transformData(parameters.data, parameters.equation);
+            //         // }
                 
-                //Set data to transformed data
-                // var data = fd.transformData(parameters.data, parameters.fitName);
-                var data = parameters.data;
-            } else {
-                console.log("Plotting regular old data");
-                var data = parameters.data;
-            }
+            //     //Set data to transformed data
+            //     // var data = fd.transformData(parameters.data, parameters.fitName);
+            //     var data = parameters.data;
+            // } else {
+            //     console.log("Plotting regular old data");
+            //     var data = parameters.data;
+            // }
 
-            console.log(data);
-
+            // var data = parameters.data;
+            // console.log(data);
+            console.log("Plotting data...");
             //Set chart dimensions
             var margin = {
                     top: 30,
@@ -68,29 +69,39 @@ export default {
                 width = 1250 - margin.left - margin.right,
                 height = 600 - margin.top - margin.bottom;
 
+            var data = parameters.data; //regular data to plot
+            var xScale = parameters.xScale;
+            xScale.range([0,width]); //scales according to fit type
+            var yScale = parameters.yScale;
+            yScale.range([height, 0]); //scales according to fit type
+            var xTitle = parameters.xLabel; //xTitle according to label
+            var yTitle = parameters.yLabel; //yTitle according to label
+            //var fitData = parameters.fittedData !== null ? parameters.fittedData : null; //fitted data to plot fit line
+
             // Select Scale Based On Current Data's Scale Selection
-            if (parameters.xScale === "LOG(X)") {
-                var xScale = d3.scaleLog().range([0, width]);
-                var xTitle = "LOG(X)";
-            } else if (parameters.xScale === "X^2") {
-                var xScale = d3.scalePow().exponent(2).range([0, width]);
-                var xTitle = "X^2";
-            } else {
-                var xScale = d3.scaleLinear().range([0, width]);
-                var xTitle = "X";
-            }
+            // if (parameters.xScale === "LOG(X)") {
+            //     var xScale = d3.scaleLog().range([0, width]);
+            //     var xTitle = "LOG(X)";
+            // } else if (parameters.xScale === "X^2") {
+            //     var xScale = d3.scalePow().exponent(2).range([0, width]);
+            //     var xTitle = "X^2";
+            // } else {
+            //     var xScale = d3.scaleLinear().range([0, width]);
+            //     var xTitle = "X";
+            // }
 
-            if (parameters.yScale === "LOG(Y)") {
-                var yScale = d3.scaleLog().clamp(true).range([height, 0]);
-                var yTitle = "LOG( I(Q) )";
-            } else if (parameters.yScale === "Y^2") {
-                var yScale = d3.scalePow().exponent(2).range([height, 0]);
-                var yTitle = "I(Q)^2";
-            } else {
-                var yScale = d3.scaleLinear().range([height, 0]);
-                var yTitle = "I(Q)";
-            }
+            // if (parameters.yScale === "LOG(Y)") {
+            //     var yScale = d3.scaleLog().clamp(true).range([height, 0]);
+            //     var yTitle = "LOG( I(Q) )";
+            // } else if (parameters.yScale === "Y^2") {
+            //     var yScale = d3.scalePow().exponent(2).range([height, 0]);
+            //     var yTitle = "I(Q)^2";
+            // } else {
+            //     var yScale = d3.scaleLinear().range([height, 0]);
+            //     var yTitle = "I(Q)";
+            // }
 
+            console.log("Set axes");
             //Set Axes
             var xAxis = d3.axisBottom(xScale).ticks(10).tickSize(-height),
                 yAxis = d3.axisLeft(yScale).ticks(10).tickSize(-width);
@@ -134,7 +145,7 @@ export default {
 
             //Add Error-bars Section
             var errorlines = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
+            console.log("add plot svg");
             //Add Group to Plot Line/Points
             var plot = svg.append("g")
                 .attr("class", "chart");
@@ -153,7 +164,7 @@ export default {
             }));
 
             //Check if log(y) if so, adjust for zero values
-            if (parameters.yScale === "LOG(Y)") {
+            if (parameters.yLabel=== "Log(Y)") {
                 yScale.domain([0.00001, d3.max(data, function (d) {
                     return d.y
                 }) * 100]);
@@ -202,6 +213,7 @@ export default {
                     (margin.top / 1.5) + ")")
                 .text(yTitle + " vs " + xTitle);
 
+            console.log("Nesting now...");
             // Nest the entries by name
             var dataNest = d3.nest()
                 .key(function (d) {
@@ -215,10 +227,12 @@ export default {
             // was unselected from the list, the plot would re-assign
             // color values to the plots causing confusion at first glance
             // reference: https://stackoverflow.com/questions/20590396/d3-scale-category10-not-behaving-as-expected
+            console.log("setting color domain...");
             var color = d3.scaleOrdinal(d3.schemeCategory20)
                 .domain(parameters.colorDomain);
 
             // Loop through each name / key
+            console.log("looping through nest...");
             dataNest.forEach(function (d, i) {
 
                 //Add line plot

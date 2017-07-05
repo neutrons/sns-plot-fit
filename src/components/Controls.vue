@@ -14,12 +14,9 @@
         <option v-for="fit in fits">{{fit}}</option>
         </select>
         <br>
+        <button class="btn btn-default btn-sm" :disabled="!FILETOFIT">Fit</button>
         <label>Equation:</label>
-        <input type="text" class="form-control" id="fit-equation">
-        <label>a:</label>
-        <input type="text" class="form-control">
-        <label>b:</label>
-        <input type="text" class="form-control">
+        <input type="text" class="form-control" id="fit-equation" v-model="EQUATION" :disabled="!FILETOFIT">
         <h3>Reset:</h3>
         <div class="btn-group-vertical">
         <button class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
@@ -35,7 +32,7 @@
 <script>
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETSCALES", "SETFIT"],
+  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETSCALES", "SETFIT", "EQUATION"],
   data: function() {
     return {
       xScale: 'X',
@@ -43,19 +40,16 @@ export default {
       yScale: 'Y',
       yScales: ["Y", "Y^2", "LOG(Y)"],
       fit: 'None',
-      fits: ["None", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"]
+      fits: ["None", "Linear", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"]
     }
   },
   methods: {
     resetScales: function() {
-      // this.PLOTPARAMS.xScale = 'X';
-      // this.PLOTPARAMS.yScale = 'Y';
       this.xScale = 'X';
       this.yScale = 'Y';
     },
     resetFit: function() {
-      // this.PLOTPARAMS.fitName = 'None'
-      this.SETFIT('None');
+      this.fit = 'None';
     }
   },
   watch: {

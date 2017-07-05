@@ -61,64 +61,76 @@
 
 // configurations = [
 //     {
-//         name: "Guinier",
+//         fitName: "None",
+//         equation: null,
+//         yTransformation: null,
+//         xTransformation: null,        
+//         yLabel: "I",
+//         xLabel: "Q",
+//         yScale: d3.scaleLinear(),
+//         xScale: d3.scaleLinear(),
+//         range: [-Infinity, +Infinity],
+//         fittedData: []
+//     },
+//     {
+//         fitName: "Guinier",
 //         equation: "-Rg^2/3*X+b",
-//         y_transformation: "log(y)",
-//         x_transformation: "x^2",        
-//         y_label: "Log(Q)",
-//         x_label: "Q^2",
-//         y_scale: d3.scaleLog(),
-//         x_scale: d3.scalePow().exponent(2),
+//         yTransformation: "log(y)",
+//         xTransformation: "x^2",        
+//         yLabel: "Log(I)",
+//         xLabel: "Log(Q)",
+//         yScale: d3.scaleLog().clamp(true),
+//         xScale: d3.scalePow().exponent(2),
 //         range: [-Infinity, +Infinity],
-//         fit_dataset: []
+//         fittedData: []
 //     },
 //     {
-//         name: "Porod",
+//         fitName: "Porod",
 //         equation: "A-n*X",
-//         y_transformation: "log(y)",
-//         x_transformation: "log(x)",        
-//         y_label: "Log(I)",
-//         x_label: "Log(Q)",
-//         y_scale: d3.scaleLog(),
-//         x_scale: d3.scalePow().exponent(2),
+//         yTransformation: "log(y)",
+//         xTransformation: "log(x)",        
+//         yLabel: "Log(I)",
+//         xLabel: "Log(Q)",
+//         yScale: d3.scaleLog().clamp(true),
+//         xScale: d3.scalePow().exponent(2),
 //         range: [-Infinity, +Infinity],
-//         fit_dataset: []
+//         fittedData: []
 //     },
 //     {
-//         name: "Zimm",
+//         fitName: "Zimm",
 //         equation: "1/I0+Cl^2/I0*X",
-//         y_transformation: "log(y)",
-//         x_transformation: "x^2",        
-//         y_label: "1/I",
-//         x_label: "Q^2",
-//         y_scale: d3.scaleLog(),
-//         x_scale: d3.scalePow().exponent(2),
+//         yTransformation: "log(y)",
+//         xTransformation: "x^2",        
+//         yLabel: "1/I",
+//         xLabel: "Q^2",
+//         yScale: d3.scalePow().exponent(-1),
+//         xScale: d3.scalePow().exponent(2),
 //         range: [-Infinity, +Infinity],
-//         fit_dataset: []
+//         fittedData: []
 //     },
 //     {
-//         name: "Kratky",
+//         fitName: "Kratky",
 //         equation: "m*X+b",
-//         y_transformation: "log(y)",
-//         x_transformation: "x^2",        
-//         y_label: "log(Q^2*I)",
-//         x_label: "Log(Q)",
-//         y_scale: d3.scaleLog(),
-//         x_scale: d3.scalePow().exponent(2),
+//         yTransformation: "log(y)",
+//         xTransformation: "x^2",        
+//         yLabel: "log(Q^2*I)",
+//         xLabel: "Log(Q)",
+//         yScale: d3.scaleLog().clamp(true),
+//         xScale: d3.scalePow().exponent(2),
 //         range: [-Infinity, +Infinity],
-//         fit_dataset: []
+//         fittedData: []
 //     },
 //     {
-//         name: "Debye Beuche",
+//         fitName: "Debye Beuche",
 //         equation: "m*X+I0",
-//         y_transformation: "log(y)",
-//         x_transformation: "x^2",        
-//         y_label: "sqrt(I)",
-//         x_label: "Q^2",
-//         y_scale: d3.scaleLog(),
-//         x_scale: d3.scalePow().exponent(2),
+//         yTransformation: "log(y)",
+//         xTransformation: "x^2",        
+//         yLabel: "sqrt(I)",
+//         xLabel: "Q^2",
+//         yScale: d3.scaleSqrt(),
+//         xScale: d3.scalePow().exponent(2),
 //         range: [-Infinity, +Infinity],
-//         fit_dataset: []
+//         fittedData: []
 //     }
 
 // ];
@@ -126,14 +138,16 @@
 
 // configurations.forEach(function(conf) {
 //     console.log(conf);
+//     if(conf.fitName === this.fitName) {
 //     // Plot the button with name
     
 //     // populate field with equation
 //     // Axis Transformation of coordinates:
-//     var xFunction = math.parse(conf.xTransformation).compile()
-//     conf.new_x_axis = function (x) { x.map(function (i) { x_function.eval({x:i}) })};
+//     var xFunction = math.parse(conf.xTransformation).compile();
+//     conf.newXValues = function (x) { x.map(function (i) { xFunction.eval({x:i}) })};
 
 //     // plot axes scaling
+//     }
 
 // });
 

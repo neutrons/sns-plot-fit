@@ -12,6 +12,7 @@
         :SETSCALES="setScales"
         :FILETOFIT="fileToFit"
         :SETFIT="setFit"
+        :EQUATION="equation"
         ></app-controls>
       </div>
 
@@ -65,6 +66,8 @@ import plotCurrentData from '../mixins/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
 
+import fd from '../mixins/fitData.js';
+
 export default {
   mixins: [plotCurrentData],
   components: {
@@ -80,15 +83,92 @@ export default {
       xScale: 'X',
       yScale: 'Y',
       fitName: 'None',
-      equation: 'a*X+b',
+      equation: undefined,
       fileToFit: null,
+      dataToFit: { x: [],
+                   y: []
+      },
+      fittedData: [],
       xTitle: 'X',
       yTitle: 'I(Q)',
       isUploaded: false,
       isCollapseRight: false,
       isCollapseLeft: false,
-      buttonDis: false
+      buttonDis: false,
+      plotParams: {},
+      configurations: {
+          'None': {
+              equation: null,
+              yTransformation: null,
+              xTransformation: null,        
+              yLabel: "I",
+              xLabel: "Q",
+              yScale: d3.scaleLinear(),
+              xScale: d3.scaleLinear(),
+              range: [-Infinity, +Infinity],
+          },
+          'Linear': {
+              equation: 'm*X+b',
+              yTransformation: 'y',
+              xTransformation: 'x',        
+              yLabel: "I",
+              xLabel: "Q",
+              yScale: d3.scaleLinear(),
+              xScale: d3.scaleLinear(),
+              range: [-Infinity, +Infinity],
+          },
+          'Guinier': {
+              equation: "-Rg^2/3*X+b",
+              yTransformation: "log(y)",
+              xTransformation: "x^2",        
+              yLabel: "Log(I)",
+              xLabel: "Log(Q)",
+              yScale: d3.scaleLog().clamp(true),
+              xScale: d3.scalePow().exponent(2),
+              range: [-Infinity, +Infinity],
+          },
+          'Porod': {
+              equation: "A-n*X",
+              yTransformation: "log(y)",
+              xTransformation: "log(x)",        
+              yLabel: "Log(I)",
+              xLabel: "Log(Q)",
+              yScale: d3.scaleLog().clamp(true),
+              xScale: d3.scalePow().exponent(2),
+              range: [-Infinity, +Infinity],
+              },
+          'Zimm': {
+              equation: "1/I0+Cl^2/I0*X",
+              yTransformation: "log(y)",
+              xTransformation: "x^2",        
+              yLabel: "1/I",
+              xLabel: "Q^2",
+              yScale: d3.scalePow().exponent(-1),
+              xScale: d3.scalePow().exponent(2),
+              range: [-Infinity, +Infinity],
+          },
+          'Kratky': {
+              equation: "m*X+b",
+              yTransformation: "log(y)",
+              xTransformation: "x^2",        
+              yLabel: "log(Q^2*I)",
+              xLabel: "Log(Q)",
+              yScale: d3.scaleLog().clamp(true),
+              xScale: d3.scalePow().exponent(2),
+              range: [-Infinity, +Infinity],
+          },
+          'Debye Beuche': {
+              equation: "m*X+I0",
+              yTransformation: "log(y)",
+              xTransformation: "x^2",        
+              yLabel: "sqrt(I)",
+              xLabel: "Q^2",
+              yScale: d3.scaleSqrt(),
+              xScale: d3.scalePow().exponent(2),
+              range: [-Infinity, +Infinity],
+          }
     }
+  }
   },
   methods: {
     fetchData: function () {
@@ -209,17 +289,18 @@ export default {
         return false;
     },
     resetPlot: function() {
-      this.plotCurrentData({
-          colorDomain: this.colorDomain,
-          data: this.selectedData,
-          equation: this.equation,
-          fitName: this.fitName,
-          xScale: this.xScale,
-          yScale: this.yScale,
-          fileToFit: this.fileToFit,
-          xTitle: this.xTitle,
-          yTitle: this.yTitle
-        });
+      // this.plotCurrentData({
+      //     colorDomain: this.colorDomain,
+      //     data: this.selectedData,
+      //     equation: this.equation,
+      //     fitName: this.fitName,
+      //     xScale: this.xScale,
+      //     yScale: this.yScale,
+      //     fileToFit: this.fileToFit,
+      //     xTitle: this.xTitle,
+      //     yTitle: this.yTitle
+      //   });
+      this.plotParameters();
     },
     disableButtons: function (bool) {
       this.buttonDis = bool;
@@ -234,6 +315,8 @@ export default {
     setCurrentData: function(checkedfiles) {
       if(checkedfiles.length == 0) {
         this.disableButtons(false);
+        this.dataToFit = {x:[], y:[]};
+        this.equation = null;
         //Remove any elements previously plotted
         d3.select("svg").remove();
         d3.select(".tooltip").remove();
@@ -291,23 +374,35 @@ export default {
       //then pass all parameters into an object
       //when plotting selected data
       if(this.selectedData.length > 0) {
-          this.plotCurrentData({
-          data: this.selectedData,
-          colorDomain: this.colorDomain,
-          equation: this.equation,
-          fitName: this.fitName,
-          xScale: this.xScale,
-          yScale: this.yScale,
-          xTitle: this.xTitle,
-          yTitle: this.yTitle,
-          fileToFit: this.fileToFit
-        });
+        //   this.plotCurrentData({
+        //   data: this.selectedData,
+        //   colorDomain: this.colorDomain,
+        //   equation: this.equation,
+        //   fitName: this.fitName,
+        //   xScale: this.xScale,
+        //   yScale: this.yScale,
+        //   xTitle: this.xTitle,
+        //   yTitle: this.yTitle,
+        //   fileToFit: this.fileToFit
+        // });
+        this.plotCurrentData(this.plotParams);
       }
+    },
+    setConfigurations: function() {
+      this.plotParams = this.configurations[this.fitName];
+      this.plotParams.data = this.selectedData;
+      this.plotParams.colorDomain = this.colorDomain;
+      this.equation = this.plotParams.equation; //Here is where it is messing up...
+      // console.log(this.plotParams);
     }
   },
     watch: {
       xScale: function() {
         //watch if xScale changes, if so plot data with new parameters
+        //Need to fix for later...updating the scales to plot
+        //Perhaps switch the string list in Controls to be an object,
+        //and you display the key strings for selection, but they pass a
+        //d3 scale upon selection.
         this.plotParameters();
       },
       yScale: function() {
@@ -315,34 +410,61 @@ export default {
         this.plotParameters();
       },
       fitName: function() {
-        //watch if fit name changes from 'None', if so transform data with new equation
-        if(this.fitName === 'None') {
-          this.equation = 'a*X+b';
-        } else if (this.fitName === 'Guinier') {
-          this.equation = 'b - (Rg^2)/3';
-        } else if (this.fitName === 'Porod') {
-          this.equation = '';
-        } else if (this.fitName === 'Zimm') {
-          this.equation = '';
-        } else if (this.fitName === 'Kratky') {
-          this.equation = '';
-        } else if (this.fitName === 'Debye Beuche') {
-          this.equation = '';
-        }
+        //if Fit name is changed set new configurations
+        this.setConfigurations();
+
+        // this.equation = this.plotParams.equation;
+        // console.log(this.plotParams);
+
+        // this.configurations.forEach(function(el){
+        //   if(el.fitName === this.fitName) {
+        //     this.equation = el.equation; //update equation for fitted's
+        //     var xFunction = math.parse(conf.xTransformation).compile();
+        //     conf.newXValues = function (x) { x.map(function (i) { xFunction.eval({x:i}) })};
+        //   }
+        // })
       },
       fileToFit: function() {
-        //watch if fileToFit changes from null, if so re-plot data to fitted data
-        this.plotParameters();
+        //watch if fileToFit changes from null, if so fit data accordingly
+        // this.plotParameters();
+
+        //watch if fit name changes from 'None', if so set configurations by fit name
+        if(this.fileToFit !== null) {
+          this.selectedData.forEach( (d) => {
+            if(d.name === this.fileToFit) {
+              this.dataToFit.x.push(d.x);
+              this.dataToFit.y.push(d.y);
+            }
+          });
+          this.setConfigurations(); //change to default fit 'linear'
+        }
+
       },
       equation: function() {
         //watch if equation changes, if so re-plot data to transformed data
-        this.plotParameters();
+        if(this.equation !== null) {
+          console.log("equation not null");
+          //this.fittedData = fd.transformData(this.fittedData, this.equation);
+        } else {
+          //plot parameters
+          console.log("Hey we're about to plot");
+          this.plotParameters();
+        }
       },
       selectedData: function() {
         //watch if selectedData changes, if so plot data with new parameters
         if(this.selectedData.length > 0) {
+          // this.setConfigurations();
+          this.plotParams = this.configurations[this.fitName];
+          this.plotParams.data = this.selectedData;
+          this.plotParams.colorDomain = this.colorDomain;
           this.plotParameters();
         }
+      },
+      fittedData: function() {
+        //watch if fitted data changes, if so, plot configs with new fitted data
+        this.plotParams.fittedData = this.fittedData;
+        this.plotParameters();
       },
       uploadedFiles: function(){
         //watch if a file is uploaded, if so enable delete file button
