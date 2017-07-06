@@ -160,7 +160,14 @@ fd.transformData = function(data, equation) {
 
     //code to transform data
     console.log("Transforming data...");
-    return (data); //return transformed data
+    return data; //return transformed data
+}
+
+fd.fitData = function(data, equation) {
+
+    //code to transform data
+    console.log("Fitting data...");
+    return data; //return transformed data
 }
 
 fd.fitLine = function(data, equation) {

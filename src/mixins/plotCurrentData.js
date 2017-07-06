@@ -59,6 +59,7 @@ export default {
             // var data = parameters.data;
             // console.log(data);
             console.log("Plotting data...");
+            console.log(parameters);
             //Set chart dimensions
             var margin = {
                     top: 30,
@@ -101,7 +102,7 @@ export default {
             //     var yTitle = "I(Q)";
             // }
 
-            console.log("Set axes");
+            
             //Set Axes
             var xAxis = d3.axisBottom(xScale).ticks(10).tickSize(-height),
                 yAxis = d3.axisLeft(yScale).ticks(10).tickSize(-width);
@@ -145,7 +146,7 @@ export default {
 
             //Add Error-bars Section
             var errorlines = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-            console.log("add plot svg");
+            
             //Add Group to Plot Line/Points
             var plot = svg.append("g")
                 .attr("class", "chart");
@@ -164,7 +165,7 @@ export default {
             }));
 
             //Check if log(y) if so, adjust for zero values
-            if (parameters.yLabel=== "Log(Y)") {
+            if (parameters.yLabel=== "Log(I)") {
                 yScale.domain([0.00001, d3.max(data, function (d) {
                     return d.y
                 }) * 100]);
@@ -200,7 +201,7 @@ export default {
             svg.append("text")
                 .attr("transform",
                     "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
-                    (height + margin.top + margin.bottom) + ")")
+                    (height + margin.top + margin.bottom/2) + ")")
                 .style("text-anchor", "middle")
                 .style("font-weight", "bold")
                 .text(xTitle);
@@ -213,7 +214,7 @@ export default {
                     (margin.top / 1.5) + ")")
                 .text(yTitle + " vs " + xTitle);
 
-            console.log("Nesting now...");
+          
             // Nest the entries by name
             var dataNest = d3.nest()
                 .key(function (d) {
@@ -227,12 +228,12 @@ export default {
             // was unselected from the list, the plot would re-assign
             // color values to the plots causing confusion at first glance
             // reference: https://stackoverflow.com/questions/20590396/d3-scale-category10-not-behaving-as-expected
-            console.log("setting color domain...");
+            
             var color = d3.scaleOrdinal(d3.schemeCategory20)
                 .domain(parameters.colorDomain);
 
             // Loop through each name / key
-            console.log("looping through nest...");
+           
             dataNest.forEach(function (d, i) {
 
                 //Add line plot

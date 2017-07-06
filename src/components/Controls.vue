@@ -36,9 +36,9 @@ export default {
   data: function() {
     return {
       xScale: 'X',
-      xScales: ["X", "X^2", "LOG(X)"],
+      xScales: ["X", "X^2", "Log(X)"],
       yScale: 'Y',
-      yScales: ["Y", "Y^2", "LOG(Y)"],
+      yScales: ["Y", "Y^2", "Log(Y)"],
       fit: 'None',
       fits: ["None", "Linear", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"]
     }

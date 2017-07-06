@@ -80,10 +80,10 @@ export default {
       uploadedFiles: [],
       colorDomain: [],
       selectedData: [],
-      xScale: 'X',
-      yScale: 'Y',
+      xScale: d3.scaleLinear(),
+      yScale: d3.scaleLinear(),
       fitName: 'None',
-      equation: undefined,
+      equation: '',
       fileToFit: null,
       dataToFit: { x: [],
                    y: []
@@ -103,8 +103,6 @@ export default {
               xTransformation: null,        
               yLabel: "I",
               xLabel: "Q",
-              yScale: d3.scaleLinear(),
-              xScale: d3.scaleLinear(),
               range: [-Infinity, +Infinity],
           },
           'Linear': {
@@ -113,8 +111,6 @@ export default {
               xTransformation: 'x',        
               yLabel: "I",
               xLabel: "Q",
-              yScale: d3.scaleLinear(),
-              xScale: d3.scaleLinear(),
               range: [-Infinity, +Infinity],
           },
           'Guinier': {
@@ -123,8 +119,6 @@ export default {
               xTransformation: "x^2",        
               yLabel: "Log(I)",
               xLabel: "Log(Q)",
-              yScale: d3.scaleLog().clamp(true),
-              xScale: d3.scalePow().exponent(2),
               range: [-Infinity, +Infinity],
           },
           'Porod': {
@@ -133,8 +127,6 @@ export default {
               xTransformation: "log(x)",        
               yLabel: "Log(I)",
               xLabel: "Log(Q)",
-              yScale: d3.scaleLog().clamp(true),
-              xScale: d3.scalePow().exponent(2),
               range: [-Infinity, +Infinity],
               },
           'Zimm': {
@@ -143,8 +135,6 @@ export default {
               xTransformation: "x^2",        
               yLabel: "1/I",
               xLabel: "Q^2",
-              yScale: d3.scalePow().exponent(-1),
-              xScale: d3.scalePow().exponent(2),
               range: [-Infinity, +Infinity],
           },
           'Kratky': {
@@ -153,8 +143,6 @@ export default {
               xTransformation: "x^2",        
               yLabel: "log(Q^2*I)",
               xLabel: "Log(Q)",
-              yScale: d3.scaleLog().clamp(true),
-              xScale: d3.scalePow().exponent(2),
               range: [-Infinity, +Infinity],
           },
           'Debye Beuche': {
@@ -163,10 +151,16 @@ export default {
               xTransformation: "x^2",        
               yLabel: "sqrt(I)",
               xLabel: "Q^2",
-              yScale: d3.scaleSqrt(),
-              xScale: d3.scalePow().exponent(2),
               range: [-Infinity, +Infinity],
           }
+    },
+    scales: {
+      'X': d3.scaleLinear(),
+      'X^2': d3.scalePow().exponent(2),
+      'Log(X)': d3.scaleLog(),
+      'Y': d3.scaleLinear(),
+      'Y^2': d3.scalePow().exponent(2),
+      'Log(Y)': d3.scaleLog()
     }
   }
   },
@@ -362,8 +356,8 @@ export default {
       this.fileToFit = filename;
     },
     setScales: function(x,y) {
-      this.xScale = x;
-      this.yScale = y;
+      this.xScale = this.scales[x];
+      this.yScale = this.scales[y];
     },
     setFit: function(fitname) {
       this.fitName = fitname;
@@ -389,10 +383,17 @@ export default {
       }
     },
     setConfigurations: function() {
-      this.plotParams = this.configurations[this.fitName];
+      //this.plotParams = this.configurations[this.fitName];
       this.plotParams.data = this.selectedData;
       this.plotParams.colorDomain = this.colorDomain;
-      this.equation = this.plotParams.equation; //Here is where it is messing up...
+      this.plotParams.xScale = this.xScale;
+      this.plotParams.yScale = this.yScale;
+      this.plotParams.fittedData = this.fittedData;
+      this.plotParams.equation = this.equation;
+      this.plotParams.xTitle = this.xTitle;
+      this.plotParams.yTitle = this.yTitle;
+
+      //this.equation = this.plotParams.equation; //Here is where it is messing up...
       // console.log(this.plotParams);
     }
   },
@@ -444,7 +445,7 @@ export default {
         //watch if equation changes, if so re-plot data to transformed data
         if(this.equation !== null) {
           console.log("equation not null");
-          //this.fittedData = fd.transformData(this.fittedData, this.equation);
+          this.fittedData = fd.fitData(this.dataToFit, this.equation);
         } else {
           //plot parameters
           console.log("Hey we're about to plot");
@@ -455,10 +456,11 @@ export default {
         //watch if selectedData changes, if so plot data with new parameters
         if(this.selectedData.length > 0) {
           // this.setConfigurations();
-          this.plotParams = this.configurations[this.fitName];
-          this.plotParams.data = this.selectedData;
-          this.plotParams.colorDomain = this.colorDomain;
-          this.plotParameters();
+          //this.plotParams = this.configurations[this.fitName];
+          //this.plotParams.data = this.selectedData;
+          //this.plotParams.colorDomain = this.colorDomain;
+          //this.plotParameters();
+          this.setConfigurations();
         }
       },
       fittedData: function() {
