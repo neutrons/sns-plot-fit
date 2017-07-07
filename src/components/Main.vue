@@ -274,13 +274,11 @@ export default {
     },
     checkDuplicateFile: function(filename) {
 
-        for(var i = 0; i < this.uploadedFiles.length; i++) {
-          if(filename == this.uploadedFiles[i].fileName) {
-            alert("Duplicate file: " + filename);
-            return true;
-          }
-        }
-        return false;
+        if(this.uploadedFiles.find( el => el.fileName === filename)) {
+          alert("Duplicate file: " + filename);
+          return true;
+        } else { return false; }
+        
     },
     resetPlot: function() {
       // this.plotCurrentData({
