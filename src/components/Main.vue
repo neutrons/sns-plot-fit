@@ -315,29 +315,70 @@ export default {
         this.equation = null;
         this.selectedData = [];
       } else {
-          var tempdata = []
 
-          //add selected files from the GET requested data
-          for(var i = 0; i < checkedfiles.length; i++) {
-            for(var j = 0; j < this.getFiles.length; j++) {
-              if(this.getFiles[j].fileName === checkedfiles[i]) {
-                tempdata.push(this.getFiles[j].data);
-              }
-            }
-          }
+        /** TEST ADD DATA **/
+        console.log(this.selectedData);
+        console.log("checkfiles", checkedfiles);
+//remove any instances where checked file isn't in selected
+      for(let i=0; i < this.selectedData.length; i++) {
+        let key = this.selectedData[i].fileName;
+        console.log("key", key);
+        //console.log(this.checkedfiles.indexOf(key));
+        if(checkedfiles.indexOf(key) === -1) {
+          console.log("Removing: " + key + " | index: " + i);
+          this.selectedData.splice(i,1);
+        }
+      }
 
-          //add selected files form the uploaded data
-          for(var i = 0; i < checkedfiles.length; i++) {
-            for(var j = 0; j < this.uploadedFiles.length; j++) {
-              if(this.uploadedFiles[j].fileName === checkedfiles[i]) {
-                tempdata.push(this.uploadedFiles[j].data);
-              }
-            }
-          }
+      console.log("Selected Data After", this.selectedData);
+
+      //add checked file
+      for(let i=0; i < checkedfiles.length; i++) {
+        let el = checkedfiles[i];
         
-        //merge tempdata so that you have one large array of objects
-        //this is to make plotting easier for multiple files selected
-        this.selectedData = d3.merge(tempdata);
+        if(this.selectedData.find( a => a.fileName === el) === undefined) {
+          console.log("not in selectedData " + el);
+          
+          if(this.getFiles.find( a => a.fileName === el)) {
+            console.log("Adding from get file " + el);
+            this.selectedData.push(this.getFiles.find( a => a.fileName === el));
+          } else if (uploadedFiles.find( a => a.fileName === el)) {
+            console.log("Adding from uploaded file " + el);
+            this.selectedData.push(this.uploadedFiles.find( a => a.fileName === el));
+          } else {
+          console.log("Uh oh shouldn't happen");
+          }
+          
+        }
+      };
+
+      console.log("Selected Data", this.selectedData);
+      console.log("length is " + this.selectedData.length);
+        /** END TEST **/
+
+        //   var tempdata = []
+
+        //   //add selected files from the GET requested data
+        //   for(var i = 0; i < checkedfiles.length; i++) {
+        //     for(var j = 0; j < this.getFiles.length; j++) {
+        //       if(this.getFiles[j].fileName === checkedfiles[i]) {
+        //         tempdata.push(this.getFiles[j].data);
+        //       }
+        //     }
+        //   }
+
+        //   //add selected files form the uploaded data
+        //   for(var i = 0; i < checkedfiles.length; i++) {
+        //     for(var j = 0; j < this.uploadedFiles.length; j++) {
+        //       if(this.uploadedFiles[j].fileName === checkedfiles[i]) {
+        //         tempdata.push(this.uploadedFiles[j].data);
+        //       }
+        //     }
+        //   }
+        
+        // //merge tempdata so that you have one large array of objects
+        // //this is to make plotting easier for multiple files selected
+        // this.selectedData = d3.merge(tempdata);
       }
     },
     deleteFile: function(filename) {
@@ -383,10 +424,19 @@ export default {
         this.plotCurrentData(this.plotParams);
       }
     },
+    prepData: function(sd) {
+      var temp = [];
+      for(let i = 0; i < sd.length; i++) {
+        temp.push(sd[i].data);
+      }
+
+      console.log("Temp", temp);
+      return d3.merge(temp);
+    },
     setParameters: function() {
       //this.plotParams = this.configurations[this.fitName];
       this.plotParams = {
-        data: this.selectedData,
+        data: this.prepData(this.selectedData),
         colorDomain: this.colorDomain,
         xScale: this.xScale,
         yScale: this.yScale,
@@ -486,7 +536,7 @@ export default {
       },
       plotParams: function() {
         //watch for any changes to plotParams, if so plot data
-        this.plotCurrentData(this.plotParams);
+        if(this.selectedData.length > 0) { this.plotCurrentData(this.plotParams); }
       },
       uploadedFiles: function(){
         //watch if a file is uploaded, if so enable delete file button
