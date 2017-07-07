@@ -75,8 +75,8 @@ export default {
             xScale.range([0,width]); //scales according to fit type
             var yScale = parameters.yScale;
             yScale.range([height, 0]); //scales according to fit type
-            var xTitle = parameters.xLabel; //xTitle according to label
-            var yTitle = parameters.yLabel; //yTitle according to label
+            var xTitle = parameters.xTitle; //xTitle according to label
+            var yTitle = parameters.yTitle; //yTitle according to label
             //var fitData = parameters.fittedData !== null ? parameters.fittedData : null; //fitted data to plot fit line
 
             // Select Scale Based On Current Data's Scale Selection
@@ -165,7 +165,7 @@ export default {
             }));
 
             //Check if log(y) if so, adjust for zero values
-            if (parameters.yLabel=== "Log(I)") {
+            if (parameters.yTitle === "Log(Y)") {
                 yScale.domain([0.00001, d3.max(data, function (d) {
                     return d.y
                 }) * 100]);

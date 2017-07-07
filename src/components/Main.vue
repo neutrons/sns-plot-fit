@@ -90,7 +90,7 @@ export default {
       },
       fittedData: [],
       xTitle: 'X',
-      yTitle: 'I(Q)',
+      yTitle: 'Y',
       isUploaded: false,
       isCollapseRight: false,
       isCollapseLeft: false,
@@ -160,7 +160,7 @@ export default {
       'Log(X)': d3.scaleLog(),
       'Y': d3.scaleLinear(),
       'Y^2': d3.scalePow().exponent(2),
-      'Log(Y)': d3.scaleLog()
+      'Log(Y)': d3.scaleLog().clamp(true)
     }
   }
   },
@@ -306,12 +306,13 @@ export default {
     },
     setCurrentData: function(checkedfiles) {
       if(checkedfiles.length == 0) {
-        this.disableButtons(false);
-        this.dataToFit = {x:[], y:[]};
-        this.equation = null;
         //Remove any elements previously plotted
         d3.select("svg").remove();
         d3.select(".tooltip").remove();
+        
+        this.disableButtons(false);
+        this.dataToFit = {x:[], y:[]};
+        this.equation = null;
         this.selectedData = [];
       } else {
           var tempdata = []
@@ -354,6 +355,8 @@ export default {
       this.fileToFit = filename;
     },
     setScales: function(x,y) {
+      this.xTitle = x;
+      this.yTitle = y;
       this.xScale = this.scales[x];
       this.yScale = this.scales[y];
     },
@@ -380,16 +383,26 @@ export default {
         this.plotCurrentData(this.plotParams);
       }
     },
-    setConfigurations: function() {
+    setParameters: function() {
       //this.plotParams = this.configurations[this.fitName];
-      this.plotParams.data = this.selectedData;
-      this.plotParams.colorDomain = this.colorDomain;
-      this.plotParams.xScale = this.xScale;
-      this.plotParams.yScale = this.yScale;
-      this.plotParams.fittedData = this.fittedData;
-      this.plotParams.equation = this.equation;
-      this.plotParams.xTitle = this.xTitle;
-      this.plotParams.yTitle = this.yTitle;
+      this.plotParams = {
+        data: this.selectedData,
+        colorDomain: this.colorDomain,
+        xScale: this.xScale,
+        yScale: this.yScale,
+        fittedData: this.fittedData,
+        equation: this.equation,
+        xTitle: this.xTitle,
+        yTitle: this.yTitle
+      };
+      // this.plotParams.data = this.selectedData;
+      // this.plotParams.colorDomain = this.colorDomain;
+      // this.plotParams.xScale = this.xScale;
+      // this.plotParams.yScale = this.yScale;
+      // this.plotParams.fittedData = this.fittedData;
+      // this.plotParams.equation = this.equation;
+      // this.plotParams.xTitle = this.xTitle;
+      // this.plotParams.yTitle = this.yTitle;
 
       //this.equation = this.plotParams.equation; //Here is where it is messing up...
       // console.log(this.plotParams);
@@ -398,19 +411,17 @@ export default {
     watch: {
       xScale: function() {
         //watch if xScale changes, if so plot data with new parameters
-        //Need to fix for later...updating the scales to plot
-        //Perhaps switch the string list in Controls to be an object,
-        //and you display the key strings for selection, but they pass a
-        //d3 scale upon selection.
-        this.plotParameters();
+        this.setParameters();
       },
       yScale: function() {
         //watch if yScale changes, if so plot data with new parameters
-        this.plotParameters();
+        this.setParameters();
       },
       fitName: function() {
-        //if Fit name is changed set new configurations
-        this.setConfigurations();
+        //if Fit name is changed transform data
+        //re-fit data
+        //then set new parameters
+        
 
         // this.equation = this.plotParams.equation;
         // console.log(this.plotParams);
@@ -424,47 +435,58 @@ export default {
         // })
       },
       fileToFit: function() {
-        //watch if fileToFit changes from null, if so fit data accordingly
-        // this.plotParameters();
+        //watch if fileToFit changes, if so fit data to newly select file's data
+        //then set new plot parameters
 
-        //watch if fit name changes from 'None', if so set configurations by fit name
-        if(this.fileToFit !== null) {
-          this.selectedData.forEach( (d) => {
-            if(d.name === this.fileToFit) {
-              this.dataToFit.x.push(d.x);
-              this.dataToFit.y.push(d.y);
-            }
-          });
-          this.setConfigurations(); //change to default fit 'linear'
-        }
+        // //watch if fit name changes from 'None', if so set configurations by fit name
+        // if(this.fileToFit !== null) {
+        //   this.selectedData.forEach( (d) => {
+        //     if(d.name === this.fileToFit) {
+        //       this.dataToFit.x.push(d.x);
+        //       this.dataToFit.y.push(d.y);
+        //     }
+        //   });
+        //   this.setConfigurations(); //change to default fit 'linear'
+        // }
 
       },
       equation: function() {
-        //watch if equation changes, if so re-plot data to transformed data
-        if(this.equation !== null) {
-          console.log("equation not null");
-          this.fittedData = fd.fitData(this.dataToFit, this.equation);
-        } else {
-          //plot parameters
-          console.log("Hey we're about to plot");
-          this.plotParameters();
-        }
+        //watch if equation changes, if so re-fit data
+        //then set new plot parameters
+
+        // if(this.equation !== null) {
+        //   console.log("equation not null");
+        //   this.fittedData = fd.fitData(this.dataToFit, this.equation);
+        // } else {
+        //   //plot parameters
+        //   console.log("Hey we're about to plot");
+        //   this.plotParameters();
+        // }
       },
       selectedData: function() {
-        //watch if selectedData changes, if so plot data with new parameters
-        if(this.selectedData.length > 0) {
-          // this.setConfigurations();
-          //this.plotParams = this.configurations[this.fitName];
-          //this.plotParams.data = this.selectedData;
-          //this.plotParams.colorDomain = this.colorDomain;
-          //this.plotParameters();
-          this.setConfigurations();
-        }
+        //watch if selectedData changes,
+        //if so check if a fit is enabled and transform data if necessary
+        //then set new plot parameters
+        this.setParameters();
+
+        // if(this.selectedData.length > 0) {
+        //   // this.setConfigurations();
+        //   //this.plotParams = this.configurations[this.fitName];
+        //   //this.plotParams.data = this.selectedData;
+        //   //this.plotParams.colorDomain = this.colorDomain;
+        //   //this.plotParameters();
+        //   this.setParameters();
+        // }
       },
       fittedData: function() {
-        //watch if fitted data changes, if so, plot configs with new fitted data
-        this.plotParams.fittedData = this.fittedData;
-        this.plotParameters();
+        //watch if fitted data changes if so set new plot parameters
+        //this.setParameters();
+        // this.plotParams.fittedData = this.fittedData;
+        // this.plotParameters();
+      },
+      plotParams: function() {
+        //watch for any changes to plotParams, if so plot data
+        this.plotCurrentData(this.plotParams);
       },
       uploadedFiles: function(){
         //watch if a file is uploaded, if so enable delete file button
