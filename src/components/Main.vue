@@ -76,6 +76,7 @@ export default {
         uploadedFiles: [],
         colorDomain: [],
         selectedData: [],
+        transformedData: [],
         xScale: d3.scaleLinear(),
         yScale: d3.scaleLinear(),
         fitName: 'None',
@@ -93,68 +94,84 @@ export default {
         isCollapseLeft: false,
         buttonDis: false,
         plotParams: {},
-        fitConfigurations: {
-          'None': {
+        currentConfiguration: {
+            fit: 'None',
             equation: null,
             yTransformation: null,
             xTransformation: null,
             yLabel: "I",
             xLabel: "Q",
-            range: [-Infinity, +Infinity],
+            range: [-Infinity, +Infinity]
+        },
+        fitConfigurations: {
+          'None': {
+            fit: 'None',
+            equation: null,
+            yTransformation: null,
+            xTransformation: null,
+            yLabel: "I",
+            xLabel: "Q",
+            range: [-Infinity, +Infinity]
           },
           'Linear': {
+            fit: 'Linear',
             equation: 'm*X+b',
             yTransformation: 'y',
             xTransformation: 'x',
             yLabel: "I",
             xLabel: "Q",
-            range: [-Infinity, +Infinity],
+            range: [-Infinity, +Infinity]
           },
           'Guinier': {
+            fit: 'Guinier',
             equation: "-Rg^2/3*X+b",
             yTransformation: "log(y)",
             xTransformation: "x^2",
             yLabel: "Log(I)",
             xLabel: "Q^2",
-            range: [-Infinity, +Infinity],
+            range: [-Infinity, +Infinity]
           },
           'Porod': {
+            fit: 'Porod',
             equation: "A-n*X",
             yTransformation: "log(y)",
             xTransformation: "log(x)",
             yLabel: "Log(I)",
             xLabel: "Log(Q)",
-            range: [-Infinity, +Infinity],
+            range: [-Infinity, +Infinity]
           },
           'Zimm': {
+            fit: 'Zimm',
             equation: "1/I0+Cl^2/I0*X",
             yTransformation: "1/y",
             xTransformation: "x^2",
             yLabel: "1/I",
             xLabel: "Q^2",
-            range: [-Infinity, +Infinity],
+            range: [-Infinity, +Infinity]
           },
           'Kratky': {
+            fit: 'Kratky',
             equation: "m*X+b",
             yTransformation: "log(x^2*y)",
             xTransformation: "x^2",
             yLabel: "log(Q^2*I)",
             xLabel: "Log(Q)",
-            range: [-Infinity, +Infinity],
+            range: [-Infinity, +Infinity]
           },
           'Debye Beuche': {
+            fit: 'Debye Beuche',
             equation: "m*X+I0",
             yTransformation: "sqrt(y)",
             xTransformation: "x^2",
             yLabel: "sqrt(I)",
             xLabel: "Q^2",
-            range: [-Infinity, +Infinity],
+            range: [-Infinity, +Infinity]
           }
         },
         scales: {
           'X': d3.scaleLinear(),
           'X^2': d3.scalePow().exponent(2),
-          'Log(X)': d3.scaleLog(),
+          'Log(X)': d3.scaleLog().clamp(true),
           'Y': d3.scaleLinear(),
           'Y^2': d3.scalePow().exponent(2),
           'Log(Y)': d3.scaleLog().clamp(true)
@@ -371,7 +388,7 @@ export default {
         this.yScale = this.scales[y];
       },
       setFit: function (fitname) {
-        this.fitName = fitname;
+        this.currentConfiguration = this.fitConfigurations[fitname];
       },
       plotParameters: function () {
 
@@ -398,7 +415,7 @@ export default {
       setParameters: function () {
         // Function to wrap up all the parameters needed for plotting
         this.plotParams = {
-          data: this.prepData(this.selectedData),
+          data: this.prepData( this.transformedData.length > 0 ? this.transformedData : this.selectedData),
           colorDomain: this.colorDomain,
           xScale: this.xScale,
           yScale: this.yScale,
@@ -436,20 +453,32 @@ export default {
         // })
       },
       fileToFit: function () {
-        //watch if fileToFit changes, if so fit data to newly select file's data
-        //then set new plot parameters
+        // Watch if fileToFit changes, if so at populate dataToFit with chosen data
 
-        // //watch if fit name changes from 'None', if so set configurations by fit name
-        // if(this.fileToFit !== null) {
-        //   this.selectedData.forEach( (d) => {
-        //     if(d.name === this.fileToFit) {
-        //       this.dataToFit.x.push(d.x);
-        //       this.dataToFit.y.push(d.y);
-        //     }
-        //   });
-        //   this.setConfigurations(); //change to default fit 'linear'
-        // }
+        if(this.fileToFit !== null) {
+          this.selectedData.forEach( (d) => {
+ 
+            if(d.fileName === this.fileToFit) {
+              d.data.forEach( (el) => {
+                this.dataToFit.x.push(el.x);
+                this.dataToFit.y.push(el.y);
+              })
+            }
+          });
+        }
 
+      },
+      dataToFit: {
+        handler: function() {
+          // Watch if dataToFit changes, if so pass it to 'fitData' function with appropriate configuration
+          // which returns an array of data and is assigned to 'fittedData'
+          this.fittedData = fd.fitData(this.dataToFit, this.currentConfiguration);
+        },
+        deep: true
+      },
+      fittedData: function () {
+        // Watch if fitted data changes if so set new plot parameters and plot
+        this.setParameters();
       },
       equation: function () {
         //watch if equation changes, if so re-fit data
@@ -464,26 +493,36 @@ export default {
         //   this.plotParameters();
         // }
       },
-      selectedData: function () {
-        // Watch if selectedData changes, if so 
-        // check if a fit is enabled and transform data if necessary
-        // then set new plot parameters
-        this.setParameters();
+      selectedData: function() {
+          // Watch if selectedData changes, if so 
+          // check if a fit is enabled and transform data if necessary
+          // then set new plot parameters
+          if(this.transformedData.length < 1) this.setParameters();
 
-        // if(this.selectedData.length > 0) {
-        //   // this.setConfigurations();
-        //   //this.plotParams = this.configurations[this.fitName];
-        //   //this.plotParams.data = this.selectedData;
-        //   //this.plotParams.colorDomain = this.colorDomain;
-        //   //this.plotParameters();
-        //   this.setParameters();
-        // }
+          // if(this.selectedData.length > 0) {
+          //   // this.setConfigurations();
+          //   //this.plotParams = this.configurations[this.fitName];
+          //   //this.plotParams.data = this.selectedData;
+          //   //this.plotParams.colorDomain = this.colorDomain;
+          //   //this.plotParameters();
+          //   this.setParameters();
+          // }
       },
-      fittedData: function () {
-        //watch if fitted data changes if so set new plot parameters
-        //this.setParameters();
-        // this.plotParams.fittedData = this.fittedData;
-        // this.plotParameters();
+      currentConfiguration: function() {
+        // Watch if 'currentConfiguration' gets changed, if so
+        // re-transform selected data according to 'xTransformation' and 'yTransformation'
+        // then re-fit the 'dataToFit' according to the config's equation
+        if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+          this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
+        }
+      },
+      transformedData: {
+        handler: function() {
+        // Watch if transformedData changes, if so re-set parameters
+        console.log("transformed changed...");
+        this.setParameters();
+      },
+      deep: true
       },
       plotParams: function () {
         // Watch for any changes to plotParams, if so plot data

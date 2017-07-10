@@ -156,14 +156,27 @@ import math from 'mathjs';
 
 var fd = {};
 
-fd.transformData = function(data, equation) {
+fd.transformData = function(data, configuration) {
+    
 
-    //code to transform data
-    console.log("Transforming data...");
+    var exp = [configuration.xTransformation, configuration.yTransformation];
+    var code = math.compile(exp);
+
+    console.log("Transforming data...", exp);
+    data.forEach( (el) => {      
+        // Re-assign the transformed data to x and y
+        // math.eval spits out an array of transformed [x,y] values
+        // so el.x = math.eval()[0], el.y = math.eval()[1]
+        el.data.forEach( (d) => { 
+            [d.x, d.y] = math.eval(exp, d);
+        })
+    });
+
+    // console.log("Transformed data:", data);
     return data; //return transformed data
 }
 
-fd.fitData = function(data, equation) {
+fd.fitData = function(data, configuration) {
 
     //code to transform data
     console.log("Fitting data...");

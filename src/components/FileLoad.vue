@@ -77,7 +77,7 @@ export default {
   },
   methods: {
     clearSelected: function () {
-      this.fileToFit = null;
+      this.fileToFit = [];
       this.checkedFiles = [];
     },
     isPlotted: function(filename) {

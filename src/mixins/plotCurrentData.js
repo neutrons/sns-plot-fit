@@ -71,6 +71,10 @@ export default {
                 height = 600 - margin.top - margin.bottom;
 
             var data = parameters.data; //regular data to plot
+
+            // Filter any infinity values before plotting, this will happen when transforming log data = 0
+            data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
+
             var xScale = parameters.xScale;
             xScale.range([0,width]); //scales according to fit type
             var yScale = parameters.yScale;
@@ -172,6 +176,17 @@ export default {
             } else {
                 yScale.domain(d3.extent(data, function (d) {
                     return d.y;
+                }));
+            }
+
+            //Check if log(x) if so, adjust for zero values
+            if (parameters.xTitle === "Log(X)") {
+                xScale.domain([0.00001, d3.max(data, function (d) {
+                    return d.x;
+                }) * 10]);
+            } else {
+                xScale.domain(d3.extent(data, function (d) {
+                    return d.x;
                 }));
             }
 
