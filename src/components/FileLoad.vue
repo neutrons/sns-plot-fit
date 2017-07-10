@@ -81,8 +81,8 @@ export default {
       this.checkedFiles = [];
     },
     isPlotted: function(filename) {
-      //this function dynamically styles the file lists
-      //blue for selected, default 
+      // This function dynamically styles the file lists
+      // blue for selected, default 
       if(this.checkedFiles.indexOf(filename) > -1){
         return "info";
       } else {
@@ -117,6 +117,8 @@ export default {
   },
   watch: {
     checkedFiles: {
+      // Watch if a file is selected, if so
+      // enable buttons and append selected data to a list
       handler: function () {
         this.DISABLEBUTTONS(true);
         this.SETCURRENTDATA(this.checkedFiles);
@@ -124,6 +126,8 @@ export default {
       deep: true
     },
     fileToFit: function() {
+      // Watch if a file is selected to be fit
+      // if so, set it to the fileToFit
       this.SETFITFILE(this.fileToFit);
     }
   }

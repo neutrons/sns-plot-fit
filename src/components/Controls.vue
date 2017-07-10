@@ -67,7 +67,6 @@ export default {
 </script>
 
 <style scoped>
-
 .form-control {
   text-align-last: center;
 }
@@ -84,5 +83,4 @@ export default {
   background-color: gainsboro;
   border-right: 1px solid rgba(0,0,0,0.25);
 }
-
 </style>
