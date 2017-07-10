@@ -115,7 +115,7 @@ export default {
             yTransformation: "log(y)",
             xTransformation: "x^2",
             yLabel: "Log(I)",
-            xLabel: "Log(Q)",
+            xLabel: "Q^2",
             range: [-Infinity, +Infinity],
           },
           'Porod': {
@@ -128,7 +128,7 @@ export default {
           },
           'Zimm': {
             equation: "1/I0+Cl^2/I0*X",
-            yTransformation: "log(y)",
+            yTransformation: "1/y",
             xTransformation: "x^2",
             yLabel: "1/I",
             xLabel: "Q^2",
@@ -136,7 +136,7 @@ export default {
           },
           'Kratky': {
             equation: "m*X+b",
-            yTransformation: "log(y)",
+            yTransformation: "log(x^2*y)",
             xTransformation: "x^2",
             yLabel: "log(Q^2*I)",
             xLabel: "Log(Q)",
@@ -144,7 +144,7 @@ export default {
           },
           'Debye Beuche': {
             equation: "m*X+I0",
-            yTransformation: "log(y)",
+            yTransformation: "sqrt(y)",
             xTransformation: "x^2",
             yLabel: "sqrt(I)",
             xLabel: "Q^2",
