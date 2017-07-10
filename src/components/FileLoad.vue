@@ -17,8 +17,8 @@
         <table class="table table-condensed table-hover table-bordered">
           <tbody>
             <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
-              <td><input type="radio" :value="data.fileName" v-model="fileToFit" :disabled="isPlotted(data.fileName) == 'info' ? false : true"></td>
-              <td><input class="checks" type="checkbox" :id="data.fileName" :value="data.fileName" v-model="checkedFiles"></td>
+              <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="fileToFit" :disabled=" (isPlotted(data.fileName) == 'info' ? false : true) || (fileToFit.length > 0 && fileToFit.indexOf(data.fileName) === -1)"></td>
+              <td><input class="checks" type="checkbox" :id="data.fileName + '-plot'" :value="data.fileName" v-model="checkedFiles"></td>
               <td>{{ data.fileName }}</td>
             </tr>
           </tbody>
@@ -72,7 +72,7 @@ export default {
   data: function () {
     return {
       checkedFiles: [],
-      fileToFit: null
+      fileToFit: []
     }
   },
   methods: {
@@ -128,7 +128,11 @@ export default {
     fileToFit: function() {
       // Watch if a file is selected to be fit
       // if so, set it to the fileToFit
-      this.SETFITFILE(this.fileToFit);
+      if(this.fileToFit.length > 0) {
+        this.SETFITFILE(this.fileToFit[0]);
+      } else {
+        this.SETFITFILE(null);
+      }
     }
   }
 }

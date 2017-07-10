@@ -93,7 +93,7 @@ export default {
         isCollapseLeft: false,
         buttonDis: false,
         plotParams: {},
-        configurations: {
+        fitConfigurations: {
           'None': {
             equation: null,
             yTransformation: null,
