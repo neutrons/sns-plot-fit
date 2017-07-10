@@ -158,12 +158,17 @@ var fd = {};
 
 fd.transformData = function(data, configuration) {
     
-
+    // Need to make a temp value of data, so as to not alter the original values
+    // This is passing a value rather than a reference
+    // Good References: 
+    // https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+    // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
+    var temp = JSON.parse(JSON.stringify(data));
     var exp = [configuration.xTransformation, configuration.yTransformation];
     var code = math.compile(exp);
 
     console.log("Transforming data...", exp);
-    data.forEach( (el) => {      
+    temp.forEach( (el) => {      
         // Re-assign the transformed data to x and y
         // math.eval spits out an array of transformed [x,y] values
         // so el.x = math.eval()[0], el.y = math.eval()[1]
@@ -173,7 +178,7 @@ fd.transformData = function(data, configuration) {
     });
 
     // console.log("Transformed data:", data);
-    return data; //return transformed data
+    return temp; //return transformed data
 }
 
 fd.fitData = function(data, configuration) {

@@ -338,7 +338,7 @@ export default {
             }
           }
 
-          console.log("Selected Data After", this.selectedData);
+          //console.log("Selected Data After", this.selectedData);
 
           // Add selected file
           for (let i = 0; i < checkedfiles.length; i++) {
@@ -514,12 +514,13 @@ export default {
         // then re-fit the 'dataToFit' according to the config's equation
         if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
           this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
+        } else {
+          this.transformedData = [];
         }
       },
       transformedData: {
         handler: function() {
         // Watch if transformedData changes, if so re-set parameters
-        console.log("transformed changed...");
         this.setParameters();
       },
       deep: true
