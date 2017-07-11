@@ -58,6 +58,7 @@
 <script>
 import * as d3 from 'd3';
 import * as axios from 'axios'; // Axios package to handle HTTP requests
+import * as _ from 'lodash';
 import plotCurrentData from '../mixins/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
@@ -76,17 +77,12 @@ export default {
         uploadedFiles: [],
         colorDomain: [],
         selectedData: [],
-        transformedData: [],
         xScale: d3.scaleLinear(),
         yScale: d3.scaleLinear(),
         fitName: 'None',
         equation: '',
         fileToFit: null,
-        dataToFit: {
-          x: [],
-          y: []
-        },
-        fittedData: [],
+        prevFileToFit: null,
         xTitle: 'X',
         yTitle: 'Y',
         isUploaded: false,
@@ -317,10 +313,10 @@ export default {
           d3.select(".tooltip").remove();
 
           this.disableButtons(false);
-          this.dataToFit = {
-            x: [],
-            y: []
-          };
+          // this.dataToFit = {
+          //   x: [],
+          //   y: []
+          // };
           this.equation = null;
           this.selectedData = [];
         } else {
@@ -330,10 +326,10 @@ export default {
           // Remove any instances where checked file isn't in selected
           for (let i = 0; i < this.selectedData.length; i++) {
             let key = this.selectedData[i].fileName;
-            console.log("key", key);
+            // console.log("key", key);
             // console.log(this.checkedfiles.indexOf(key));
             if (checkedfiles.indexOf(key) === -1) {
-              console.log("Removing: " + key + " | index: " + i);
+              // console.log("Removing: " + key + " | index: " + i);
               this.selectedData.splice(i, 1);
             }
           }
@@ -349,10 +345,38 @@ export default {
 
               if (this.getFiles.find(a => a.fileName === el)) {
                 // console.log("Adding from get file " + el);
-                this.selectedData.push(this.getFiles.find(a => a.fileName === el));
+                
+                // Set temp file for get
+                let temp = _.cloneDeep(this.getFiles.find(a => a.fileName === el));
+                // console.log("Temp", temp);
+                temp.dataTransformed = [];
+                temp.dataFitted = []; // Initialize an empty fitted data array for later use
+
+                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                  temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
+                  // console.log("Temp data:", temp);
+                  this.selectedData.push(temp);
+                } else {
+                  this.selectedData.push(temp);
+                }
+                // this.selectedData.push(this.getFiles.find(a => a.fileName === el));
+
               } else if (this.uploadedFiles.find(a => a.fileName === el)) {
                 // console.log("Adding from uploaded file " + el);
-                this.selectedData.push(this.uploadedFiles.find(a => a.fileName === el));
+                
+                // Set temp file for uploaded
+                let temp = _.cloneDeep(this.uploadedFiles.find(a => a.fileName === el));
+                temp.dataTransformed = [];
+                temp.dataFitted = []; // Initialize an empty fitted data array for later use
+
+                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                  temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
+                  // console.log("Temp data:", temp);
+                  this.selectedData.push(temp);
+                } else {
+                  this.selectedData.push(temp);
+                }
+                // this.selectedData.push(this.uploadedFiles.find(a => a.fileName === el));
               } else {
                 console.log("Uh oh shouldn't happen");
               }
@@ -379,6 +403,7 @@ export default {
         this.uploadedFiles = [];
       },
       setFitFile: function (filename) {
+        this.prevFileToFit = this.fileToFit;
         this.fileToFit = filename;
       },
       setScales: function (x, y) {
@@ -407,19 +432,34 @@ export default {
         // This is simply to ease the process of plotting (see the nested loop function in 'plotCurrentData.js')
         var temp = [];
         for (let i = 0; i < sd.length; i++) {
-          temp.push(sd[i].data);
+          // If a fit is set push transformed data, else push normal data
+          if(this.currentConfiguration.fit === 'None' || this.currentConfiguration.fit === 'Linear') {
+            temp.push(sd[i].data);
+          } else {
+            temp.push(sd[i].dataTransformed);
+          }
         }
         // console.log("Temp", temp);
         return d3.merge(temp);
       },
+      getFittedData: function (sd) {
+        let temp = [];
+        for(let i = 0; i < sd.length; i++) {
+          if(sd[i].fileName === this.fileToFit) {
+            temp.push(sd[i].dataFitted);
+          }
+        }
+
+        return temp;
+      },
       setParameters: function () {
         // Function to wrap up all the parameters needed for plotting
         this.plotParams = {
-          data: this.prepData( this.transformedData.length > 0 ? this.transformedData : this.selectedData),
+          data: this.prepData(this.selectedData),
           colorDomain: this.colorDomain,
           xScale: this.xScale,
           yScale: this.yScale,
-          fittedData: this.fittedData,
+          fittedData: this.getFittedData(this.selectedData),
           equation: this.equation,
           xTitle: this.xTitle,
           yTitle: this.yTitle
@@ -455,30 +495,37 @@ export default {
       fileToFit: function () {
         // Watch if fileToFit changes, if so at populate dataToFit with chosen data
 
-        if(this.fileToFit !== null) {
-          this.selectedData.forEach( (d) => {
+        // if(this.fileToFit !== null) {
+        //   this.selectedData.forEach( (d) => {
  
-            if(d.fileName === this.fileToFit) {
-              d.data.forEach( (el) => {
-                this.dataToFit.x.push(el.x);
-                this.dataToFit.y.push(el.y);
-              })
-            }
-          });
-        }
+        //     if(d.fileName === this.fileToFit) {
+        //       d.data.forEach( (el) => {
+        //         this.dataToFit.x.push(el.x);
+        //         this.dataToFit.y.push(el.y);
+        //       })
+        //     }
+        //   });
+        // }
 
-      },
-      dataToFit: {
-        handler: function() {
-          // Watch if dataToFit changes, if so pass it to 'fitData' function with appropriate configuration
-          // which returns an array of data and is assigned to 'fittedData'
-          this.fittedData = fd.fitData(this.dataToFit, this.currentConfiguration);
-        },
-        deep: true
-      },
-      fittedData: function () {
-        // Watch if fitted data changes if so set new plot parameters and plot
-        this.setParameters();
+        console.log("File to Fit Changed...");
+        console.log("Previous:", this.prevFileToFit);
+        console.log("Current:", this.fileToFit);
+        // console.log("Selected Data Before:", this.selectedData[0].dataFitted);
+       	
+        for(let i=0; i < this.selectedData.length; i++) {
+        	let el = this.selectedData[i].fileName;
+          // console.log("El:", el);
+          
+          // Find previous file to fit's fitted data a reset it to an empty array
+          if(el === this.prevFileToFit) {
+          	this.selectedData[i].dataFitted = [];
+          }
+          
+          // Find new file to fit and set the array to fitted data points
+          if(el === this.fileToFit) {
+          	this.selectedData[i].dataFitted = fd.fitData(this.selectedData[i], this.currentConfiguration);
+          }
+        }
       },
       equation: function () {
         //watch if equation changes, if so re-fit data
@@ -493,11 +540,13 @@ export default {
         //   this.plotParameters();
         // }
       },
-      selectedData: function() {
+      selectedData: {
+        handler: function() {
           // Watch if selectedData changes, if so 
           // check if a fit is enabled and transform data if necessary
           // then set new plot parameters
-          if(this.transformedData.length < 1) this.setParameters();
+          // console.log("Selected changed...", this.selectedData);
+          this.setParameters();
 
           // if(this.selectedData.length > 0) {
           //   // this.setConfigurations();
@@ -507,23 +556,35 @@ export default {
           //   //this.plotParameters();
           //   this.setParameters();
           // }
+        },
+        deep: true
       },
       currentConfiguration: function() {
         // Watch if 'currentConfiguration' gets changed, if so
         // re-transform selected data according to 'xTransformation' and 'yTransformation'
         // then re-fit the 'dataToFit' according to the config's equation
         if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
-          this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
+          
+          //When current data changes after selected
+          this.selectedData.forEach( el => {
+            el.dataTransformed = fd.transformData(el, this.currentConfiguration);
+            
+            // Re-fit data according to new fit equation
+            if(el.fileName === this.fileToFit) {
+              el.dataFitted = fd.fitData(el, this.currentConfiguration);
+            }
+          })
+          // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
         } else {
-          this.transformedData = [];
+          this.selectedData.forEach( el => {
+            el.dataTransformed = []; // reset since fit is 'None' or 'Linear'
+
+            // Only re-fit data if it's linear...you don't fit a line that is 'none'
+            if(el.fileName === this.fileToFit && this.currentConfiguration.fit === 'Lienar') {
+              el.dataFitted = fd.fitData(el, this.currentConfiguration);
+            }
+          });
         }
-      },
-      transformedData: {
-        handler: function() {
-        // Watch if transformedData changes, if so re-set parameters
-        this.setParameters();
-      },
-      deep: true
       },
       plotParams: function () {
         // Watch for any changes to plotParams, if so plot data

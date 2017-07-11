@@ -153,38 +153,53 @@
 
 
 import math from 'mathjs';
-
+import * as _ from 'lodash';
 var fd = {};
 
 fd.transformData = function(data, configuration) {
+
+    	// var t = JSON.parse(JSON.stringify(data));
+        let t = _.cloneDeep(data);
+        var exp = [configuration.xTransformation, configuration.yTransformation];
+        
+        t.data.forEach( (el) => {      
+                // Re-assign the transformed data to x and y
+                // math.eval spits out an array of transformed [x,y] values
+                // so d.x = math.eval()[0], d.y = math.eval()[1]
+                [el.x, el.y] = math.eval(exp, el);
+            });
+        
+        return t.data; // returns transformed data array
     
     // Need to make a temp value of data, so as to not alter the original values
     // This is passing a value rather than a reference
     // Good References: 
     // https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
     // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
-    var temp = JSON.parse(JSON.stringify(data));
-    var exp = [configuration.xTransformation, configuration.yTransformation];
+    // var temp = JSON.parse(JSON.stringify(data));
+    // var exp = [configuration.xTransformation, configuration.yTransformation];
 
-    console.log("Transforming data...", exp);
-    temp.forEach( (el) => {      
-        // Re-assign the transformed data to x and y
-        // math.eval spits out an array of transformed [x,y] values
-        // so d.x = math.eval()[0], d.y = math.eval()[1]
-        el.data.forEach( (d) => { 
-            [d.x, d.y] = math.eval(exp, d);
-        })
-    });
+    // console.log("Transforming data...", exp);
+    // temp.forEach( (el) => {      
+    //     // Re-assign the transformed data to x and y
+    //     // math.eval spits out an array of transformed [x,y] values
+    //     // so d.x = math.eval()[0], d.y = math.eval()[1]
+    //     el.data.forEach( (d) => { 
+    //         [d.x, d.y] = math.eval(exp, d);
+    //     })
+    // });
 
-    // console.log("Transformed data:", data);
-    return temp; //return transformed data
+    // // console.log("Transformed data:", data);
+    // return temp; //return transformed data
 }
 
 fd.fitData = function(data, configuration) {
 
+    let t = _.cloneDeep(data);
+    t = t.data;
     //code to transform data
     console.log("Fitting data...");
-    return data; //return transformed data
+    return t; //return fit data array
 }
 
 fd.fitLine = function(data, equation) {

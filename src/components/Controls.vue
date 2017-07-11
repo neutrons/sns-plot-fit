@@ -23,7 +23,7 @@
         <br>
         <button class="btn btn-warning btn-sm" @click="RESETPLOT" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
         <br>
-        <button class="btn btn-danger btn-sm" @click="resetFit" :disabled="!FILETOFIT">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
+        <button class="btn btn-danger btn-sm" @click="resetFit">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
         </div>
       </div>
   </div>
