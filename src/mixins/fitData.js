@@ -165,13 +165,12 @@ fd.transformData = function(data, configuration) {
     // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
     var temp = JSON.parse(JSON.stringify(data));
     var exp = [configuration.xTransformation, configuration.yTransformation];
-    var code = math.compile(exp);
 
     console.log("Transforming data...", exp);
     temp.forEach( (el) => {      
         // Re-assign the transformed data to x and y
         // math.eval spits out an array of transformed [x,y] values
-        // so el.x = math.eval()[0], el.y = math.eval()[1]
+        // so d.x = math.eval()[0], d.y = math.eval()[1]
         el.data.forEach( (d) => { 
             [d.x, d.y] = math.eval(exp, d);
         })
