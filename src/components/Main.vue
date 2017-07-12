@@ -507,9 +507,9 @@ export default {
         //   });
         // }
 
-        console.log("File to Fit Changed...");
-        console.log("Previous:", this.prevFileToFit);
-        console.log("Current:", this.fileToFit);
+        // console.log("File to Fit Changed...");
+        // console.log("Previous:", this.prevFileToFit);
+        // console.log("Current:", this.fileToFit);
         // console.log("Selected Data Before:", this.selectedData[0].dataFitted);
        	
         for(let i=0; i < this.selectedData.length; i++) {
