@@ -287,7 +287,14 @@ export default {
                         return d.color = color(d.key);
                     });
 
-                    //Add error tick top
+                    // Add error tick top
+                    // When calculating error capsizes, the '4' is chosen to match
+                    // the radius of the points, which is also 4 pixels.
+                    // The reason to +/- after scaling is the xScale(d.x) takes the
+                    // data value and converts it to a pixel value, thus subtracting by same units:
+                    // xScale(d.x) - 4 = pixel_value - pixel_value
+                    // This leads to uniform capsizes no matter the scaling/transforming of data,
+                    // which is not the case if xScale(d.x - 4) is used.
                     errorlines.append("g")
                     .selectAll(".error-tick-top")
                     .data(d.values)
@@ -296,10 +303,10 @@ export default {
                     .attr("clip-path", "url(#clip)")
                     .attr('class', 'error-tick-top')
                     .attr('x1', function (d) {
-                        return xScale(d.x - 0.00009);
+                        return xScale(d.x) - 4;
                     })
                     .attr('x2', function (d) {
-                        return xScale(d.x + 0.00009);
+                        return xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
                         return yScale(d.y + d.error);
@@ -320,10 +327,10 @@ export default {
                     .attr("clip-path", "url(#clip)")
                     .attr('class', 'error-tick-bottom')
                     .attr('x1', function (d) {
-                        return xScale(d.x - 0.00009);
+                        return xScale(d.x) - 4;
                     })
                     .attr('x2', function (d) {
-                        return xScale(d.x + 0.00009);
+                        return xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
                         return yScale(d.y - d.error);
@@ -479,10 +486,10 @@ export default {
                 //re-draw error tick top
                 errorlines.selectAll(".error-tick-top")
                     .attr('x1', function (d) {
-                        return new_xScale(d.x - 0.00009);
+                        return new_xScale(d.x) - 4;
                     })
                     .attr('x2', function (d) {
-                        return new_xScale(d.x + 0.00009);
+                        return new_xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
                         return new_yScale(d.y + d.error);
@@ -494,10 +501,10 @@ export default {
                 //re-draw error tick top
                 errorlines.selectAll(".error-tick-bottom")
                     .attr('x1', function (d) {
-                        return new_xScale(d.x - 0.00009);
+                        return new_xScale(d.x) - 4;
                     })
                     .attr('x2', function (d) {
-                        return new_xScale(d.x + 0.00009);
+                        return new_xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
                         return new_yScale(d.y - d.error);
