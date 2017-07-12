@@ -41,7 +41,7 @@
         <table class="table table-condensed table-hover table-bordered">
           <tbody>
             <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
-              <td><input type="radio" :value="file.fileName" v-model="fileToFit" :disabled="isPlotted(file.fileName) == 'info' ? false : true"></td>
+              <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="fileToFit" :disabled=" (isPlotted(file.fileName) == 'info' ? false : true) || (fileToFit.length > 0 && fileToFit.indexOf(file.fileName) === -1)"></td>
               <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="checkedFiles"></td>
               <td>{{ file.fileName }}</td>
               <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | DELETEFILE(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
