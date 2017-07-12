@@ -17,8 +17,8 @@
         <table class="table table-condensed table-hover table-bordered">
           <tbody>
             <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
-              <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="fileToFit" :disabled=" (isPlotted(data.fileName) == 'info' ? false : true) || (fileToFit.length > 0 && fileToFit.indexOf(data.fileName) === -1)"></td>
-              <td><input class="checks" type="checkbox" :id="data.fileName + '-plot'" :value="data.fileName" v-model="checkedFiles"></td>
+              <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(data.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
+              <td><input class="checks" type="checkbox" :id="data.fileName + '-plot'" :value="data.fileName" v-model="filesToPlot"></td>
               <td>{{ data.fileName }}</td>
             </tr>
           </tbody>
@@ -41,8 +41,8 @@
         <table class="table table-condensed table-hover table-bordered">
           <tbody>
             <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
-              <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="fileToFit" :disabled=" (isPlotted(file.fileName) == 'info' ? false : true) || (fileToFit.length > 0 && fileToFit.indexOf(file.fileName) === -1)"></td>
-              <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="checkedFiles"></td>
+              <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(file.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
+              <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="filesToPlot"></td>
               <td>{{ file.fileName }}</td>
               <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | DELETEFILE(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
             </tr>
@@ -71,68 +71,77 @@ export default {
   props: ["GETFILES", "BUTTONDIS", "DISABLEBUTTONS", "SETCURRENTDATA", "READFILE", "UPLOADEDFILES", "FETCHDATA", "DELETEFILE", "REMOVEUPLOADED", "ISUPLOADED", "SETFITFILE"],
   data: function () {
     return {
-      checkedFiles: [],
-      fileToFit: []
+      filesToPlot: [],
+      fileFitChoice: [],
+      fileToFit: null
     }
   },
   methods: {
     clearSelected: function () {
-      this.fileToFit = [];
-      this.checkedFiles = [];
+      this.fileFitChoice = [];
+      this.filesToPlot = [];
+      this.fileToFit = null;
     },
     isPlotted: function(filename) {
       // This function dynamically styles the file lists
       // blue for selected, default 
-      if(this.checkedFiles.indexOf(filename) > -1){
+      if(this.filesToPlot.indexOf(filename) > -1){
         return "info";
       } else {
         return "default";
       }
     },
     uncheckFile: function(filename) {
-      if(this.checkedFiles.indexOf(filename) > -1) {
-        this.checkedFiles.splice(this.checkedFiles.indexOf(filename),1);
+      if(this.filesToPlot.indexOf(filename) > -1) {
+        this.filesToPlot.splice(this.filesToPlot.indexOf(filename),1);
       }
     },
     deleteAllUploaded: function() {
       for(var i = 0; i < this.UPLOADEDFILES.length; i++) {
-        if(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName) > -1) {
-          this.checkedFiles.splice(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName),1);
+        if(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName) > -1) {
+          this.filesToPlot.splice(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName),1);
         }
       }
       this.REMOVEUPLOADED();
     },
     checkAll: function() {
       for(let i = 0; i < this.GETFILES.length; i++) {
-        if(this.checkedFiles.indexOf(this.GETFILES[i].fileName) === -1) {
-          this.checkedFiles.push(this.GETFILES[i].fileName);
+        if(this.filesToPlot.indexOf(this.GETFILES[i].fileName) === -1) {
+          this.filesToPlot.push(this.GETFILES[i].fileName);
         }
       }
       for(let i = 0; i < this.UPLOADEDFILES.length; i++) {
-        if(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName) === -1) {
-          this.checkedFiles.push(this.UPLOADEDFILES[i].fileName);
+        if(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName) === -1) {
+          this.filesToPlot.push(this.UPLOADEDFILES[i].fileName);
         }
       }
+    },
+    setFileToFit: function() {
+      if(this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
+      this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
     }
   },
   watch: {
-    checkedFiles: {
+    filesToPlot: {
       // Watch if a file is selected, if so
       // enable buttons and append selected data to a list
       handler: function () {
+        
+        // If a file is unselected while it has a fit, unselect the fit
+        if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
+          this.fileToFit = null;
+          this.fileFitChoice = [];
+        }
+
         this.DISABLEBUTTONS(true);
-        this.SETCURRENTDATA(this.checkedFiles);
+        this.SETCURRENTDATA(this.filesToPlot);
       },
       deep: true
     },
     fileToFit: function() {
       // Watch if a file is selected to be fit
       // if so, set it to the fileToFit
-      if(this.fileToFit.length > 0) {
-        this.SETFITFILE(this.fileToFit[0]);
-      } else {
-        this.SETFITFILE(null);
-      }
+      this.SETFITFILE(this.fileToFit);
     }
   }
 }
