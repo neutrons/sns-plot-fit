@@ -58,7 +58,7 @@ export default {
 
             // var data = parameters.data;
             // console.log(data);
-            // console.log("Plotting data...");
+            console.log("Plotting data...");
             //console.log(parameters);
             //Set chart dimensions
             var margin = {

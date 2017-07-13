@@ -11,7 +11,8 @@
         :SETSCALES="setScales"
         :FILETOFIT="fileToFit"
         :SETFIT="setFit"
-        :EQUATION="equation"
+        :EQUATION="$data.currentConfiguration.equation"
+        v-on:set-equation="setEquation"
         ></app-controls>
       </div>
 
@@ -466,6 +467,9 @@ export default {
           xTitle: this.xTitle,
           yTitle: this.yTitle
         };
+      },
+      setEquation: function(eq) {
+        this.currentConfiguration.equation = eq;
       }
     },
     watch: {
@@ -555,33 +559,37 @@ export default {
         },
         deep: true
       },
-      currentConfiguration: function() {
-        // Watch if 'currentConfiguration' gets changed, if so
-        // re-transform selected data according to 'xTransformation' and 'yTransformation'
-        // then re-fit the 'dataToFit' according to the config's equation
-        if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
-          this.equation = this.currentConfiguration.equation;
-          //When current data changes after selected
-          this.selectedData.forEach( el => {
-            el.dataTransformed = fd.transformData(el, this.currentConfiguration);
-            
-            // Re-fit data according to new fit equation
-            if(el.fileName === this.fileToFit) {
-              el.dataFitted = fd.fitData(el, this.currentConfiguration);
-            }
-          })
-          // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
-        } else {
-          this.equation = this.currentConfiguration.equation;
-          this.selectedData.forEach( el => {
-            el.dataTransformed = []; // reset since transformed data is 'None' or 'Linear'
+      currentConfiguration: {
+        handler: function() {
+          // Watch if 'currentConfiguration' gets changed, if so
+          // re-transform selected data according to 'xTransformation' and 'yTransformation'
+          // then re-fit the 'dataToFit' according to the config's equation
+          // console.log("Equation changed...", this.currentConfiguration.equation);
+          if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+            this.equation = this.currentConfiguration.equation;
+            //When current data changes after selected
+            this.selectedData.forEach( el => {
+              el.dataTransformed = fd.transformData(el, this.currentConfiguration);
+              
+              // Re-fit data according to new fit equation
+              if(el.fileName === this.fileToFit) {
+                el.dataFitted = fd.fitData(el, this.currentConfiguration);
+              }
+            })
+            // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
+          } else {
+            this.equation = this.currentConfiguration.equation;
+            this.selectedData.forEach( el => {
+              el.dataTransformed = []; // reset since transformed data is 'None' or 'Linear'
 
-            // Only re-fit data if it's linear...you don't fit a line that is 'none'
-            if(el.fileName === this.fileToFit && this.currentConfiguration.fit === 'Linear') {
-              el.dataFitted = fd.fitData(el, this.currentConfiguration);
-            }
-          });
-        }
+              // Only re-fit data if it's linear...you don't fit a line that is 'none'
+              if(el.fileName === this.fileToFit && this.currentConfiguration.fit === 'Linear') {
+                el.dataFitted = fd.fitData(el, this.currentConfiguration);
+              }
+            });
+          }
+        },
+        deep: true
       },
       plotParams: function () {
         // Watch for any changes to plotParams, if so plot data

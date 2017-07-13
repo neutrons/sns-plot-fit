@@ -15,7 +15,7 @@
         </select>
         <br>
         <label>Equation:</label>
-        <input type="text" class="form-control" id="fit-equation" v-model="equation" :disabled="!FILETOFIT">
+        <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT">
         <h3>Reset:</h3>
         <div class="btn-group-vertical">
         <button class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
@@ -31,7 +31,7 @@
 <script>
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETSCALES", "SETFIT", "EQUATION"],
+  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETSCALES", "SETFIT", "EQUATION", 'set-equation'],
   data: function() {
     return {
       xScale: 'X',
@@ -50,6 +50,10 @@ export default {
     },
     resetFit: function() {
       this.fit = 'None';
+    },
+    enterEquation: function() {
+      let newEq = document.getElementById('fit-equation').value;
+      this.$emit('set-equation', newEq);
     }
   },
   watch: {
