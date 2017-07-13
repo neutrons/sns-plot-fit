@@ -80,7 +80,7 @@ export default {
         xScale: d3.scaleLinear(),
         yScale: d3.scaleLinear(),
         fitName: 'None',
-        equation: '',
+        equation: 'test',
         fileToFit: null,
         prevFileToFit: null,
         xTitle: 'X',
@@ -536,19 +536,6 @@ export default {
           }
         }
       },
-      equation: function () {
-        //watch if equation changes, if so re-fit data
-        //then set new plot parameters
-
-        // if(this.equation !== null) {
-        //   console.log("equation not null");
-        //   this.fittedData = fd.fitData(this.dataToFit, this.equation);
-        // } else {
-        //   //plot parameters
-        //   console.log("Hey we're about to plot");
-        //   this.plotParameters();
-        // }
-      },
       selectedData: {
         handler: function() {
           // Watch if selectedData changes, if so 
@@ -573,7 +560,7 @@ export default {
         // re-transform selected data according to 'xTransformation' and 'yTransformation'
         // then re-fit the 'dataToFit' according to the config's equation
         if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
-          
+          this.equation = this.currentConfiguration.equation;
           //When current data changes after selected
           this.selectedData.forEach( el => {
             el.dataTransformed = fd.transformData(el, this.currentConfiguration);
@@ -585,6 +572,7 @@ export default {
           })
           // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
         } else {
+          this.equation = this.currentConfiguration.equation;
           this.selectedData.forEach( el => {
             el.dataTransformed = []; // reset since transformed data is 'None' or 'Linear'
 

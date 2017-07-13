@@ -14,9 +14,8 @@
         <option v-for="fit in fits">{{fit}}</option>
         </select>
         <br>
-        <button class="btn btn-default btn-sm" :disabled="!FILETOFIT">Fit</button>
         <label>Equation:</label>
-        <input type="text" class="form-control" id="fit-equation" v-model="EQUATION" :disabled="!FILETOFIT">
+        <input type="text" class="form-control" id="fit-equation" v-model="equation" :disabled="!FILETOFIT">
         <h3>Reset:</h3>
         <div class="btn-group-vertical">
         <button class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
@@ -40,7 +39,8 @@ export default {
       yScale: 'Y',
       yScales: ["Y", "Y^2", "Log(Y)"],
       fit: 'None',
-      fits: ["None", "Linear", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"]
+      fits: ["None", "Linear", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"],
+      equation: ""
     }
   },
   methods: {
@@ -61,6 +61,9 @@ export default {
     },
     fit: function() {
       this.SETFIT(this.fit);
+    },
+    equation: function() {
+      console.log("Equation:", this.equation);
     }
   }
 }
