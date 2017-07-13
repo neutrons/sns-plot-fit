@@ -198,7 +198,7 @@ fd.fitData = function(data, configuration) {
     let t = _.cloneDeep(data);
     t = t.data;
     //code to transform data
-    console.log("Fitting data...");
+    // console.log("Fitting data...");
     return t; //return fit data array
 }
 

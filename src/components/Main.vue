@@ -404,7 +404,9 @@ export default {
       },
       setFitFile: function (filename) {
         this.prevFileToFit = this.fileToFit;
+        console.log("Previous File to Fit", this.prevFileToFit);
         this.fileToFit = filename;
+        console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
         this.xTitle = x;
@@ -512,18 +514,25 @@ export default {
         // console.log("Current:", this.fileToFit);
         // console.log("Selected Data Before:", this.selectedData[0].dataFitted);
        	
+        // If fileToFit is set to Null, don't transform anything and reset the fit to none
+        if(this.fileToFit === null) {
+          console.log("Resetting configurations...");
+          this.setFit('None');
+        } else {
+
         for(let i=0; i < this.selectedData.length; i++) {
-        	let el = this.selectedData[i].fileName;
-          // console.log("El:", el);
-          
-          // Find previous file to fit's fitted data a reset it to an empty array
-          if(el === this.prevFileToFit) {
-          	this.selectedData[i].dataFitted = [];
-          }
-          
-          // Find new file to fit and set the array to fitted data points
-          if(el === this.fileToFit) {
-          	this.selectedData[i].dataFitted = fd.fitData(this.selectedData[i], this.currentConfiguration);
+            let el = this.selectedData[i].fileName;
+            // console.log("El:", el);
+            
+            // Find previous file to fit's fitted data a reset it to an empty array
+            if(el === this.prevFileToFit) {
+              this.selectedData[i].dataFitted = [];
+            }
+            
+            // Find new file to fit and set the array to fitted data points
+            if(el === this.fileToFit) {
+              this.selectedData[i].dataFitted = fd.fitData(this.selectedData[i], this.currentConfiguration);
+            }
           }
         }
       },
@@ -577,10 +586,10 @@ export default {
           // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
         } else {
           this.selectedData.forEach( el => {
-            el.dataTransformed = []; // reset since fit is 'None' or 'Linear'
+            el.dataTransformed = []; // reset since transformed data is 'None' or 'Linear'
 
             // Only re-fit data if it's linear...you don't fit a line that is 'none'
-            if(el.fileName === this.fileToFit && this.currentConfiguration.fit === 'Lienar') {
+            if(el.fileName === this.fileToFit && this.currentConfiguration.fit === 'Linear') {
               el.dataFitted = fd.fitData(el, this.currentConfiguration);
             }
           });
