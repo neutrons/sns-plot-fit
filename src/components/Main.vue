@@ -1,10 +1,10 @@
 <template>
   <div class="row main">
     
-    <!--Pass functions to controls component-->
       <div 
         :class="!isCollapseLeft ? 'col-xs-1' : 'col-xs-0'" v-show="!isCollapseLeft">
            
+    <!--Pass variables to controls component-->
         <app-controls
         :BUTTONDIS="buttonDis"
         :FILETOFIT="fileToFit"
@@ -31,13 +31,12 @@
       </div>
     </div>
 
-      <!--Pass functions to fileload component-->
       <div :class="!isCollapseRight ? 'col-xs-2' : 'col-xs-0'" 
            v-show="!isCollapseRight" style="padding:0px;">
           
+      <!--Pass variables to fileload component-->
         <app-file-load
         :BUTTONDIS="buttonDis"
-        :DISABLEBUTTONS="disableButtons"
         :GETFILES="getFiles"
         :UPLOADEDFILES="uploadedFiles"
         :ISUPLOADED="isUploaded"
@@ -54,7 +53,7 @@ import plotCurrentData from '../javascript/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
 
-import fd from '../mixins/fitData.js';
+import fd from '../javascript/fitData.js';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
@@ -81,6 +80,7 @@ export default {
       eventBus.$on('set-fit-file', this.setFitFile);
       eventBus.$on('remove-uploaded-files', this.removeUploadedFiles);
       eventBus.$on('delete-file', this.deleteFile);
+      eventBus.$on('disable-buttons', this.disableButtons);
       
     },
     data: function () {
@@ -454,7 +454,7 @@ export default {
           }
         }
 
-        return temp;
+        return d3.merge(temp);
       },
       setParameters: function () {
         // Function to wrap up all the parameters needed for plotting

@@ -73,7 +73,7 @@
 import { eventBus } from '../javascript/eventBus';
 
 export default {
-  props: ["GETFILES", "BUTTONDIS", "DISABLEBUTTONS", "UPLOADEDFILES", "ISUPLOADED"],
+  props: ["GETFILES", "BUTTONDIS", "UPLOADEDFILES", "ISUPLOADED"],
   data: function () {
     return {
       filesToPlot: [],
@@ -88,8 +88,7 @@ export default {
       this.fileToFit = null;
     },
     isPlotted: function(filename) {
-      // This function dynamically styles the file lists
-      // blue for selected, default 
+      // This function dynamically styles the file lists blue for selected, default 
       if(this.filesToPlot.indexOf(filename) > -1){
         return "info";
       } else {
@@ -137,8 +136,7 @@ export default {
   },
   watch: {
     filesToPlot: {
-      // Watch if a file is selected, if so
-      // enable buttons and append selected data to a list
+      // Watch if a file is selected, if so enable buttons and append selected data to a list
       handler: function () {
         
         // If a file is unselected while it has a fit, unselect the fit
@@ -147,14 +145,13 @@ export default {
           this.fileFitChoice = [];
         }
 
-        this.DISABLEBUTTONS(true);
+        eventBus.$emit('disable-buttons', true);
         eventBus.$emit('set-current-data', this.filesToPlot);
       },
       deep: true
     },
     fileToFit: function() {
-      // Watch if a file is selected to be fit
-      // if so, set it to the fileToFit
+      // Watch if a file is selected to be fit if so, set it to the fileToFit
       eventBus.$emit('set-fit-file', this.fileToFit);
     }
   }
