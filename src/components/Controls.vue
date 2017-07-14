@@ -1,6 +1,9 @@
 <template>
   <div id="Controls">
       <div class="selections controls row">
+        <h3>Reset:</h3>
+        <button class="btn btn-warning btn-sm" @click="resetPlot" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
+        <br>
         <h3>Scales:</h3>
         <select class="form-control" v-model="xScale" :disabled="!BUTTONDIS" @change="setScales">
         <option v-for="option in xScales">{{option}}</option>
@@ -9,21 +12,17 @@
         <select class="form-control" v-model="yScale" :disabled="!BUTTONDIS" @change="setScales">
         <option v-for="option in yScales">{{option}}</option>
         </select>
+        <br>
+        <button class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
         <h3>Fit:</h3>
         <select class="form-control" v-model="fit" :disabled="!FILETOFIT">
         <option v-for="fit in fits">{{fit}}</option>
         </select>
         <br>
-        <label>Equation:</label>
+        <label class="equation-title">Equation:</label>
         <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="EQUATION === null">
-        <h3>Reset:</h3>
-        <div class="btn-group-vertical">
-        <button class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
-        <br>
-        <button class="btn btn-warning btn-sm" @click="resetPlot" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
         <br>
         <button class="btn btn-danger btn-sm" @click="resetFit">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
-        </div>
       </div>
   </div>
 </template>
@@ -95,5 +94,13 @@ export default {
   padding: 25px;
   background-color: gainsboro;
   border-right: 1px solid rgba(0,0,0,0.25);
+}
+
+.btn {
+  width: auto;
+}
+
+.equation-title {
+  color: #007833;
 }
 </style>
