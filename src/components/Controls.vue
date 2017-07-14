@@ -2,11 +2,11 @@
   <div id="Controls">
       <div class="selections controls row">
         <h3>Scales:</h3>
-        <select class="form-control" v-model="xScale" :disabled="!BUTTONDIS">
+        <select class="form-control" v-model="xScale" :disabled="!BUTTONDIS" @change="setScales">
         <option v-for="option in xScales">{{option}}</option>
         </select>
         <br>
-        <select class="form-control" v-model="yScale" :disabled="!BUTTONDIS">
+        <select class="form-control" v-model="yScale" :disabled="!BUTTONDIS" @change="setScales">
         <option v-for="option in yScales">{{option}}</option>
         </select>
         <h3>Fit:</h3>
@@ -20,7 +20,7 @@
         <div class="btn-group-vertical">
         <button class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
         <br>
-        <button class="btn btn-warning btn-sm" @click="RESETPLOT" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
+        <button class="btn btn-warning btn-sm" @click="resetPlot" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
         <br>
         <button class="btn btn-danger btn-sm" @click="resetFit">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
         </div>
@@ -33,7 +33,7 @@ import { eventBus } from '../javascript/eventBus';
 
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETFIT", "EQUATION", 'set-equation', 'set-scales'],
+  props: ["BUTTONDIS", "FILETOFIT", "EQUATION"],
   data: function() {
     return {
       xScale: 'X',
@@ -41,14 +41,13 @@ export default {
       yScale: 'Y',
       yScales: ["Y", "Y^2", "Log(Y)"],
       fit: 'None',
-      fits: ["None", "Linear", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"],
-      equation: ""
+      fits: ["None", "Linear", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"]
     }
   },
   methods: {
     resetScales: function() {
-      // this.xScale = 'X';
-      // this.yScale = 'Y';
+      this.xScale = 'X';
+      this.yScale = 'Y';
       eventBus.$emit('set-scales', 'X', 'Y');
     },
     resetFit: function() {
@@ -57,23 +56,17 @@ export default {
     enterEquation: function() {
       let newEq = document.getElementById('fit-equation').value;
       eventBus.$emit('set-equation', newEq);
+    },
+    resetPlot: function() {
+      eventBus.$emit('reset-plot');
+    },
+    setScales: function() {
+      eventBus.$emit('set-scales', this.xScale, this.yScale);
     }
   },
   watch: {
-    xScale: function() {
-      // this.SETSCALES(this.xScale, this.yScale);
-      eventBus.$emit('set-scales', this.xScale, this.yScale);
-    },
-    yScale: function() {
-      // this.SETSCALES(this.xScale, this.yScale);
-      eventBus.$emit('set-scales', this.xScale, this.yScale);
-    },
     fit: function() {
-      //this.SETFIT(this.fit);
       eventBus.$emit('set-fit', this.fit);
-    },
-    equation: function() {
-      console.log("Equation:", this.equation);
     }
   }
 }

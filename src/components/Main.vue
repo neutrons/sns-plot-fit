@@ -6,13 +6,9 @@
         :class="!isCollapseLeft ? 'col-xs-1' : 'col-xs-0'" v-show="!isCollapseLeft">
            
         <app-controls
-        :RESETPLOT="resetPlot"
         :BUTTONDIS="buttonDis"
         :FILETOFIT="fileToFit"
-        :SETFIT="setFit"
         :EQUATION="$data.currentConfiguration.equation"
-        v-on:set-equation="setEquation"
-        v-on:set-scales="setScales"
         ></app-controls>
       </div>
 
@@ -75,9 +71,11 @@ export default {
       'app-file-load': FileLoad
     },
     created() {
+      // Event hooks for 'Controls.vue'
       eventBus.$on('set-equation', this.setEquation);
       eventBus.$on('set-scales', this.setScales);
       eventBus.$on('set-fit', this.setFit);
+      eventBus.$on('reset-plot', this.resetPlot);
     },
     data: function () {
       return {
@@ -85,12 +83,16 @@ export default {
         uploadedFiles: [],
         colorDomain: [],
         selectedData: [],
-        xScale: d3.scaleLinear(),
-        yScale: d3.scaleLinear(),
+        scales: {
+          xScale: d3.scaleLinear(),
+          yScale: d3.scaleLinear()
+        },
         fileToFit: null,
         prevFileToFit: null,
-        xTitle: 'X',
-        yTitle: 'Y',
+        titles: {
+          xTitle: 'X',
+          yTitle: 'Y'
+        },
         isUploaded: false,
         isCollapseRight: false,
         isCollapseLeft: false,
@@ -170,7 +172,7 @@ export default {
             range: [-Infinity, +Infinity]
           }
         },
-        scales: {
+        scaleConfigurations: {
           'X': d3.scaleLinear(),
           'X^2': d3.scalePow().exponent(2),
           'Log(X)': d3.scaleLog().clamp(true),
@@ -403,10 +405,10 @@ export default {
         console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
-        this.xTitle = x;
-        this.yTitle = y;
-        this.xScale = this.scales[x];
-        this.yScale = this.scales[y];
+        this.titles.xTitle = x;
+        this.titles.yTitle = y;
+        this.scales.xScale = this.scaleConfigurations[x];
+        this.scales.yScale = this.scaleConfigurations[y];
       },
       setFit: function (fitname) {
         this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]); //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
@@ -453,11 +455,9 @@ export default {
         this.plotParams = {
           data: this.prepData(this.selectedData),
           colorDomain: this.colorDomain,
-          xScale: this.xScale,
-          yScale: this.yScale,
+          scales: this.scales,
           fittedData: this.getFittedData(this.selectedData),
-          xTitle: this.xTitle,
-          yTitle: this.yTitle,
+          titles: this.titles,
           fitConfiguration: this.currentConfiguration
         };
       },
@@ -466,13 +466,12 @@ export default {
       }
     },
     watch: {
-      xScale: function () {
-        // Watch if xScale changes, if so update parameters then re-plot
-        this.setParameters();
-      },
-      yScale: function () {
-        // Watch if yScale changes, if so update parameters then re-plot
-        this.setParameters();
+      scales: {
+        handler: function() {
+          // Watch if scales change, if so re-set parameters
+          this.setParameters();
+        },
+        deep: true
       },
       fileToFit: function () {
         // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted
