@@ -81,7 +81,6 @@ export default {
         xScale: d3.scaleLinear(),
         yScale: d3.scaleLinear(),
         fitName: 'None',
-        equation: 'test',
         fileToFit: null,
         prevFileToFit: null,
         xTitle: 'X',
@@ -296,13 +295,6 @@ export default {
       disableButtons: function (bool) {
         this.buttonDis = bool;
       },
-      resetParams: function () {
-        this.fitName = 'None';
-        this.xTitle = 'X';
-        this.yTitle = 'I(Q)';
-        this.equation = 'a*X+b';
-        this.fileToFit = null;
-      },
       setCurrentData: function (checkedfiles) {
         // Function that adds selected data to be plotted
 
@@ -314,11 +306,6 @@ export default {
           d3.select(".tooltip").remove();
 
           this.disableButtons(false);
-          // this.dataToFit = {
-          //   x: [],
-          //   y: []
-          // };
-          this.equation = null;
           this.selectedData = [];
         } else {
           // console.log(this.selectedData);
@@ -416,7 +403,7 @@ export default {
         this.yScale = this.scales[y];
       },
       setFit: function (fitname) {
-        this.currentConfiguration = this.fitConfigurations[fitname];
+        this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]); //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
       },
       plotParameters: function () {
 
@@ -463,7 +450,6 @@ export default {
           xScale: this.xScale,
           yScale: this.yScale,
           fittedData: this.getFittedData(this.selectedData),
-          equation: this.equation,
           xTitle: this.xTitle,
           yTitle: this.yTitle
         };
@@ -566,7 +552,6 @@ export default {
           // then re-fit the 'dataToFit' according to the config's equation
           // console.log("Equation changed...", this.currentConfiguration.equation);
           if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
-            this.equation = this.currentConfiguration.equation;
             //When current data changes after selected
             this.selectedData.forEach( el => {
               el.dataTransformed = fd.transformData(el, this.currentConfiguration);
@@ -578,7 +563,6 @@ export default {
             })
             // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
           } else {
-            this.equation = this.currentConfiguration.equation;
             this.selectedData.forEach( el => {
               el.dataTransformed = []; // reset since transformed data is 'None' or 'Linear'
 

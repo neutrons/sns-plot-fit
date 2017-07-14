@@ -15,7 +15,7 @@
         </select>
         <br>
         <label>Equation:</label>
-        <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT">
+        <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="EQUATION === null">
         <h3>Reset:</h3>
         <div class="btn-group-vertical">
         <button class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
