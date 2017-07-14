@@ -15,89 +15,10 @@ body {
   padding-bottom: 30px;
 }
 
-.selected {
-  color: green;
-  font-weight: bold;
-}
-
 .plotarea {
   min-height: inherit;
   background-color: rgba(0,0,0,0.015);
   padding:35px;
-}
-
-div.plot {
-  width: 100%;
-  height: 650px;
-  padding: 0px;
-  margin: 0px;
-}
-
-
-.zoom {
-  cursor: move;
-  opacity: 0;
-  pointer-events: all;
-}
-
-.dot {
-  fill: white;
-  stroke: #007833;
-  stroke-width: 0.5px;
-}
-
-.pointlines {
-  fill: none;
-  stroke: #0F6E00;
-  stroke-width: 1px;
-  shape-rendering: geometricPrecision;
-}
-
-.error {
-  stroke-width: 2px;
-  stroke-dasharray: 4, 4;
-}
-
-.error-tick-bottom, .error-tick-top {
-  stroke-width: 1.5px;
-}
-
-.plotbg {
-  fill: white;
-  opacity: 1;
-}
-
-.tick line {
-  stroke: gainsboro;
-}
-
-div.tooltip {
-  position: absolute;
-  text-align: center;
-  width: 200px;
-  height: 70px;
-  padding: 10px;
-  font: 12px sans-serif;
-  font-weight: bold;
-  color: white;
-  border-radius: 0px;
-  pointer-events: none;
-  background: rgba(0,0,0,0.70);
-}
-
-div.tooltip:before {
-  right: 100%;
-  top: 50%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-  border-color: rgba(255, 255, 255, 0);
-  border-right-color: rgba(0,0,0,0.75);
-  border-width: 10px;
-  margin-top: -10px;
 }
 
 ol {
@@ -111,18 +32,6 @@ h3 {
 
 button.reset {
   width: 50%;
-}
-
-.charttitle {
-  text-anchor: middle;
-  font-weight: bold;
-}
-
-.fitline {
-  fill: none;
-  stroke: #FDB562;
-  stroke-width: 2px;
-  stroke-dasharray: 10,5;
 }
 
 .plotpanel {

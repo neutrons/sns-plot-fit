@@ -557,4 +557,5 @@ export default {
 
 <style scoped>
 @import '../styles/main-component-styles.css';
+@import '../styles/plot-styles.css';
 </style>
