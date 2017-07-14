@@ -419,7 +419,7 @@ export default {
         // The for loop strips out the object for just the arrays of data
         // Then D3.merge will do that, merge the arrays of data to one large array of data
         // This is simply to ease the process of plotting (see the nested loop function in 'plotCurrentData.js')
-        var temp = [];
+        let temp = [];
         for (let i = 0; i < sd.length; i++) {
           // If a fit is set push transformed data, else push normal data
           if(this.currentConfiguration.fit === 'None' || this.currentConfiguration.fit === 'Linear') {
@@ -450,7 +450,8 @@ export default {
           yScale: this.yScale,
           fittedData: this.getFittedData(this.selectedData),
           xTitle: this.xTitle,
-          yTitle: this.yTitle
+          yTitle: this.yTitle,
+          fitConfiguration: this.currentConfiguration
         };
       },
       setEquation: function(eq) {
@@ -467,19 +468,7 @@ export default {
         this.setParameters();
       },
       fileToFit: function () {
-        // Watch if fileToFit changes, if so at populate dataToFit with chosen data
-
-        // if(this.fileToFit !== null) {
-        //   this.selectedData.forEach( (d) => {
- 
-        //     if(d.fileName === this.fileToFit) {
-        //       d.data.forEach( (el) => {
-        //         this.dataToFit.x.push(el.x);
-        //         this.dataToFit.y.push(el.y);
-        //       })
-        //     }
-        //   });
-        // }
+        // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted
 
         // console.log("File to Fit Changed...");
         // console.log("Previous:", this.prevFileToFit);
@@ -515,15 +504,6 @@ export default {
           // then set new plot parameters
           // console.log("Selected changed...", this.selectedData);
           this.setParameters();
-
-          // if(this.selectedData.length > 0) {
-          //   // this.setConfigurations();
-          //   //this.plotParams = this.configurations[this.fitName];
-          //   //this.plotParams.data = this.selectedData;
-          //   //this.plotParams.colorDomain = this.colorDomain;
-          //   //this.plotParameters();
-          //   this.setParameters();
-          // }
         },
         deep: true
       },
