@@ -2,7 +2,7 @@
   <div class="fileuploads">
     <div class="row">
       <div>
-        <h3>GET File(s): <button class="btn btn-xs btn-primary" @click="FETCHDATA"><span class="glyphicon glyphicon-download"></span></button></h3>
+        <h3>GET File(s): <button class="btn btn-xs btn-primary" @click="fetchData"><span class="glyphicon glyphicon-download"></span></button></h3>
       </div>
       <table class="table table-condensed tabletop">
       <thead>
@@ -44,7 +44,7 @@
               <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(file.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
               <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="filesToPlot"></td>
               <td>{{ file.fileName }}</td>
-              <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | DELETEFILE(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
+              <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | deleteFile(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
             </tr>
           </tbody>
       </table>
@@ -60,15 +60,20 @@
         <div class="dropzone-text">
           <span class="dropzone-title">Drop file(s) here or click to select</span>
         </div>
-        <input type="file" id="input" multiple @change="READFILE">
+        <input type="file" id="input" multiple @change="uploadFile">
       </div>
     </div>
   </div>
 </template>
 
 <script>
+// The eventBus serves as the means to communicating between components.
+// e.g., If files are uploaded in 'fileUpload.vue', an event is emitted
+//       and the event is then 'caught' in 'Main.vue'
+import { eventBus } from '../javascript/eventBus';
+
 export default {
-  props: ["GETFILES", "BUTTONDIS", "DISABLEBUTTONS", "SETCURRENTDATA", "READFILE", "UPLOADEDFILES", "FETCHDATA", "DELETEFILE", "REMOVEUPLOADED", "ISUPLOADED", "SETFITFILE"],
+  props: ["GETFILES", "BUTTONDIS", "DISABLEBUTTONS", "UPLOADEDFILES", "ISUPLOADED"],
   data: function () {
     return {
       filesToPlot: [],
@@ -102,7 +107,7 @@ export default {
           this.filesToPlot.splice(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName),1);
         }
       }
-      this.REMOVEUPLOADED();
+      eventBus.$emit('remove-uploaded-files');
     },
     checkAll: function() {
       for(let i = 0; i < this.GETFILES.length; i++) {
@@ -119,6 +124,15 @@ export default {
     setFileToFit: function() {
       if(this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
       this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
+    },
+    uploadFile: function() {
+      eventBus.$emit('upload-file');
+    },
+    fetchData: function() {
+      eventBus.$emit('fetch-data');
+    },
+    deleteFile: function(filename) {
+      eventBus.$emit('delete-file', filename);
     }
   },
   watch: {
@@ -134,14 +148,14 @@ export default {
         }
 
         this.DISABLEBUTTONS(true);
-        this.SETCURRENTDATA(this.filesToPlot);
+        eventBus.$emit('set-current-data', this.filesToPlot);
       },
       deep: true
     },
     fileToFit: function() {
       // Watch if a file is selected to be fit
       // if so, set it to the fileToFit
-      this.SETFITFILE(this.fileToFit);
+      eventBus.$emit('set-fit-file', this.fileToFit);
     }
   }
 }

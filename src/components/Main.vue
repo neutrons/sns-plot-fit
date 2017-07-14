@@ -39,14 +39,8 @@
         :BUTTONDIS="buttonDis"
         :DISABLEBUTTONS="disableButtons"
         :GETFILES="getFiles"
-        :SETCURRENTDATA="setCurrentData"
-        :READFILE="readFile"
         :UPLOADEDFILES="uploadedFiles"
-        :FETCHDATA="fetchData"
-        :DELETEFILE="deleteFile"
-        :REMOVEUPLOADED="removeUploaded"
         :ISUPLOADED="isUploaded"
-        :SETFITFILE="setFitFile"
         ></app-file-load>
       </div>
   </div>
@@ -62,6 +56,9 @@ import FileLoad from './FileLoad.vue';
 
 import fd from '../mixins/fitData.js';
 
+// The eventBus serves as the means to communicating between components.
+// e.g., If scales are reset in 'Controls.vue', an event is emitted
+//       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../javascript/eventBus';
 
 export default {
@@ -76,6 +73,15 @@ export default {
       eventBus.$on('set-scales', this.setScales);
       eventBus.$on('set-fit', this.setFit);
       eventBus.$on('reset-plot', this.resetPlot);
+
+      //Event hooks for 'FileLoad.vue'
+      eventBus.$on('fetch-data', this.fetchData);
+      eventBus.$on('upload-file', this.uploadFile);
+      eventBus.$on('set-current-data', this.setCurrentData);
+      eventBus.$on('set-fit-file', this.setFitFile);
+      eventBus.$on('remove-uploaded-files', this.removeUploadedFiles);
+      eventBus.$on('delete-file', this.deleteFile);
+      
     },
     data: function () {
       return {
@@ -230,7 +236,7 @@ export default {
           }
         }
       },
-      readFile: function () {
+      uploadFile: function () {
         var files = document.getElementById("input").files;
         var self = this;
 
@@ -395,7 +401,7 @@ export default {
           }
         }
       },
-      removeUploaded: function () {
+      removeUploadedFiles: function () {
         this.uploadedFiles = [];
       },
       setFitFile: function (filename) {
