@@ -32,7 +32,7 @@
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
-import { eventBus } from '../javascript/eventBus';
+import { eventBus } from '../assets/javascript/eventBus';
 
 export default {
   name: 'Controls',

@@ -70,7 +70,7 @@
 // The eventBus serves as the means to communicating between components.
 // e.g., If files are uploaded in 'fileUpload.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
-import { eventBus } from '../javascript/eventBus';
+import { eventBus } from '../assets/javascript/eventBus';
 
 export default {
   props: ["GETFILES", "BUTTONDIS", "UPLOADEDFILES", "ISUPLOADED"],

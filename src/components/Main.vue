@@ -49,16 +49,16 @@
 import * as d3 from 'd3';
 import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
-import plotCurrentData from '../javascript/plotCurrentData';
+import plotCurrentData from '../assets/javascript/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
 
-import fd from '../javascript/fitData.js';
+import fd from '../assets/javascript/fitData.js';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
-import { eventBus } from '../javascript/eventBus';
+import { eventBus } from '../assets/javascript/eventBus';
 
 export default {
   mixins: [plotCurrentData],
@@ -408,9 +408,9 @@ export default {
       },
       setFitFile: function (filename) {
         this.prevFileToFit = this.fileToFit;
-        console.log("Previous File to Fit", this.prevFileToFit);
+        // console.log("Previous File to Fit", this.prevFileToFit);
         this.fileToFit = filename;
-        console.log("Current File to Fit", this.fileToFit);
+        // console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
         this.titles.xTitle = x;
@@ -419,7 +419,8 @@ export default {
         this.scales.yScale = this.scaleConfigurations[y];
       },
       setFit: function (fitname) {
-        this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]); //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
+        //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
+        this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]);
       },
       plotParameters: function () {
 
@@ -491,7 +492,7 @@ export default {
        	
         // If fileToFit is set to Null, don't transform anything and reset the fit to none
         if(this.fileToFit === null) {
-          console.log("Resetting configurations...");
+          // console.log("Resetting configurations...");
           this.setFit('None');
         } else {
 
@@ -570,6 +571,6 @@ export default {
 </script>
 
 <style scoped>
-@import '../styles/main-component-styles.css';
-@import '../styles/plot-styles.css';
+@import '../assets/styles/main-component-styles.css';
+@import '../assets/styles/plot-styles.css';
 </style>
