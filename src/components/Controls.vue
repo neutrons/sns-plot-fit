@@ -29,9 +29,11 @@
 </template>
 
 <script>
+import { eventBus } from '../javascript/eventBus';
+
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETSCALES", "SETFIT", "EQUATION", 'set-equation'],
+  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETFIT", "EQUATION", 'set-equation', 'set-scales'],
   data: function() {
     return {
       xScale: 'X',
@@ -45,26 +47,30 @@ export default {
   },
   methods: {
     resetScales: function() {
-      this.xScale = 'X';
-      this.yScale = 'Y';
+      // this.xScale = 'X';
+      // this.yScale = 'Y';
+      eventBus.$emit('set-scales', 'X', 'Y');
     },
     resetFit: function() {
       this.fit = 'None';
     },
     enterEquation: function() {
       let newEq = document.getElementById('fit-equation').value;
-      this.$emit('set-equation', newEq);
+      eventBus.$emit('set-equation', newEq);
     }
   },
   watch: {
     xScale: function() {
-      this.SETSCALES(this.xScale, this.yScale);
+      // this.SETSCALES(this.xScale, this.yScale);
+      eventBus.$emit('set-scales', this.xScale, this.yScale);
     },
     yScale: function() {
-      this.SETSCALES(this.xScale, this.yScale);
+      // this.SETSCALES(this.xScale, this.yScale);
+      eventBus.$emit('set-scales', this.xScale, this.yScale);
     },
     fit: function() {
-      this.SETFIT(this.fit);
+      //this.SETFIT(this.fit);
+      eventBus.$emit('set-fit', this.fit);
     },
     equation: function() {
       console.log("Equation:", this.equation);

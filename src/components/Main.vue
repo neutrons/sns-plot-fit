@@ -8,11 +8,11 @@
         <app-controls
         :RESETPLOT="resetPlot"
         :BUTTONDIS="buttonDis"
-        :SETSCALES="setScales"
         :FILETOFIT="fileToFit"
         :SETFIT="setFit"
         :EQUATION="$data.currentConfiguration.equation"
         v-on:set-equation="setEquation"
+        v-on:set-scales="setScales"
         ></app-controls>
       </div>
 
@@ -60,17 +60,24 @@
 import * as d3 from 'd3';
 import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
-import plotCurrentData from '../mixins/plotCurrentData';
+import plotCurrentData from '../javascript/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
 
 import fd from '../mixins/fitData.js';
+
+import { eventBus } from '../javascript/eventBus';
 
 export default {
   mixins: [plotCurrentData],
     components: {
       'app-controls': Controls,
       'app-file-load': FileLoad
+    },
+    created() {
+      eventBus.$on('set-equation', this.setEquation);
+      eventBus.$on('set-scales', this.setScales);
+      eventBus.$on('set-fit', this.setFit);
     },
     data: function () {
       return {
