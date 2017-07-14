@@ -80,7 +80,6 @@ export default {
         selectedData: [],
         xScale: d3.scaleLinear(),
         yScale: d3.scaleLinear(),
-        fitName: 'None',
         fileToFit: null,
         prevFileToFit: null,
         xTitle: 'X',
@@ -466,23 +465,6 @@ export default {
       yScale: function () {
         // Watch if yScale changes, if so update parameters then re-plot
         this.setParameters();
-      },
-      fitName: function () {
-        //if Fit name is changed transform data
-        //re-fit data
-        //then set new parameters
-
-
-        // this.equation = this.plotParams.equation;
-        // console.log(this.plotParams);
-
-        // this.configurations.forEach(function(el){
-        //   if(el.fitName === this.fitName) {
-        //     this.equation = el.equation; //update equation for fitted's
-        //     var xFunction = math.parse(conf.xTransformation).compile();
-        //     conf.newXValues = function (x) { x.map(function (i) { xFunction.eval({x:i}) })};
-        //   }
-        // })
       },
       fileToFit: function () {
         // Watch if fileToFit changes, if so at populate dataToFit with chosen data
