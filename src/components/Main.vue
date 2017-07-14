@@ -1,18 +1,14 @@
 <template>
   <div class="row main">
     
-    <!--Pass functions to controls component-->
       <div 
         :class="!isCollapseLeft ? 'col-xs-1' : 'col-xs-0'" v-show="!isCollapseLeft">
            
+    <!--Pass variables to controls component-->
         <app-controls
-        :RESETPLOT="resetPlot"
         :BUTTONDIS="buttonDis"
-        :SETSCALES="setScales"
         :FILETOFIT="fileToFit"
-        :SETFIT="setFit"
         :EQUATION="$data.currentConfiguration.equation"
-        v-on:set-equation="setEquation"
         ></app-controls>
       </div>
 
@@ -35,22 +31,15 @@
       </div>
     </div>
 
-      <!--Pass functions to fileload component-->
       <div :class="!isCollapseRight ? 'col-xs-2' : 'col-xs-0'" 
            v-show="!isCollapseRight" style="padding:0px;">
           
+      <!--Pass variables to fileload component-->
         <app-file-load
         :BUTTONDIS="buttonDis"
-        :DISABLEBUTTONS="disableButtons"
         :GETFILES="getFiles"
-        :SETCURRENTDATA="setCurrentData"
-        :READFILE="readFile"
         :UPLOADEDFILES="uploadedFiles"
-        :FETCHDATA="fetchData"
-        :DELETEFILE="deleteFile"
-        :REMOVEUPLOADED="removeUploaded"
         :ISUPLOADED="isUploaded"
-        :SETFITFILE="setFitFile"
         ></app-file-load>
       </div>
   </div>
@@ -60,11 +49,16 @@
 import * as d3 from 'd3';
 import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
-import plotCurrentData from '../mixins/plotCurrentData';
+import plotCurrentData from '../assets/javascript/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
 
-import fd from '../mixins/fitData.js';
+import fd from '../assets/javascript/fitData.js';
+
+// The eventBus serves as the means to communicating between components.
+// e.g., If scales are reset in 'Controls.vue', an event is emitted
+//       and the event is then 'caught' in 'Main.vue'
+import { eventBus } from '../assets/javascript/eventBus';
 
 export default {
   mixins: [plotCurrentData],
@@ -72,18 +66,39 @@ export default {
       'app-controls': Controls,
       'app-file-load': FileLoad
     },
+    created() {
+      // Event hooks for 'Controls.vue'
+      eventBus.$on('set-equation', this.setEquation);
+      eventBus.$on('set-scales', this.setScales);
+      eventBus.$on('set-fit', this.setFit);
+      eventBus.$on('reset-plot', this.resetPlot);
+
+      //Event hooks for 'FileLoad.vue'
+      eventBus.$on('fetch-data', this.fetchData);
+      eventBus.$on('upload-file', this.uploadFile);
+      eventBus.$on('set-current-data', this.setCurrentData);
+      eventBus.$on('set-fit-file', this.setFitFile);
+      eventBus.$on('remove-uploaded-files', this.removeUploadedFiles);
+      eventBus.$on('delete-file', this.deleteFile);
+      eventBus.$on('disable-buttons', this.disableButtons);
+      
+    },
     data: function () {
       return {
         getFiles: [],
         uploadedFiles: [],
         colorDomain: [],
         selectedData: [],
-        xScale: d3.scaleLinear(),
-        yScale: d3.scaleLinear(),
+        scales: {
+          xScale: d3.scaleLinear(),
+          yScale: d3.scaleLinear()
+        },
         fileToFit: null,
         prevFileToFit: null,
-        xTitle: 'X',
-        yTitle: 'Y',
+        titles: {
+          xTitle: 'X',
+          yTitle: 'Y'
+        },
         isUploaded: false,
         isCollapseRight: false,
         isCollapseLeft: false,
@@ -163,7 +178,7 @@ export default {
             range: [-Infinity, +Infinity]
           }
         },
-        scales: {
+        scaleConfigurations: {
           'X': d3.scaleLinear(),
           'X^2': d3.scalePow().exponent(2),
           'Log(X)': d3.scaleLog().clamp(true),
@@ -221,7 +236,7 @@ export default {
           }
         }
       },
-      readFile: function () {
+      uploadFile: function () {
         var files = document.getElementById("input").files;
         var self = this;
 
@@ -304,6 +319,8 @@ export default {
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
 
+          eventBus.$emit('reset-scales');
+          eventBus.$emit('reset-fit');
           this.disableButtons(false);
           this.selectedData = [];
         } else {
@@ -386,23 +403,24 @@ export default {
           }
         }
       },
-      removeUploaded: function () {
+      removeUploadedFiles: function () {
         this.uploadedFiles = [];
       },
       setFitFile: function (filename) {
         this.prevFileToFit = this.fileToFit;
-        console.log("Previous File to Fit", this.prevFileToFit);
+        // console.log("Previous File to Fit", this.prevFileToFit);
         this.fileToFit = filename;
-        console.log("Current File to Fit", this.fileToFit);
+        // console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
-        this.xTitle = x;
-        this.yTitle = y;
-        this.xScale = this.scales[x];
-        this.yScale = this.scales[y];
+        this.titles.xTitle = x;
+        this.titles.yTitle = y;
+        this.scales.xScale = this.scaleConfigurations[x];
+        this.scales.yScale = this.scaleConfigurations[y];
       },
       setFit: function (fitname) {
-        this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]); //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
+        //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
+        this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]);
       },
       plotParameters: function () {
 
@@ -439,18 +457,16 @@ export default {
           }
         }
 
-        return temp;
+        return d3.merge(temp);
       },
       setParameters: function () {
         // Function to wrap up all the parameters needed for plotting
         this.plotParams = {
           data: this.prepData(this.selectedData),
           colorDomain: this.colorDomain,
-          xScale: this.xScale,
-          yScale: this.yScale,
+          scales: this.scales,
           fittedData: this.getFittedData(this.selectedData),
-          xTitle: this.xTitle,
-          yTitle: this.yTitle,
+          titles: this.titles,
           fitConfiguration: this.currentConfiguration
         };
       },
@@ -459,13 +475,12 @@ export default {
       }
     },
     watch: {
-      xScale: function () {
-        // Watch if xScale changes, if so update parameters then re-plot
-        this.setParameters();
-      },
-      yScale: function () {
-        // Watch if yScale changes, if so update parameters then re-plot
-        this.setParameters();
+      scales: {
+        handler: function() {
+          // Watch if scales change, if so re-set parameters
+          this.setParameters();
+        },
+        deep: true
       },
       fileToFit: function () {
         // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted
@@ -477,7 +492,7 @@ export default {
        	
         // If fileToFit is set to Null, don't transform anything and reset the fit to none
         if(this.fileToFit === null) {
-          console.log("Resetting configurations...");
+          // console.log("Resetting configurations...");
           this.setFit('None');
         } else {
 
@@ -556,6 +571,6 @@ export default {
 </script>
 
 <style scoped>
-@import '../styles/main-component-styles.css';
-@import '../styles/plot-styles.css';
+@import '../assets/styles/main-component-styles.css';
+@import '../assets/styles/plot-styles.css';
 </style>

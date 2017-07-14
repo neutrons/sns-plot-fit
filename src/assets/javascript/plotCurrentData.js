@@ -9,57 +9,8 @@ export default {
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
 
-            //Check if there is a fit select, if so transform data
-            // if(parameters.fitName !== 'None' && parameters.fileToFit !== null) {
-            //     // var data = fd.transformData(parameters.data, parameters.fitName, parameters.equation);
+            // console.log("Plotting data...");
 
-            //     // //pull data to be fit
-            //     // for(let i = 0; i < parameters.data.length; i++) {
-            //     //     if( parameters.data[i].name === parameters.fileToFit) {
-            //     //         var fitData = parameters.data[i];
-            //     //     }
-            //     // }
-
-            //     // var fitLine = fd.fitLine(fitData, parameters.fitName, parameters.equation);
-            //     console.log("Plotting fitted data");
-
-            //         // if(parameters.fitName === 'None') {
-            //         //     var data = fd.transformData(parameters.data, parameters.equation);
-            //         // } else if (parameters.fitName === 'Guinier') {
-            //         //     //check if equation is default (None = a*X+b) and set to Guinier default equation, else set to current equation state
-            //         //     console.log("Fitting Guinier...");
-            //         //     //this.equation = this.equation === 'a*X+b' ? 'b-(Rg^2)/3' : this.equation; 
-            //         //     var data = fd.transformData(parameters.data, parameters.equation);
-            //         // } else if (parameters.fitName === 'Porod') {
-            //         //     //check if equation is default (None = a*X+b) and set to Porod default equation, else set to current equation state
-            //         //     console.log("Fitting Porod...");
-            //         //     var data = fd.transformData(parameters.data, parameters.equation);
-            //         // } else if (parameters.fitName === 'Zimm') {
-            //         //     //check if equation is default (None = a*X+b) and set to Zimm default equation, else set to current equation state
-            //         //     console.log("Fitting Zimm...");
-            //         //     var data = fd.transformData(parameters.data, parameters.equation);
-            //         // } else if (parameters.fitName === 'Kratky') {
-            //         //     //check if equation is default (None = a*X+b) and set to Kratky default equation, else set to current equation state
-            //         //     console.log("Fitting Kratky...");
-            //         //     var data = fd.transformData(parameters.data, parameters.equation);
-            //         // } else if (parameters.fitName === 'Debye Beuche') {
-            //         //     //check if equation is default (None = a*X+b) and set to Debye Beuche default equation, else set to current equation state
-            //         //     console.log("Fitting Debye Beuche...");
-            //         //     var data = fd.transformData(parameters.data, parameters.equation);
-            //         // }
-                
-            //     //Set data to transformed data
-            //     // var data = fd.transformData(parameters.data, parameters.fitName);
-            //     var data = parameters.data;
-            // } else {
-            //     console.log("Plotting regular old data");
-            //     var data = parameters.data;
-            // }
-
-            // var data = parameters.data;
-            // console.log(data);
-            console.log("Plotting data...");
-            //console.log(parameters);
             //Set chart dimensions
             var margin = {
                     top: 30,
@@ -75,37 +26,12 @@ export default {
             // Filter any infinity values before plotting, this will happen when transforming log data = 0
             data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
 
-            var xScale = parameters.xScale;
+            var xScale = parameters.scales.xScale;
             xScale.range([0,width]); //scales according to fit type
-            var yScale = parameters.yScale;
+            var yScale = parameters.scales.yScale;
             yScale.range([height, 0]); //scales according to fit type
-            var xTitle = parameters.xTitle; //xTitle according to label
-            var yTitle = parameters.yTitle; //yTitle according to label
-            //var fitData = parameters.fittedData !== null ? parameters.fittedData : null; //fitted data to plot fit line
-
-            // Select Scale Based On Current Data's Scale Selection
-            // if (parameters.xScale === "LOG(X)") {
-            //     var xScale = d3.scaleLog().range([0, width]);
-            //     var xTitle = "LOG(X)";
-            // } else if (parameters.xScale === "X^2") {
-            //     var xScale = d3.scalePow().exponent(2).range([0, width]);
-            //     var xTitle = "X^2";
-            // } else {
-            //     var xScale = d3.scaleLinear().range([0, width]);
-            //     var xTitle = "X";
-            // }
-
-            // if (parameters.yScale === "LOG(Y)") {
-            //     var yScale = d3.scaleLog().clamp(true).range([height, 0]);
-            //     var yTitle = "LOG( I(Q) )";
-            // } else if (parameters.yScale === "Y^2") {
-            //     var yScale = d3.scalePow().exponent(2).range([height, 0]);
-            //     var yTitle = "I(Q)^2";
-            // } else {
-            //     var yScale = d3.scaleLinear().range([height, 0]);
-            //     var yTitle = "I(Q)";
-            // }
-
+            var xTitle = parameters.titles.xTitle; //xTitle according to label
+            var yTitle = parameters.titles.yTitle; //yTitle according to label
             
             //Set Axes
             var xAxis = d3.axisBottom(xScale).ticks(10).tickSize(-height),
@@ -169,7 +95,7 @@ export default {
             }));
 
             //Check if log(y) if so, adjust for zero values
-            if (parameters.yTitle === "Log(Y)") {
+            if (parameters.titles.yTitle === "Log(Y)") {
                 yScale.domain([0.00001, d3.max(data, function (d) {
                     return d.y
                 }) * 100]);
@@ -180,7 +106,7 @@ export default {
             }
 
             //Check if log(x) if so, adjust for zero values
-            if (parameters.xTitle === "Log(X)") {
+            if (parameters.titles.xTitle === "Log(X)") {
                 xScale.domain([0.00001, d3.max(data, function (d) {
                     return d.x;
                 }) * 10]);
