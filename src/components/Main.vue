@@ -319,6 +319,8 @@ export default {
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
 
+          eventBus.$emit('reset-scales');
+          eventBus.$emit('reset-fit');
           this.disableButtons(false);
           this.selectedData = [];
         } else {

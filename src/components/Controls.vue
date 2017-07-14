@@ -71,6 +71,10 @@ export default {
     fit: function() {
       eventBus.$emit('set-fit', this.fit);
     }
+  },
+  created() {
+    eventBus.$on('reset-fit', this.resetFit);
+    eventBus.$on('reset-scales', this.resetScales);
   }
 }
 </script>
