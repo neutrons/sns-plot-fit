@@ -15,18 +15,14 @@
         </select>
         <br>
         <label>Equation:</label>
-        <input type="text" class="form-control" id="fit-equation">
-        <label>a:</label>
-        <input type="text" class="form-control">
-        <label>b:</label>
-        <input type="text" class="form-control">
+        <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="EQUATION === null">
         <h3>Reset:</h3>
         <div class="btn-group-vertical">
         <button class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
         <br>
         <button class="btn btn-warning btn-sm" @click="RESETPLOT" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
         <br>
-        <button class="btn btn-danger btn-sm" @click="resetFit" :disabled="!FILETOFIT">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
+        <button class="btn btn-danger btn-sm" @click="resetFit">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
         </div>
       </div>
   </div>
@@ -35,27 +31,29 @@
 <script>
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETSCALES", "SETFIT"],
+  props: ["BUTTONDIS", "RESETPLOT", "FILETOFIT", "SETSCALES", "SETFIT", "EQUATION", 'set-equation'],
   data: function() {
     return {
       xScale: 'X',
-      xScales: ["X", "X^2", "LOG(X)"],
+      xScales: ["X", "X^2", "Log(X)"],
       yScale: 'Y',
-      yScales: ["Y", "Y^2", "LOG(Y)"],
+      yScales: ["Y", "Y^2", "Log(Y)"],
       fit: 'None',
-      fits: ["None", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"]
+      fits: ["None", "Linear", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"],
+      equation: ""
     }
   },
   methods: {
     resetScales: function() {
-      // this.PLOTPARAMS.xScale = 'X';
-      // this.PLOTPARAMS.yScale = 'Y';
       this.xScale = 'X';
       this.yScale = 'Y';
     },
     resetFit: function() {
-      // this.PLOTPARAMS.fitName = 'None'
-      this.SETFIT('None');
+      this.fit = 'None';
+    },
+    enterEquation: function() {
+      let newEq = document.getElementById('fit-equation').value;
+      this.$emit('set-equation', newEq);
     }
   },
   watch: {
@@ -67,13 +65,15 @@ export default {
     },
     fit: function() {
       this.SETFIT(this.fit);
+    },
+    equation: function() {
+      console.log("Equation:", this.equation);
     }
   }
 }
 </script>
 
 <style scoped>
-
 .form-control {
   text-align-last: center;
 }
@@ -90,5 +90,4 @@ export default {
   background-color: gainsboro;
   border-right: 1px solid rgba(0,0,0,0.25);
 }
-
 </style>
