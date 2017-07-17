@@ -418,9 +418,9 @@ export default {
       },
       setFitFile: function (filename) {
         this.prevFileToFit = this.fileToFit;
-        console.log("Previous File to Fit", this.prevFileToFit);
+        // console.log("Previous File to Fit", this.prevFileToFit);
         this.fileToFit = filename;
-        console.log("Current File to Fit", this.fileToFit);
+        // console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
         this.titles.xTitle = x;
