@@ -418,9 +418,9 @@ export default {
       },
       setFitFile: function (filename) {
         this.prevFileToFit = this.fileToFit;
-        // console.log("Previous File to Fit", this.prevFileToFit);
+        console.log("Previous File to Fit", this.prevFileToFit);
         this.fileToFit = filename;
-        // console.log("Current File to Fit", this.fileToFit);
+        console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
         this.titles.xTitle = x;
@@ -471,7 +471,7 @@ export default {
       },
       setParameters: function () {
         // Function to wrap up all the parameters needed for plotting
-        console.log("Data", this.selectedData);
+        // console.log("Data", this.selectedData);
         this.plotParams = {
           data: this.prepData(this.selectedData),
           colorDomain: this.colorDomain,
@@ -504,7 +504,8 @@ export default {
         // If fileToFit is set to Null, don't transform anything and reset the fit to none
         if(this.fileToFit === null) {
           // console.log("Resetting configurations...");
-          this.setFit('None');
+          eventBus.$emit('reset-fit');
+          // this.setFit('None');
         } else {
 
         for(let i=0; i < this.selectedData.length; i++) {
