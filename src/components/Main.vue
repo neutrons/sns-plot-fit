@@ -188,10 +188,10 @@ export default {
         scaleConfigurations: {
           'X': d3.scaleLinear(),
           'X^2': d3.scalePow().exponent(2),
-          'Log(X)': d3.scaleLog().clamp(true),
+          'Log(X)': d3.scaleLog(),
           'Y': d3.scaleLinear(),
           'Y^2': d3.scalePow().exponent(2),
-          'Log(Y)': d3.scaleLog().clamp(true)
+          'Log(Y)': d3.scaleLog()
         }
       }
     },
@@ -230,6 +230,8 @@ export default {
 
               // Each data file has an empty second row so removing it with splice
               data = data.splice(1, data.length);
+              data = data.filter( (d) => d.y > 0 && d.x > 0); // Filter out negative values for x and y
+
               vthis.getFiles.push({
                 data: data,
                 fileName: files[i].name,
@@ -270,6 +272,7 @@ export default {
 
             // Each data file has an empty second row so removing it with splice
             data = data.splice(1, data.length);
+            data = data.filter( (d) => d.y > 0 && d.x > 0); // Filter out negative values for x and y
             // Once data is read in add it to the uploaded list
             self.uploadedFiles.unshift({
               data: data,

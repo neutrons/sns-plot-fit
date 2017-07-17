@@ -24,7 +24,7 @@ export default {
             var data = parameters.data; //regular data to plot
 
             // Filter any infinity values before plotting, this will happen when transforming log data = 0
-            data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
+            // data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
 
             var xScale = parameters.scales.xScale;
             xScale.range([0,width]); //scales according to fit type
@@ -93,28 +93,31 @@ export default {
             xScale.domain(d3.extent(data, function (d) {
                 return d.x;
             }));
+            yScale.domain(d3.extent(data, function(d) {
+                return d.y;
+            }));
 
-            //Check if log(y) if so, adjust for zero values
-            if (parameters.titles.yTitle === "Log(Y)") {
-                yScale.domain([0.00001, d3.max(data, function (d) {
-                    return d.y
-                }) * 100]);
-            } else {
-                yScale.domain(d3.extent(data, function (d) {
-                    return d.y;
-                }));
-            }
+            // //Check if log(y) if so, adjust for zero values
+            // if (parameters.titles.yTitle === "Log(Y)") {
+            //     yScale.domain([0, d3.max(data, function (d) {
+            //         return d.y
+            //     }) * 100]);
+            // } else {
+            //     yScale.domain(d3.extent(data, function (d) {
+            //         return d.y;
+            //     }));
+            // }
 
-            //Check if log(x) if so, adjust for zero values
-            if (parameters.titles.xTitle === "Log(X)") {
-                xScale.domain([0.00001, d3.max(data, function (d) {
-                    return d.x;
-                }) * 10]);
-            } else {
-                xScale.domain(d3.extent(data, function (d) {
-                    return d.x;
-                }));
-            }
+            // //Check if log(x) if so, adjust for zero values
+            // if (parameters.titles.xTitle === "Log(X)") {
+            //     xScale.domain([0.00001, d3.max(data, function (d) {
+            //         return d.x;
+            //     }) * 10]);
+            // } else {
+            //     xScale.domain(d3.extent(data, function (d) {
+            //         return d.x;
+            //     }));
+            // }
 
             //Add X Axis
             axis.append("g")
@@ -207,7 +210,12 @@ export default {
                         return yScale(d.y + d.error);
                     })
                     .attr('y2', function (d) {
-                        return yScale(d.y - d.error);
+                        if(d.y - d.error < 0 && parameters.titles.yTitle === "Log(Y)") {
+                            // console.log("Below zero! d.y = " + d.y + " | d.error = " + d.error + "| d.y - d.error = " + (d.y - d.error));
+                            return yScale(d.y)
+                        } else {
+                            return yScale(d.y - d.error);
+                        }
                     })
                     .style("stroke", function () {
                         return d.color = color(d.key);
@@ -252,6 +260,13 @@ export default {
                     .append('line')
                     .attr("clip-path", "url(#clip)")
                     .attr('class', 'error-tick-bottom')
+                    .filter( function(d) {
+                        if(parameters.titles.yTitle === "Log(Y)") {
+                            return d.y - d.error > 0;
+                        } else {
+                            return true;
+                        }
+                    })
                     .attr('x1', function (d) {
                         return xScale(d.x) - 4;
                     })
@@ -298,7 +313,7 @@ export default {
                             tooltip.transition()
                                 .duration(200)
                                 .style("opacity", 1);
-                            tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.x.toFixed(6))
+                            tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.error.toFixed(6))
                                 .style("left", (d3.event.pageX - 140) + "px")
                                 .style("top", (d3.event.pageY - 110) + "px");
                         })
@@ -406,7 +421,12 @@ export default {
                         return new_yScale(d.y + d.error);
                     })
                     .attr('y2', function (d) {
-                        return new_yScale(d.y - d.error);
+                        if(d.y - d.error < 0 && parameters.titles.yTitle === "Log(Y)") {
+                            // console.log("Below zero! d.y = " + d.y + " | d.error = " + d.error + "| d.y - d.error = " + (d.y - d.error));
+                            return new_yScale(d.y)
+                        } else {
+                            return new_yScale(d.y - d.error);
+                        }
                     });
                 
                 //re-draw error tick top
@@ -424,8 +444,15 @@ export default {
                         return new_yScale(d.y + d.error);
                     });
 
-                //re-draw error tick top
+                //re-draw error tick bottom
                 errorlines.selectAll(".error-tick-bottom")
+                    .filter( function(d) {
+                        if(parameters.titles.yTitle === "Log(Y)") {
+                            return d.y - d.error > 0;
+                        } else {
+                            return true;
+                        }
+                    })
                     .attr('x1', function (d) {
                         return new_xScale(d.x) - 4;
                     })
