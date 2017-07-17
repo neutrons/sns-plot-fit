@@ -158,7 +158,11 @@ var fd = {};
 
 fd.transformData = function(data, configuration) {
 
-    	// var t = JSON.parse(JSON.stringify(data));
+        // Need to make a temp value of data, so as to not alter the original values
+        // This is passing a value rather than a reference (using lodash to handle the cloning)
+        // Good References: 
+        // https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
+        // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
         let t = _.cloneDeep(data);
         var exp = [configuration.xTransformation, configuration.yTransformation, configuration.eTransformation];
         
@@ -170,42 +174,18 @@ fd.transformData = function(data, configuration) {
             });
         
         return t.data; // returns transformed data array
-    
-    // Need to make a temp value of data, so as to not alter the original values
-    // This is passing a value rather than a reference
-    // Good References: 
-    // https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
-    // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
-    // var temp = JSON.parse(JSON.stringify(data));
-    // var exp = [configuration.xTransformation, configuration.yTransformation];
-
-    // console.log("Transforming data...", exp);
-    // temp.forEach( (el) => {      
-    //     // Re-assign the transformed data to x and y
-    //     // math.eval spits out an array of transformed [x,y] values
-    //     // so d.x = math.eval()[0], d.y = math.eval()[1]
-    //     el.data.forEach( (d) => { 
-    //         [d.x, d.y] = math.eval(exp, d);
-    //     })
-    // });
-
-    // // console.log("Transformed data:", data);
-    // return temp; //return transformed data
 }
 
 fd.fitData = function(data, configuration) {
-
+    // Code to fit data on the transformed data
     let t = _.cloneDeep(data);
-    console.log("Fitting data...", t)
     t = t.dataTransformed;
-    //code to transform data
-    // console.log("Fitting data...");
-    return t; //return fit data array
+    return t.dataTransformed; // Return fit data array
 }
 
 fd.fitLine = function(data, equation) {
 
-    return (someFitData); //returned fitted data
+    return (someFitData); // Returned fitted data
 }
 
 export default fd;
