@@ -176,10 +176,10 @@ fd.transformData = function(data, configuration) {
         return t.data; // returns transformed data array
 }
 
-fd.fitData = function(data, configuration) {
+fd.fitData = function(data, equation, minX, maxX) {
     // Code to fit data on the transformed data
     let t = _.cloneDeep(data);
-    t = configuration.fit === "None" || configuration.fit === "Linear" ? t.data : t.dataTransformed;
+    // t = configuration.fit === "None" || configuration.fit === "Linear" ? t.data : t.dataTransformed;
     return t; // Return fit data array
 }
 
