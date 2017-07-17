@@ -160,13 +160,13 @@ fd.transformData = function(data, configuration) {
 
     	// var t = JSON.parse(JSON.stringify(data));
         let t = _.cloneDeep(data);
-        var exp = [configuration.xTransformation, configuration.yTransformation];
+        var exp = [configuration.xTransformation, configuration.yTransformation, configuration.eTransformation];
         
         t.data.forEach( (el) => {      
                 // Re-assign the transformed data to x and y
                 // math.eval spits out an array of transformed [x,y] values
                 // so d.x = math.eval()[0], d.y = math.eval()[1]
-                [el.x, el.y] = math.eval(exp, el);
+                [el.x, el.y, el.e] = math.eval(exp, el);
             });
         
         return t.data; // returns transformed data array
@@ -196,7 +196,8 @@ fd.transformData = function(data, configuration) {
 fd.fitData = function(data, configuration) {
 
     let t = _.cloneDeep(data);
-    t = t.data;
+    console.log("Fitting data...", t)
+    t = t.dataTransformed;
     //code to transform data
     // console.log("Fitting data...");
     return t; //return fit data array

@@ -119,6 +119,7 @@ export default {
             equation: null,
             yTransformation: null,
             xTransformation: null,
+            eTransformation: null,
             yLabel: "I",
             xLabel: "Q",
             range: [-Infinity, +Infinity]
@@ -128,6 +129,7 @@ export default {
             equation: 'm*X+b',
             yTransformation: 'y',
             xTransformation: 'x',
+            eTransformation: "e",
             yLabel: "I",
             xLabel: "Q",
             range: [-Infinity, +Infinity]
@@ -137,6 +139,7 @@ export default {
             equation: "-Rg^2/3*X+b",
             yTransformation: "log(y)",
             xTransformation: "x^2",
+            eTransformation: "0.434*e/x",
             yLabel: "Log(I)",
             xLabel: "Q^2",
             range: [-Infinity, +Infinity]
@@ -146,6 +149,7 @@ export default {
             equation: "A-n*X",
             yTransformation: "log(y)",
             xTransformation: "log(x)",
+            eTransformation: "0.434*e/x",
             yLabel: "Log(I)",
             xLabel: "Log(Q)",
             range: [-Infinity, +Infinity]
@@ -155,6 +159,7 @@ export default {
             equation: "1/I0+Cl^2/I0*X",
             yTransformation: "1/y",
             xTransformation: "x^2",
+            eTransformation: "0.434*e/x", // Needs to be changed
             yLabel: "1/I",
             xLabel: "Q^2",
             range: [-Infinity, +Infinity]
@@ -164,6 +169,7 @@ export default {
             equation: "m*X+b",
             yTransformation: "log(x^2*y)",
             xTransformation: "x^2",
+            eTransformation: "0.434*e/x",
             yLabel: "log(Q^2*I)",
             xLabel: "Log(Q)",
             range: [-Infinity, +Infinity]
@@ -173,6 +179,7 @@ export default {
             equation: "m*X+I0",
             yTransformation: "sqrt(y)",
             xTransformation: "x^2",
+            eTransformation: "0.434*e/x", // Needs to be changed
             yLabel: "sqrt(I)",
             xLabel: "Q^2",
             range: [-Infinity, +Infinity]
@@ -461,6 +468,7 @@ export default {
       },
       setParameters: function () {
         // Function to wrap up all the parameters needed for plotting
+        console.log("Data", this.selectedData);
         this.plotParams = {
           data: this.prepData(this.selectedData),
           colorDomain: this.colorDomain,

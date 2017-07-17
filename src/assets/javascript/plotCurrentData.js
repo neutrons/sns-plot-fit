@@ -298,7 +298,7 @@ export default {
                             tooltip.transition()
                                 .duration(200)
                                 .style("opacity", 1);
-                            tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6))
+                            tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.x.toFixed(6))
                                 .style("left", (d3.event.pageX - 140) + "px")
                                 .style("top", (d3.event.pageY - 110) + "px");
                         })
