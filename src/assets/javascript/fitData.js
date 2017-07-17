@@ -179,8 +179,8 @@ fd.transformData = function(data, configuration) {
 fd.fitData = function(data, configuration) {
     // Code to fit data on the transformed data
     let t = _.cloneDeep(data);
-    t = t.dataTransformed;
-    return t.dataTransformed; // Return fit data array
+    t = configuration.fit === "None" || configuration.fit === "Linear" ? t.data : t.dataTransformed;
+    return t; // Return fit data array
 }
 
 fd.fitLine = function(data, equation) {

@@ -139,7 +139,7 @@ export default {
             equation: "-Rg^2/3*X+b",
             yTransformation: "log(y)",
             xTransformation: "x^2",
-            eTransformation: "0.434*e/x",
+            eTransformation: "((1/x)*e)^2",
             yLabel: "Log(I)",
             xLabel: "Q^2",
             range: [-Infinity, +Infinity]
@@ -149,7 +149,7 @@ export default {
             equation: "A-n*X",
             yTransformation: "log(y)",
             xTransformation: "log(x)",
-            eTransformation: "0.434*e/x",
+            eTransformation: "((1/x)*e)^2",
             yLabel: "Log(I)",
             xLabel: "Log(Q)",
             range: [-Infinity, +Infinity]
@@ -159,7 +159,7 @@ export default {
             equation: "1/I0+Cl^2/I0*X",
             yTransformation: "1/y",
             xTransformation: "x^2",
-            eTransformation: "0.434*e/x", // Needs to be changed
+            eTransformation: "((-1/x^2)*e)^2",
             yLabel: "1/I",
             xLabel: "Q^2",
             range: [-Infinity, +Infinity]
@@ -169,7 +169,7 @@ export default {
             equation: "m*X+b",
             yTransformation: "log(x^2*y)",
             xTransformation: "x^2",
-            eTransformation: "0.434*e/x",
+            eTransformation: "((1/x)*e)^2",
             yLabel: "log(Q^2*I)",
             xLabel: "Log(Q)",
             range: [-Infinity, +Infinity]
@@ -179,7 +179,7 @@ export default {
             equation: "m*X+I0",
             yTransformation: "sqrt(y)",
             xTransformation: "x^2",
-            eTransformation: "0.434*e/x", // Needs to be changed
+            eTransformation: "(1/(2*sqrt(x))*e)^2",
             yLabel: "sqrt(I)",
             xLabel: "Q^2",
             range: [-Infinity, +Infinity]

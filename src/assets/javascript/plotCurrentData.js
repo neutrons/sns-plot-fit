@@ -24,7 +24,7 @@ export default {
             var data = parameters.data; //regular data to plot
 
             // Filter any infinity values before plotting, this will happen when transforming log data = 0
-            // data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
+            data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x) && d.y > 0);
 
             var xScale = parameters.scales.xScale;
             xScale.range([0,width]); //scales according to fit type
