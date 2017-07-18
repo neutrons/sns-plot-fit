@@ -518,8 +518,8 @@ export default {
             }
             
             // Find new file to fit and set the array to fitted data points
-            if(el === this.fileToFit) {
-              let tempData = this.currentConfiguration.fit === "None" || this.currentConfiguration.fit === "Linear" ? this.selectedData[i].data : this.selectedData[i].dataTransformed;
+            if(el === this.fileToFit && this.currentConfiguration.fit !== "None") {
+              let tempData = this.currentConfiguration.fit === "Linear" ? this.selectedData[i].data : this.selectedData[i].dataTransformed;
               let maxX = d3.max(tempData, function(d) { return d.x; });
               let minX = d3.min(tempData, function(d) { return d.x; });
               this.selectedData[i].dataFitted = fd.fitData(tempData, this.currentConfiguration.equation, minX, maxX);
@@ -552,7 +552,7 @@ export default {
               if(el.fileName === this.fileToFit) {
                 let maxX = d3.max(el.data, function(d) { return d.x; });
                 let minX = d3.min(el.data, function(d) { return d.x; });
-                el.dataFitted = fd.fitData(el.data, this.currentConfiguration.equation, minX, maxX);
+                el.dataFitted = fd.fitData(el.dataTransformed, this.currentConfiguration.equation, minX, maxX);
               }
             })
             // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
