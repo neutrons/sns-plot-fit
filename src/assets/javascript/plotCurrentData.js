@@ -97,28 +97,6 @@ export default {
                 return d.y;
             }));
 
-            // //Check if log(y) if so, adjust for zero values
-            // if (parameters.titles.yTitle === "Log(Y)") {
-            //     yScale.domain([0, d3.max(data, function (d) {
-            //         return d.y
-            //     }) * 100]);
-            // } else {
-            //     yScale.domain(d3.extent(data, function (d) {
-            //         return d.y;
-            //     }));
-            // }
-
-            // //Check if log(x) if so, adjust for zero values
-            // if (parameters.titles.xTitle === "Log(X)") {
-            //     xScale.domain([0.00001, d3.max(data, function (d) {
-            //         return d.x;
-            //     }) * 10]);
-            // } else {
-            //     xScale.domain(d3.extent(data, function (d) {
-            //         return d.x;
-            //     }));
-            // }
-
             //Add X Axis
             axis.append("g")
                 .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
