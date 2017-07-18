@@ -164,8 +164,9 @@ export default {
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                     .datum(d.values)
                     .attr("class", "pointlines")
-                    .attr("id", function() { return d.key + "-line"; })
+                    .attr("class", function() { return d.key + "-line"; })
                     .attr("d", plotLine)
+                    .style("fill", "none")
                     .style("stroke", function () {
                         return d.color = color(d.key);
                     });;
@@ -277,7 +278,7 @@ export default {
                         .attr("cy", function (d) {
                             return yScale(d.y);
                         })
-                        .attr("id", function(d) { return d.name + "-dot" })
+                        .attr("class", function(d) { return d.name + "-dot" })
                         .style("stroke", "white")
                         .style("stroke-width", "1px")
                         .style("opacity", 1)
@@ -337,8 +338,8 @@ export default {
                             d3.selectAll(".error-tick-top").style("opacity", 0.2);
                             d3.selectAll(".error-tick-bottom").style("opacity", 0.2);
                             d3.selectAll(".pointlines").style("opacity", 0.2);
-                            d3.selectAll("#" + d.key + "-line").style("stroke-width", "2px").style("opacity", 1);
-                            d3.selectAll("#" + d.key + "-dot").attr("r", 5).style("opacity", 1);
+                            d3.selectAll("." + d.key + "-line").style("stroke-width", "2px").style("opacity", 1);
+                            d3.selectAll("." + d.key + "-dot").attr("r", 5).style("opacity", 1);
                             d3.select(this).style("font-size", "13px");
                         })
                         .on("mouseout", function() {
@@ -347,8 +348,8 @@ export default {
                             d3.selectAll(".error-tick-bottom").style("opacity", 1);
                             d3.selectAll("circle").style("opacity", 1);
                             d3.selectAll(".pointlines").style("opacity", 1);
-                            d3.selectAll("#" + d.key + "-line").style("stroke-width", "1px");
-                            d3.selectAll("#" + d.key + "-dot").attr("r", 4);
+                            d3.selectAll("." + d.key + "-line").style("stroke-width", "1px");
+                            d3.selectAll("." + d.key + "-dot").attr("r", 4);
                             d3.select(this).style("font-size", "12px");  
                         });
 
