@@ -17,7 +17,7 @@
             </div>
             <div id="collapse-plot" class="panel-collapse collapse in">
                 <div class="panel-body">
-                  <div id="plot-area">Plot goes here...</div>
+                  <div id="plot-area"></div>
                 </div>
             </div>
         </div>

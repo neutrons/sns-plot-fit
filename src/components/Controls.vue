@@ -16,7 +16,7 @@
 
                     <div id="collapse-reset" class="panel-collapse collapse in">
                         <div class="panel-body">
-                            <button class="btn btn-warning btn-sm" @click="resetPlot" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
+                            <button id="btn-reset-plot" class="btn btn-warning btn-sm" @click="resetPlot" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
                         </div>
                     </div>
                 </div>
@@ -34,6 +34,8 @@
                             <select class="form-control" v-model="yScale" :disabled="!BUTTONDIS" @change="setScales">
                             <option v-for="option in yScales">{{option}}</option>
                             </select>
+                            <br>
+                            <button id="btn-reset-scales" class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
                         </div>
                     </div>
                 </div>
@@ -51,7 +53,7 @@
                             <label class="equation-title">Equation:</label>
                             <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="EQUATION === null">
                             <br>
-                            <button class="btn btn-danger btn-sm" @click="resetFit">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
+                            <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
                         </div>
                     </div>
                 </div>
@@ -132,12 +134,13 @@ export default {
   border-right: 1px solid rgba(0,0,0,0.25);
 }
 
-.btn {
-  width: auto;
+#btn-reset-scales, #btn-reset-plot, #btn-remove-fit {
+  width: 100%;
 }
 
 .equation-title {
-  color: #007833;
+  color: #0052cc;
+  text-align: center;
 }
 
 /* New styles added */

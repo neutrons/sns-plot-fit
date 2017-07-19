@@ -14,12 +14,12 @@ export default {
             //Set chart dimensions
             var margin = {
                     top: 30,
-                    right: 100, //this is to accomodate the right sidebar
+                    right: 200, //this is to accomodate the right sidebar
                     bottom: 50,
                     left: 50
                 },
-                width = 750 - margin.left - margin.right,
-                height = 450 - margin.top - margin.bottom;
+                width = 1150 - margin.left - margin.right,
+                height = 550 - margin.top - margin.bottom;
 
             var data = parameters.data; //regular data to plot
 
@@ -38,7 +38,7 @@ export default {
                 yAxis = d3.axisLeft(yScale).ticks(10).tickSize(-width);
 
             //Add tool tip and hide it until invoked
-            var tooltip = d3.select("div.plot").append("div")
+            var tooltip = d3.select("#plot-area").append("div")
                 .attr("class", "tooltip")
                 .style("opacity", 0)
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -164,7 +164,6 @@ export default {
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                     .datum(d.values)
                     .attr("class", "pointlines")
-                    .attr("class", function() { return d.key + "-line"; })
                     .attr("d", plotLine)
                     .style("fill", "none")
                     .style("stroke", function () {
@@ -331,27 +330,7 @@ export default {
                         })
                         .style("font-size", "12px")
                         .style("font-weight", "bold")
-                        .text(d.key)
-                        .on("mouseover", function() {
-                            d3.selectAll("circle").style("opacity", 0.2);
-                            d3.selectAll(".error").style("opacity", 0.2);
-                            d3.selectAll(".error-tick-top").style("opacity", 0.2);
-                            d3.selectAll(".error-tick-bottom").style("opacity", 0.2);
-                            d3.selectAll(".pointlines").style("opacity", 0.2);
-                            d3.selectAll("." + d.key + "-line").style("stroke-width", "2px").style("opacity", 1);
-                            d3.selectAll("." + d.key + "-dot").attr("r", 5).style("opacity", 1);
-                            d3.select(this).style("font-size", "13px");
-                        })
-                        .on("mouseout", function() {
-                            d3.selectAll(".error").style("opacity", 1);
-                            d3.selectAll(".error-tick-top").style("opacity", 1);
-                            d3.selectAll(".error-tick-bottom").style("opacity", 1);
-                            d3.selectAll("circle").style("opacity", 1);
-                            d3.selectAll(".pointlines").style("opacity", 1);
-                            d3.selectAll("." + d.key + "-line").style("stroke-width", "1px");
-                            d3.selectAll("." + d.key + "-dot").attr("r", 4);
-                            d3.select(this).style("font-size", "12px");  
-                        });
+                        .text(d.key);
 
             });
 
