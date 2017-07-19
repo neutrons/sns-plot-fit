@@ -2,45 +2,71 @@ html,
 body {
    margin:0;
    padding:0;
-   height:100%;
 }
 
-.container-fluid {
+  body {
+      background: white;
+  }
+  .container-fluid {
+      padding-left: 0px;
+      padding-right: 0px;
+  }
+  /* Icon when the collapsible content is shown */
+  .btn-col:after {
+    font-family: "Glyphicons Halflings";
+    content: "\e114";
+    font-size: 8px;
+  }
+  /* Icon when the collapsible content is hidden */
+  .btn-col.collapsed:after {
+    content: "\e080";
+    font-size: 8px;
+  }
+
+  #plot-area {
+      height: auto;
+  }
+
+  .panel-heading {
+      text-align: center;
+  }
+
+/*.container-fluid {
   min-height: 100%;
   position: relative;
-}
+}*/
 
-.main {
+/*.main {
   min-height: inherit;
   padding-bottom: 30px;
-}
+}*/
 
-.plotarea {
+/*.plotarea {
   min-height: inherit;
   background-color: rgba(0,0,0,0.015);
   padding:35px;
-}
+}*/
 
 ol {
   margin: 0px;
   padding: 0px;
 }
 
-h3 {
+/*h3 {
   color: #007833;
-}
+}*/
 
-button.reset {
+/*button.reset {
   width: 50%;
-}
+}*/
 
-.plotpanel {
+/*.plotpanel {
   min-height: 90vh;
   padding: 0px;
   padding-bottom: 5px;
-}
+}*/
 
-.btn-collapse-right {
+/*.btn-collapse-right {
   position: absolute;
   top: 0;
   right: 0;
@@ -54,9 +80,9 @@ button.reset {
   left: 0;
   border: none;
   border-radius: 0px;
-}
+}*/
 
-button.btn-collapse-right:focus, button.btn-collapse-left:focus {
+/*button.btn-collapse-right:focus, button.btn-collapse-left:focus {
   background: none;
 }
 
@@ -70,5 +96,5 @@ button.btn-collapse-right:hover, button.btn-collapse-left:hover {
 
 * {
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-}
+}*/
 

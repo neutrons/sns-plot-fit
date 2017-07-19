@@ -1,67 +1,101 @@
 <template>
-  <div class="fileuploads">
-    <div class="row">
-      <div>
-        <h3>GET File(s): <button class="btn btn-xs btn-primary" @click="fetchData"><span class="glyphicon glyphicon-download"></span></button></h3>
-      </div>
-      <table class="table table-condensed tabletop">
-      <thead>
-        <tr>
-          <th class="col-sm-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
-          <th class="col-sm-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
-          <th class="col-sm-9">File Name</th>
-        </tr>
-      </thead>
-      </table>
-      <div class="getloads-list">
-        <table class="table table-condensed table-hover table-bordered">
-          <tbody>
-            <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
-              <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(data.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
-              <td><input class="checks" type="checkbox" :id="data.fileName + '-plot'" :value="data.fileName" v-model="filesToPlot"></td>
-              <td>{{ data.fileName }}</td>
-            </tr>
-          </tbody>
-      </table>
-      </div>
-    </div>
-    <div class="row">
-      <h3>Uploaded File(s):</h3>
-      <table class="table table-condensed tabletop">
-      <thead>
-        <tr>
-          <th class="col-sm-1">Fit</th>
-          <th class="col-sm-1">Plot</th>
-          <th class="col-sm-6">File Name</th>
-          <th class="col-sm-4">Delete</th>
-        </tr>
-      </thead>
-      </table>
-      <div class="uploads-list">
-        <table class="table table-condensed table-hover table-bordered">
-          <tbody>
-            <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
-              <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(file.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
-              <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="filesToPlot"></td>
-              <td>{{ file.fileName }}</td>
-              <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | deleteFile(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
-            </tr>
-          </tbody>
-      </table>
-      </div>
-      <br>
-      <div>
-          <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
-          <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
-          <button class="btn btn-danger btn-xs btn-files" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete Files <span class="glyphicon glyphicon-trash"></span></button>
-      </div>
-      <br>
-      <div class="dropzone-area" drag-over="handleDragOver">
-        <div class="dropzone-text">
-          <span class="dropzone-title">Drop file(s) here or click to select</span>
+  <div id="fileuploads">
+    
+    <div id="file-panel" class="col-md-2">
+        <div id="files-bg">
+
+            <div class="panel panel-default">
+                <div id="right-panel-collapse" class="panel-heading"><span class="glyphicon glyphicon-menu-right pull-left"></span> Files </div>
+            </div>
+
+            <div id="file-panel-group">
+                <div class="panel panel-success">
+                    <div class="panel-heading">Get Files
+                        <button class="btn btn-xs btn-primary pull-left" @click="fetchData"><span class="glyphicon glyphicon-download"></span></button>
+                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-get-files"></button>
+                    </div>
+                    <div id="collapse-get-files" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <table class="table table-condensed tabletop">
+                                <thead>
+                                    <tr>
+                                    <th class="col-sm-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
+                                    <th class="col-sm-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
+                                    <th class="col-sm-9">File Name</th>
+                                    </tr>
+                                </thead>
+                                </table>
+                                <div class="getloads-list">
+                                    <table class="table table-condensed table-hover table-bordered">
+                                    <tbody>
+                                        <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
+                                        <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(data.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
+                                        <td><input class="checks" type="checkbox" :id="data.fileName + '-plot'" :value="data.fileName" v-model="filesToPlot"></td>
+                                        <td>{{ data.fileName }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Uploaded Files
+                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-uploaded-files"></button>
+                    </div>
+                    <div id="collapse-uploaded-files" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <table class="table table-condensed tabletop">
+                    <thead>
+                        <tr>
+                        <th class="col-sm-1">Fit</th>
+                        <th class="col-sm-1">Plot</th>
+                        <th class="col-sm-6">File Name</th>
+                        <th class="col-sm-4">Delete</th>
+                        </tr>
+                    </thead>
+                    </table>
+                    <div class="uploads-list">
+                        <table class="table table-condensed table-hover table-bordered">
+                        <tbody>
+                            <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
+                            <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(file.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
+                            <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="filesToPlot"></td>
+                            <td>{{ file.fileName }}</td>
+                            <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | deleteFile(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <br>
+                    <div>
+                        <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
+                        <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
+                        <button class="btn btn-danger btn-xs btn-files" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Drop Files
+                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-drop-zone"></button>
+                    </div>
+                    <div id="collapse-drop-zone" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="dropzone-area" drag-over="handleDragOver">
+                                <div class="dropzone-text">
+                                <span class="dropzone-title">Drop file(s) here or click to select</span>
+                                </div>
+                                <input type="file" id="input" multiple @change="uploadFile">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
         </div>
-        <input type="file" id="input" multiple @change="uploadFile">
-      </div>
     </div>
   </div>
 </template>
@@ -73,6 +107,7 @@
 import { eventBus } from '../assets/javascript/eventBus';
 
 export default {
+  name: 'fileuploads',
   props: ["GETFILES", "BUTTONDIS", "UPLOADEDFILES", "ISUPLOADED"],
   data: function () {
     return {
@@ -159,14 +194,14 @@ export default {
 </script>
 
 <style scoped>
-.fileuploads {
+/*.fileuploads {
   text-align: center;
   min-height: 90vh;
   margin-bottom: 0px;
   padding: 25px;
   background-color: gainsboro;
   border-left: 1px solid rgba(0,0,0,0.25);
-}
+}*/
 
 .btn-files {
   font-size: 11px;
@@ -249,4 +284,20 @@ th {
   text-align: center;
 }
 
+/*New styles added*/
+#right-panel-collapse {
+      width: 100%;
+  }
+
+#right-panel-collapse:hover {
+      cursor: pointer;
+  }
+
+ #file-panel-group {
+      padding: 10px;
+  }
+
+  #files-bg {
+      background: rgba(0, 204, 68, 0.15);
+  }
 </style>

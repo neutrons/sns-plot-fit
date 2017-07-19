@@ -14,12 +14,12 @@ export default {
             //Set chart dimensions
             var margin = {
                     top: 30,
-                    right: 150, //this is to accomodate the right sidebar
+                    right: 100, //this is to accomodate the right sidebar
                     bottom: 50,
                     left: 50
                 },
-                width = 1250 - margin.left - margin.right,
-                height = 600 - margin.top - margin.bottom;
+                width = 750 - margin.left - margin.right,
+                height = 450 - margin.top - margin.bottom;
 
             var data = parameters.data; //regular data to plot
 
@@ -44,7 +44,7 @@ export default {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             //Add main chart area
-            var svg = d3.select("div.plot").append("svg")
+            var svg = d3.select("#plot-area").append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
