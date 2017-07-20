@@ -1,7 +1,7 @@
 <template>
   <div id="Controls">
 
-      <div id="control-panel" class="col-md-2">
+      <div id="control-panel" class="col-lg-2">
 
         <div id="controls-bg">
             <div class="panel panel-default">

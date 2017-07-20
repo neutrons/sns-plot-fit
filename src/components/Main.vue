@@ -9,7 +9,7 @@
         :EQUATION="$data.currentConfiguration.equation"
         ></app-controls>
         
-      <div id="plot-panel" class="col-md-8">
+      <div id="plot-panel" class="col-lg-8">
         <div class="panel panel-default">
 
             <div class="panel-heading">Plot

@@ -1,7 +1,7 @@
 <template>
   <div id="fileuploads">
     
-    <div id="file-panel" class="col-md-2">
+    <div id="file-panel" class="col-lg-2">
         <div id="files-bg">
 
             <div class="panel panel-default">
@@ -19,9 +19,9 @@
                             <table class="table table-condensed tabletop">
                                 <thead>
                                     <tr>
-                                    <th class="col-md-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
-                                    <th class="col-md-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
-                                    <th class="col-md-9">File Name</th>
+                                    <th class="col-lg-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
+                                    <th class="col-lg-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
+                                    <th class="col-lg-9">File Name</th>
                                     </tr>
                                 </thead>
                                 </table>
@@ -49,10 +49,10 @@
                             <table class="table table-condensed tabletop">
                     <thead>
                         <tr>
-                        <th class="col-md-1">Fit</th>
-                        <th class="col-md-1">Plot</th>
-                        <th class="col-md-6">File Name</th>
-                        <th class="col-md-4">Delete</th>
+                        <th class="col-lg-1">Fit</th>
+                        <th class="col-lg-1">Plot</th>
+                        <th class="col-lg-6">File Name</th>
+                        <th class="col-lg-4">Delete</th>
                         </tr>
                     </thead>
                     </table>
