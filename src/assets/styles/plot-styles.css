@@ -67,3 +67,16 @@ div.tooltip:before {
   font-weight: bold;
 }
 
+#plot-area {
+  padding: 0 10px;
+  margin: 0 auto;
+  width: 95%;
+  min-width: 400px;
+}
+
+iframe.width-changed {
+    width: 90%;
+    display: block;
+    border: 0;
+    height: 0;
+}
