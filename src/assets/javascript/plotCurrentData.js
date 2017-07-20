@@ -292,8 +292,8 @@ export default {
                                 .duration(200)
                                 .style("opacity", 1);
                             tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.error.toFixed(6))
-                                .style("left", (d3.event.pageX - 140) + "px")
-                                .style("top", (d3.event.pageY - 110) + "px");
+                                .style("left", (d3.event.pageX-300) + "px")
+                                .style("top", (d3.event.pageY-135) + "px");
                         })
                         .on("mouseout", function (d) {
                             d3.select(this).attr("r", 4);

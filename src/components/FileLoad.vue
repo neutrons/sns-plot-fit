@@ -19,9 +19,9 @@
                             <table class="table table-condensed tabletop">
                                 <thead>
                                     <tr>
-                                    <th class="col-sm-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
-                                    <th class="col-sm-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
-                                    <th class="col-sm-9">File Name</th>
+                                    <th class="col-md-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
+                                    <th class="col-md-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
+                                    <th class="col-md-9">File Name</th>
                                     </tr>
                                 </thead>
                                 </table>
@@ -49,10 +49,10 @@
                             <table class="table table-condensed tabletop">
                     <thead>
                         <tr>
-                        <th class="col-sm-1">Fit</th>
-                        <th class="col-sm-1">Plot</th>
-                        <th class="col-sm-6">File Name</th>
-                        <th class="col-sm-4">Delete</th>
+                        <th class="col-md-1">Fit</th>
+                        <th class="col-md-1">Plot</th>
+                        <th class="col-md-6">File Name</th>
+                        <th class="col-md-4">Delete</th>
                         </tr>
                     </thead>
                     </table>
@@ -298,6 +298,7 @@ th {
   }
 
   #files-bg {
-      background: rgba(0, 204, 68, 0.15);
+      background: rgba(0,0,0, 0.02);
   }
+  
 </style>

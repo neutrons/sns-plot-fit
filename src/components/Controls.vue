@@ -50,10 +50,10 @@
                             <option v-for="fit in fits">{{fit}}</option>
                             </select>
                             <br>
-                            <label class="equation-title">Equation:</label>
+                            <p class="equation-title">Equation:</p>
                             <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="EQUATION === null">
                             <br>
-                            <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit">Remove Fit  <span class="glyphicon glyphicon-remove-sign"></span></button>
+                            <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit" :disabled="!FILETOFIT">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
                         </div>
                     </div>
                 </div>
@@ -139,7 +139,7 @@ export default {
 }
 
 .equation-title {
-  color: #0052cc;
+  color: gray;
   text-align: center;
 }
 
@@ -154,7 +154,7 @@ export default {
   }
 
   #controls-bg {
-      background: rgba(173, 216, 230, 0.15);
+      background: rgba(0,0,0, 0.02);
   }
 
   #control-panel-group {
