@@ -88,7 +88,10 @@ if (process.env.NODE_ENV === 'production') {
       minimize: true
     }),
     new webpack.ProvidePlugin({
-      jQuery: 'jquery',             // bootstrap 3.x requires
+      $: 'jquery',
+      jquery: 'jquery',
+      'window.jQuery': 'jquery',
+      jQuery: 'jquery',
     })
   ])
 }

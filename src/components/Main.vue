@@ -1,39 +1,28 @@
 <template>
-  <div class="row main">
-    
-      <div 
-        :class="!isCollapseLeft ? 'col-xs-1' : 'col-xs-0'" v-show="!isCollapseLeft">
-           
+  <div id="main">
+    <div class="container-fluid">
+
     <!--Pass variables to controls component-->
         <app-controls
         :BUTTONDIS="buttonDis"
         :FILETOFIT="fileToFit"
         :EQUATION="$data.currentConfiguration.equation"
         ></app-controls>
-      </div>
+        
+      <div id="plot-panel" class="col-md-8">
+        <div class="panel panel-default">
 
-    <div :class="!isCollapseLeft && !isCollapseRight ? 'col-sm-9 plotpanel' : 
-                  !isCollapseLeft && isCollapseRight ? 'col-sm-11 plotpanel' : 
-                  isCollapseLeft && !isCollapseRight ? 'col-sm-10 plotpanel' : 'col-sm-12 plotpanel'">
-   
-      <button class="btn btn-default btn-xs btn-collapse-right" @click="isCollapseRight = !isCollapseRight">
-        <span class="glyphicon glyphicon-minus" v-if="!isCollapseRight"></span>
-        <span class="glyphicon glyphicon-plus" v-if="isCollapseRight"></span>
-      </button>
-
-      <button class="btn btn-default btn-xs btn-collapse-left" @click="isCollapseLeft = !isCollapseLeft">
-         <span class="glyphicon glyphicon-minus" v-if="!isCollapseLeft"></span>
-          <span class="glyphicon glyphicon-plus" v-if="isCollapseLeft"></span>
-      </button>
-
-      <div class="plotarea">
-          <div class="plot"></div>
-      </div>
+            <div class="panel-heading">Plot
+                <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-plot"></button>
+            </div>
+            <div id="collapse-plot" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  <div id="plot-area"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-      <div :class="!isCollapseRight ? 'col-xs-2' : 'col-xs-0'" 
-           v-show="!isCollapseRight" style="padding:0px;">
-          
       <!--Pass variables to fileload component-->
         <app-file-load
         :BUTTONDIS="buttonDis"
@@ -49,6 +38,7 @@
 import * as d3 from 'd3';
 import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
+import $ from 'jquery';
 import plotCurrentData from '../assets/javascript/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
@@ -61,6 +51,7 @@ import fd from '../assets/javascript/fitData.js';
 import { eventBus } from '../assets/javascript/eventBus';
 
 export default {
+  name: 'main',
   mixins: [plotCurrentData],
     components: {
       'app-controls': Controls,
@@ -73,7 +64,7 @@ export default {
       eventBus.$on('set-fit', this.setFit);
       eventBus.$on('reset-plot', this.resetPlot);
 
-      //Event hooks for 'FileLoad.vue'
+      // Event hooks for 'FileLoad.vue'
       eventBus.$on('fetch-data', this.fetchData);
       eventBus.$on('upload-file', this.uploadFile);
       eventBus.$on('set-current-data', this.setCurrentData);
@@ -81,7 +72,64 @@ export default {
       eventBus.$on('remove-uploaded-files', this.removeUploadedFiles);
       eventBus.$on('delete-file', this.deleteFile);
       eventBus.$on('disable-buttons', this.disableButtons);
-      
+    },
+    mounted() {
+            // Code for Collapsible sidebars
+      var isLeft = false;
+      var isRight = false;
+
+      $('#left-panel-collapse').click(function(e) {
+          isLeft = !isLeft; //toggle isLeft
+          
+          if(!isLeft && !isRight) {
+              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-left pull-right"></span>');
+              $('#control-panel').toggleClass('col-md-2 col-md-1');
+              $("#control-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-8 col-md-9');
+          } else if (!isLeft && isRight) {
+              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-left pull-right"></span>');
+              $('#control-panel').toggleClass('col-md-2 col-md-1');
+              $("#control-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-9 col-md-10');
+          } else if (isLeft && !isRight) {
+              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-right pull-right"></span>');
+              $('#control-panel').toggleClass('col-md-1 col-md-2');
+              $("#control-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-9 col-md-8');
+          } else if (isLeft && isRight) {
+              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-right pull-right"></span>');
+              $('#control-panel').toggleClass('col-md-1 col-md-2');
+              $("#control-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-10 col-md-9');
+          }
+      });
+
+      $('#right-panel-collapse').click(function(e) {
+          isRight = !isRight; //toggle isLeft
+          $('#right-panel-collapse').find('span').toggleClass('glyphicon-menu-right glyphicon-menu-left');
+
+          if(!isRight && !isLeft) {
+              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-right pull-left"></span> Files');
+              $('#file-panel').toggleClass('col-md-2 col-md-1');
+              $("#file-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-8 col-md-9');
+          } else if (!isRight && isLeft) {
+              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-right pull-left"></span> Files');
+              $('#file-panel').toggleClass('col-md-2 col-md-1');
+              $("#file-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-9 col-md-10');
+          } else if (isRight && !isLeft) {
+              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-left pull-left"></span> Files');
+              $('#file-panel').toggleClass('col-md-1 col-md-2');
+              $("#file-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-9 col-md-8');
+          } else if (isRight && isLeft) {
+              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-left pull-left"></span> Files');
+              $('#file-panel').toggleClass('col-md-1 col-md-2');
+              $("#file-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-10 col-md-9');
+          }
+});
     },
     data: function () {
       return {
