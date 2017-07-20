@@ -34,6 +34,14 @@ export default {
             var xTitle = parameters.titles.xTitle; //xTitle according to label
             var yTitle = parameters.titles.yTitle; //yTitle according to label
             
+            // Set scale domains
+            xScale.domain(d3.extent(data, function (d) {
+                return d.x;
+            }));
+            yScale.domain(d3.extent(data, function(d) {
+                return d.y;
+            }));
+
             //Set Axes
             var xAxis = d3.axisBottom(xScale).ticks(10).tickSize(-height),
                 yAxis = d3.axisLeft(yScale).ticks(10).tickSize(-width);
@@ -52,7 +60,7 @@ export default {
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+            
             //Add clip path so points/line do not exceed plot boundaries
             svg.append("defs").append("clipPath")
                 .attr("id", "clip")
@@ -94,12 +102,72 @@ export default {
                     return yScale(d.y);
                 });
 
-            xScale.domain(d3.extent(data, function (d) {
-                return d.x;
-            }));
-            yScale.domain(d3.extent(data, function(d) {
-                return d.y;
-            }));
+                
+            // Set isFit to check if a file is selected to fit
+            var isFit = parameters.fileToFit !== null && parameters.fitConfiguration.fit !== 'None'
+            
+            /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
+            if(isFit) {
+                var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
+                var minX = d3.min(dataFitted, function(d) { return d.x });
+                var maxX = d3.max(dataFitted, function(d) { return d.x });
+
+                var dataFitted = fd.fitData(dataFitted, parameters.fitConfiguration.equation, minX, maxX);
+
+                var margin2 = {
+                    top: 450,
+                    right: 200,
+                    bottom: 75,
+                    left: 50
+                };
+
+                var height2 = 550 - margin2.top - margin2.bottom;
+
+                var xScale2 = d3.scaleLinear().range([0, width]);
+                xScale2.domain(xScale.domain());
+
+                var xAxis2 = d3.axisBottom(xScale2);
+
+                var slider = svg.append("g")
+                    .attr("class", "slider")
+                    .attr("transform", "translate(" + margin2.left + "," + (margin2.top-20) + ")");
+    
+                var brush = d3.brushX()
+                    .extent([
+                        [0, 0],
+                        [width, height2]
+                    ])
+                    .on("brush end", brushed);
+
+                var brushXScale = xScale;
+                var brushYScale = yScale;
+
+                // append scatter plot to brush chart area
+                var sliderdots = slider.append("g");
+                sliderdots.selectAll("dotslider")
+                    .data(data)
+                    .filter(function(d) {
+                        return d.name === paramters.fileToFit;
+                    })
+                    .enter().append("line")
+                    .attr('class', 'dotslider')
+                    .attr("x1", function(d) { return xScale2(d.x); })
+                    .attr("y1", height2)
+                    .attr("x2", function(d) { return xScale2(d.x); })
+                    .attr("y2", 0);
+
+                slider.append("g")
+                    .attr("class", "axis axis--x")
+                    .attr("transform", "translate(0," + height2 + ")")
+                    .call(xAxis2);
+
+                slider.append("g")
+                    .attr("class", "brush")
+                    .call(brush)
+                    .call(brush.move, xScale.range());
+            }
+
+            /* END OF IS FIT SETUP*/
 
             //Add X Axis
             axis.append("g")
@@ -338,6 +406,51 @@ export default {
 
             });
 
+            // Create brush function redraw scatterplot with selection
+            function brushed() {
+                var selection = d3.event.selection;
+                if (selection !== null) {
+                    var e = d3.event.selection.map(xScale2.invert, xScale2);
+                    // console.log("Extent selected", e);
+
+                    slider.selectAll(".dotslider")
+                        .classed("selected-slider", function (d) {
+                            return e[0] <= d.x && d.x <= e[1];
+                        })
+
+                    plot.selectAll(".dot")
+                        .classed("selected", function (d) {
+                            return e[0] <= d.x && d.x <= e[1];
+                        }).attr("d", function(d) {
+                            if( e[0] <= d.x && d.x <= e[1]) {
+                                return triangleGenerator(); 
+                            } else { 
+                                return circleGenerator(); }
+                        });
+
+                    let new_data = dataToFit.filter(function(d) {
+                        return e[0] <= d.x && d.x <= e[1];
+                    })
+                    
+                    minX = d3.min(new_data, function(d) { return d.x });
+                    maxX = d3.max(new_data, function(d) { return d.x });
+
+                    dataFitted = fd.fitData(dataFitted, parameters.fitConfiguration.equation, minX, maxX);
+
+                    // Re-draw fitted line
+                    var new_plotLine = d3.line()
+                        .x(function (d) {
+                            return brushXScale(d.x);
+                        })
+                        .y(function (d) {
+                            return brushYScale(d.y);
+                        });
+
+                    d3.select(".fitted-line").transition()
+                        .attr("d", new_plotLine);
+                }
+            }
+
             function zoomed() {
                 // re-scale axes during zoom
                 axis.select(".axis--y").transition()
@@ -351,6 +464,13 @@ export default {
                 // re-draw scatter plot;
                 var new_yScale = d3.event.transform.rescaleY(yScale);
                 var new_xScale = d3.event.transform.rescaleX(xScale);
+
+                // Update brush scales
+                if(isFit) {
+                    brushXScale = new_xScale;
+                    brushYScale = new_yScale;
+                }
+
                 plot.selectAll("circle")
                     .attr("cy", function (d) {
                         return new_yScale(d.y);
@@ -370,6 +490,11 @@ export default {
 
                 plot.selectAll(".pointlines")
                     .attr("d", new_plotLine);
+
+                if(isFit) {
+                    plot.selectAll(".fitted-line")
+                        .attr("d", new_plotLine);
+                }
 
                 //re-draw error
                 errorlines.selectAll('.error')

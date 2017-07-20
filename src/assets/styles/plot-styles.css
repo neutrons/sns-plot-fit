@@ -80,3 +80,22 @@ iframe.width-changed {
     border: 0;
     height: 0;
 }
+
+.dotslider {
+  stroke: slategray;
+}
+
+.selected {
+  fill: red;
+  stroke: brown;
+}
+
+.selected-slider {
+  stroke: brown;
+}
+
+.fitted-line {
+		  stroke-width: 2px;
+		  stroke: steelblue;
+		  stroke-dasharray: 10,5;
+}
