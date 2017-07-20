@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import $ from 'jquery';
 import fd from './fitData';
 
 export default {
@@ -13,7 +14,7 @@ export default {
 
             //Set chart dimensions
             var margin = {
-                    top: 30,
+                    top: 20,
                     right: 200, //this is to accomodate the right sidebar
                     bottom: 50,
                     left: 50
@@ -45,6 +46,9 @@ export default {
 
             //Add main chart area
             var svg = d3.select("#plot-area").append("svg")
+                .attr("viewBox","0 0 1150 550")
+                .attr("perserveAspectRatio","xMidYMid")
+                .attr("class", "sns-plot")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -429,6 +433,50 @@ export default {
                 //     //code will go here
                 // }
             }
+
+            // Add responsive elements
+            // Essentially when the plot-area gets resized it will look to the
+            // width and scale the plot according to newly updated width.
+            // The css file has min- and max-width's incase the resizing gets too small,
+            // the plot will not scale below these dimensions.
+            // Solution courtesy of: https://stackoverflow.com/a/26077110
+            $.event.special.widthChanged = {
+                remove: function() {
+                    $(this).children('iframe.width-changed').remove();
+                },
+                add: function () {
+                    var elm = $(this);
+                    var iframe = elm.children('iframe.width-changed');
+                    if (!iframe.length) {
+                        iframe = $('<iframe/>').addClass('width-changed').prependTo(this);
+                    }
+                    var oldWidth = elm.width();
+                    function elmResized() {
+                        var width = elm.width();
+                        if (oldWidth != width) {
+                            elm.trigger('widthChanged', [width, oldWidth]);
+                            oldWidth = width;
+                        }
+                    }
+
+                    var timer = 0;
+                    var ielm = iframe[0];
+                    (ielm.contentWindow || ielm).onresize = function() {
+                        clearTimeout(timer);
+                        timer = setTimeout(elmResized, 20);
+                    };
+                }
+            }
+
+            var snsChart = $(".sns-plot");
+            var aspectRatio = snsChart.width() / snsChart.height()
+            var container = snsChart.parent();
+
+            $("#plot-area").on("widthChanged", function() {
+                var targetWidth = container.width();
+                snsChart.attr("width", targetWidth);
+                snsChart.attr("height", Math.round(targetWidth / aspectRatio));
+            });
 
         }
     }

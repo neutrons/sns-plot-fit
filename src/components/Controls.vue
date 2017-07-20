@@ -5,7 +5,7 @@
 
         <div id="controls-bg">
             <div class="panel panel-default">
-                <div id="left-panel-collapse" class="panel-heading">Controls <span class="glyphicon glyphicon-menu-left pull-right"></span></div>
+                <div id="left-panel-collapse" class="panel-heading"> Controls <span class="glyphicon glyphicon-menu-left pull-right"></span></div>
             </div>
             <div id="control-panel-group">
 
