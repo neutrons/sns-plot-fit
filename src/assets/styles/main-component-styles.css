@@ -31,70 +31,7 @@ body {
       text-align: center;
   }
 
-/*.container-fluid {
-  min-height: 100%;
-  position: relative;
-}*/
-
-/*.main {
-  min-height: inherit;
-  padding-bottom: 30px;
-}*/
-
-/*.plotarea {
-  min-height: inherit;
-  background-color: rgba(0,0,0,0.015);
-  padding:35px;
-}*/
-
 ol {
   margin: 0px;
   padding: 0px;
 }
-
-/*h3 {
-  color: #007833;
-}*/
-
-/*button.reset {
-  width: 50%;
-}*/
-
-/*.plotpanel {
-  min-height: 90vh;
-  padding: 0px;
-  padding-bottom: 5px;
-}*/
-
-/*.btn-collapse-right {
-  position: absolute;
-  top: 0;
-  right: 0;
-  border: none;
-  border-radius: 0px;
-}
-
-.btn-collapse-left {
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: none;
-  border-radius: 0px;
-}*/
-
-/*button.btn-collapse-right:focus, button.btn-collapse-left:focus {
-  background: none;
-}
-
-button.btn-collapse-right:hover, button.btn-collapse-left:hover {
-  background: lightgray;
-}
-
-.btn:focus {
-  outline: none;
-}
-
-* {
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-}*/
-

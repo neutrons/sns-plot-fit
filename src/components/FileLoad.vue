@@ -194,15 +194,6 @@ export default {
 </script>
 
 <style scoped>
-/*.fileuploads {
-  text-align: center;
-  min-height: 90vh;
-  margin-bottom: 0px;
-  padding: 25px;
-  background-color: gainsboro;
-  border-left: 1px solid rgba(0,0,0,0.25);
-}*/
-
 .btn-files {
   font-size: 11px;
 }
@@ -284,7 +275,6 @@ th {
   text-align: center;
 }
 
-/*New styles added*/
 #right-panel-collapse {
       width: 100%;
   }

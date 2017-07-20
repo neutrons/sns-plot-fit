@@ -143,21 +143,19 @@ export default {
   text-align: center;
 }
 
-/* New styles added */
+#left-panel-collapse {
+    width: 100%;
+}
 
-  #left-panel-collapse {
-      width: 100%;
-  }
+#left-panel-collapse:hover {
+    cursor: pointer;
+}
 
-  #left-panel-collapse:hover {
-      cursor: pointer;
-  }
+#controls-bg {
+    background: rgba(0,0,0, 0.02);
+}
 
-  #controls-bg {
-      background: rgba(0,0,0, 0.02);
-  }
-
-  #control-panel-group {
-      padding: 10px;
-  }
+#control-panel-group {
+    padding: 10px;
+}
 </style>
