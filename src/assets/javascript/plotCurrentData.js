@@ -126,8 +126,6 @@ export default {
 
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
-                console.log("Passed the is fit test...");
-                console.log("File to be fit", parameters.fileToFit);
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
                 var minX = d3.min(dataToFit, function(d) { return d.x });
                 var maxX = d3.max(dataToFit, function(d) { return d.x });
@@ -647,11 +645,6 @@ export default {
             }
         }
       } else {
-          // Print the equation below the paragraph
-            document.getElementsByClassName("equation")[0].innerHTML = "Regression Line: y = [Select more data]";
-            var r = data.length == 1 ? 1 : '[Select more data]';
-            document.getElementsByClassName("correlation")[0].innerHTML = "Correlation Coefficient: r = " + r;
-
           return {
               ptA: {
                   x: 0,
