@@ -31,6 +31,7 @@
     "less-loader": "^4.0.4",
     "lodash": "^4.17.4",
     "mathjs": "^3.13.3",
+    "ml-levenberg-marquardt": "^1.0.1",
     "style-loader": "^0.18.2",
     "url-loader": "^0.5.9",
     "vue-html-loader": "^1.2.4",

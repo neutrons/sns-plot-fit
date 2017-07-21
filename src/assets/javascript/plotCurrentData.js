@@ -5,22 +5,44 @@ import fd from './fitData';
 export default {
     methods: {
         plotCurrentData: function (parameters) {
-
             //Remove any elements previously plotted
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
 
             // console.log("Plotting data...");
+            
+            // Set isFit to check if a file is selected to fit
+            var isFit = parameters.fileToFit !== null && parameters.fitConfiguration.fit !== 'None'
+
+            // Set Color Scale
+            // color domain is set in order for filenames to have
+            // assigned colors. If this wasn't set and a filename
+            // was unselected from the list, the plot would re-assign
+            // color values to the plots causing confusion at first glance
+            // reference: https://stackoverflow.com/questions/20590396/d3-scale-category10-not-behaving-as-expected
+            
+            var color = d3.scaleOrdinal(d3.schemeCategory20)
+                .domain(parameters.colorDomain);
 
             //Set chart dimensions
-            var margin = {
+            if(isFit) {
+                var margin = {
                     top: 20,
                     right: 200, //this is to accomodate the right sidebar
-                    bottom: 50,
+                    bottom: 150,
                     left: 50
-                },
-                width = 1150 - margin.left - margin.right,
-                height = 550 - margin.top - margin.bottom;
+                };
+            } else {
+                var margin = {
+                    top: 20,
+                    right: 200,
+                    bottom: 75,
+                    left: 50
+                }
+            }
+                
+            var width = 1150 - margin.left - margin.right;
+            var height = 550 - margin.top - margin.bottom;
 
             var data = parameters.data; //regular data to plot
 
@@ -34,6 +56,14 @@ export default {
             var xTitle = parameters.titles.xTitle; //xTitle according to label
             var yTitle = parameters.titles.yTitle; //yTitle according to label
             
+            // Set scale domains
+            xScale.domain(d3.extent(data, function (d) {
+                return d.x;
+            }));
+            yScale.domain(d3.extent(data, function(d) {
+                return d.y;
+            }));
+
             //Set Axes
             var xAxis = d3.axisBottom(xScale).ticks(10).tickSize(-height),
                 yAxis = d3.axisLeft(yScale).ticks(10).tickSize(-width);
@@ -52,7 +82,7 @@ export default {
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+            
             //Add clip path so points/line do not exceed plot boundaries
             svg.append("defs").append("clipPath")
                 .attr("id", "clip")
@@ -94,12 +124,67 @@ export default {
                     return yScale(d.y);
                 });
 
-            xScale.domain(d3.extent(data, function (d) {
-                return d.x;
-            }));
-            yScale.domain(d3.extent(data, function(d) {
-                return d.y;
-            }));
+            /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
+            if(isFit) {
+                var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
+                var minX = d3.min(dataToFit, function(d) { return d.x });
+                var maxX = d3.max(dataToFit, function(d) { return d.x });
+
+                var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
+                // var testFitteds = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
+                // console.log("testFitteds:", testFitteds);
+
+                var margin2 = {
+                    top: 425,
+                    right: 200,
+                    bottom: 100,
+                    left: 50
+                };
+
+                var height2 = 550 - margin2.top - margin2.bottom;
+
+                var xScale2 = d3.scaleLinear().range([0, width]);
+                xScale2.domain(xScale.domain());
+
+                var xAxis2 = d3.axisBottom(xScale2);
+
+                var slider = svg.append("g")
+                    .attr("class", "slider")
+                    .attr("transform", "translate(" + margin2.left + "," + (margin2.top) + ")");
+    
+                var brush = d3.brushX()
+                    .extent([
+                        [0, 0],
+                        [width, height2]
+                    ])
+                    .on("brush end", brushed);
+
+                var brushXScale = xScale;
+                var brushYScale = yScale;
+
+                // append scatter plot to brush chart area
+                var sliderdots = slider.append("g");
+                sliderdots.selectAll("dotslider")
+                    .data(dataToFit)
+                    .enter().append("line")
+                    .attr('class', 'dotslider')
+                    .attr("x1", function(d) { return xScale2(d.x); })
+                    .attr("y1", height2)
+                    .attr("x2", function(d) { return xScale2(d.x); })
+                    .attr("y2", 0);
+
+                slider.append("g")
+                    .attr("class", "axis axis--x")
+                    .attr("transform", "translate(0," + height2 + ")")
+                    .call(xAxis2);
+
+                slider.append("g")
+                    .attr("class", "brush")
+                    .call(brush)
+                    .call(brush.move, xScale.range());
+            }
+
+            /* END OF IS FIT SETUP*/
 
             //Add X Axis
             axis.append("g")
@@ -148,18 +233,7 @@ export default {
                 })
                 .entries(data);
 
-            // Set Color Scale
-            // color domain is set in order for filenames to have
-            // assigned colors. If this wasn't set and a filename
-            // was unselected from the list, the plot would re-assign
-            // color values to the plots causing confusion at first glance
-            // reference: https://stackoverflow.com/questions/20590396/d3-scale-category10-not-behaving-as-expected
-            
-            var color = d3.scaleOrdinal(d3.schemeCategory20)
-                .domain(parameters.colorDomain);
-
             // Loop through each name / key
-           
             dataNest.forEach(function (d, i) {
 
                 //Add line plot
@@ -306,11 +380,6 @@ export default {
                                 .duration(500)
                                 .style("opacity", 0);
                         });;
-                    
-                    //Code to Plot Fitted Line
-                    // if(fitLine){
-                    //     //code will go here
-                    // }
 
                     // Add the Legend
                     var legend = plot.append("g");
@@ -338,6 +407,56 @@ export default {
 
             });
 
+            // Code for fitted line
+            if(isFit) {
+                plot.append("g").append("line")
+                        .attr("clip-path", "url(#clip)")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                        .attr("class", "fitted-line")
+                        .style("stroke", color(parameters.fileToFit))
+                        .attr("x1", xScale(dataFitted.ptA.x))
+                        .attr("y1", yScale(dataFitted.ptA.y))
+                        .attr("x2", xScale(dataFitted.ptB.x))
+                        .attr("y2", yScale(dataFitted.ptB.y));
+            }
+
+            // Create brush function redraw scatterplot with selection
+            function brushed() {
+                var selection = d3.event.selection;
+                if (selection !== null) {
+                    var e = d3.event.selection.map(xScale2.invert, xScale2);
+                    // console.log("Extent selected", e);
+
+                    // slider.selectAll(".dotslider")
+                    //     .classed("selected-slider", function (d) {
+                    //         return e[0] <= d.x && d.x <= e[1];
+                    //     });
+
+                    slider.selectAll(".dotslider")
+                        .style("stroke", function (d) {
+                            if(e[0] <= d.x && d.x <= e[1]) {
+                                return d.color = color(d.name);
+                            } else {
+                                return "slategray";
+                            }
+                        })
+
+                    let new_data = dataToFit.filter(function(d) {
+                        return e[0] <= d.x && d.x <= e[1];
+                    })
+                    
+                    minX = d3.min(new_data, function(d) { return d.x });
+                    maxX = d3.max(new_data, function(d) { return d.x });
+                    dataFitted = calcLinear(new_data, "x", "y", minX, maxX);
+
+                    d3.select(".fitted-line").transition()
+                        .attr("x1", brushXScale(dataFitted.ptA.x))
+                        .attr("y1", brushYScale(dataFitted.ptA.y))
+                        .attr("x2", brushXScale(dataFitted.ptB.x))
+                        .attr("y2", brushYScale(dataFitted.ptB.y));
+                }
+            }
+
             function zoomed() {
                 // re-scale axes during zoom
                 axis.select(".axis--y").transition()
@@ -351,6 +470,7 @@ export default {
                 // re-draw scatter plot;
                 var new_yScale = d3.event.transform.rescaleY(yScale);
                 var new_xScale = d3.event.transform.rescaleX(xScale);
+
                 plot.selectAll("circle")
                     .attr("cy", function (d) {
                         return new_yScale(d.y);
@@ -370,6 +490,19 @@ export default {
 
                 plot.selectAll(".pointlines")
                     .attr("d", new_plotLine);
+
+                if(isFit) {
+                    // Update brush scales
+                    brushXScale = new_xScale;
+                    brushYScale = new_yScale;
+
+                    // Re-draw regression line
+                    d3.select(".fitted-line")
+                        .attr("x1", new_xScale(dataFitted.ptA.x))
+                        .attr("y1", new_yScale(dataFitted.ptA.y))
+                        .attr("x2", new_xScale(dataFitted.ptB.x))
+                        .attr("y2", new_yScale(dataFitted.ptB.y));
+                }
 
                 //re-draw error
                 errorlines.selectAll('.error')
@@ -433,6 +566,99 @@ export default {
                 //     //code will go here
                 // }
             }
+
+            // Calculate a linear regression from the data
+
+	// Takes 5 parameters:
+    // (1) Your data
+    // (2) The column of data plotted on your x-axis
+    // (3) The column of data plotted on your y-axis
+    // (4) The minimum value of your x-axis
+    // (5) The minimum value of your y-axis
+    // Return an object with two points, where each point is an object with an x and y coordinate
+
+    function calcLinear(data, x, y, minX, maxX){
+        /////////
+        //SLOPE//
+        /////////
+
+        //If statement to catch when 1 or less data points are selected
+        if(data.length > 1) {
+            // Let n = the number of data points
+            var n = data.length;
+
+            // Get just the points
+            var pts = [];
+            data.forEach(function(d,i){
+                var obj = {};
+                obj.x = d[x];
+                obj.y = d[y];
+                obj.mult = obj.x*obj.y;
+                pts.push(obj);
+            });
+
+        // Let a equal n times the summation of all x-values multiplied by their corresponding y-values
+        // Let b equal the sum of all x-values times the sum of all y-values
+        // Let c equal n times the sum of all squared x-values
+        // Let d equal the squared sum of all x-values
+        var sum = 0;
+        var xSum = 0;
+        var ySum = 0;
+        var sumSq = 0;
+        pts.forEach(function(pt){
+            sum += pt.mult;
+            xSum += pt.x;
+            ySum += pt.y;
+            sumSq += (pt.x * pt.x);
+        });
+        var a = sum * n;
+        var b = xSum * ySum;
+        var c = sumSq * n;
+        var d = xSum * xSum;
+
+        // Plug the values that you calculated for a, b, c, and d into the following equation to calculate the slope
+        // slope = m = (a - b) / (c - d)
+        var m = (a - b) / (c - d);
+
+        /////////////
+        //INTERCEPT//
+        /////////////
+
+        // Let e equal the sum of all y-values
+        var e = ySum;
+
+        // Let f equal the slope times the sum of all x-values
+        var f = m * xSum;
+
+        // Plug the values you have calculated for e and f into the following equation for the y-intercept
+        // y-intercept = b = (e - f) / n
+        var b = (e - f) / n;
+
+        // return an object of two points
+        // each point is an object with an x and y coordinate
+        return {
+            ptA : {
+            x: minX,
+            y: m * minX + b
+            },
+            ptB : {
+            y: m * maxX + b, //minY,
+            x: maxX //(minY - b) / m
+            }
+        }
+      } else {
+          return {
+              ptA: {
+                  x: 0,
+                  y: 0,
+              },
+              ptB: {
+                  x: 0,
+                  y: 0
+              }
+          }
+      }
+    }
 
             // Add responsive elements
             // Essentially when the plot-area gets resized it will look to the
