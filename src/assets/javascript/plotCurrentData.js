@@ -131,6 +131,8 @@ export default {
                 var maxX = d3.max(dataToFit, function(d) { return d.x });
 
                 var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
+                var testFitteds = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
+                console.log("testFitteds:", testFitteds);
 
                 var margin2 = {
                     top: 425,
