@@ -74,7 +74,7 @@ export default {
       eventBus.$on('disable-buttons', this.disableButtons);
     },
     mounted() {
-            // Code for Collapsible sidebars
+    // Code for Collapsible sidebars
       var isLeft = false;
       var isRight = false;
 
@@ -540,6 +540,8 @@ export default {
           // console.log("Resetting configurations...");
           eventBus.$emit('reset-fit');
           // this.setFit('None');
+        } else {
+          this.setParameters();
         }
       },
       selectedData: {
