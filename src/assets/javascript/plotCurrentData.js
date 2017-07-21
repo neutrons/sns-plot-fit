@@ -36,7 +36,7 @@ export default {
                 var margin = {
                     top: 20,
                     right: 200,
-                    bottom: 50,
+                    bottom: 75,
                     left: 50
                 }
             }
