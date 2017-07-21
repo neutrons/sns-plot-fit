@@ -10,6 +10,9 @@ export default {
             d3.select(".tooltip").remove();
 
             // console.log("Plotting data...");
+            
+            // Set isFit to check if a file is selected to fit
+            var isFit = parameters.fileToFit !== null && parameters.fitConfiguration.fit !== 'None'
 
             // Set Color Scale
             // color domain is set in order for filenames to have
@@ -22,14 +25,24 @@ export default {
                 .domain(parameters.colorDomain);
 
             //Set chart dimensions
-            var margin = {
+            if(isFit) {
+                var margin = {
                     top: 20,
                     right: 200, //this is to accomodate the right sidebar
                     bottom: 150,
                     left: 50
-                },
-                width = 1150 - margin.left - margin.right,
-                height = 550 - margin.top - margin.bottom;
+                };
+            } else {
+                var margin = {
+                    top: 20,
+                    right: 200,
+                    bottom: 50,
+                    left: 50
+                }
+            }
+                
+            var width = 1150 - margin.left - margin.right;
+            var height = 550 - margin.top - margin.bottom;
 
             var data = parameters.data; //regular data to plot
 
@@ -110,10 +123,6 @@ export default {
                 .y(function (d) {
                     return yScale(d.y);
                 });
-
-                
-            // Set isFit to check if a file is selected to fit
-            var isFit = parameters.fileToFit !== null && parameters.fitConfiguration.fit !== 'None'
 
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
