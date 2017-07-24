@@ -105,9 +105,9 @@ fd.fitData = function(data, equation) {
     // Fitting   
     var fitted_params = LM(tempData, fit_function, options);
     // console.log("---- Fitted Parameters ---")
-    for (let i = 0; i < parameter_names_to_fit.length; i++) {
+    // for (let i = 0; i < parameter_names_to_fit.length; i++) {
         // console.log(parameter_names_to_fit[i], "=", fitted_params.parameterValues[i])
-    }
+    // }
     // console.log("Error =", fitted_params.parameterError)
     // console.log("Iterations =", fitted_params.iterations)
     // console.log("--------------------------")
@@ -132,6 +132,12 @@ fd.fitData = function(data, equation) {
     });
     }
 
+    var coeff = {};
+    for(let i = 0; i < parameter_names_to_fit.length; i++) {
+        coeff[parameter_names_to_fit[i]] = fitted_params.parameterValues[i];
+    }
+    console.log("Coefficients:", coeff);
+    
     // t = configuration.fit === "None" || configuration.fit === "Linear" ? t.data : t.dataTransformed;
     return fittedPoints; // Return fit data array
 }
