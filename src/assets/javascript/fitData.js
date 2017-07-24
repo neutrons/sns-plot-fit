@@ -65,18 +65,31 @@ fd.fitData = function(data, equation) {
     // Needs to be written like this because we have no idea
     // What are the arguments that we getting
     // Note that it returns a function that allows to vary x!
-    var fit_function = new Function(parameter_names_to_fit,
-        'var scope = {};\
-        for (i = 0; i < arguments.length; i++) {\
-            scope[parameter_names_to_fit[i]] = arguments[i];\
-        }\
-        return function(x) {\
-            scope.x=x;\
-            return n_compiled.eval(scope);\
-        }'
-    );
+    // var fit_function = new Function(parameter_names_to_fit,
+    //     'var scope = {};\
+    //     for (i = 0; i < arguments.length; i++) {\
+    //         scope[parameter_names_to_fit[i]] = arguments[i];\
+    //     }\
+    //     return function(x) {\
+    //         scope.x=x;\
+    //         return n_compiled.eval(scope);\
+    //     }'
+    // );
 
-    
+    var fit_function = function([...args]) {
+        var scope = {};
+
+        for(let i=0; i < args.length; i++) {
+            scope[parameter_names_to_fit[i]] = args[i];
+        }
+        
+        // console.log("Scope = ", scope);
+        return function(x) {
+            scope.X = x;
+            return n_compiled.eval(scope);
+        }
+    };
+
     // array of initial parameter values for initial paramters to fit: all at 1
     var initialValues = parameter_names_to_fit.map(function (x, i) { return 1.0; });
     
@@ -92,7 +105,7 @@ fd.fitData = function(data, equation) {
     // Fitting   
     var fitted_params = LM(tempData, fit_function, options);
     console.log("---- Fitted Parameters ---")
-    for (i = 0; i < parameter_names_to_fit.length; i++) {
+    for (let i = 0; i < parameter_names_to_fit.length; i++) {
         console.log(parameter_names_to_fit[i], "=", fitted_params.parameterValues[i])
     }
     console.log("Error =", fitted_params.parameterError)
@@ -100,9 +113,10 @@ fd.fitData = function(data, equation) {
     console.log("--------------------------")
     // Get's the fitted function from the fitted parameters
     // only coefficients are set! Remember it returns a function!)
-    var fit_function_fitted = fit_function.apply(this, fitted_params.parameterValues);
+    console.log("fitted_params.parameterValues = ", fitted_params.parameterValues);
+    var fit_function_fitted = fit_function(fitted_params.parameterValues);
 
-    var y_fitted = data.x.map(function(el) {
+    var y_fitted = tempData.x.map(function(el) {
         return fit_function_fitted(el);
     });
 
@@ -110,21 +124,16 @@ fd.fitData = function(data, equation) {
 
     // Return the fitted values
     var fittedPoints = [];
-    console.log("Fitted Length = " + y_fitted.length + " | X length = " + data.x.length);
+    console.log("Fitted Length = " + y_fitted.length + " | X length = " + tempData.x.length);
     for(let i = 0; i < y_fitted.length; i++) {
     fittedPoints.push({
-        x: data.x[i],
+        x: tempData.x[i],
         y: y_fitted[i]
     });
     }
 
     // t = configuration.fit === "None" || configuration.fit === "Linear" ? t.data : t.dataTransformed;
     return fittedPoints; // Return fit data array
-}
-
-fd.fitLine = function(data, equation) {
-
-    return (someFitData); // Returned fitted data
 }
 
 export default fd;
