@@ -56,7 +56,7 @@ fd.fitData = function(data, equation) {
     return node.name;
     });
 
-    console.log("parameter_names_to_fit:", parameter_names_to_fit);
+    // console.log("parameter_names_to_fit:", parameter_names_to_fit);
 
     // need to compile before evaluating
     var n_compiled = n_parsed.compile();
@@ -104,27 +104,27 @@ fd.fitData = function(data, equation) {
 
     // Fitting   
     var fitted_params = LM(tempData, fit_function, options);
-    console.log("---- Fitted Parameters ---")
+    // console.log("---- Fitted Parameters ---")
     for (let i = 0; i < parameter_names_to_fit.length; i++) {
-        console.log(parameter_names_to_fit[i], "=", fitted_params.parameterValues[i])
+        // console.log(parameter_names_to_fit[i], "=", fitted_params.parameterValues[i])
     }
-    console.log("Error =", fitted_params.parameterError)
-    console.log("Iterations =", fitted_params.iterations)
-    console.log("--------------------------")
+    // console.log("Error =", fitted_params.parameterError)
+    // console.log("Iterations =", fitted_params.iterations)
+    // console.log("--------------------------")
     // Get's the fitted function from the fitted parameters
     // only coefficients are set! Remember it returns a function!)
-    console.log("fitted_params.parameterValues = ", fitted_params.parameterValues);
+    // console.log("fitted_params.parameterValues = ", fitted_params.parameterValues);
     var fit_function_fitted = fit_function(fitted_params.parameterValues);
 
     var y_fitted = tempData.x.map(function(el) {
         return fit_function_fitted(el);
     });
 
-    console.log('y_fitted =', y_fitted);
+    // console.log('y_fitted =', y_fitted);
 
     // Return the fitted values
     var fittedPoints = [];
-    console.log("Fitted Length = " + y_fitted.length + " | X length = " + tempData.x.length);
+    // console.log("Fitted Length = " + y_fitted.length + " | X length = " + tempData.x.length);
     for(let i = 0; i < y_fitted.length; i++) {
     fittedPoints.push({
         x: tempData.x[i],

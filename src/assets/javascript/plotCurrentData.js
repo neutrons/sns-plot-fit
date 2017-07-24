@@ -130,9 +130,9 @@ export default {
                 var minX = d3.min(dataToFit, function(d) { return d.x });
                 var maxX = d3.max(dataToFit, function(d) { return d.x });
 
-                var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
-                var testFitteds = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
-                console.log("testFitteds:", testFitteds);
+                // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
+                var dataFitted = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
+                // console.log("Data Fitted:", dataFitted);
 
                 var margin2 = {
                     top: 425,
@@ -409,15 +409,25 @@ export default {
 
             // Code for fitted line
             if(isFit) {
-                plot.append("g").append("line")
-                        .attr("clip-path", "url(#clip)")
-                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                        .attr("class", "fitted-line")
-                        .style("stroke", color(parameters.fileToFit))
-                        .attr("x1", xScale(dataFitted.ptA.x))
-                        .attr("y1", yScale(dataFitted.ptA.y))
-                        .attr("x2", xScale(dataFitted.ptB.x))
-                        .attr("y2", yScale(dataFitted.ptB.y));
+                // plot.append("g").append("line")
+                //         .attr("clip-path", "url(#clip)")
+                //         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                //         .attr("class", "fitted-line")
+                //         .style("stroke", color(parameters.fileToFit))
+                //         .attr("x1", xScale(dataFitted.ptA.x))
+                //         .attr("y1", yScale(dataFitted.ptA.y))
+                //         .attr("x2", xScale(dataFitted.ptB.x))
+                //         .attr("y2", yScale(dataFitted.ptB.y));
+
+                //Add fitted lin
+                plot.append("path")
+                    .attr("clip-path", "url(#clip)")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                    .datum(dataFitted)
+                    .attr("class", "fitted-line")
+                    .attr("d", plotLine)
+                    .style("fill", "none")
+                    .style("stroke", color(parameters.fileToFit));
             }
 
             // Create brush function redraw scatterplot with selection
@@ -441,19 +451,34 @@ export default {
                             }
                         })
 
-                    let new_data = dataToFit.filter(function(d) {
+                    let selectedData = dataToFit.filter(function(d) {
                         return e[0] <= d.x && d.x <= e[1];
                     })
-                    
-                    minX = d3.min(new_data, function(d) { return d.x });
-                    maxX = d3.max(new_data, function(d) { return d.x });
-                    dataFitted = calcLinear(new_data, "x", "y", minX, maxX);
 
-                    d3.select(".fitted-line").transition()
-                        .attr("x1", brushXScale(dataFitted.ptA.x))
-                        .attr("y1", brushYScale(dataFitted.ptA.y))
-                        .attr("x2", brushXScale(dataFitted.ptB.x))
-                        .attr("y2", brushYScale(dataFitted.ptB.y));
+                    dataFitted = fd.fitData(selectedData, parameters.fitConfiguration.equation);
+                    console.log("Data fitted:", dataFitted);
+                    // Revise fit line function
+                    var new_fitLine = d3.line()
+                        .x(function (d) {
+                            return brushXScale(d.x);
+                        })
+                        .y(function (d) {
+                            return brushYScale(d.y);
+                        });
+
+                    //Add line plot
+                    plot.select(".fitted-line").transition()
+                        .attr("d", new_fitLine(dataFitted));
+                    
+                    // minX = d3.min(new_data, function(d) { return d.x });
+                    // maxX = d3.max(new_data, function(d) { return d.x });
+                    // dataFitted = calcLinear(new_data, "x", "y", minX, maxX);
+
+                    // d3.select(".fitted-line").transition()
+                    //     .attr("x1", brushXScale(dataFitted.ptA.x))
+                    //     .attr("y1", brushYScale(dataFitted.ptA.y))
+                    //     .attr("x2", brushXScale(dataFitted.ptB.x))
+                    //     .attr("y2", brushYScale(dataFitted.ptB.y));
                 }
             }
 
@@ -497,11 +522,9 @@ export default {
                     brushYScale = new_yScale;
 
                     // Re-draw regression line
-                    d3.select(".fitted-line")
-                        .attr("x1", new_xScale(dataFitted.ptA.x))
-                        .attr("y1", new_yScale(dataFitted.ptA.y))
-                        .attr("x2", new_xScale(dataFitted.ptB.x))
-                        .attr("y2", new_yScale(dataFitted.ptB.y));
+                    //Add line plot
+                    plot.select(".fitted-line")
+                        .attr("d", new_plotLine(dataFitted));
                 }
 
                 //re-draw error
