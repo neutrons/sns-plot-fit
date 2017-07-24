@@ -136,10 +136,10 @@ fd.fitData = function(data, equation) {
     for(let i = 0; i < parameter_names_to_fit.length; i++) {
         coeff[parameter_names_to_fit[i]] = fitted_params.parameterValues[i];
     }
-    console.log("Coefficients:", coeff);
-    
+    // console.log("Coefficients:", coeff);
+
     // t = configuration.fit === "None" || configuration.fit === "Linear" ? t.data : t.dataTransformed;
-    return fittedPoints; // Return fit data array
+    return { fittedData: fittedPoints, coefficients: coeff }; // Return fit data array
 }
 
 export default fd;

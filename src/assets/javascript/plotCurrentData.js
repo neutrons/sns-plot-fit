@@ -131,7 +131,10 @@ export default {
                 var maxX = d3.max(dataToFit, function(d) { return d.x });
 
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
-                var dataFitted = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
+                var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
+                var coefficients = fitResults.coefficients;
+                var dataFitted = fitResults.fittedData;
+                //var dataFitted = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
                 // console.log("Data Fitted:", dataFitted);
 
                 var margin2 = {
@@ -455,8 +458,11 @@ export default {
                         return e[0] <= d.x && d.x <= e[1];
                     })
 
-                    dataFitted = fd.fitData(selectedData, parameters.fitConfiguration.equation);
+                    var fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation);
+                    coefficients = fitResults.coefficients;
+                    dataFitted = fitResults.fittedData;
                     console.log("Data fitted:", dataFitted);
+                    console.log("Coefficients:", coefficients);
                     // Revise fit line function
                     var new_fitLine = d3.line()
                         .x(function (d) {
