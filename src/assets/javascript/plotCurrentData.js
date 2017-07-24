@@ -124,6 +124,8 @@ export default {
                 .y(function (d) {
                     return yScale(d.y);
                 });
+            
+            
 
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
@@ -141,6 +143,7 @@ export default {
                 var coefficients = fitResults.coefficients;
                 var dataFitted = fitResults.fittedData;
                 var fitError = fitResults.error;
+            
                 //var dataFitted = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
                 // console.log("Data Fitted:", dataFitted);
 
@@ -169,8 +172,9 @@ export default {
                     ])
                     .on("brush end", brushed);
 
-                var brushXScale = xScale;
-                var brushYScale = yScale;
+                // var brushXScale = xScale;
+                // var brushYScale = yScale;
+                var brushPlotLine = plotLine;
 
                 // append scatter plot to brush chart area
                 var sliderdots = slider.append("g");
@@ -419,16 +423,6 @@ export default {
 
             // Code for fitted line
             if(isFit) {
-                // plot.append("g").append("line")
-                //         .attr("clip-path", "url(#clip)")
-                //         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                //         .attr("class", "fitted-line")
-                //         .style("stroke", color(parameters.fileToFit))
-                //         .attr("x1", xScale(dataFitted.ptA.x))
-                //         .attr("y1", yScale(dataFitted.ptA.y))
-                //         .attr("x2", xScale(dataFitted.ptB.x))
-                //         .attr("y2", yScale(dataFitted.ptB.y));
-
                 //Add fitted lin
                 plot.append("path")
                     .attr("clip-path", "url(#clip)")
@@ -461,12 +455,6 @@ export default {
                 var selection = d3.event.selection;
                 if (selection !== null) {
                     var e = d3.event.selection.map(xScale2.invert, xScale2);
-                    // console.log("Extent selected", e);
-
-                    // slider.selectAll(".dotslider")
-                    //     .classed("selected-slider", function (d) {
-                    //         return e[0] <= d.x && d.x <= e[1];
-                    //     });
 
                     slider.selectAll(".dotslider")
                         .style("stroke", function (d) {
@@ -486,19 +474,19 @@ export default {
                     dataFitted = fitResults.fittedData;
                     fitError = fitResults.error;
                     // console.log("Data fitted:", dataFitted);
-                    // console.log("Coefficients:", coefficients);
+                    console.log("Coefficients:", coefficients);
                     // Revise fit line function
-                    var new_fitLine = d3.line()
-                        .x(function (d) {
-                            return brushXScale(d.x);
-                        })
-                        .y(function (d) {
-                            return brushYScale(d.y);
-                        });
+                    // var new_fitLine = d3.line()
+                    //     .x(function (d) {
+                    //         return brushXScale(d.x);
+                    //     })
+                    //     .y(function (d) {
+                    //         return brushYScale(d.y);
+                    //     });
 
                     //Add line plot
                     plot.select(".fitted-line")
-                        .attr("d", new_fitLine(dataFitted));
+                        .attr("d", brushPlotLine(dataFitted));
 
                     // Revise equation results
                     d3.select(".fit-tooltip")
@@ -515,16 +503,6 @@ export default {
                         });
                     
                     d3.select('.file-title').style("color", color(parameters.fileToFit));
-                    
-                    // minX = d3.min(new_data, function(d) { return d.x });
-                    // maxX = d3.max(new_data, function(d) { return d.x });
-                    // dataFitted = calcLinear(new_data, "x", "y", minX, maxX);
-
-                    // d3.select(".fitted-line").transition()
-                    //     .attr("x1", brushXScale(dataFitted.ptA.x))
-                    //     .attr("y1", brushYScale(dataFitted.ptA.y))
-                    //     .attr("x2", brushXScale(dataFitted.ptB.x))
-                    //     .attr("y2", brushYScale(dataFitted.ptB.y));
                 }
             }
 
@@ -564,11 +542,9 @@ export default {
 
                 if(isFit) {
                     // Update brush scales
-                    brushXScale = new_xScale;
-                    brushYScale = new_yScale;
+                    brushPlotLine = new_plotLine;
 
-                    // Re-draw regression line
-                    //Add line plot
+                    // Re-draw fitted line
                     plot.select(".fitted-line")
                         .attr("d", new_plotLine(dataFitted));
                 }
@@ -629,105 +605,7 @@ export default {
                     .attr('y2', function (d) {
                         return new_yScale(d.y - d.error);
                     });
-
-                //Code to re-draw fitted line
-                // if(fitLine){
-                //     //code will go here
-                // }
             }
-
-            // Calculate a linear regression from the data
-
-	// Takes 5 parameters:
-    // (1) Your data
-    // (2) The column of data plotted on your x-axis
-    // (3) The column of data plotted on your y-axis
-    // (4) The minimum value of your x-axis
-    // (5) The minimum value of your y-axis
-    // Return an object with two points, where each point is an object with an x and y coordinate
-
-    function calcLinear(data, x, y, minX, maxX){
-        /////////
-        //SLOPE//
-        /////////
-
-        //If statement to catch when 1 or less data points are selected
-        if(data.length > 1) {
-            // Let n = the number of data points
-            var n = data.length;
-
-            // Get just the points
-            var pts = [];
-            data.forEach(function(d,i){
-                var obj = {};
-                obj.x = d[x];
-                obj.y = d[y];
-                obj.mult = obj.x*obj.y;
-                pts.push(obj);
-            });
-
-        // Let a equal n times the summation of all x-values multiplied by their corresponding y-values
-        // Let b equal the sum of all x-values times the sum of all y-values
-        // Let c equal n times the sum of all squared x-values
-        // Let d equal the squared sum of all x-values
-        var sum = 0;
-        var xSum = 0;
-        var ySum = 0;
-        var sumSq = 0;
-        pts.forEach(function(pt){
-            sum += pt.mult;
-            xSum += pt.x;
-            ySum += pt.y;
-            sumSq += (pt.x * pt.x);
-        });
-        var a = sum * n;
-        var b = xSum * ySum;
-        var c = sumSq * n;
-        var d = xSum * xSum;
-
-        // Plug the values that you calculated for a, b, c, and d into the following equation to calculate the slope
-        // slope = m = (a - b) / (c - d)
-        var m = (a - b) / (c - d);
-
-        /////////////
-        //INTERCEPT//
-        /////////////
-
-        // Let e equal the sum of all y-values
-        var e = ySum;
-
-        // Let f equal the slope times the sum of all x-values
-        var f = m * xSum;
-
-        // Plug the values you have calculated for e and f into the following equation for the y-intercept
-        // y-intercept = b = (e - f) / n
-        var b = (e - f) / n;
-
-        // return an object of two points
-        // each point is an object with an x and y coordinate
-        return {
-            ptA : {
-            x: minX,
-            y: m * minX + b
-            },
-            ptB : {
-            y: m * maxX + b, //minY,
-            x: maxX //(minY - b) / m
-            }
-        }
-      } else {
-          return {
-              ptA: {
-                  x: 0,
-                  y: 0,
-              },
-              ptB: {
-                  x: 0,
-                  y: 0
-              }
-          }
-      }
-    }
 
             // Add responsive elements
             // Essentially when the plot-area gets resized it will look to the
