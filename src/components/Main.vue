@@ -375,6 +375,7 @@ export default {
           // and reset to default values
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
+          d3.select(".fit-tooltip").remove();
 
           eventBus.$emit('reset-scales');
           eventBus.$emit('reset-fit');

@@ -68,6 +68,7 @@ div.tooltip:before {
 }
 
 #plot-area {
+  position: relative;
   padding: 0 10px;
   margin: 0 auto;
   width: 95%;
@@ -98,4 +99,34 @@ iframe.width-changed {
 		  stroke-width: 2px;
 		  stroke: steelblue;
 		  stroke-dasharray: 10,5;
+}
+
+.fit-tooltip {
+  text-align: left;
+  position: absolute;
+  width: 175px;
+  height: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  border: 1px solid black;
+  background-color: white;
+  right: 150px;
+  top: 60px;
+  padding: 10px 15px;
+}
+
+.fit-tooltip p:first-child {
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(0,0,0,0.5);
+  padding-bottom: 3px;
+}
+
+.fit-tooltip p:nth-child(3) {
+  margin-bottom: 1px;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 10px;
 }

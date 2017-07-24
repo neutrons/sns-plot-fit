@@ -8,6 +8,7 @@ export default {
             //Remove any elements previously plotted
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
+            d3.select(".fit-tooltip").remove();
 
             // console.log("Plotting data...");
             
@@ -126,6 +127,11 @@ export default {
 
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
+                //Add tool tip and hide it until invoked
+                var fitTooltip = d3.select("#plot-area").append("div")
+                    .attr("class", "fit-tooltip")
+                    .style("opacity", 0);
+
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
                 var minX = d3.min(dataToFit, function(d) { return d.x });
                 var maxX = d3.max(dataToFit, function(d) { return d.x });
@@ -134,6 +140,7 @@ export default {
                 var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
                 var coefficients = fitResults.coefficients;
                 var dataFitted = fitResults.fittedData;
+                var fitError = fitResults.error;
                 //var dataFitted = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
                 // console.log("Data Fitted:", dataFitted);
 
@@ -431,6 +438,22 @@ export default {
                     .attr("d", plotLine)
                     .style("fill", "none")
                     .style("stroke", color(parameters.fileToFit));
+
+                d3.select(".fit-tooltip")
+                    .html( function() {
+                        var resultString = "<p class='file-title'><b>" + parameters.fileToFit + "</b></p><p><b>Fit Type:</b> " + parameters.fitConfiguration.fit + "</p><p><b>Coefficients:</b></p><ul>";
+
+                        for(let key in coefficients) {
+                            resultString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
+                        }
+                        
+                        resultString += "</ul><p><b>Fit Error:</b> " + fitError.toFixed(3) + "</p>";
+
+                        return resultString;
+                    })
+                    .style("opacity", 1);
+
+                d3.select('.file-title').style("color", color(parameters.fileToFit));
             }
 
             // Create brush function redraw scatterplot with selection
@@ -458,11 +481,12 @@ export default {
                         return e[0] <= d.x && d.x <= e[1];
                     })
 
-                    var fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation);
+                    fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation);
                     coefficients = fitResults.coefficients;
                     dataFitted = fitResults.fittedData;
-                    console.log("Data fitted:", dataFitted);
-                    console.log("Coefficients:", coefficients);
+                    fitError = fitResults.error;
+                    // console.log("Data fitted:", dataFitted);
+                    // console.log("Coefficients:", coefficients);
                     // Revise fit line function
                     var new_fitLine = d3.line()
                         .x(function (d) {
@@ -473,8 +497,24 @@ export default {
                         });
 
                     //Add line plot
-                    plot.select(".fitted-line").transition()
+                    plot.select(".fitted-line")
                         .attr("d", new_fitLine(dataFitted));
+
+                    // Revise equation results
+                    d3.select(".fit-tooltip")
+                        .html( function() {
+                            var resultString = "<p class='file-title'><b>" + parameters.fileToFit + "</b></p><p><b>Fit Type:</b> " + parameters.fitConfiguration.fit + "</p><p><b>Coefficients:</b></p><ul>";
+
+                            for(let key in coefficients) {
+                                resultString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
+                            }
+                            
+                            resultString += "</ul><p><b>Fit Error:</b> " + fitError.toFixed(3) + "</p>";
+
+                            return resultString;
+                        });
+                    
+                    d3.select('.file-title').style("color", color(parameters.fileToFit));
                     
                     // minX = d3.min(new_data, function(d) { return d.x });
                     // maxX = d3.max(new_data, function(d) { return d.x });

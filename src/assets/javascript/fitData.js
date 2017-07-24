@@ -139,7 +139,7 @@ fd.fitData = function(data, equation) {
     // console.log("Coefficients:", coeff);
 
     // t = configuration.fit === "None" || configuration.fit === "Linear" ? t.data : t.dataTransformed;
-    return { fittedData: fittedPoints, coefficients: coeff }; // Return fit data array
+    return { fittedData: fittedPoints, coefficients: coeff, error: fitted_params.parameterError }; // Return fit data array
 }
 
 export default fd;
