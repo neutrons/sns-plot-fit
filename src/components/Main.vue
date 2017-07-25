@@ -185,10 +185,10 @@ export default {
             fit: 'Guinier',
             equation: "-Rg^2/3*X+b",
             yTransformation: "log(y)",
-            xTransformation: "x^2",
+            xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
             yLabel: "Log(I)",
-            xLabel: "Q^2",
+            xLabel: "Log(Q)",
             range: [-Infinity, +Infinity]
           },
           'Porod': {
