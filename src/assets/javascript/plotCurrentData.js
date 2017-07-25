@@ -471,14 +471,13 @@ export default {
                     let selectedData = dataToFit.filter(function(d) {
                         return e[0] <= d.x && d.x <= e[1];
                     })
-
-                    console.log("e[0] = " + e[0] + " | e[1] = " + e[1]);
+                    
                     fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation);
                     coefficients = fitResults.coefficients;
                     dataFitted = fitResults.fittedData;
                     fitError = fitResults.error;
                     // console.log("Data fitted:", dataFitted);
-                    console.log("Coefficients:", coefficients);
+                    // console.log("Coefficients:", coefficients);
                     // Revise fit line function
                     // var new_fitLine = d3.line()
                     //     .x(function (d) {
