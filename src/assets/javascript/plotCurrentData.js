@@ -41,8 +41,10 @@ export default {
                     left: 50
                 }
             }
-                
-            var width = 1150 - margin.left - margin.right;
+            
+            var containerWidth = document.getElementById("plot-area").offsetWidth;
+            console.log("container width = ", containerWidth);
+            var width = containerWidth - margin.left - margin.right;
             var height = 550 - margin.top - margin.bottom;
 
             var data = parameters.data; //regular data to plot
@@ -76,8 +78,9 @@ export default {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             //Add main chart area
+            var viewbox = "0 0 " + containerWidth + " 550";
             var svg = d3.select("#plot-area").append("svg")
-                .attr("viewBox","0 0 1150 550")
+                .attr("viewBox", viewbox)
                 .attr("perserveAspectRatio","xMidYMid")
                 .attr("class", "sns-plot")
                 .attr("width", width + margin.left + margin.right)
