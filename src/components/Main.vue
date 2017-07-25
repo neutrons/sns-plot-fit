@@ -14,10 +14,12 @@
 
             <div class="panel-heading">Plot
                 <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-plot"></button>
+                <button class="btn btn-default btn-xs pull-right" @click="printChart">Print Chart</button>
             </div>
             <div id="collapse-plot" class="panel-collapse collapse in">
                 <div class="panel-body">
                   <div id="plot-area"></div>
+                  <div id="canvas-container"><canvas id="canvas" width="1100" height="700"></canvas></div>
                 </div>
             </div>
         </div>
@@ -243,6 +245,32 @@ export default {
       }
     },
     methods: {
+      printChart: function() {
+      var svgString = new XMLSerializer().serializeToString(document.querySelector('svg'));
+
+      var canvas = document.getElementById("canvas");
+      var ctx = canvas.getContext("2d");
+      var DOMURL = self.URL || self.webkitURL || self;
+      var img = new Image();
+      var svg = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+      var url = DOMURL.createObjectURL(svg);
+      img.onload = function() {
+          ctx.drawImage(img, 0, 0);
+          //var png = canvas.toDataURL("image/png");
+          //document.querySelector('#png-container').innerHTML = '<img src="'+png+'"/>';
+          //DOMURL.revokeObjectURL(png);
+      };
+      img.src = url;
+
+      //PRINT Feature
+      var chart = document.getElementById('canvas-container').innerHTML;
+      console.log(chart);
+      // var body = document.body.innerHTML;
+      //     document.body.innerHTML = chart;
+      //     window.print();
+      //     document.body.innerHTML = body;
+          
+      },
       fetchData: function () {
         var url = document.getElementById("urlid").getAttribute("data-urlid");
         var files = JSON.parse(url);
