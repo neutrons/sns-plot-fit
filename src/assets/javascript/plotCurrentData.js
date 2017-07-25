@@ -135,8 +135,6 @@ export default {
                     .style("opacity", 0);
 
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
-                var minX = d3.min(dataToFit, function(d) { return d.x });
-                var maxX = d3.max(dataToFit, function(d) { return d.x });
 
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
                 var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
@@ -423,6 +421,9 @@ export default {
 
             // Code for fitted line
             if(isFit) {
+                var minX = d3.min(dataToFit, function(d) { return d.x });
+                var maxX = d3.max(dataToFit, function(d) { return d.x });
+
                 //Add fitted lin
                 plot.append("path")
                     .attr("clip-path", "url(#clip)")
@@ -442,6 +443,8 @@ export default {
                         }
                         
                         resultString += "</ul><p><b>Fit Error:</b> " + fitError.toFixed(3) + "</p>";
+                        resultString += "<p><b># Points</b>: " + dataToFit.length + "</p>";
+                        resultString += "<p><b>Range</b>: (" + minX.toFixed(3) + ", " + maxX.toFixed(3) + ")</p>";
 
                         return resultString;
                     })
@@ -469,6 +472,7 @@ export default {
                         return e[0] <= d.x && d.x <= e[1];
                     })
 
+                    console.log("e[0] = " + e[0] + " | e[1] = " + e[1]);
                     fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation);
                     coefficients = fitResults.coefficients;
                     dataFitted = fitResults.fittedData;
@@ -499,6 +503,8 @@ export default {
                             
                             resultString += "</ul><p><b>Fit Error:</b> " + fitError.toFixed(3) + "</p>";
 
+                            resultString += "<p><b># Points</b>: " + selectedData.length + "</p>";
+                            resultString += "<p><b>Range</b>: (" + e[0].toFixed(3) + ", " + e[1].toFixed(3) + ")</p>";
                             return resultString;
                         });
                     

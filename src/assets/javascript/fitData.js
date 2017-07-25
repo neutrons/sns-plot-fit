@@ -126,10 +126,10 @@ fd.fitData = function(data, equation) {
     var fittedPoints = [];
     // console.log("Fitted Length = " + y_fitted.length + " | X length = " + tempData.x.length);
     for(let i = 0; i < y_fitted.length; i++) {
-    fittedPoints.push({
-        x: tempData.x[i],
-        y: y_fitted[i]
-    });
+        fittedPoints.push({
+            x: tempData.x[i],
+            y: y_fitted[i]
+        });
     }
 
     var coeff = {};
