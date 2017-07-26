@@ -573,7 +573,13 @@ export default {
       fileToFit: function () {
         // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
         // If fileToFit is set to Null, don't transform anything and reset the fit to none
-        this.setParameters();
+        if(this.fileToFit === null) {
+          // Reset fit to Linear
+          eventBus.$emit("set-fit-back");
+          this.setFit("Linear"); 
+        } else {
+          this.setParameters();
+        }
       },
       selectedData: {
         handler: function() {

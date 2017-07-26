@@ -106,6 +106,9 @@ export default {
     },
     setScales: function() {
       eventBus.$emit('set-scales', this.xScale, this.yScale);
+    },
+    setFitBack: function() {
+        this.fit = 'Linear';
     }
   },
   watch: {
@@ -116,6 +119,7 @@ export default {
   created() {
     eventBus.$on('reset-fit', this.resetFit);
     eventBus.$on('reset-scales', this.resetScales);
+    eventBus.$on('set-fit-back', this.setFitBack);
   }
 }
 </script>
