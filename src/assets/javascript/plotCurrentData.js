@@ -9,7 +9,7 @@ export default {
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
 
-            // console.log("Plotting data...");
+            console.log("Plotting data...");
             
             // Set isFit to check if a file is selected to fit
             var isFit = parameters.fileToFit !== null && parameters.fitConfiguration.fit !== 'None'
@@ -48,7 +48,7 @@ export default {
             }
             
             var containerWidth = document.getElementById("plot-area").offsetWidth;
-            console.log("container width = ", containerWidth);
+            // console.log("container width = ", containerWidth);
             var width = containerWidth - margin.left - margin.right;
             //var height = 550 - margin.top - margin.bottom;
 
@@ -136,6 +136,7 @@ export default {
 
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
+                console.log("Setting up some stuff...");
 
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
 
@@ -171,7 +172,7 @@ export default {
                         [0, 0],
                         [width, height2]
                     ])
-                    .on("brush end", brushed);
+                    .on("brush", brushed);
 
                 // var brushXScale = xScale;
                 // var brushYScale = yScale;
@@ -456,6 +457,7 @@ export default {
 
             // Create brush function redraw scatterplot with selection
             function brushed() {
+                console.log("Calling brush...");
                 var selection = d3.event.selection;
                 if (selection !== null) {
                     var e = d3.event.selection.map(xScale2.invert, xScale2);
