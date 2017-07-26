@@ -20,7 +20,7 @@
                   <div id="plot-area"></div>
                   
                   <!-- Fit Results Table to add fit results -->
-                  <div id="fit-results-table" class="table-responsive" v-show="fileToFit">          
+                  <div id="fit-results-table" class="table-responsive" v-show="fileToFit && currentConfiguration.fit !== 'None'">          
                     <table class="table table-bordered">
                       <caption><h4>Fit Results:</h4></caption>
                     
