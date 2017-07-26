@@ -35,3 +35,24 @@ ol {
   margin: 0px;
   padding: 0px;
 }
+
+/* Styles for Fit results Table */
+#fit-results-table {
+    width: 75%;
+    padding: 0 auto;
+    margin: 0 auto;
+}
+
+#fit-results-table td {
+padding: 5px 10px;
+}
+
+#fit-results-table ul, li {
+list-style-type: none;
+text-align: left;
+}
+
+#fit-results-table .sub-heading {
+text-align: center;
+font-weight: bold;
+}

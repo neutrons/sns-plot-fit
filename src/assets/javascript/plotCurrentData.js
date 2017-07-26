@@ -8,7 +8,6 @@ export default {
             //Remove any elements previously plotted
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
-            d3.select(".fit-tooltip").remove();
 
             // console.log("Plotting data...");
             
@@ -137,10 +136,6 @@ export default {
 
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
-                //Add tool tip and hide it until invoked
-                var fitTooltip = d3.select("#plot-area").append("div")
-                    .attr("class", "fit-tooltip")
-                    .style("opacity", 0);
 
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
 
@@ -442,23 +437,21 @@ export default {
                     .style("fill", "none")
                     .style("stroke", color(parameters.fileToFit));
 
-                d3.select(".fit-tooltip")
-                    .html( function() {
-                        var resultString = "<p class='file-title'><b>" + parameters.fileToFit + "</b></p><p><b>Fit Type:</b> " + parameters.fitConfiguration.fit + "</p><p><b>Coefficients:</b></p><ul>";
-
-                        for(let key in coefficients) {
-                            resultString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
-                        }
-                        
-                        resultString += "</ul><p><b>Fit Error:</b> " + fitError.toFixed(3) + "</p>";
-                        resultString += "<p><b># Points</b>: " + dataToFit.length + "</p>";
-                        resultString += "<p><b>Range</b>: (" + minX.toFixed(3) + ", " + maxX.toFixed(3) + ")</p>";
-
-                        return resultString;
-                    })
-                    .style("opacity", 1);
-
-                d3.select('.file-title').style("color", color(parameters.fileToFit));
+                // Add fit results below chart
+                d3.select("td#fit-file").html("<b>Fit File: </b>" + parameters.fileToFit);
+                d3.select("td#fit-type").html("<b>Fit Type:</b> " + parameters.fitConfiguration.fit);
+                d3.select("td#fit-points").html("<b># Points: " + dataToFit.length);
+                d3.select("td#fit-range").html("<b>Point Range:</b> (" + minX.toFixed(3) + ", " + maxX.toFixed(3) + ")");
+                d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toFixed(3));
+                
+                d3.select("td#fit-coefficients").html(function() {
+                    let coeffString = "<ul>";
+                    for( let key in coefficients) {
+                        coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
+                    }
+                    coeffString += "</ul>";
+                    return coeffString;
+                });
             }
 
             // Create brush function redraw scatterplot with selection
@@ -499,23 +492,21 @@ export default {
                     plot.select(".fitted-line")
                         .attr("d", brushPlotLine(dataFitted));
 
-                    // Revise equation results
-                    d3.select(".fit-tooltip")
-                        .html( function() {
-                            var resultString = "<p class='file-title'><b>" + parameters.fileToFit + "</b></p><p><b>Fit Type:</b> " + parameters.fitConfiguration.fit + "</p><p><b>Coefficients:</b></p><ul>";
-
-                            for(let key in coefficients) {
-                                resultString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
-                            }
-                            
-                            resultString += "</ul><p><b>Fit Error:</b> " + fitError.toFixed(3) + "</p>";
-
-                            resultString += "<p><b># Points</b>: " + selectedData.length + "</p>";
-                            resultString += "<p><b>Range</b>: (" + e[0].toFixed(3) + ", " + e[1].toFixed(3) + ")</p>";
-                            return resultString;
-                        });
+                    // Revise fit results below chart
+                    d3.select("td#fit-file").html("<b>Fit File: </b>" + parameters.fileToFit);
+                    d3.select("td#fit-type").html("<b>Fit Type:</b> " + parameters.fitConfiguration.fit);
+                    d3.select("td#fit-points").html("<b># Points:</b> " + dataToFit.length);
+                    d3.select("td#fit-range").html("<b>Point Range:</b> (" + e[0].toFixed(3) + ", " + e[1].toFixed(3) + ")");
+                    d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toFixed(3));
                     
-                    d3.select('.file-title').style("color", color(parameters.fileToFit));
+                    d3.select("td#fit-coefficients").html(function() {
+                        let coeffString = "<ul>";
+                        for( let key in coefficients) {
+                            coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
+                        }
+                        coeffString += "</ul>";
+                        return coeffString;
+                    });
                 }
             }
 

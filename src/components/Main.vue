@@ -18,6 +18,41 @@
             <div id="collapse-plot" class="panel-collapse collapse in">
                 <div class="panel-body">
                   <div id="plot-area"></div>
+                  
+                  <!-- Fit Results Table to add fit results -->
+                  <div id="fit-results-table" class="table-responsive" v-show="fileToFit">          
+                    <table class="table table-bordered">
+                      <caption><h4>Fit Results:</h4></caption>
+                    
+                      <tbody>
+                      <tr>
+                        <td id="fit-file"></td>
+                        <td id="fit-type"></td>
+                        <td id="fit-points"></td>
+                        <td id="fit-range"></td>
+                        <td id="fit-error"></td>
+                      </tr>
+                    
+                        <tr>
+                          <td colspan="3" class="sub-heading">Fit Configuration:</td>
+                          <td colspan="2" class="sub-heading">Coefficients:</td>	
+                        </tr>
+                        <tr>
+                          <td colspan="3" id="fit-configs">
+                          <ul>
+                                <li id="fit-damping">Damping = 1.5</li>
+                                <li id="fit-iterations">No. Iterations = 200</li>
+                                <li id="fit-tolerance">Error Tolerance = 10e-3</li>
+                                <li id="fit-gradient">Gradient Difference = 10e-2</li>
+                            </ul>
+                          </td>
+                          <td colspan="2" id="fit-coefficients">
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>
+
                 </div>
             </div>
         </div>
