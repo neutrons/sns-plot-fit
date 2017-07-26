@@ -140,7 +140,7 @@ export default {
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
 
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
-                var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
+                var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation, parameters.fitSettings);
                 var coefficients = fitResults.coefficients;
                 var dataFitted = fitResults.fittedData;
                 var fitError = fitResults.error;
@@ -473,7 +473,7 @@ export default {
                         return e[0] <= d.x && d.x <= e[1];
                     })
                     
-                    fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation);
+                    fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation, parameters.fitSettings);
                     coefficients = fitResults.coefficients;
                     dataFitted = fitResults.fittedData;
                     fitError = fitResults.error;

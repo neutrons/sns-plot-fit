@@ -25,7 +25,7 @@ fd.transformData = function(data, configuration) {
         return t.data; // returns transformed data array
 }
 
-fd.fitData = function(data, equation) {
+fd.fitData = function(data, equation, fitsettings) {
     // Code to fit data on the transformed data
     // console.log("Equation:", equation);
     // console.log("Min X:", minX);
@@ -94,7 +94,8 @@ fd.fitData = function(data, equation) {
     var initialValues = parameter_names_to_fit.map(function (x, i) { return 1.0; });
     
     // LM options. We might need to adapt some of these values
-    const options = {
+    fitsettings.initialValues = initialValues;
+    var options = {
         damping: 0.001,
         initialValues: initialValues,
         gradientDifference: 10e-2,
