@@ -1,56 +1,69 @@
 <template>
-  <div class="row main">
+  <div id="main">
+    <div class="container-fluid">
 
-    <!--Pass functions to controls component-->
-      <div 
-        :class="!isCollapseLeft ? 'col-xs-1' : 'col-xs-0'" v-show="!isCollapseLeft">
-        
-        
+    <!--Pass variables to controls component-->
         <app-controls
-        :RESETPLOT="resetPlot"
         :BUTTONDIS="buttonDis"
-        :PLOTPARAMS="plotParams"
+        :FILETOFIT="fileToFit"
+        :EQUATION="$data.currentConfiguration.equation"
         ></app-controls>
-      </div>
+        
+      <div id="plot-panel" class="col-md-8">
+        <div class="panel panel-default">
 
-      
-    <div :class="!isCollapseLeft && !isCollapseRight ? 'col-sm-9 plotpanel' : 
-                  !isCollapseLeft && isCollapseRight ? 'col-sm-11 plotpanel' : 
-                  isCollapseLeft && !isCollapseRight ? 'col-sm-10 plotpanel' : 'col-sm-12 plotpanel'">
+            <div class="panel-heading">Plot
+                <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-plot"></button>
+            </div>
+            <div id="collapse-plot" class="panel-collapse collapse in">
+                <div class="panel-body">
+                  <div id="plot-area"></div>
+                  
+                  <!-- Fit Results Table to add fit results -->
+                  <div id="fit-results-table" class="table-responsive" v-show="fileToFit">          
+                    <table class="table table-bordered">
+                      <caption><h4>Fit Results:</h4></caption>
+                    
+                      <tbody>
+                      <tr>
+                        <td id="fit-file"></td>
+                        <td id="fit-type"></td>
+                        <td id="fit-points"></td>
+                        <td id="fit-range"></td>
+                        <td id="fit-error"></td>
+                      </tr>
+                    
+                        <tr>
+                          <td colspan="3" class="sub-heading">Fit Configuration:</td>
+                          <td colspan="2" class="sub-heading">Coefficients:</td>	
+                        </tr>
+                        <tr>
+                          <td colspan="3" id="fit-configs">
+                          <ul>
+                                <li id="fit-damping">Damping = 0.001</li>
+                                <li id="fit-iterations">No. Iterations = 200</li>
+                                <li id="fit-tolerance">Error Tolerance = 10e-3</li>
+                                <li id="fit-gradient">Gradient Difference = 10e-2</li>
+                            </ul>
+                          </td>
+                          <td colspan="2" id="fit-coefficients">
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>
 
-      
-      <button class="btn btn-default btn-xs btn-collapse-right" @click="isCollapseRight = !isCollapseRight">
-        <span class="glyphicon glyphicon-minus" v-if="!isCollapseRight"></span>
-        <span class="glyphicon glyphicon-plus" v-if="isCollapseRight"></span>
-      </button>
-
-      <button class="btn btn-default btn-xs btn-collapse-left" @click="isCollapseLeft = !isCollapseLeft">
-         <span class="glyphicon glyphicon-minus" v-if="!isCollapseLeft"></span>
-          <span class="glyphicon glyphicon-plus" v-if="isCollapseLeft"></span>
-      </button>
-
-      <div class="plotarea">
-          <div class="plot"></div>
-      </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-      <!--Pass functions to fileload component-->
-      <div :class="!isCollapseRight ? 'col-xs-2' : 'col-xs-0'" 
-      
-          v-show="!isCollapseRight" style="padding:0px;">
-          
+      <!--Pass variables to fileload component-->
         <app-file-load
         :BUTTONDIS="buttonDis"
-        :DISABLEBUTTONS="disableButtons"
-        :DATAFILES="dataFiles"
-        :SETCURRENTDATA="setCurrentData"
-        :READFILE="readFile"
+        :GETFILES="getFiles"
         :UPLOADEDFILES="uploadedFiles"
-        :FETCHDATA="fetchData"
-        :DELETEFILE="deleteFile"
-        :REMOVEUPLOADED="removeUploaded"
         :ISUPLOADED="isUploaded"
-        :SETFITFILE="setFitFile"
         ></app-file-load>
       </div>
   </div>
@@ -58,243 +71,559 @@
 
 <script>
 import * as d3 from 'd3';
-import * as axios from 'axios'; //axios package to handle GET requests
-import plotCurrentData from '../mixins/plotCurrentData';
+import * as axios from 'axios'; // Axios package to handle HTTP requests
+import * as _ from 'lodash';
+import $ from 'jquery';
+import plotCurrentData from '../assets/javascript/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
 
+import fd from '../assets/javascript/fitData.js';
+
+// The eventBus serves as the means to communicating between components.
+// e.g., If scales are reset in 'Controls.vue', an event is emitted
+//       and the event is then 'caught' in 'Main.vue'
+import { eventBus } from '../assets/javascript/eventBus';
+
 export default {
+  name: 'main',
   mixins: [plotCurrentData],
-  components: {
-    'app-controls': Controls,
-    'app-file-load': FileLoad
-  },
-  data: function () {
-    return {
-      dataFiles: [],
-      uploadedFiles: [],
-      colorDomain: [],
-      plotParams: {
-        data: [],
-        xScale: "X",
-        yScale: "Y",
-        xAxisTitle: 'X',
-        yAxisTitle: 'I(Q)',
-        fitName: 'None',
-        equation: 'a*X+b',
-        fileToFit: undefined
+    components: {
+      'app-controls': Controls,
+      'app-file-load': FileLoad
+    },
+    created() {
+      // Event hooks for 'Controls.vue'
+      eventBus.$on('set-equation', this.setEquation);
+      eventBus.$on('set-scales', this.setScales);
+      eventBus.$on('set-fit', this.setFit);
+      eventBus.$on('reset-plot', this.resetPlot);
+
+      // Event hooks for 'FileLoad.vue'
+      eventBus.$on('fetch-data', this.fetchData);
+      eventBus.$on('upload-file', this.uploadFile);
+      eventBus.$on('set-current-data', this.setCurrentData);
+      eventBus.$on('set-fit-file', this.setFitFile);
+      eventBus.$on('remove-uploaded-files', this.removeUploadedFiles);
+      eventBus.$on('delete-file', this.deleteFile);
+      eventBus.$on('disable-buttons', this.disableButtons);
+    },
+    mounted() {
+    // Code for Collapsible sidebars
+      var isLeft = false;
+      var isRight = false;
+
+      $('#left-panel-collapse').click(function(e) {
+          isLeft = !isLeft; //toggle isLeft
+          
+          if(!isLeft && !isRight) {
+              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-left pull-right"></span>');
+              $('#control-panel').toggleClass('col-md-2 col-md-1');
+              $("#control-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-8 col-md-9');
+          } else if (!isLeft && isRight) {
+              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-left pull-right"></span>');
+              $('#control-panel').toggleClass('col-md-2 col-md-1');
+              $("#control-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-9 col-md-10');
+          } else if (isLeft && !isRight) {
+              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-right pull-right"></span>');
+              $('#control-panel').toggleClass('col-md-1 col-md-2');
+              $("#control-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-9 col-md-8');
+          } else if (isLeft && isRight) {
+              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-right pull-right"></span>');
+              $('#control-panel').toggleClass('col-md-1 col-md-2');
+              $("#control-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-10 col-md-9');
+          }
+      });
+
+      $('#right-panel-collapse').click(function(e) {
+          isRight = !isRight; //toggle isLeft
+          $('#right-panel-collapse').find('span').toggleClass('glyphicon-menu-right glyphicon-menu-left');
+
+          if(!isRight && !isLeft) {
+              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-right pull-left"></span> Files');
+              $('#file-panel').toggleClass('col-md-2 col-md-1');
+              $("#file-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-8 col-md-9');
+          } else if (!isRight && isLeft) {
+              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-right pull-left"></span> Files');
+              $('#file-panel').toggleClass('col-md-2 col-md-1');
+              $("#file-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-9 col-md-10');
+          } else if (isRight && !isLeft) {
+              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-left pull-left"></span> Files');
+              $('#file-panel').toggleClass('col-md-1 col-md-2');
+              $("#file-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-9 col-md-8');
+          } else if (isRight && isLeft) {
+              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-left pull-left"></span> Files');
+              $('#file-panel').toggleClass('col-md-1 col-md-2');
+              $("#file-panel-group").slideToggle(300);
+              $('#plot-panel').toggleClass('col-md-10 col-md-9');
+          }
+});
+    },
+    data: function () {
+      return {
+        getFiles: [],
+        uploadedFiles: [],
+        colorDomain: [],
+        selectedData: [],
+        scales: {
+          xScale: d3.scaleLinear(),
+          yScale: d3.scaleLinear()
+        },
+        fileToFit: null,
+        titles: {
+          xTitle: 'X',
+          yTitle: 'Y'
+        },
+        isUploaded: false,
+        isCollapseRight: false,
+        isCollapseLeft: false,
+        buttonDis: false,
+        plotParams: {},
+        currentConfiguration: {
+            fit: 'Linear',
+            equation: 'm*X+b',
+            yTransformation: 'y',
+            xTransformation: 'x',
+            eTransformation: "e",
+            yLabel: "I",
+            xLabel: "Q",
+            range: [-Infinity, +Infinity]
+        },
+        fitConfigurations: {
+          'None': {
+            fit: 'None',
+            equation: null,
+            yTransformation: null,
+            xTransformation: null,
+            eTransformation: null,
+            yLabel: "I",
+            xLabel: "Q",
+            range: [-Infinity, +Infinity]
+          },
+          'Linear': {
+            fit: 'Linear',
+            equation: 'm*X+b',
+            yTransformation: 'y',
+            xTransformation: 'x',
+            eTransformation: "e",
+            yLabel: "I",
+            xLabel: "Q",
+            range: [-Infinity, +Infinity]
+          },
+          'Guinier': {
+            fit: 'Guinier',
+            equation: "-Rg^2/3*X+b",
+            yTransformation: "log(y)",
+            xTransformation: "log(x)",
+            eTransformation: "((1/x)*e)^2",
+            yLabel: "Log(I)",
+            xLabel: "Log(Q)",
+            range: [-Infinity, +Infinity]
+          },
+          'Porod': {
+            fit: 'Porod',
+            equation: "A-n*X",
+            yTransformation: "log(y)",
+            xTransformation: "log(x)",
+            eTransformation: "((1/x)*e)^2",
+            yLabel: "Log(I)",
+            xLabel: "Log(Q)",
+            range: [-Infinity, +Infinity]
+          },
+          'Zimm': {
+            fit: 'Zimm',
+            equation: "1/I0+Cl^2/I0*X",
+            yTransformation: "1/y",
+            xTransformation: "x^2",
+            eTransformation: "((-1/x^2)*e)^2",
+            yLabel: "1/I",
+            xLabel: "Q^2",
+            range: [-Infinity, +Infinity]
+          },
+          'Kratky': {
+            fit: 'Kratky',
+            equation: "m*X+b",
+            yTransformation: "log(x^2*y)",
+            xTransformation: "x^2",
+            eTransformation: "((1/x)*e)^2",
+            yLabel: "log(Q^2*I)",
+            xLabel: "Log(Q)",
+            range: [-Infinity, +Infinity]
+          },
+          'Debye Beuche': {
+            fit: 'Debye Beuche',
+            equation: "m*X+I0",
+            yTransformation: "sqrt(y)",
+            xTransformation: "x^2",
+            eTransformation: "(1/(2*sqrt(x))*e)^2",
+            yLabel: "sqrt(I)",
+            xLabel: "Q^2",
+            range: [-Infinity, +Infinity]
+          }
+        },
+        scaleConfigurations: {
+          'X': d3.scaleLinear(),
+          'X^2': d3.scalePow().exponent(2),
+          'Log(X)': d3.scaleLog(),
+          'Y': d3.scaleLinear(),
+          'Y^2': d3.scalePow().exponent(2),
+          'Log(Y)': d3.scaleLog()
+        }
+      }
+    },
+    methods: {
+      fetchData: function () {
+        var url = document.getElementById("urlid").getAttribute("data-urlid");
+        var files = JSON.parse(url);
+        this.getFiles = [];
+
+        // For loop to GET multiple files and push them to an array
+        for (var i = 0; i < files.length; i++) {
+
+          // Call 'getFiles' passing in i each time to access appropriate elements in files array
+          getFiles(i);
+
+          // Set a variable to 'this' to be able to reference the getFiles variable in the scope of the 'getFiles' function
+          var vthis = this;
+
+          function getFiles(i, test) {
+
+            //Make a GET request to data file
+            axios.get(files[i].url).then(response => {
+
+              var data = d3.csvParse(response.data, function (d) {
+                // The return statement renames the columns
+                // and removes spaces/formatting and converts the strings to
+                // to numerical values by prefixing with '+'
+                return {
+                  x: +d['# X '],
+                  y: +d[' Y '],
+                  error: +d[' E '],
+                  dx: +d[' DX'],
+                  name: files[i].name
+                }
+              });
+
+              // Each data file has an empty second row so removing it with splice
+              data = data.splice(1, data.length);
+              data = data.filter( (d) => d.y > 0 && d.x > 0); // Filter out negative values for x and y
+
+              vthis.getFiles.push({
+                data: data,
+                fileName: files[i].name,
+              });
+
+              // Add filename to color domain
+              if (vthis.colorDomain.indexOf(files[i].name) === -1) {
+                vthis.colorDomain.push(files[i].name);
+              }
+            });
+          }
+        }
       },
-      isUploaded: false,
-      isCollapseRight: false,
-      isCollapseLeft: false,
-      buttonDis: false
-    }
-  },
-  methods: {
-    fetchData: function () {
-      var url = document.getElementById("urlid").getAttribute("data-urlid");
-      var files = JSON.parse(url);
-      this.dataFiles = [];
+      uploadFile: function () {
+        var files = document.getElementById("input").files;
+        var self = this;
 
-      //For loop to GET multiple files and push them to an array
-      for (var i = 0; i < files.length; i++) {
+        function loadFiles(file) {
+          // Pull the file name and remove the ".txt" extension
+          var name = file.name.substr(0, file.name.lastIndexOf('.txt')) || file.name;
+          var reader = new FileReader();
 
-        //call get files passing in i each time to access appropriate elements in files array
-        getFiles(i);
-
-        //Set a variable to call 'this' to essentially reference the dataFiles variable in the getFiles function
-        var vthis = this;
-
-        function getFiles(i, test) {
-
-          //Make a GET request to data file
-          axios.get(files[i].url).then(response => {
-
-            /* CODE FOR READING TXT FILES WITH COMMA DELIMITER*/
-            var data = d3.csvParse(response.data, function (d) {
-              //the return statement basically renames the columns
-              //to remove spaces, as well as converts the strings to
-              //to numerical values with prefixing with '+'
+          reader.onload = function (e) {
+            // Get file content
+            var content = e.target.result;
+            var data = d3.csvParse(content, function (d) {
+              // The return statement renames the columns
+              // and removes spaces/formatting and converts the strings to
+              // to numerical values by prefixing with '+'
               return {
                 x: +d['# X '],
                 y: +d[' Y '],
                 error: +d[' E '],
                 dx: +d[' DX'],
-                name: files[i].name
+                name: name
               }
             });
 
-            //each data file has an empty second row so removing it with splice
+            // Each data file has an empty second row so removing it with splice
             data = data.splice(1, data.length);
-            /***** END CSV FILE CODE*/
-
-            vthis.dataFiles.push({
+            data = data.filter( (d) => d.y > 0 && d.x > 0); // Filter out negative values for x and y
+            // Once data is read in add it to the uploaded list
+            self.uploadedFiles.unshift({
               data: data,
-              fileName: files[i].name,
+              fileName: name
             });
 
-            //add filename to color domain
-            if(vthis.colorDomain.indexOf(files[i].name) === -1) { vthis.colorDomain.push(files[i].name); }
-          });
-        }
-      }
-    },
-    readFile: function() {
-      var files = document.getElementById("input").files;
-      var self = this;
-
-      function loadFiles(file) {
-        //pull the file name and remove the ".txt" extension
-        var name = file.name.substr(0, file.name.lastIndexOf('.txt')) || file.name;
-        var reader = new FileReader();
-
-        reader.onload = function (e) {
-          //get file content
-          var content = e.target.result;
-
-          /*** CODE FOR READING TXT FILES WITH COMMA DELIMITER*/
-          var data = d3.csvParse(content, function (d) {
-            //the return statement basically renames the columns
-            //to remove spaces, as well as converts the strings to
-            //to numerical values with prefixing with '+'
-            return {
-              x: +d['# X '],
-              y: +d[' Y '],
-              error: +d[' E '],
-              dx: +d[' DX'],
-              name: name
+            // Add filename to color domain
+            if (self.colorDomain.indexOf(name) === -1) {
+              self.colorDomain.push(name);
             }
-          });
-
-          //each data file has an empty second row so removing it with splice
-          data = data.splice(1, data.length);
-          /***** END CSV FILE CODE*/
-
-          //once data is read in add it to the array list
-          self.uploadedFiles.unshift({
-            data: data,
-            fileName: name
-          });
-
-          //add filename to color domain
-          if(self.colorDomain.indexOf(name) === -1) { self.colorDomain.push(name); }
+          }
+          reader.readAsText(file, "UTF-8");
         }
-        reader.readAsText(file, "UTF-8");
-      }
 
-      for (var i = 0; i < files.length; i++) {
-        if(files[i].type !== "text/plain") {
-          //if text file is not submitted alert and skip over it
-          alert("Sorry, " + files[i].type + " is not an accepted file type.")
-          continue;
-        } else {
-          if(this.uploadedFiles.length > 0) {
-            if(!this.checkDuplicateFile(files[i].name.substr(0, files[i].name.lastIndexOf('.txt')))) {
+        for (var i = 0; i < files.length; i++) {
+          if (files[i].type !== "text/plain") {
+            //if text file is not submitted alert and skip over it
+            alert("Sorry, " + files[i].type + " is not an accepted file type.")
+            continue;
+          } else {
+            if (this.uploadedFiles.length > 0) {
+              if (!this.checkDuplicateFile(files[i].name.substr(0, files[i].name.lastIndexOf('.txt')))) {
+                loadFiles(files[i]);
+              }
+            } else {
               loadFiles(files[i]);
             }
-          } else {
-            loadFiles(files[i]);
+          };
+        }
+      },
+      checkDuplicateFile: function (filename) {
+
+        if (this.uploadedFiles.find(el => el.fileName === filename)) {
+          alert("Duplicate file: " + filename);
+          return true;
+        } else {
+          return false;
+        }
+
+      },
+      resetPlot: function () {
+        this.plotParameters();
+      },
+      disableButtons: function (bool) {
+        this.buttonDis = bool;
+      },
+      setCurrentData: function (checkedfiles) {
+        // Function that adds selected data to be plotted
+
+        if (checkedfiles.length == 0) {
+          // If no data is selected to be plotted, then
+          // remove any elements previously plotted
+          // and reset to default values
+          d3.select("svg").remove();
+          d3.select(".tooltip").remove();
+          d3.select(".fit-tooltip").remove();
+
+          eventBus.$emit('reset-scales');
+          eventBus.$emit('reset-fit');
+          this.disableButtons(false);
+          this.selectedData = [];
+          this.fileToFit = null;
+        } else {
+          // console.log(this.selectedData);
+          // console.log("checkfiles", checkedfiles);
+
+          // Remove any instances where checked file isn't in selected
+          for (let i = 0; i < this.selectedData.length; i++) {
+            let key = this.selectedData[i].fileName;
+            // console.log("key", key);
+            // console.log(this.checkedfiles.indexOf(key));
+            if (checkedfiles.indexOf(key) === -1) {
+              // console.log("Removing: " + key + " | index: " + i);
+              this.selectedData.splice(i, 1);
+              
+              // Check if you are removing a file that was also being fitted
+              // if so reset back to null
+              if(key === this.fileToFit) {
+                this.fileToFit = null;
+              }
+            }
           }
+
+          //console.log("Selected Data After", this.selectedData);
+
+          // Add selected file
+          for (let i = 0; i < checkedfiles.length; i++) {
+            let el = checkedfiles[i];
+
+            if (this.selectedData.find(a => a.fileName === el) === undefined) {
+              // console.log("not in selectedData " + el);
+
+              if (this.getFiles.find(a => a.fileName === el)) {
+                // console.log("Adding from get file " + el);
+                
+                // Set temp file for get
+                let temp = _.cloneDeep(this.getFiles.find(a => a.fileName === el));
+                // console.log("Temp", temp);
+                temp.dataTransformed = [];
+
+                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                  temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
+                  // console.log("Temp data:", temp);
+                  this.selectedData.push(temp);
+                } else {
+                  this.selectedData.push(temp);
+                }
+                // this.selectedData.push(this.getFiles.find(a => a.fileName === el));
+
+              } else if (this.uploadedFiles.find(a => a.fileName === el)) {
+                // console.log("Adding from uploaded file " + el);
+                
+                // Set temp file for uploaded
+                let temp = _.cloneDeep(this.uploadedFiles.find(a => a.fileName === el));
+                temp.dataTransformed = [];
+
+                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                  temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
+                  // console.log("Temp data:", temp);
+                  this.selectedData.push(temp);
+                } else {
+                  this.selectedData.push(temp);
+                }
+                // this.selectedData.push(this.uploadedFiles.find(a => a.fileName === el));
+              } else {
+                console.log("Uh oh shouldn't happen");
+              }
+              
+            }
+          };
+
+          // console.log("Selected Data", this.selectedData);
+          // console.log("length is " + this.selectedData.length);
+
+        }
+      },
+      deleteFile: function (filename) {
+        // Function to delete file from the uploaded list
+
+        for (var i = 0; i < this.uploadedFiles.length; i++) {
+          if (this.uploadedFiles[i].fileName === filename) {
+            // Splice will remove the object from array index i    
+            this.uploadedFiles.splice(i, 1);
+          }
+        }
+      },
+      removeUploadedFiles: function () {
+        this.uploadedFiles = [];
+      },
+      setFitFile: function (filename) {
+        this.fileToFit = filename;
+        // console.log("Current File to Fit", this.fileToFit);
+      },
+      setScales: function (x, y) {
+        this.titles.xTitle = x;
+        this.titles.yTitle = y;
+        this.scales.xScale = this.scaleConfigurations[x];
+        this.scales.yScale = this.scaleConfigurations[y];
+      },
+      setFit: function (fitname) {
+        //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
+        this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]);
+      },
+      plotParameters: function () {
+
+        // Make sure there is selected data to plot
+        // then pass all parameters into an object
+        // when plotting selected data
+        if (this.selectedData.length > 0) {
+          this.plotCurrentData(this.plotParams);
+        }
+      },
+      prepData: function (sd) {
+        // This function is to prepare the data before calling 'plotCurrentData' function
+        // The initial array has multiple arrays with objects inside,
+        // The for loop strips out the object for just the arrays of data
+        // Then D3.merge will do that, merge the arrays of data to one large array of data
+        // This is simply to ease the process of plotting (see the nested loop function in 'plotCurrentData.js')
+        let temp = [];
+        for (let i = 0; i < sd.length; i++) {
+          // If a fit is set push transformed data, else push normal data
+          if(this.currentConfiguration.fit === 'None' || this.currentConfiguration.fit === 'Linear') {
+            temp.push(sd[i].data);
+          } else {
+            temp.push(sd[i].dataTransformed);
+          }
+        }
+        // console.log("Temp", temp);
+        return d3.merge(temp);
+      },
+      setParameters: function () {
+        // Function to wrap up all the parameters needed for plotting
+        // console.log("Data", this.selectedData);
+        this.plotParams = {
+          data: this.prepData(this.selectedData),
+          colorDomain: this.colorDomain,
+          scales: this.scales,
+          fileToFit: this.fileToFit,
+          titles: this.titles,
+          fitConfiguration: this.currentConfiguration
         };
+      },
+      setEquation: function(eq) {
+        this.currentConfiguration.equation = eq;
       }
     },
-    checkDuplicateFile: function(filename) {
-
-        for(var i = 0; i < this.uploadedFiles.length; i++) {
-          if(filename == this.uploadedFiles[i].fileName) {
-            alert("Duplicate file: " + filename);
-            return true;
-          }
-        }
-        return false;
-    },
-    resetPlot: function() {
-      this.plotCurrentData(this.plotParams, this.colorDomain);
-    },
-    disableButtons: function (bool) {
-      this.buttonDis = bool;
-    },
-    resetParams: function() {
-      this.plotParams.fitName = "None";
-      this.plotParams.dataToFit = undefined;
-      this.plotParams.xScale = "X";
-      this.plotParams.yScale = "Y";
-      this.plotParams.xAxisTitle = "X";
-      this.plotParams.yAxisTitle = "Y";
-      this.plotParams.equation = "a*X+b";
-      this.plotParams.data = [];
-    },
-    setCurrentData: function(checkedfiles) {
-      if(checkedfiles.length == 0) {
-        this.disableButtons(false);
-        this.resetParams();
-      } else {
-          var tempdata = []
-
-          //add selected files from the GET requested data
-          for(var i = 0; i < checkedfiles.length; i++) {
-            for(var j = 0; j < this.dataFiles.length; j++) {
-              if(this.dataFiles[j].fileName === checkedfiles[i]) {
-                tempdata.push(this.dataFiles[j].data);
-              }
-            }
-          }
-
-          //add selected files form the uploaded data
-          for(var i = 0; i < checkedfiles.length; i++) {
-            for(var j = 0; j < this.uploadedFiles.length; j++) {
-              if(this.uploadedFiles[j].fileName === checkedfiles[i]) {
-                tempdata.push(this.uploadedFiles[j].data);
-              }
-            }
-          }
-        
-        //merge tempdata so that you have one large array of objects
-        //this is to make plotting easier for multiple files selected
-        var mergearrays = d3.merge(tempdata);
-        this.plotParams.data = mergearrays;
-      }
-    },
-    deleteFile: function(filename) {
-      for (var i = 0; i < this.uploadedFiles.length; i++) {
-        if (this.uploadedFiles[i].fileName === filename) {
-          //Splice will remove the object from array index i    
-          this.uploadedFiles.splice(i, 1);
-        }
-      }
-    },
-    removeUploaded: function() {
-      this.uploadedFiles = [];
-    },
-    setFitFile: function(filename) {
-      this.plotParams.fileToFit = filename;
-    }
-  },
     watch: {
-      plotParams: {
+      scales: {
         handler: function() {
-          if(this.plotParams.data.length > 0) {
-            // console.log(this.plotParams);
-            this.plotCurrentData(this.plotParams, this.colorDomain);
+          // Watch if scales change, if so re-set parameters
+          this.setParameters();
+        },
+        deep: true
+      },
+      fileToFit: function () {
+        // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
+        // If fileToFit is set to Null, don't transform anything and reset the fit to none
+        this.setParameters();
+      },
+      selectedData: {
+        handler: function() {
+          // Watch if selectedData changes, if so 
+          // check if a fit is enabled and transform data if necessary
+          // then set new plot parameters
+          // console.log("Selected changed...", this.selectedData);
+          this.setParameters();
+        },
+        deep: true
+      },
+      currentConfiguration: {
+        handler: function() {
+          // Watch if 'currentConfiguration' gets changed, if so
+          // re-transform selected data according to 'xTransformation' and 'yTransformation'
+          // then re-fit the 'dataToFit' according to the config's equation
+          // console.log("Equation changed...", this.currentConfiguration.equation);
+          if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+            //When current data changes after selected
+            this.selectedData.forEach( el => {
+              el.dataTransformed = fd.transformData(el, this.currentConfiguration);
+            })
+            // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
           } else {
-            //this will be the code to reset plot to nothing
-            d3.select("svg").remove();
-            d3.select(".tooltip").remove();
+            this.selectedData.forEach( el => {
+              el.dataTransformed = []; // reset since transformed data is 'None' or 'Linear'
+            });
           }
         },
         deep: true
-    },
-      uploadedFiles: function(){
-        if(this.uploadedFiles.length > 0) {
+      },
+      plotParams: function () {
+        // Watch for any changes to plotParams, if so plot data
+        if (this.selectedData.length > 0) {
+          this.plotCurrentData(this.plotParams);
+        }
+      },
+      uploadedFiles: function () {
+        // Watch if a file has been uploaded, if so enable delete file buttons
+        if (this.uploadedFiles.length > 0) {
           this.isUploaded = true;
         } else {
           this.isUploaded = false;
         }
       }
+    }
   }
-}
 </script>
 
 <style scoped>
-@import '../styles/main-component-styles.css';
+@import '../assets/styles/main-component-styles.css';
+@import '../assets/styles/plot-styles.css';
 </style>

@@ -1,145 +1,207 @@
 <template>
-  <div class="fileuploads">
-    <div class="row">
-      <div>
-        <h3>GET File(s): <button class="btn btn-xs btn-primary" @click="FETCHDATA"><span class="glyphicon glyphicon-download"></span></button></h3>
-      </div>
-      <table class="table table-condensed tabletop">
-      <thead>
-        <tr>
-          <th class="col-sm-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
-          <th class="col-sm-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
-          <th class="col-sm-9">File Name</th>
-        </tr>
-      </thead>
-      </table>
-      <div class="getloads-list">
-        <table class="table table-condensed table-hover table-bordered">
-          <tbody>
-            <tr v-for="data in this.DATAFILES" :class="isPlotted(data.fileName)">
-              <td><input type="radio" :value="data.fileName" v-model="fileToFit" :disabled="isPlotted(data.fileName) == 'info' ? false : true"></td>
-              <td><input class="checks" type="checkbox" :id="data.fileName" :value="data.fileName" v-model="checkedFiles"></td>
-              <td>{{ data.fileName }}</td>
-            </tr>
-          </tbody>
-      </table>
-      </div>
-    </div>
-    <div class="row">
-      <h3>Uploaded File(s):</h3>
-      <table class="table table-condensed tabletop">
-      <thead>
-        <tr>
-          <th class="col-sm-1">Fit</th>
-          <th class="col-sm-1">Plot</th>
-          <th class="col-sm-6">File Name</th>
-          <th class="col-sm-4">Delete</th>
-        </tr>
-      </thead>
-      </table>
-      <div class="uploads-list">
-        <table class="table table-condensed table-hover table-bordered">
-          <tbody>
-            <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
-              <td><input type="radio" :value="file.fileName" v-model="fileToFit" :disabled="isPlotted(file.fileName) == 'info' ? false : true"></td>
-              <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="checkedFiles"></td>
-              <td>{{ file.fileName }}</td>
-              <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | DELETEFILE(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
-            </tr>
-          </tbody>
-      </table>
-      </div>
-      <br>
-      <div>
-          <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
-          <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
-          <button class="btn btn-danger btn-xs btn-files" @click="uncheckUploaded" :disabled="!ISUPLOADED">Delete Files <span class="glyphicon glyphicon-trash"></span></button>
-      </div>
-      <br>
-      <div class="dropzone-area" drag-over="handleDragOver">
-        <div class="dropzone-text">
-          <span class="dropzone-title">Drop file(s) here or click to select</span>
+  <div id="fileuploads">
+    
+    <div id="file-panel" class="col-md-2">
+        <div id="files-bg">
+
+            <div class="panel panel-default">
+                <div id="right-panel-collapse" class="panel-heading"><span class="glyphicon glyphicon-menu-right pull-left"></span> Files </div>
+            </div>
+
+            <div id="file-panel-group">
+                <div class="panel panel-success">
+                    <div class="panel-heading">Get Files
+                        <button class="btn btn-xs btn-primary pull-left" @click="fetchData"><span class="glyphicon glyphicon-download"></span></button>
+                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-get-files"></button>
+                    </div>
+                    <div id="collapse-get-files" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <table class="table table-condensed tabletop">
+                                <thead>
+                                    <tr>
+                                    <th class="col-md-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
+                                    <th class="col-md-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
+                                    <th class="col-md-9">File Name</th>
+                                    </tr>
+                                </thead>
+                                </table>
+                                <div class="getloads-list">
+                                    <table class="table table-condensed table-hover table-bordered">
+                                    <tbody>
+                                        <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
+                                        <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(data.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
+                                        <td><input class="checks" type="checkbox" :id="data.fileName + '-plot'" :value="data.fileName" v-model="filesToPlot"></td>
+                                        <td>{{ data.fileName }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Uploaded Files
+                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-uploaded-files"></button>
+                    </div>
+                    <div id="collapse-uploaded-files" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <table class="table table-condensed tabletop">
+                    <thead>
+                        <tr>
+                        <th class="col-md-1">Fit</th>
+                        <th class="col-md-1">Plot</th>
+                        <th class="col-md-6">File Name</th>
+                        <th class="col-md-4">Delete</th>
+                        </tr>
+                    </thead>
+                    </table>
+                    <div class="uploads-list">
+                        <table class="table table-condensed table-hover table-bordered">
+                        <tbody>
+                            <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
+                            <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(file.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
+                            <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="filesToPlot"></td>
+                            <td>{{ file.fileName }}</td>
+                            <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | deleteFile(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <br>
+                    <div>
+                        <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
+                        <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
+                        <button class="btn btn-danger btn-xs btn-files" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Drop Files
+                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-drop-zone"></button>
+                    </div>
+                    <div id="collapse-drop-zone" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="dropzone-area" drag-over="handleDragOver">
+                                <div class="dropzone-text">
+                                <span class="dropzone-title">Drop file(s) here or click to select</span>
+                                </div>
+                                <input type="file" id="input" multiple @change="uploadFile">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
         </div>
-        <input type="file" id="input" multiple @change="READFILE">
-      </div>
     </div>
   </div>
 </template>
 
 <script>
+// The eventBus serves as the means to communicating between components.
+// e.g., If files are uploaded in 'fileUpload.vue', an event is emitted
+//       and the event is then 'caught' in 'Main.vue'
+import { eventBus } from '../assets/javascript/eventBus';
+
 export default {
-  props: ["DATAFILES", "BUTTONDIS", "DISABLEBUTTONS", "RESETALL", "SETCURRENTDATA", "READFILE", "UPLOADEDFILES", "FETCHDATA", "DELETEFILE", "REMOVEUPLOADED", "ISUPLOADED", "SETFITFILE"],
+  name: 'fileuploads',
+  props: ["GETFILES", "BUTTONDIS", "UPLOADEDFILES", "ISUPLOADED"],
   data: function () {
     return {
-      checkedFiles: [],
-      fileToFit: "None",
-      hovering: false
+      filesToPlot: [],
+      fileFitChoice: [],
+      fileToFit: null
     }
   },
+  created() {
+    // Receive event emitter from Controls component
+    eventBus.$on('reset-file-to-fit', this.resetFileFitChoice);
+  },
   methods: {
+    resetFileFitChoice: function() {
+      this.fileFitChoice = [];
+      this.fileToFit = null;
+    },
     clearSelected: function () {
-      this.checkedFiles = [];
-      this.RESETALL
+      this.fileFitChoice = [];
+      this.filesToPlot = [];
+      this.fileToFit = null;
     },
     isPlotted: function(filename) {
-      //this function dynamically styles the files being plotted
-      if(this.checkedFiles.indexOf(filename) > -1){
+      // This function dynamically styles the file lists blue for selected, default 
+      if(this.filesToPlot.indexOf(filename) > -1){
         return "info";
       } else {
         return "default";
       }
     },
     uncheckFile: function(filename) {
-      if(this.checkedFiles.indexOf(filename) > -1) {
-        this.checkedFiles.splice(this.checkedFiles.indexOf(filename),1);
+      if(this.filesToPlot.indexOf(filename) > -1) {
+        this.filesToPlot.splice(this.filesToPlot.indexOf(filename),1);
       }
     },
-    uncheckUploaded: function() {
+    deleteAllUploaded: function() {
       for(var i = 0; i < this.UPLOADEDFILES.length; i++) {
-        if(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName) > -1) {
-          this.checkedFiles.splice(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName),1);
+        if(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName) > -1) {
+          this.filesToPlot.splice(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName),1);
         }
       }
-      this.REMOVEUPLOADED();
+      eventBus.$emit('remove-uploaded-files');
     },
     checkAll: function() {
-      for(let i = 0; i < this.DATAFILES.length; i++) {
-        if(this.checkedFiles.indexOf(this.DATAFILES[i].fileName) === -1) {
-          this.checkedFiles.push(this.DATAFILES[i].fileName);
+      for(let i = 0; i < this.GETFILES.length; i++) {
+        if(this.filesToPlot.indexOf(this.GETFILES[i].fileName) === -1) {
+          this.filesToPlot.push(this.GETFILES[i].fileName);
         }
       }
       for(let i = 0; i < this.UPLOADEDFILES.length; i++) {
-        if(this.checkedFiles.indexOf(this.UPLOADEDFILES[i].fileName) === -1) {
-          this.checkedFiles.push(this.UPLOADEDFILES[i].fileName);
+        if(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName) === -1) {
+          this.filesToPlot.push(this.UPLOADEDFILES[i].fileName);
         }
       }
+    },
+    setFileToFit: function() {
+      if(this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
+      this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
+    },
+    uploadFile: function() {
+      eventBus.$emit('upload-file');
+    },
+    fetchData: function() {
+      eventBus.$emit('fetch-data');
+    },
+    deleteFile: function(filename) {
+      eventBus.$emit('delete-file', filename);
     }
   },
   watch: {
-    checkedFiles: {
+    filesToPlot: {
+      // Watch if a file is selected, if so enable buttons and append selected data to a list
       handler: function () {
-        this.DISABLEBUTTONS(true);
-        this.SETCURRENTDATA(this.checkedFiles);
+        
+        // If a file is unselected while it has a fit, unselect the fit
+        if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
+          this.fileToFit = null;
+          this.fileFitChoice = [];
+        }
+
+        eventBus.$emit('disable-buttons', true);
+        eventBus.$emit('set-current-data', this.filesToPlot);
       },
       deep: true
     },
     fileToFit: function() {
-      this.SETFITFILE(this.fileToFit);
+      // Watch if a file is selected to be fit if so, set it to the fileToFit
+      eventBus.$emit('set-fit-file', this.fileToFit);
     }
   }
 }
 </script>
 
 <style scoped>
-.fileuploads {
-  text-align: center;
-  min-height: 90vh;
-  margin-bottom: 0px;
-  padding: 25px;
-  background-color: gainsboro;
-  border-left: 1px solid rgba(0,0,0,0.25);
-}
-
 .btn-files {
   font-size: 11px;
 }
@@ -221,4 +283,20 @@ th {
   text-align: center;
 }
 
+#right-panel-collapse {
+      width: 100%;
+  }
+
+#right-panel-collapse:hover {
+      cursor: pointer;
+  }
+
+ #file-panel-group {
+      padding: 10px;
+  }
+
+  #files-bg {
+      background: rgba(0,0,0, 0.02);
+  }
+  
 </style>

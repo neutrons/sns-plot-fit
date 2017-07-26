@@ -2,7 +2,6 @@
   <div class="container-fluid">
       <app-title></app-title>
       <app-main></app-main>
-      <app-footer></app-footer>
   </div>
 </template>
 
@@ -10,14 +9,12 @@
 
 import Main from './components/Main.vue';
 import Title from './components/Title.vue';
-import Footer from './components/Footer.vue';
 
 export default {
   name: 'app',
   components: {
     'app-main': Main,
-    'app-title': Title,
-    'app-footer': Footer
+    'app-title': Title
   },
   data () {
     return {
@@ -27,4 +24,5 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+</style>

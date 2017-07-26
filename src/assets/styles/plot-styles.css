@@ -1,0 +1,132 @@
+div.plot {
+  width: 100%;
+  height: 650px;
+  padding: 0px;
+  margin: 0px;
+}
+
+.zoom {
+  cursor: move;
+  opacity: 0;
+  pointer-events: all;
+}
+
+.pointlines {
+  fill: none;
+}
+
+.error {
+  stroke-width: 2px;
+  stroke-dasharray: 4, 4;
+}
+
+.error-tick-bottom, .error-tick-top {
+  stroke-width: 1.5px;
+}
+
+.plotbg {
+  fill: white;
+  opacity: 1;
+}
+
+.tick line {
+  stroke: gainsboro;
+}
+
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: auto;
+  height: auto;
+  padding: 10px 30px;
+  font: 12px sans-serif;
+  font-weight: bold;
+  color: white;
+  border-radius: 0px;
+  pointer-events: none;
+  background: rgba(0,0,0,0.70);
+}
+
+div.tooltip:before {
+  right: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(255, 255, 255, 0);
+  border-right-color: rgba(0,0,0,0.75);
+  border-width: 10px;
+  margin-top: -10px;
+}
+
+.charttitle {
+  text-anchor: middle;
+  font-weight: bold;
+}
+
+#plot-area {
+  position: relative;
+  padding: 0 10px;
+  margin: 0 auto;
+  width: 95%;
+  min-width: 400px;
+}
+
+iframe.width-changed {
+    width: 90%;
+    display: block;
+    border: 0;
+    height: 0;
+}
+
+/*.dotslider {
+  stroke: slategray;
+}
+
+.selected {
+  fill: red;
+  stroke: brown;
+}
+
+.selected-slider {
+  stroke: green;
+}*/
+
+.fitted-line {
+		  stroke-width: 2px;
+		  stroke: steelblue;
+		  stroke-dasharray: 10,5;
+}
+
+.fit-tooltip {
+  text-align: left;
+  position: absolute;
+  width: 175px;
+  height: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  border: 1px solid black;
+  background-color: white;
+  right: 150px;
+  top: 60px;
+  padding: 10px 15px;
+}
+
+.fit-tooltip p:first-child {
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(0,0,0,0.5);
+  padding-bottom: 3px;
+}
+
+.fit-tooltip p:nth-child(3) {
+  margin-bottom: 1px;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 10px;
+}
