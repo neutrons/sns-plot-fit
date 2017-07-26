@@ -33,19 +33,25 @@ export default {
                     bottom: 150,
                     left: 50
                 };
+
+                var viewHeight = 650;
+                var height = viewHeight - margin.top - margin.bottom;
             } else {
                 var margin = {
                     top: 50,
                     right: 50,
-                    bottom: 75,
+                    bottom: 50,
                     left: 50
-                }
+                };
+
+                var viewHeight = 550;
+                var height = viewHeight - margin.top - margin.bottom;
             }
             
             var containerWidth = document.getElementById("plot-area").offsetWidth;
             console.log("container width = ", containerWidth);
             var width = containerWidth - margin.left - margin.right;
-            var height = 550 - margin.top - margin.bottom;
+            //var height = 550 - margin.top - margin.bottom;
 
             var data = parameters.data; //regular data to plot
 
@@ -78,7 +84,7 @@ export default {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             //Add main chart area
-            var viewbox = "0 0 " + containerWidth + " 550";
+            var viewbox = "0 0 " + containerWidth + " " + viewHeight;
             var svg = d3.select("#plot-area").append("svg")
                 .attr("viewBox", viewbox)
                 .attr("perserveAspectRatio","xMidYMid")
@@ -148,13 +154,13 @@ export default {
                 // console.log("Data Fitted:", dataFitted);
 
                 var margin2 = {
-                    top: 425,
+                    top: 525,
                     right: 50,
                     bottom: 100,
                     left: 50
                 };
 
-                var height2 = 550 - margin2.top - margin2.bottom;
+                var height2 = 650 - margin2.top - margin2.bottom;
 
                 var xScale2 = d3.scaleLinear().range([0, width]);
                 xScale2.domain(xScale.domain());
@@ -400,7 +406,7 @@ export default {
 
                     legend.append("rect")
                         .attr("x", width - margin.right - margin.right)
-                        .attr("y", (margin.bottom) + i * 25)
+                        .attr("y", (margin.top + 20) + i * 25)
                         .attr("class", "legend")
                         .style("fill", function () {
                             return d.color = color(d.key);
@@ -410,7 +416,7 @@ export default {
 
                     legend.append("text")
                         .attr("x", width - margin.right - margin.right + 15)
-                        .attr("y", (margin.bottom + 8) + i * 25)
+                        .attr("y", (margin.top + 28) + i * 25)
                         .attr("class", "legend")
                         .style("fill", function () {
                             return d.color = color(d.key);
