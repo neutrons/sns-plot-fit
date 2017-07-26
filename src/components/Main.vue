@@ -193,8 +193,7 @@ export default {
             xTransformation: 'x',
             eTransformation: "e",
             yLabel: "I",
-            xLabel: "Q",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q"
         },
         fitConfigurations: {
           'None': {
@@ -204,8 +203,7 @@ export default {
             xTransformation: null,
             eTransformation: null,
             yLabel: "I",
-            xLabel: "Q",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q"
           },
           'Linear': {
             fit: 'Linear',
@@ -214,8 +212,7 @@ export default {
             xTransformation: 'x',
             eTransformation: "e",
             yLabel: "I",
-            xLabel: "Q",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q"
           },
           'Guinier': {
             fit: 'Guinier',
@@ -224,8 +221,7 @@ export default {
             xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
             yLabel: "Log(I)",
-            xLabel: "Log(Q)",
-            range: [-Infinity, +Infinity]
+            xLabel: "Log(Q)"
           },
           'Porod': {
             fit: 'Porod',
@@ -234,8 +230,7 @@ export default {
             xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
             yLabel: "Log(I)",
-            xLabel: "Log(Q)",
-            range: [-Infinity, +Infinity]
+            xLabel: "Log(Q)"
           },
           'Zimm': {
             fit: 'Zimm',
@@ -244,8 +239,7 @@ export default {
             xTransformation: "x^2",
             eTransformation: "((-1/x^2)*e)^2",
             yLabel: "1/I",
-            xLabel: "Q^2",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q^2"
           },
           'Kratky': {
             fit: 'Kratky',
@@ -254,8 +248,7 @@ export default {
             xTransformation: "x^2",
             eTransformation: "((1/x)*e)^2",
             yLabel: "log(Q^2*I)",
-            xLabel: "Log(Q)",
-            range: [-Infinity, +Infinity]
+            xLabel: "Log(Q)"
           },
           'Debye Beuche': {
             fit: 'Debye Beuche',
@@ -264,8 +257,7 @@ export default {
             xTransformation: "x^2",
             eTransformation: "(1/(2*sqrt(x))*e)^2",
             yLabel: "sqrt(I)",
-            xLabel: "Q^2",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q^2"
           }
         },
         scaleConfigurations: {
