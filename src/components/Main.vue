@@ -152,10 +152,11 @@ export default {
         buttonDis: false,
         plotParams: {},
         currentConfiguration: {
-            fit: 'None',
-            equation: null,
-            yTransformation: null,
-            xTransformation: null,
+            fit: 'Linear',
+            equation: 'm*X+b',
+            yTransformation: 'y',
+            xTransformation: 'x',
+            eTransformation: "e",
             yLabel: "I",
             xLabel: "Q",
             range: [-Infinity, +Infinity]
@@ -537,13 +538,7 @@ export default {
       fileToFit: function () {
         // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
         // If fileToFit is set to Null, don't transform anything and reset the fit to none
-        if(this.fileToFit === null) {
-          // console.log("Resetting configurations...");
-          eventBus.$emit('reset-fit');
-          // this.setFit('None');
-        } else {
-          eventBus.$emit('change-fit', 'Linear');
-        }
+        this.setParameters();
       },
       selectedData: {
         handler: function() {

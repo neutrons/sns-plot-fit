@@ -51,7 +51,7 @@
                             </select>
                             <br>
                             <p class="equation-title">Equation:</p>
-                            <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="EQUATION === null">
+                            <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT">
                             <br>
                             <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit" :disabled="!FILETOFIT">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
                         </div>
@@ -80,7 +80,7 @@ export default {
       xScales: ["X", "X^2", "Log(X)"],
       yScale: 'Y',
       yScales: ["Y", "Y^2", "Log(Y)"],
-      fit: 'None',
+      fit: 'Linear',
       fits: ["None", "Linear", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"]
     }
   },
@@ -91,7 +91,8 @@ export default {
       eventBus.$emit('set-scales', 'X', 'Y');
     },
     resetFit: function() {
-      this.fit = 'None';
+    //   this.fit = 'None';
+        eventBus.$emit('reset-file-to-fit');
     },
     enterEquation: function() {
       let newEq = document.getElementById('fit-equation').value;
@@ -102,9 +103,6 @@ export default {
     },
     setScales: function() {
       eventBus.$emit('set-scales', this.xScale, this.yScale);
-    },
-    changeFit: function(fitname) {
-        this.fit = fitname;
     }
   },
   watch: {
@@ -115,7 +113,6 @@ export default {
   created() {
     eventBus.$on('reset-fit', this.resetFit);
     eventBus.$on('reset-scales', this.resetScales);
-    eventBus.$on('change-fit', this.changeFit);
   }
 }
 </script>
