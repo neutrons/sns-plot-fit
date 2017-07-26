@@ -71,16 +71,16 @@
                     <div id="collapse-fit-settings" class="panel-collapse collapse in">
                         <div class="panel-body">
                             <label>Damping: <span class="damping-output">{{ fitSettings.damping }}</span></label>
-                            <input type="range" v-model="fitSettings.damping" min="0.001" max="5" step="0.001" :disabled="!FILETOFIT">
+                            <input type="range" v-model="fitSettings.damping" min="0.001" max="5" step="0.001" :disabled="!FILETOFIT" @change="setFitSettings">
 
                             <label>Gradient Difference: <span class="damping-output">{{ fitSettings.gradientDifference }}</span></label>
-                            <input type="range" v-model="fitSettings.gradientDifference" min="0.1" max="5" step="0.001" :disabled="!FILETOFIT">
+                            <input type="range" v-model="fitSettings.gradientDifference" min="0.1" max="5" step="0.001" :disabled="!FILETOFIT" @change="setFitSettings">
                             
                             <label>Max Iterations: <span class="iteration-output">{{ fitSettings.maxIterations }}</span></label>
-                            <input type="range" v-model="fitSettings.maxIterations" min="200" max="1000" step="50" :disabled="!FILETOFIT">
+                            <input type="range" v-model="fitSettings.maxIterations" min="200" max="1000" step="50" :disabled="!FILETOFIT" @change="setFitSettings">
                             
                             <label>Error Tolerance: <span class="tolerance-output">{{ fitSettings.errorTolerance }}</span></label>
-                            <input type="range" v-model="fitSettings.errorTolerance" min="0.01" max="5" step="0.01" :disabled="!FILETOFIT">
+                            <input type="range" v-model="fitSettings.errorTolerance" min="0.01" max="5" step="0.01" :disabled="!FILETOFIT" @change="setFitSettings">
                             <br>
                             <button class="btn btn-warning" @click="resetSettings" :disabled="!FILETOFIT">Default Settings</button>
                         </div>
@@ -149,17 +149,14 @@ export default {
         this.fitSettings.maxIterations = 200;
         this.fitSettings.damping = 0.001;
         this.fitSettings.errorTolerance = 0.01;
+    },
+    setFitSettings: function() {
+        eventBus.$emit('set-fit-settings', this.fitSettings);
     }
   },
   watch: {
     fit: function() {
       eventBus.$emit('set-fit', this.fit);
-    },
-    fitSettings: {
-        handler: function() {
-            eventBus.$emit('set-fit-settings', this.fitSettings);
-        },
-        deep: true
     }
   },
   created() {

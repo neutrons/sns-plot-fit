@@ -30,6 +30,8 @@ fd.fitData = function(data, equation, fitsettings) {
     // console.log("Equation:", equation);
     // console.log("Min X:", minX);
     // console.log("Max X:", maxX);
+    let tempSettings = _.cloneDeep(fitsettings);
+
     let temp = _.cloneDeep(data);
     let tempData = {
         x: [],
@@ -94,14 +96,17 @@ fd.fitData = function(data, equation, fitsettings) {
     var initialValues = parameter_names_to_fit.map(function (x, i) { return 1.0; });
     
     // LM options. We might need to adapt some of these values
-    fitsettings.initialValues = initialValues;
-    var options = {
-        damping: 0.001,
-        initialValues: initialValues,
-        gradientDifference: 10e-2,
-        maxIterations: 200,
-        errorTolerance: 10e-3
-    };
+    tempSettings.initialValues = initialValues;
+    console.log("Temp settings:", tempSettings);
+    var options = _.cloneDeep(tempSettings);
+
+    // var options = {
+    //     damping: 0.001,
+    //     initialValues: initialValues,
+    //     gradientDifference: 10e-2,
+    //     maxIterations: 200,
+    //     errorTolerance: 10e-3
+    // };
 
     // Fitting   
     var fitted_params = LM(tempData, fit_function, options);
