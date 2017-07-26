@@ -29,16 +29,16 @@ export default {
             if(isFit) {
                 var margin = {
                     top: 20,
-                    right: 200, //this is to accomodate the right sidebar
+                    right: 150, //this is to accomodate the right sidebar
                     bottom: 150,
-                    left: 50
+                    left: 25
                 };
             } else {
                 var margin = {
                     top: 20,
-                    right: 200,
+                    right: 150,
                     bottom: 75,
-                    left: 50
+                    left: 25
                 }
             }
             
@@ -150,9 +150,9 @@ export default {
 
                 var margin2 = {
                     top: 425,
-                    right: 200,
+                    right: 150,
                     bottom: 100,
-                    left: 50
+                    left: 25
                 };
 
                 var height2 = 550 - margin2.top - margin2.bottom;
