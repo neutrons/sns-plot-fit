@@ -51,7 +51,9 @@
                             </select>
                             <br>
                             <p class="equation-title">Equation:</p>
-                            <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT">
+                            <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT" @focus="isFocus = !isFocus" @blur="isFocus = !isFocus">
+                            <br>
+                            <p class="equation-title" v-if="isFocus">Press <strong>[enter]</strong> to change equation</p>
                             <br>
                             <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit" :disabled="!FILETOFIT">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
                         </div>
@@ -76,6 +78,7 @@ export default {
   props: ["BUTTONDIS", "FILETOFIT", "EQUATION"],
   data: function() {
     return {
+      isFocus: false,
       xScale: 'X',
       xScales: ["X", "X^2", "Log(X)"],
       yScale: 'Y',
