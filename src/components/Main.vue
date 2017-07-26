@@ -542,7 +542,7 @@ export default {
           eventBus.$emit('reset-fit');
           // this.setFit('None');
         } else {
-          this.setParameters();
+          eventBus.$emit('change-fit', 'Linear');
         }
       },
       selectedData: {

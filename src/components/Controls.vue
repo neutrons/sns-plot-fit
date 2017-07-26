@@ -102,6 +102,9 @@ export default {
     },
     setScales: function() {
       eventBus.$emit('set-scales', this.xScale, this.yScale);
+    },
+    changeFit: function(fitname) {
+        this.fit = fitname;
     }
   },
   watch: {
@@ -112,6 +115,7 @@ export default {
   created() {
     eventBus.$on('reset-fit', this.resetFit);
     eventBus.$on('reset-scales', this.resetScales);
+    eventBus.$on('change-fit', this.changeFit);
   }
 }
 </script>
