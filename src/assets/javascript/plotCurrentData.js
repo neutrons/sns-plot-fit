@@ -438,10 +438,10 @@ export default {
                     .style("stroke", color(parameters.fileToFit));
 
                 // Add fit results below chart
-                d3.select("td#fit-file").html("<b>Fit File: </b>" + parameters.fileToFit);
+                d3.select("td#fit-file").html("<b>File: </b>" + parameters.fileToFit);
                 d3.select("td#fit-type").html("<b>Fit Type:</b> " + parameters.fitConfiguration.fit);
-                d3.select("td#fit-points").html("<b># Points: " + dataToFit.length);
-                d3.select("td#fit-range").html("<b>Point Range:</b> (" + minX.toFixed(3) + ", " + maxX.toFixed(3) + ")");
+                d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
+                d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toFixed(3) + ", " + maxX.toFixed(3) + ")");
                 d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toFixed(3));
                 
                 d3.select("td#fit-coefficients").html(function() {
@@ -493,10 +493,10 @@ export default {
                         .attr("d", brushPlotLine(dataFitted));
 
                     // Revise fit results below chart
-                    d3.select("td#fit-file").html("<b>Fit File: </b>" + parameters.fileToFit);
+                    d3.select("td#fit-file").html("<b>File: </b>" + parameters.fileToFit);
                     d3.select("td#fit-type").html("<b>Fit Type:</b> " + parameters.fitConfiguration.fit);
-                    d3.select("td#fit-points").html("<b># Points:</b> " + dataToFit.length);
-                    d3.select("td#fit-range").html("<b>Point Range:</b> (" + e[0].toFixed(3) + ", " + e[1].toFixed(3) + ")");
+                    d3.select("td#fit-points").html("<b>No. Points:</b> " + selectedData.length);
+                    d3.select("td#fit-range").html("<b>Fit Range:</b> (" + e[0].toFixed(3) + ", " + e[1].toFixed(3) + ")");
                     d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toFixed(3));
                     
                     d3.select("td#fit-coefficients").html(function() {

@@ -95,7 +95,7 @@ fd.fitData = function(data, equation) {
     
     // LM options. We might need to adapt some of these values
     const options = {
-        damping: 1.5,
+        damping: 0.001,
         initialValues: initialValues,
         gradientDifference: 10e-2,
         maxIterations: 200,

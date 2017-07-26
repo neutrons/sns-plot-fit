@@ -40,7 +40,7 @@
                         <tr>
                           <td colspan="3" id="fit-configs">
                           <ul>
-                                <li id="fit-damping">Damping = 1.5</li>
+                                <li id="fit-damping">Damping = 0.001</li>
                                 <li id="fit-iterations">No. Iterations = 200</li>
                                 <li id="fit-tolerance">Error Tolerance = 10e-3</li>
                                 <li id="fit-gradient">Gradient Difference = 10e-2</li>
