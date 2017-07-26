@@ -116,7 +116,15 @@ export default {
       fileToFit: null
     }
   },
+  created() {
+    // Receive event emitter from Controls component
+    eventBus.$on('reset-file-to-fit', this.resetFileFitChoice);
+  },
   methods: {
+    resetFileFitChoice: function() {
+      this.fileFitChoice = [];
+      this.fileToFit = null;
+    },
     clearSelected: function () {
       this.fileFitChoice = [];
       this.filesToPlot = [];

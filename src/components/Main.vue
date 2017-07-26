@@ -18,6 +18,41 @@
             <div id="collapse-plot" class="panel-collapse collapse in">
                 <div class="panel-body">
                   <div id="plot-area"></div>
+                  
+                  <!-- Fit Results Table to add fit results -->
+                  <div id="fit-results-table" class="table-responsive" v-show="fileToFit">          
+                    <table class="table table-bordered">
+                      <caption><h4>Fit Results:</h4></caption>
+                    
+                      <tbody>
+                      <tr>
+                        <td id="fit-file"></td>
+                        <td id="fit-type"></td>
+                        <td id="fit-points"></td>
+                        <td id="fit-range"></td>
+                        <td id="fit-error"></td>
+                      </tr>
+                    
+                        <tr>
+                          <td colspan="3" class="sub-heading">Fit Configuration:</td>
+                          <td colspan="2" class="sub-heading">Coefficients:</td>	
+                        </tr>
+                        <tr>
+                          <td colspan="3" id="fit-configs">
+                          <ul>
+                                <li id="fit-damping">Damping = 0.001</li>
+                                <li id="fit-iterations">No. Iterations = 200</li>
+                                <li id="fit-tolerance">Error Tolerance = 10e-3</li>
+                                <li id="fit-gradient">Gradient Difference = 10e-2</li>
+                            </ul>
+                          </td>
+                          <td colspan="2" id="fit-coefficients">
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -152,10 +187,11 @@ export default {
         buttonDis: false,
         plotParams: {},
         currentConfiguration: {
-            fit: 'None',
-            equation: null,
-            yTransformation: null,
-            xTransformation: null,
+            fit: 'Linear',
+            equation: 'm*X+b',
+            yTransformation: 'y',
+            xTransformation: 'x',
+            eTransformation: "e",
             yLabel: "I",
             xLabel: "Q",
             range: [-Infinity, +Infinity]
@@ -185,10 +221,10 @@ export default {
             fit: 'Guinier',
             equation: "-Rg^2/3*X+b",
             yTransformation: "log(y)",
-            xTransformation: "x^2",
+            xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
             yLabel: "Log(I)",
-            xLabel: "Q^2",
+            xLabel: "Log(Q)",
             range: [-Infinity, +Infinity]
           },
           'Porod': {
@@ -375,6 +411,7 @@ export default {
           // and reset to default values
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
+          d3.select(".fit-tooltip").remove();
 
           eventBus.$emit('reset-scales');
           eventBus.$emit('reset-fit');
@@ -536,13 +573,7 @@ export default {
       fileToFit: function () {
         // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
         // If fileToFit is set to Null, don't transform anything and reset the fit to none
-        if(this.fileToFit === null) {
-          // console.log("Resetting configurations...");
-          eventBus.$emit('reset-fit');
-          // this.setFit('None');
-        } else {
-          this.setParameters();
-        }
+        this.setParameters();
       },
       selectedData: {
         handler: function() {
