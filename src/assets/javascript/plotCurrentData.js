@@ -28,17 +28,17 @@ export default {
             //Set chart dimensions
             if(isFit) {
                 var margin = {
-                    top: 20,
-                    right: 150, //this is to accomodate the right sidebar
+                    top: 50,
+                    right: 50, //this is to accomodate the right sidebar
                     bottom: 150,
-                    left: 25
+                    left: 50
                 };
             } else {
                 var margin = {
-                    top: 20,
-                    right: 150,
+                    top: 50,
+                    right: 50,
                     bottom: 75,
-                    left: 25
+                    left: 50
                 }
             }
             
@@ -84,8 +84,7 @@ export default {
                 .attr("perserveAspectRatio","xMidYMid")
                 .attr("class", "sns-plot")
                 .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                .attr("height", height + margin.top + margin.bottom);
             
             //Add clip path so points/line do not exceed plot boundaries
             svg.append("defs").append("clipPath")
@@ -150,9 +149,9 @@ export default {
 
                 var margin2 = {
                     top: 425,
-                    right: 150,
+                    right: 50,
                     bottom: 100,
-                    left: 25
+                    left: 50
                 };
 
                 var height2 = 550 - margin2.top - margin2.bottom;
@@ -400,8 +399,8 @@ export default {
                     var legend = plot.append("g");
 
                     legend.append("rect")
-                        .attr("x", width + margin.left + 20)
-                        .attr("y", (margin.bottom + margin.top) + i * 25)
+                        .attr("x", width - margin.right - margin.right)
+                        .attr("y", (margin.bottom) + i * 25)
                         .attr("class", "legend")
                         .style("fill", function () {
                             return d.color = color(d.key);
@@ -410,8 +409,8 @@ export default {
                         .attr("width", "8px");
 
                     legend.append("text")
-                        .attr("x", width + margin.left + 35)
-                        .attr("y", (margin.bottom + margin.top + 8) + i * 25)
+                        .attr("x", width - margin.right - margin.right + 15)
+                        .attr("y", (margin.bottom + 8) + i * 25)
                         .attr("class", "legend")
                         .style("fill", function () {
                             return d.color = color(d.key);
