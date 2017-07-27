@@ -88,7 +88,7 @@
                                 <div class="dropzone-text">
                                 <span class="dropzone-title">Drop file(s) here or click to select</span>
                                 </div>
-                                <input type="file" id="input" multiple @change="uploadFile">
+                                <input type="file" id="file-upload" multiple @change="uploadFile">
                             </div>
                         </div>
                     </div>

@@ -336,7 +336,7 @@ export default {
         }
       },
       uploadFile: function () {
-        var files = document.getElementById("input").files;
+        var files = document.getElementById("file-upload").files;
         var self = this;
 
         function loadFiles(file) {
@@ -392,6 +392,9 @@ export default {
             }
           };
         }
+
+        document.getElementById("file-upload").value = '';
+        // reset the file names so the last file uploaded & deleted can be uploaded again with no problems
       },
       checkDuplicateFile: function (filename) {
 
