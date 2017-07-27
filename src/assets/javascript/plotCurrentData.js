@@ -9,7 +9,7 @@ export default {
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
 
-            // console.log("Plotting data...");
+            console.log("Plotting data...");
             
             // Set isFit to check if a file is selected to fit
             var isFit = parameters.fileToFit !== null && parameters.fitConfiguration.fit !== 'None'
@@ -29,7 +29,7 @@ export default {
                 var margin = {
                     top: 50,
                     right: 50, //this is to accomodate the right sidebar
-                    bottom: 150,
+                    bottom: 100,
                     left: 50
                 };
 
@@ -48,7 +48,7 @@ export default {
             }
             
             var containerWidth = document.getElementById("plot-area").offsetWidth;
-            console.log("container width = ", containerWidth);
+            // console.log("container width = ", containerWidth);
             var width = containerWidth - margin.left - margin.right;
             //var height = 550 - margin.top - margin.bottom;
 
@@ -136,11 +136,12 @@ export default {
 
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
+                console.log("Setting up some stuff...");
 
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
 
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
-                var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
+                var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation, parameters.fitSettings);
                 var coefficients = fitResults.coefficients;
                 var dataFitted = fitResults.fittedData;
                 var fitError = fitResults.error;
@@ -151,11 +152,11 @@ export default {
                 var margin2 = {
                     top: 525,
                     right: 50,
-                    bottom: 100,
+                    bottom: 50,
                     left: 50
                 };
 
-                var height2 = 650 - margin2.top - margin2.bottom;
+                var height2 = 650 - margin2.top - margin2.bottom - margin2.bottom;
 
                 var xScale2 = d3.scaleLinear().range([0, width]);
                 xScale2.domain(xScale.domain());
@@ -164,14 +165,14 @@ export default {
 
                 var slider = svg.append("g")
                     .attr("class", "slider")
-                    .attr("transform", "translate(" + margin2.left + "," + (margin2.top) + ")");
+                    .attr("transform", "translate(" + margin2.left + "," + (margin2.top + margin2.bottom) + ")");
     
                 var brush = d3.brushX()
                     .extent([
                         [0, 0],
                         [width, height2]
                     ])
-                    .on("brush end", brushed);
+                    .on("brush", brushed);
 
                 // var brushXScale = xScale;
                 // var brushYScale = yScale;
@@ -227,7 +228,7 @@ export default {
             svg.append("text")
                 .attr("transform",
                     "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
-                    (height + margin.top + margin.bottom/1.5) + ")")
+                    (height + margin.top + margin.bottom) + ")")
                 .style("text-anchor", "middle")
                 .style("font-weight", "bold")
                 .text(xTitle);
@@ -452,10 +453,16 @@ export default {
                     coeffString += "</ul>";
                     return coeffString;
                 });
+
+                d3.select("li#fit-damping").html("<b>Damping: </b>" + parameters.fitSettings.damping);
+                d3.select("li#fit-iterations").html("<b>No. Iterations: </b>" + parameters.fitSettings.maxIterations);
+                d3.select("li#fit-tolerance").html("<b>Error Tolerance: </b>" + parameters.fitSettings.errorTolerance);
+                d3.select("li#fit-gradient").html("<b>Gradient Difference: </b>" + parameters.fitSettings.gradientDifference);
             }
 
             // Create brush function redraw scatterplot with selection
             function brushed() {
+                console.log("Calling brush...");
                 var selection = d3.event.selection;
                 if (selection !== null) {
                     var e = d3.event.selection.map(xScale2.invert, xScale2);
@@ -473,7 +480,7 @@ export default {
                         return e[0] <= d.x && d.x <= e[1];
                     })
                     
-                    fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation);
+                    fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation, parameters.fitSettings);
                     coefficients = fitResults.coefficients;
                     dataFitted = fitResults.fittedData;
                     fitError = fitResults.error;

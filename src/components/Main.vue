@@ -40,10 +40,10 @@
                         <tr>
                           <td colspan="3" id="fit-configs">
                           <ul>
-                                <li id="fit-damping">Damping = 0.001</li>
-                                <li id="fit-iterations">No. Iterations = 200</li>
-                                <li id="fit-tolerance">Error Tolerance = 10e-3</li>
-                                <li id="fit-gradient">Gradient Difference = 10e-2</li>
+                                <li id="fit-damping"></li>
+                                <li id="fit-iterations"></li>
+                                <li id="fit-tolerance"></li>
+                                <li id="fit-gradient"></li>
                             </ul>
                           </td>
                           <td colspan="2" id="fit-coefficients">
@@ -98,6 +98,7 @@ export default {
       eventBus.$on('set-scales', this.setScales);
       eventBus.$on('set-fit', this.setFit);
       eventBus.$on('reset-plot', this.resetPlot);
+      eventBus.$on('set-fit-settings', this.setFitSettings);
 
       // Event hooks for 'FileLoad.vue'
       eventBus.$on('fetch-data', this.fetchData);
@@ -267,6 +268,20 @@ export default {
           'Y': d3.scaleLinear(),
           'Y^2': d3.scalePow().exponent(2),
           'Log(Y)': d3.scaleLog()
+        },
+        defaultFitSettings: {
+          damping: 0.001,
+          initialValues: [],
+          gradientDifference: 10e-2,
+          maxIterations: 200,
+          errorTolerance: 10e-3
+        },
+        fitSettings: {
+          damping: 0.001,
+          initialValues: [],
+          gradientDifference: 10e-2,
+          maxIterations: 200,
+          errorTolerance: 10e-3
         }
       }
     },
@@ -547,11 +562,17 @@ export default {
           scales: this.scales,
           fileToFit: this.fileToFit,
           titles: this.titles,
-          fitConfiguration: this.currentConfiguration
+          fitConfiguration: this.currentConfiguration,
+          fitSettings: this.fitSettings
         };
       },
       setEquation: function(eq) {
         this.currentConfiguration.equation = eq;
+      },
+      setFitSettings: function(options) {
+        //console.log("Options:", options);
+        this.fitSettings = options; //object clone with spread operator
+        //console.log("fit settings:", this.fitSettings);
       }
     },
     watch: {
@@ -616,6 +637,12 @@ export default {
         } else {
           this.isUploaded = false;
         }
+      },
+      fitSettings: {
+        handler: function() {
+          this.setParameters();
+        },
+        deep: true
       }
     }
   }

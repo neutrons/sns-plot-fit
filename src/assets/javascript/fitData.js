@@ -25,11 +25,13 @@ fd.transformData = function(data, configuration) {
         return t.data; // returns transformed data array
 }
 
-fd.fitData = function(data, equation) {
+fd.fitData = function(data, equation, fitsettings) {
     // Code to fit data on the transformed data
     // console.log("Equation:", equation);
     // console.log("Min X:", minX);
     // console.log("Max X:", maxX);
+    let tempSettings = _.cloneDeep(fitsettings);
+
     let temp = _.cloneDeep(data);
     let tempData = {
         x: [],
@@ -94,13 +96,17 @@ fd.fitData = function(data, equation) {
     var initialValues = parameter_names_to_fit.map(function (x, i) { return 1.0; });
     
     // LM options. We might need to adapt some of these values
-    const options = {
-        damping: 0.001,
-        initialValues: initialValues,
-        gradientDifference: 10e-2,
-        maxIterations: 200,
-        errorTolerance: 10e-3
-    };
+    tempSettings.initialValues = initialValues;
+    // console.log("Temp settings:", tempSettings);
+    var options = _.cloneDeep(tempSettings);
+
+    // var options = {
+    //     damping: 0.001,
+    //     initialValues: initialValues,
+    //     gradientDifference: 10e-2,
+    //     maxIterations: 200,
+    //     errorTolerance: 10e-3
+    // };
 
     // Fitting   
     var fitted_params = LM(tempData, fit_function, options);
@@ -114,6 +120,7 @@ fd.fitData = function(data, equation) {
     // Get's the fitted function from the fitted parameters
     // only coefficients are set! Remember it returns a function!)
     // console.log("fitted_params.parameterValues = ", fitted_params.parameterValues);
+    console.log("Fitted Params:", fitted_params);
     var fit_function_fitted = fit_function(fitted_params.parameterValues);
 
     var y_fitted = tempData.x.map(function(el) {
