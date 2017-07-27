@@ -120,6 +120,7 @@ fd.fitData = function(data, equation, fitsettings) {
     // Get's the fitted function from the fitted parameters
     // only coefficients are set! Remember it returns a function!)
     // console.log("fitted_params.parameterValues = ", fitted_params.parameterValues);
+    console.log("Fitted Params:", fitted_params);
     var fit_function_fitted = fit_function(fitted_params.parameterValues);
 
     var y_fitted = tempData.x.map(function(el) {

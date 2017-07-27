@@ -29,7 +29,7 @@ export default {
                 var margin = {
                     top: 50,
                     right: 50, //this is to accomodate the right sidebar
-                    bottom: 150,
+                    bottom: 100,
                     left: 50
                 };
 
@@ -152,11 +152,11 @@ export default {
                 var margin2 = {
                     top: 525,
                     right: 50,
-                    bottom: 100,
+                    bottom: 50,
                     left: 50
                 };
 
-                var height2 = 650 - margin2.top - margin2.bottom;
+                var height2 = 650 - margin2.top - margin2.bottom - margin2.bottom;
 
                 var xScale2 = d3.scaleLinear().range([0, width]);
                 xScale2.domain(xScale.domain());
@@ -165,7 +165,7 @@ export default {
 
                 var slider = svg.append("g")
                     .attr("class", "slider")
-                    .attr("transform", "translate(" + margin2.left + "," + (margin2.top) + ")");
+                    .attr("transform", "translate(" + margin2.left + "," + (margin2.top + margin2.bottom) + ")");
     
                 var brush = d3.brushX()
                     .extent([
@@ -228,7 +228,7 @@ export default {
             svg.append("text")
                 .attr("transform",
                     "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
-                    (height + margin.top + margin.bottom/1.5) + ")")
+                    (height + margin.top + margin.bottom) + ")")
                 .style("text-anchor", "middle")
                 .style("font-weight", "bold")
                 .text(xTitle);
@@ -453,6 +453,11 @@ export default {
                     coeffString += "</ul>";
                     return coeffString;
                 });
+
+                d3.select("li#fit-damping").html("<b>Damping: </b>" + parameters.fitSettings.damping);
+                d3.select("li#fit-iterations").html("<b>No. Iterations: </b>" + parameters.fitSettings.maxIterations);
+                d3.select("li#fit-tolerance").html("<b>Error Tolerance: </b>" + parameters.fitSettings.errorTolerance);
+                d3.select("li#fit-gradient").html("<b>Gradient Difference: </b>" + parameters.fitSettings.gradientDifference);
             }
 
             // Create brush function redraw scatterplot with selection

@@ -40,10 +40,10 @@
                         <tr>
                           <td colspan="3" id="fit-configs">
                           <ul>
-                                <li id="fit-damping">Damping = 0.001</li>
-                                <li id="fit-iterations">No. Iterations = 200</li>
-                                <li id="fit-tolerance">Error Tolerance = 10e-3</li>
-                                <li id="fit-gradient">Gradient Difference = 10e-2</li>
+                                <li id="fit-damping"></li>
+                                <li id="fit-iterations"></li>
+                                <li id="fit-tolerance"></li>
+                                <li id="fit-gradient"></li>
                             </ul>
                           </td>
                           <td colspan="2" id="fit-coefficients">
@@ -570,7 +570,7 @@ export default {
         this.currentConfiguration.equation = eq;
       },
       setFitSettings: function(options) {
-        console.log("Options:", options);
+        //console.log("Options:", options);
         this.fitSettings = options; //object clone with spread operator
         //console.log("fit settings:", this.fitSettings);
       }
