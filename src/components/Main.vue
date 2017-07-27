@@ -470,7 +470,6 @@ export default {
                 } else {
                   this.selectedData.push(temp);
                 }
-                // this.selectedData.push(this.getFiles.find(a => a.fileName === el));
 
               } else if (this.uploadedFiles.find(a => a.fileName === el)) {
                 // console.log("Adding from uploaded file " + el);
@@ -486,17 +485,12 @@ export default {
                 } else {
                   this.selectedData.push(temp);
                 }
-                // this.selectedData.push(this.uploadedFiles.find(a => a.fileName === el));
               } else {
                 console.log("Uh oh shouldn't happen");
               }
               
             }
           };
-
-          // console.log("Selected Data", this.selectedData);
-          // console.log("length is " + this.selectedData.length);
-
         }
       },
       deleteFile: function (filename) {
@@ -570,9 +564,7 @@ export default {
         this.currentConfiguration.equation = eq;
       },
       setFitSettings: function(options) {
-        //console.log("Options:", options);
-        this.fitSettings = options; //object clone with spread operator
-        //console.log("fit settings:", this.fitSettings);
+        this.fitSettings = options;
       }
     },
     watch: {

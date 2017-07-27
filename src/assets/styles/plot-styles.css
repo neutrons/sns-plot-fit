@@ -82,19 +82,6 @@ iframe.width-changed {
     height: 0;
 }
 
-/*.dotslider {
-  stroke: slategray;
-}
-
-.selected {
-  fill: red;
-  stroke: brown;
-}
-
-.selected-slider {
-  stroke: green;
-}*/
-
 .fitted-line {
 		  stroke-width: 2px;
 		  stroke: steelblue;

@@ -48,10 +48,7 @@ export default {
             }
             
             var containerWidth = document.getElementById("plot-area").offsetWidth;
-            // console.log("container width = ", containerWidth);
             var width = containerWidth - margin.left - margin.right;
-            //var height = 550 - margin.top - margin.bottom;
-
             var data = parameters.data; //regular data to plot
 
             // Filter any infinity values before plotting, this will happen when transforming log data = 0
@@ -132,8 +129,6 @@ export default {
                     return yScale(d.y);
                 });
             
-            
-
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
                 console.log("Setting up some stuff...");
@@ -145,9 +140,6 @@ export default {
                 var coefficients = fitResults.coefficients;
                 var dataFitted = fitResults.fittedData;
                 var fitError = fitResults.error;
-            
-                //var dataFitted = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
-                // console.log("Data Fitted:", dataFitted);
 
                 var margin2 = {
                     top: 525,
@@ -174,8 +166,6 @@ export default {
                     ])
                     .on("brush", brushed);
 
-                // var brushXScale = xScale;
-                // var brushYScale = yScale;
                 var brushPlotLine = plotLine;
 
                 // append scatter plot to brush chart area
@@ -283,7 +273,6 @@ export default {
                     })
                     .attr('y2', function (d) {
                         if(d.y - d.error < 0 && parameters.titles.yTitle === "Log(Y)") {
-                            // console.log("Below zero! d.y = " + d.y + " | d.error = " + d.error + "| d.y - d.error = " + (d.y - d.error));
                             return yScale(d.y)
                         } else {
                             return yScale(d.y - d.error);
@@ -462,7 +451,7 @@ export default {
 
             // Create brush function redraw scatterplot with selection
             function brushed() {
-                console.log("Calling brush...");
+                // console.log("Calling brush...");
                 var selection = d3.event.selection;
                 if (selection !== null) {
                     var e = d3.event.selection.map(xScale2.invert, xScale2);
@@ -484,16 +473,6 @@ export default {
                     coefficients = fitResults.coefficients;
                     dataFitted = fitResults.fittedData;
                     fitError = fitResults.error;
-                    // console.log("Data fitted:", dataFitted);
-                    // console.log("Coefficients:", coefficients);
-                    // Revise fit line function
-                    // var new_fitLine = d3.line()
-                    //     .x(function (d) {
-                    //         return brushXScale(d.x);
-                    //     })
-                    //     .y(function (d) {
-                    //         return brushYScale(d.y);
-                    //     });
 
                     //Add line plot
                     plot.select(".fitted-line")
