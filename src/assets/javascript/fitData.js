@@ -78,6 +78,7 @@ fd.fitData = function(data, equation, fitsettings) {
     // LM options. We might need to adapt some of these values
     tempSettings.initialValues = initialValues;
     var options = _.cloneDeep(tempSettings);
+    console.log("Options =", options);
 
     // Fitting   
     var fitted_params = LM(tempData, fit_function, options);
