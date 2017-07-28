@@ -7,6 +7,8 @@
         :BUTTONDIS="buttonDis"
         :FILETOFIT="fileToFit"
         :EQUATION="$data.currentConfiguration.equation"
+        :XTRANS="$data.currentConfiguration.xTransformation"
+        :YTRANS="$data.currentConfiguration.yTransformation"
         ></app-controls>
         
       <div id="plot-panel" class="col-md-8">
@@ -100,6 +102,7 @@ export default {
       eventBus.$on('set-fit', this.setFit);
       eventBus.$on('reset-plot', this.resetPlot);
       eventBus.$on('set-fit-settings', this.setFitSettings);
+      eventBus.$emit('set-transformations', this.setTransformations);
 
       // Event hooks for 'FileLoad.vue'
       eventBus.$on('fetch-data', this.fetchData);
@@ -566,6 +569,11 @@ export default {
       },
       setEquation: function(eq) {
         this.currentConfiguration.equation = eq;
+      },
+      setTransformations: function(x,y) {
+        console.log("X: ", x);
+        this.currentConfiguration.xTransformation = x;
+        this.currentConfiguration.yTransformation = y;
       },
       setFitSettings: function(options) {
         this.fitSettings = options;

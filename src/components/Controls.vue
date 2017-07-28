@@ -44,6 +44,23 @@
                     </div>
                 </div>
 
+                <!-- X and Y Transformation Panel -->
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-transformations">Transformations</a>
+                    </div>
+                    <div id="collapse-transformations" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <p class="equation-title">X:</p>
+                            <input type="text" class="form-control" :value="XTRANS" id="x-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                            <br>
+                            <p class="equation-title">Y:</p>
+                            <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                            <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Fitting Selections Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
@@ -103,10 +120,11 @@ import * as _ from 'lodash';
 
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "FILETOFIT", "EQUATION"],
+  props: ["BUTTONDIS", "FILETOFIT", "EQUATION", "XTRANS", "YTRANS"],
   data: function() {
     return {
       isFocus: false,
+      isTransFocus: false,
       xScale: 'X',
       xScales: ["X", "X^2", "Log(X)"],
       yScale: 'Y',
@@ -135,6 +153,11 @@ export default {
     enterEquation: function() {
       let newEq = document.getElementById('fit-equation').value;
       eventBus.$emit('set-equation', newEq);
+    },
+    enterTransformations: function() {
+      let newXTrans = document.getElementById('x-transform').value;
+      let newYTrans = document.getElementById('y-transform').value;
+      eventBus.$emit('set-transformations', newXTrans, newYTrans);
     },
     resetPlot: function() {
       eventBus.$emit('reset-plot');
@@ -194,7 +217,7 @@ export default {
   width: 100%;
 }
 
-.equation-title {
+.equation-title, .transformation-title {
   color: gray;
   text-align: center;
 }
