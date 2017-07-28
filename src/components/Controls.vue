@@ -70,16 +70,16 @@
                     <div id="collapse-fit-settings" class="panel-collapse collapse">
                         <div class="panel-body">
                             <label>Damping: <span class="damping-output">{{ fitSettings.damping }}</span></label>
-                            <input type="range" v-model="fitSettings.damping" min="0.001" max="10" step="0.001" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
+                            <input type="range" v-model.number="fitSettings.damping" min="0.001" max="10" step="0.001" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
 
-                            <label>Gradient Difference: <span class="damping-output">{{ fitSettings.gradientDifference }}</span></label>
-                            <input type="range" v-model="fitSettings.gradientDifference" min="0.01" max="1" step="0.01" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
+                            <label>Gradient Difference: <span class="iteration-output">{{ fitSettings.gradientDifference }}</span></label>
+                            <input type="range" v-model.number="fitSettings.gradientDifference" min="0.01" max="1" step="0.01" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
                             
                             <label>Max Iterations: <span class="iteration-output">{{ fitSettings.maxIterations }}</span></label>
-                            <input type="range" v-model="fitSettings.maxIterations" min="100" max="10000" step="100" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
+                            <input type="range" v-model.number="fitSettings.maxIterations" min="100" max="10000" step="100" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
                             
                             <label>Error Tolerance: <span class="tolerance-output">{{ fitSettings.errorTolerance }}</span></label>
-                            <input type="range" v-model="fitSettings.errorTolerance" min="0.001" max="1" step="0.001" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
+                            <input type="range" v-model.number="fitSettings.errorTolerance" min="0.001" max="1" step="0.001" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
                             <br>
                             <button id="btn-reset-fit-settings" class="btn btn-warning btn-sm" @click="resetSettings" :disabled="!FILETOFIT">Default Settings <span class="glyphicon glyphicon-remove-sign" ></span></button>
                         </div>
@@ -154,6 +154,7 @@ export default {
         eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
     },
     setFitSettings: function() {
+        console.log(this.fitSettings);
         eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
     }
   },

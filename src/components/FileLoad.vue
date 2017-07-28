@@ -1,7 +1,11 @@
 <template>
   <div id="fileuploads">
     
-    <div id="file-panel" class="col-md-2">
+    <div id="file-panel" class="col-md-2" 
+        @drop="dropHandler($event)"
+        @dragover="dragoverHandler($event)"
+        @dragleave="dragleaveHandler($event)">
+
         <div id="files-bg">
 
             <div class="panel panel-default">
@@ -14,7 +18,7 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-get-files">Get Files</a>
-                        <button class="btn btn-xs btn-primary pull-left" @click="fetchData"><span class="glyphicon glyphicon-download"></span></button>
+                        <button class="btn btn-primary btn-sm btn-fetch" @click="fetchData">Fetch Files&hellip; <span class="glyphicon glyphicon-download"></span></button>
                     </div>
                     <div id="collapse-get-files" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -45,9 +49,11 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-uploaded-files">Uploaded Files</a>
+                        <label class="btn btn-primary btn-sm btn-upload">Select Files&hellip; <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile"></label>
                     </div>
                     <div id="collapse-uploaded-files" class="panel-collapse collapse in">
                         <div class="panel-body">
+                          
                             <table class="table table-condensed tabletop">
                     <thead>
                         <tr>
@@ -71,30 +77,15 @@
                     </table>
                     </div>
                     <br>
-                    <div>
+                    
                         <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
                         <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
                         <button class="btn btn-danger btn-xs btn-files" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
-                    </div>
+                    
                         </div>
                     </div>
                 </div>
 
-                <div class="panel panel-success">
-                    <div class="panel-heading">
-                      <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-drop-zone">Drop Zone</a>
-                    </div>
-                    <div id="collapse-drop-zone" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <div class="dropzone-area" drag-over="handleDragOver">
-                                <div class="dropzone-text">
-                                <span class="dropzone-title">Drop file(s) here or click to select</span>
-                                </div>
-                                <input type="file" id="file-upload" multiple @change="uploadFile">
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             </div>
         </div>
@@ -170,13 +161,37 @@ export default {
       this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
     },
     uploadFile: function() {
-      eventBus.$emit('upload-file');
+      let files = document.getElementById("file-upload").files;
+      console.log("Files:", files);
+      eventBus.$emit('upload-file', files);
     },
     fetchData: function() {
       eventBus.$emit('fetch-data');
     },
     deleteFile: function(filename) {
       eventBus.$emit('delete-file', filename);
+    },
+    dropHandler: function(ev) {
+      document.getElementById("file-panel").style.border = "none";
+      document.getElementById("file-panel").style.borderRadius = "0";
+
+      console.log("Files dropped...");
+      ev.preventDefault();
+
+      var files = ev.dataTransfer.files;
+      console.log("Drop files:", files);
+      eventBus.$emit("upload-file", files);
+    },
+    dragoverHandler: function(ev) {
+      document.getElementById("file-panel").style.border = "3px dashed green";
+      document.getElementById("file-panel").style.borderRadius = "5px";
+
+      ev.preventDefault();
+    },
+    dragleaveHandler: function(ev) {
+      // console.log("Drag leave");
+      document.getElementById("file-panel").style.border = "none";
+      document.getElementById("file-panel").style.borderRadius = "0";
     }
   },
   watch: {
@@ -300,5 +315,9 @@ th {
   #files-bg {
       background: rgba(0,0,0, 0.02);
   }
-  
+
+.btn-upload, .btn-fetch {
+  width: 100%;
+  margin-top: 10px;
+}
 </style>

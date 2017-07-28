@@ -31,8 +31,8 @@ export default {
             if(isFit) {
                 var margin = {
                     top: 50,
-                    right: 50, //this is to accomodate the right sidebar
-                    bottom: 100,
+                    right: 50,
+                    bottom: 100, // adjusts margin for slider
                     left: 50
                 };
                 
@@ -149,13 +149,13 @@ export default {
                 var fitError = fitResults.error;
 
                 var margin2 = {
-                    top: 525,
+                    top: 25,
                     right: 50,
                     bottom: 50,
                     left: 50
                 };
 
-                var height2 = 650 - margin2.top - margin2.bottom - margin2.bottom;
+                var height2 = 25;
 
                 var xScale2 = d3.scaleLinear().range([0, width]);
                 xScale2.domain(xScale.domain());
@@ -164,7 +164,7 @@ export default {
 
                 var slider = svg.append("g")
                     .attr("class", "slider")
-                    .attr("transform", "translate(" + margin2.left + "," + (margin2.top + margin2.bottom) + ")");
+                    .attr("transform", "translate(" + margin2.left + "," + (height + margin2.top + margin2.bottom) + ")");
     
                 var brush = d3.brushX()
                     .extent([

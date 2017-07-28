@@ -336,8 +336,8 @@ export default {
           }
         }
       },
-      uploadFile: function () {
-        var files = document.getElementById("file-upload").files;
+      uploadFile: function (files) {
+        //var files = document.getElementById("file-upload").files;
         var self = this;
 
         function loadFiles(file) {
