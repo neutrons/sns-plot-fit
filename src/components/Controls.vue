@@ -51,10 +51,10 @@
                     </div>
                     <div id="collapse-transformations" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <p class="equation-title">X:</p>
+                            <p class="transformation-title">X:</p>
                             <input type="text" class="form-control" :value="XTRANS" id="x-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
                             <br>
-                            <p class="equation-title">Y:</p>
+                            <p class="transformation-title">Y:</p>
                             <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
                             <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
                         </div>
@@ -155,8 +155,10 @@ export default {
       eventBus.$emit('set-equation', newEq);
     },
     enterTransformations: function() {
+      console.log("Changing transformations...");
       let newXTrans = document.getElementById('x-transform').value;
       let newYTrans = document.getElementById('y-transform').value;
+      console.log("New transformations", newXTrans, newYTrans);
       eventBus.$emit('set-transformations', newXTrans, newYTrans);
     },
     resetPlot: function() {

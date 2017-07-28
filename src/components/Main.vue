@@ -102,7 +102,7 @@ export default {
       eventBus.$on('set-fit', this.setFit);
       eventBus.$on('reset-plot', this.resetPlot);
       eventBus.$on('set-fit-settings', this.setFitSettings);
-      eventBus.$emit('set-transformations', this.setTransformations);
+      eventBus.$on('set-transformations', this.setTransformations);
 
       // Event hooks for 'FileLoad.vue'
       eventBus.$on('fetch-data', this.fetchData);
