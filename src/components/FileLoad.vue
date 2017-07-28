@@ -1,7 +1,11 @@
 <template>
   <div id="fileuploads">
     
-    <div id="file-panel" class="col-md-2">
+    <div id="file-panel" class="col-md-2" 
+        @drop="dropHandler($event)"
+        @dragover="dragoverHandler($event)"
+        @dragleave="dragleaveHandler($event)">
+
         <div id="files-bg">
 
             <div class="panel panel-default">
@@ -75,26 +79,12 @@
                         <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
                         <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
                         <button class="btn btn-danger btn-xs btn-files" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
+                        <input type="file" id="file-upload" multiple @change="uploadFile">
                     </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="panel panel-success">
-                    <div class="panel-heading">
-                      <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-drop-zone">Drop Zone</a>
-                    </div>
-                    <div id="collapse-drop-zone" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <div class="dropzone-area" drag-over="handleDragOver">
-                                <div class="dropzone-text">
-                                <span class="dropzone-title">Drop file(s) here or click to select</span>
-                                </div>
-                                <input type="file" id="file-upload" multiple @change="uploadFile">
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             </div>
         </div>
@@ -170,13 +160,35 @@ export default {
       this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
     },
     uploadFile: function() {
-      eventBus.$emit('upload-file');
+      let files = document.getElementById("file-upload").files;
+      eventBus.$emit('upload-file', files);
     },
     fetchData: function() {
       eventBus.$emit('fetch-data');
     },
     deleteFile: function(filename) {
       eventBus.$emit('delete-file', filename);
+    },
+    dropHandler: function(ev) {
+      document.getElementById("file-panel").style.border = "none";
+      document.getElementById("file-panel").style.borderRadius = "0";
+
+      console.log("Files dropped...");
+      ev.preventDefault();
+
+      var files = ev.dataTransfer.files;
+      eventBus.$emit("upload-file", files);
+    },
+    dragoverHandler: function(ev) {
+      document.getElementById("file-panel").style.border = "3px dashed green";
+      document.getElementById("file-panel").style.borderRadius = "5px";
+
+      ev.preventDefault();
+    },
+    dragleaveHandler: function(ev) {
+      // console.log("Drag leave");
+      document.getElementById("file-panel").style.border = "none";
+      document.getElementById("file-panel").style.borderRadius = "0";
     }
   },
   watch: {
