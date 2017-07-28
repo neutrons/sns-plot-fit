@@ -18,7 +18,7 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-get-files">Get Files</a>
-                        <button class="btn btn-xs btn-primary pull-left" @click="fetchData"><span class="glyphicon glyphicon-download"></span></button>
+                        <button class="btn btn-primary btn-sm btn-fetch" @click="fetchData">Fetch File(s)&hellip; <span class="glyphicon glyphicon-download"></span></button>
                     </div>
                     <div id="collapse-get-files" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -49,9 +49,11 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-uploaded-files">Uploaded Files</a>
+                        <label class="btn btn-primary btn-sm btn-upload">Select File(s)&hellip; <span class="glyphicon glyphicon-file"></span> <input type="file-upload" style="display: none;"></label>
                     </div>
                     <div id="collapse-uploaded-files" class="panel-collapse collapse in">
                         <div class="panel-body">
+                          
                             <table class="table table-condensed tabletop">
                     <thead>
                         <tr>
@@ -75,12 +77,11 @@
                     </table>
                     </div>
                     <br>
-                    <div>
+                    
                         <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
                         <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
                         <button class="btn btn-danger btn-xs btn-files" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
-                        <input type="file" id="file-upload" multiple @change="uploadFile">
-                    </div>
+                    
                         </div>
                     </div>
                 </div>
@@ -312,5 +313,9 @@ th {
   #files-bg {
       background: rgba(0,0,0, 0.02);
   }
-  
+
+.btn-upload, .btn-fetch {
+  width: 100%;
+  margin-top: 10px;
+}
 </style>
