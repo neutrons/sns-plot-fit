@@ -24,6 +24,9 @@ export default {
             var color = d3.scaleOrdinal(d3.schemeCategory20)
                 .domain(parameters.colorDomain);
 
+            // Pull plot's parent container width, this will be used to scale the plot responsively
+            var containerWidth = document.getElementById("plot-area").offsetWidth;
+
             //Set chart dimensions
             if(isFit) {
                 var margin = {
@@ -32,8 +35,12 @@ export default {
                     bottom: 100,
                     left: 50
                 };
-
-                var viewHeight = 650;
+                
+                // View Height is calculated on a 16:9 aspect ratio
+                // This is to properly adjust the plot to the container width
+                // This is mostly used when the user adjusts the browser 
+                // from small (mobile) to large (desktop) window sizes.
+                var viewHeight = containerWidth / (16/9);
                 var height = viewHeight - margin.top - margin.bottom;
             } else {
                 var margin = {
@@ -43,11 +50,11 @@ export default {
                     left: 50
                 };
 
-                var viewHeight = 550;
+                var viewHeight = containerWidth / (16/9);
                 var height = viewHeight - margin.top - margin.bottom;
             }
             
-            var containerWidth = document.getElementById("plot-area").offsetWidth;
+            
             var width = containerWidth - margin.left - margin.right;
             var data = parameters.data; //regular data to plot
 
@@ -83,7 +90,7 @@ export default {
             var viewbox = "0 0 " + containerWidth + " " + viewHeight;
             var svg = d3.select("#plot-area").append("svg")
                 .attr("viewBox", viewbox)
-                .attr("perserveAspectRatio","xMidYMid")
+                .attr("perserveAspectRatio","xMidYMid meet")
                 .attr("class", "sns-plot")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom);
