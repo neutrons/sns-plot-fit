@@ -585,6 +585,7 @@ export default {
         if(this.fileToFit === null) {
           // Reset fit to Linear
           eventBus.$emit("set-fit-back");
+          eventBus.$emit("set-fit-settings-back");
           this.setFit("Linear"); 
         } else {
           this.setParameters();

@@ -167,6 +167,7 @@ export default {
     eventBus.$on('reset-fit', this.resetFit);
     eventBus.$on('reset-scales', this.resetScales);
     eventBus.$on('set-fit-back', this.setFitBack);
+    eventBus.$on('set-fit-settings-back', this.resetSettings);
   }
 }
 </script>
