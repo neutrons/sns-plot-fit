@@ -18,7 +18,7 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-get-files">Get Files</a>
-                        <button class="btn btn-primary btn-sm btn-fetch" @click="fetchData">Fetch File(s)&hellip; <span class="glyphicon glyphicon-download"></span></button>
+                        <button class="btn btn-primary btn-sm btn-fetch" @click="fetchData">Fetch Files&hellip; <span class="glyphicon glyphicon-download"></span></button>
                     </div>
                     <div id="collapse-get-files" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -49,7 +49,7 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-uploaded-files">Uploaded Files</a>
-                        <label class="btn btn-primary btn-sm btn-upload">Select File(s)&hellip; <span class="glyphicon glyphicon-file"></span> <input type="file-upload" style="display: none;"></label>
+                        <label class="btn btn-primary btn-sm btn-upload">Select Files&hellip; <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile"></label>
                     </div>
                     <div id="collapse-uploaded-files" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -162,6 +162,7 @@ export default {
     },
     uploadFile: function() {
       let files = document.getElementById("file-upload").files;
+      console.log("Files:", files);
       eventBus.$emit('upload-file', files);
     },
     fetchData: function() {
@@ -178,6 +179,7 @@ export default {
       ev.preventDefault();
 
       var files = ev.dataTransfer.files;
+      console.log("Drop files:", files);
       eventBus.$emit("upload-file", files);
     },
     dragoverHandler: function(ev) {
