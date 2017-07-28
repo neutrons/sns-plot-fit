@@ -10,10 +10,11 @@
         ></app-controls>
         
       <div id="plot-panel" class="col-md-8">
+          <div class="panel-group" id="accordion-plot">
         <div class="panel panel-default">
 
-            <div class="panel-heading">Plot
-                <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-plot"></button>
+            <div class="panel-heading">
+              <a class="panel-title" data-toggle="collapse" data-parent="#accordion-plot" href="#collapse-plot">Plot</a>
             </div>
             <div id="collapse-plot" class="panel-collapse collapse in">
                 <div class="panel-body">
@@ -52,7 +53,7 @@
                       </tbody>
                     </table>
                     </div>
-
+                  </div>
                 </div>
             </div>
         </div>

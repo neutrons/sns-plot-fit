@@ -9,13 +9,15 @@
             </div>
             <div id="control-panel-group">
 
+                <div class="panel-group" id="accordion-left">
+
                 <!-- Plot Setings Panel-->
                 <div class="panel panel-info">
-                    <div class="panel-heading">Plot Settings
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-reset"></button>
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-reset">Plot Settings</a>
                     </div>
 
-                    <div id="collapse-reset" class="panel-collapse collapse in">
+                    <div id="collapse-reset" class="panel-collapse collapse">
                         <div class="panel-body">
                             <button id="btn-reset-plot" class="btn btn-warning btn-sm" @click="resetPlot" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
                         </div>
@@ -24,8 +26,8 @@
 
                 <!-- Scales Panel -->
                 <div class="panel panel-info">
-                    <div class="panel-heading">Scales
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-scales"></button>
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-scales">Scales</a>
                     </div>
                     <div id="collapse-scales" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -43,11 +45,11 @@
                 </div>
 
                 <!-- Fitting Selections Panel -->
-                <div class="panel panel-info" v-if="FILETOFIT">
-                    <div class="panel-heading">Fits
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-fit"></button>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-fit">Fit</a>
                     </div>
-                    <div id="collapse-fit" class="panel-collapse collapse in">
+                    <div id="collapse-fit" class="panel-collapse collapse">
                         <div class="panel-body">
                             <select class="form-control" v-model="fit" :disabled="!FILETOFIT">
                             <option v-for="fit in fits">{{fit}}</option>
@@ -61,11 +63,11 @@
                 </div>
 
                 <!-- Fit Settings Panel -->
-                <div class="panel panel-info" v-if="FILETOFIT">
-                    <div class="panel-heading">Fit Settings
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-fit-settings"></button>
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-fit-settings">Fit Settings</a>
                     </div>
-                    <div id="collapse-fit-settings" class="panel-collapse collapse in">
+                    <div id="collapse-fit-settings" class="panel-collapse collapse">
                         <div class="panel-body">
                             <label>Damping: <span class="damping-output">{{ fitSettings.damping }}</span></label>
                             <input type="range" v-model="fitSettings.damping" min="0.001" max="5" step="0.001" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
@@ -83,7 +85,7 @@
                         </div>
                     </div>
                 </div>
-
+                </div>
             </div>
         </div>
     </div>

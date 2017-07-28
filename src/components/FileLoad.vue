@@ -9,10 +9,12 @@
             </div>
 
             <div id="file-panel-group">
+
+              <div class="panel-group" id="accordion-right">
                 <div class="panel panel-success">
-                    <div class="panel-heading">Get Files
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-get-files">Get Files</a>
                         <button class="btn btn-xs btn-primary pull-left" @click="fetchData"><span class="glyphicon glyphicon-download"></span></button>
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-get-files"></button>
                     </div>
                     <div id="collapse-get-files" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -41,8 +43,8 @@
                 </div>
 
                 <div class="panel panel-success">
-                    <div class="panel-heading">Uploaded Files
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-uploaded-files"></button>
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-uploaded-files">Uploaded Files</a>
                     </div>
                     <div id="collapse-uploaded-files" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -79,10 +81,10 @@
                 </div>
 
                 <div class="panel panel-success">
-                    <div class="panel-heading">Drop Files
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-drop-zone"></button>
+                    <div class="panel-heading">
+                      <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-drop-zone">Drop Zone</a>
                     </div>
-                    <div id="collapse-drop-zone" class="panel-collapse collapse in">
+                    <div id="collapse-drop-zone" class="panel-collapse collapse">
                         <div class="panel-body">
                             <div class="dropzone-area" drag-over="handleDragOver">
                                 <div class="dropzone-text">
@@ -94,7 +96,7 @@
                     </div>
                 </div>
             </div>
-        
+            </div>
         </div>
     </div>
   </div>
