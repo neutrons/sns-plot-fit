@@ -49,7 +49,7 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-uploaded-files">Uploaded Files</a>
-                        <label class="btn btn-primary btn-sm btn-upload">Select Files&hellip; <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile"></label>
+                        <label class="btn btn-primary btn-sm btn-upload">Select Files&hellip; <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile" multiple></label>
                     </div>
                     <div id="collapse-uploaded-files" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -229,7 +229,8 @@ export default {
 
 .uploads-list,
 .getloads-list {
-  height: 125px;
+  height: auto;
+  max-height: 325px;
   overflow-y: scroll;
   background-color: whitesmoke;
 }
