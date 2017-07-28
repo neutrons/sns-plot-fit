@@ -18,10 +18,10 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-get-files">Get Files</a>
-                        <button class="btn btn-primary btn-sm btn-fetch" @click="fetchData">Fetch Files&hellip; <span class="glyphicon glyphicon-download"></span></button>
                     </div>
                     <div id="collapse-get-files" class="panel-collapse collapse in">
                         <div class="panel-body">
+                        <button class="btn btn-primary btn-sm btn-fetch" @click="fetchData">Fetch Files&hellip; <span class="glyphicon glyphicon-download"></span></button>
                             <table class="table table-condensed tabletop">
                                 <thead>
                                     <tr>
@@ -49,11 +49,11 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-uploaded-files">Uploaded Files</a>
-                        <label class="btn btn-primary btn-sm btn-upload">Select Files&hellip; <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile" multiple></label>
                     </div>
                     <div id="collapse-uploaded-files" class="panel-collapse collapse in">
                         <div class="panel-body">
                           
+                        <label class="btn btn-primary btn-sm btn-upload">Select Files&hellip; <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile" multiple></label>
                             <table class="table table-condensed tabletop">
                     <thead>
                         <tr>
@@ -319,6 +319,6 @@ th {
 
 .btn-upload, .btn-fetch {
   width: 100%;
-  margin-top: 10px;
+  margin-bottom: 10px;
 }
 </style>
