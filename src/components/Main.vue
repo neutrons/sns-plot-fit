@@ -25,9 +25,9 @@
           <div class="panel-group">
 
             <div class="panel panel-default">
-              <div id="plot-panel-collapse" class="panel-heading">
-                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="buttonDis" :disabled="!buttonDis">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
-                Plot <span class="glyphicon glyphicon-menu-up pull-right"></span>
+              <div class="panel-heading">
+                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="buttonDis" :disabled="!buttonDis">Reset Plot</button>
+                <div id="plot-panel-collapse">Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
               </div>
             </div>
 
