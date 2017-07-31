@@ -506,7 +506,7 @@ export default {
         let temp = [];
         for (let i = 0; i < sd.length; i++) {
           // If a fit is set push transformed data, else push normal data
-          if(this.currentConfiguration.fit === 'None' || this.currentConfiguration.fit === 'Linear') {
+          if(this.fileToFit === null) {
             temp.push(sd[i].data);
           } else {
             temp.push(sd[i].dataTransformed);
@@ -557,7 +557,9 @@ export default {
           eventBus.$emit("set-fit-settings-back");
           this.setFit("Linear"); 
         } else {
-          this.setParameters();
+          this.selectedData.forEach( el => {
+              el.dataTransformed = fd.transformData(el, this.currentConfiguration);
+            });
         }
       },
       selectedData: {
@@ -576,8 +578,9 @@ export default {
           // re-transform selected data according to 'xTransformation' and 'yTransformation'
           // then re-fit the 'dataToFit' according to the config's equation
           // console.log("Equation changed...", this.currentConfiguration.equation);
-          if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+          if(this.fileToFit !== null) {
             //When current data changes after selected
+            console.log("re-transforming...");
             this.selectedData.forEach( el => {
               el.dataTransformed = fd.transformData(el, this.currentConfiguration);
             })
