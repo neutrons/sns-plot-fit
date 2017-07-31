@@ -4,7 +4,7 @@
       <div id="control-panel">
 
         <div id="controls-bg">
-            <div class="panel panel-warning">
+            <div class="panel panel-default">
                 <div id="control-panel-collapse" class="panel-heading"> Controls <span class="glyphicon glyphicon-menu-down pull-right"></span></div>
             </div>
             <div id="control-panel-group">
@@ -174,7 +174,7 @@ export default {
   border-right: 1px solid rgba(0,0,0,0.25);
 }
 
-#btn-reset-scales, #btn-reset-plot, #btn-remove-fit, #btn-reset-fit-settings {
+#btn-reset-scales, #btn-remove-fit, #btn-reset-fit-settings {
   width: 100%;
 }
 

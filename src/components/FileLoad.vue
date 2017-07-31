@@ -5,7 +5,7 @@
 
         <div id="files-bg">
 
-            <div class="panel panel-warning">
+            <div class="panel panel-default">
                 <div id="file-panel-collapse" class="panel-heading">Files <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
             </div>
 

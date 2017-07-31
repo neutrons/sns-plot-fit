@@ -25,8 +25,10 @@
           <div class="panel-group">
 
             <div class="panel panel-default">
-              <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="buttonDis" :disabled="!buttonDis">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
-              <div id="plot-panel-collapse" class="panel-heading">Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
+              <div id="plot-panel-collapse" class="panel-heading">
+                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="buttonDis" :disabled="!buttonDis">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
+                Plot <span class="glyphicon glyphicon-menu-up pull-right"></span>
+              </div>
             </div>
 
             <div id="plot-collapse" class="panel-body">
@@ -382,7 +384,6 @@ export default {
           // and reset to default values
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
-          d3.select(".fit-tooltip").remove();
 
           eventBus.$emit('reset-scales');
           eventBus.$emit('reset-fit');
