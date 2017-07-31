@@ -144,10 +144,6 @@ export default {
           yScale: d3.scaleLinear()
         },
         fileToFit: null,
-        titles: {
-          xTitle: 'X',
-          yTitle: 'Y'
-        },
         isUploaded: false,
         isCollapseRight: false,
         isCollapseLeft: false,
@@ -479,8 +475,6 @@ export default {
         // console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
-        this.titles.xTitle = x;
-        this.titles.yTitle = y;
         this.scales.xScale = this.scaleConfigurations[x];
         this.scales.yScale = this.scaleConfigurations[y];
       },
@@ -523,7 +517,6 @@ export default {
           colorDomain: this.colorDomain,
           scales: this.scales,
           fileToFit: this.fileToFit,
-          titles: this.titles,
           fitConfiguration: this.currentConfiguration,
           fitSettings: this.fitSettings
         };
