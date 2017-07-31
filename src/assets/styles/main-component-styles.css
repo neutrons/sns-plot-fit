@@ -56,3 +56,11 @@ text-align: left;
 text-align: center;
 font-weight: bold;
 }
+
+#plot-panel-collapse {
+    cursor: pointer;
+}
+
+#plot-collapse {
+    background: rgba(0,0,0, 0.02);
+}

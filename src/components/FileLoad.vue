@@ -1,23 +1,20 @@
 <template>
   <div id="fileuploads">
     
-    <div id="file-panel" class="col-md-2" 
-        @drop="dropHandler($event)"
-        @dragover="dragoverHandler($event)"
-        @dragleave="dragleaveHandler($event)">
+    <div id="file-panel">
 
         <div id="files-bg">
 
-            <div class="panel panel-default">
-                <div id="right-panel-collapse" class="panel-heading"><span class="glyphicon glyphicon-menu-right pull-left"></span> Files </div>
+            <div class="panel panel-warning">
+                <div id="file-panel-collapse" class="panel-heading">Files <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
             </div>
 
             <div id="file-panel-group">
 
-              <div class="panel-group" id="accordion-right">
+              <div class="panel-group" id="accordion-file">
                 <div class="panel panel-success">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-get-files">Get Files</a>
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-file" href="#collapse-get-files">Get Files</a>
                     </div>
                     <div id="collapse-get-files" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -48,7 +45,7 @@
 
                 <div class="panel panel-success">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-right" href="#collapse-uploaded-files">Uploaded Files</a>
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-file" href="#collapse-uploaded-files">Uploaded Files</a>
                     </div>
                     <div id="collapse-uploaded-files" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -170,28 +167,6 @@ export default {
     },
     deleteFile: function(filename) {
       eventBus.$emit('delete-file', filename);
-    },
-    dropHandler: function(ev) {
-      document.getElementById("file-panel").style.border = "none";
-      document.getElementById("file-panel").style.borderRadius = "0";
-
-      console.log("Files dropped...");
-      ev.preventDefault();
-
-      var files = ev.dataTransfer.files;
-      console.log("Drop files:", files);
-      eventBus.$emit("upload-file", files);
-    },
-    dragoverHandler: function(ev) {
-      document.getElementById("file-panel").style.border = "3px dashed green";
-      document.getElementById("file-panel").style.borderRadius = "5px";
-
-      ev.preventDefault();
-    },
-    dragleaveHandler: function(ev) {
-      // console.log("Drag leave");
-      document.getElementById("file-panel").style.border = "none";
-      document.getElementById("file-panel").style.borderRadius = "0";
     }
   },
   watch: {
@@ -239,83 +214,25 @@ li {
   list-style: none;
 }
 
-.dropzone-area {
-  width: auto;
-  height: 175px;
-  position: relative;
-  border: 1.5px dashed white;
-  border-radius: 10px;
-}
-
-.dropzone-area:hover {
-  border: 1.5px dashed black;
-  color: black;
-  background-color: white;
-  border-radius: 10px;
-}
-
-.dropzone-area:hover .dropzone-title {
-  color: gray;
-}
-
-.dropzone-area input {
-  position: absolute;
-  cursor: pointer;
-  top: 0px;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-}
-
-.dropzone-text {
-  position: absolute;
-  top: 50%;
-  text-align: center;
-  transform: translate(0, -50%);
-  width: 100%;
-}
-
-.dropzone-text span {
-  display: block;
-  font-family: Arial, Helvetica;
-  line-height: 1.9;
-}
-
-.dropzone-title {
-  font-size: 13px;
-  color: black;
-  letter-spacing: 0.4px;
-}
-
-.dropzone-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: none;
-}
-
 th {
   text-align: center;
 }
 
-#right-panel-collapse {
+#file-panel-collapse {
       width: 100%;
   }
 
-#right-panel-collapse:hover {
+#file-panel-collapse:hover {
       cursor: pointer;
   }
 
- #file-panel-group {
-      padding: 10px;
-  }
+#file-panel-group {
+    padding: 10px;
+}
 
-  #files-bg {
-      background: rgba(0,0,0, 0.02);
-  }
+#files-bg {
+    background: rgba(0,0,0, 0.02);
+}
 
 .btn-upload, .btn-fetch {
   width: 100%;

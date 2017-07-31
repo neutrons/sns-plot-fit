@@ -1,33 +1,20 @@
 <template>
   <div id="Controls">
 
-      <div id="control-panel" class="col-md-2">
+      <div id="control-panel">
 
         <div id="controls-bg">
-            <div class="panel panel-default">
-                <div id="left-panel-collapse" class="panel-heading"> Controls <span class="glyphicon glyphicon-menu-left pull-right"></span></div>
+            <div class="panel panel-warning">
+                <div id="control-panel-collapse" class="panel-heading"> Controls <span class="glyphicon glyphicon-menu-down pull-right"></span></div>
             </div>
             <div id="control-panel-group">
 
-                <div class="panel-group" id="accordion-left">
-
-                <!-- Plot Setings Panel-->
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-reset">Plot Settings</a>
-                    </div>
-
-                    <div id="collapse-reset" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <button id="btn-reset-plot" class="btn btn-warning btn-sm" @click="resetPlot" :disabled="!BUTTONDIS">Reset Plot <span class="glyphicon glyphicon-refresh"></span></button>
-                        </div>
-                    </div>
-                </div>
+                <div class="panel-group" id="accordion-control">
 
                 <!-- Scales Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-scales">Scales</a>
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-scales">Scales</a>
                     </div>
                     <div id="collapse-scales" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -47,7 +34,7 @@
                 <!-- Fitting Selections Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-fit">Fit</a>
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-fit">Fit</a>
                     </div>
                     <div id="collapse-fit" class="panel-collapse collapse">
                         <div class="panel-body">
@@ -65,7 +52,7 @@
                 <!-- Fit Settings Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-fit-settings">Levenberg–Marquardt Parameters</a>
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-fit-settings">Levenberg–Marquardt Parameters</a>
                     </div>
                     <div id="collapse-fit-settings" class="panel-collapse collapse">
                         <div class="panel-body">
@@ -136,9 +123,6 @@ export default {
       let newEq = document.getElementById('fit-equation').value;
       eventBus.$emit('set-equation', newEq);
     },
-    resetPlot: function() {
-      eventBus.$emit('reset-plot');
-    },
     setScales: function() {
       eventBus.$emit('set-scales', this.xScale, this.yScale);
     },
@@ -199,11 +183,11 @@ export default {
   text-align: center;
 }
 
-#left-panel-collapse {
+#control-panel-collapse {
     width: 100%;
 }
 
-#left-panel-collapse:hover {
+#control-panel-collapse:hover {
     cursor: pointer;
 }
 
@@ -212,6 +196,7 @@ export default {
 }
 
 #control-panel-group {
+    display: none;
     padding: 10px;
 }
 
