@@ -46,7 +46,7 @@ fd.fitData = function(data, equation, fitsettings) {
     // here I'm getting all variables to fit and remove x!
     // May be the validation goes here
     var nodes_to_fit = n_parsed.filter(function(node) {
-    return node.isSymbolNode && node.name != 'X';
+    return node.isSymbolNode && node.name != 'x';
     });
 
 
@@ -67,7 +67,7 @@ fd.fitData = function(data, equation, fitsettings) {
         
         // console.log("Scope = ", scope);
         return function(x) {
-            scope.X = x;
+            scope.x = x;
             return n_compiled.eval(scope);
         }
     };

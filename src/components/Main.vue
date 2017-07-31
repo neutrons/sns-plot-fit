@@ -151,7 +151,7 @@ export default {
         plotParams: {},
         currentConfiguration: {
             fit: 'Linear',
-            equation: 'm*X+b',
+            equation: 'm*x+b',
             yTransformation: 'y',
             xTransformation: 'x',
             eTransformation: "e",
@@ -170,7 +170,7 @@ export default {
           },
           'Linear': {
             fit: 'Linear',
-            equation: 'm*X+b',
+            equation: 'm*x+b',
             yTransformation: 'y',
             xTransformation: 'x',
             eTransformation: "e",
@@ -179,7 +179,7 @@ export default {
           },
           'Guinier': {
             fit: 'Guinier',
-            equation: "-Rg^2/3*X+b",
+            equation: "-Rg^2/3*x+b",
             yTransformation: "log(y)",
             xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
@@ -188,7 +188,7 @@ export default {
           },
           'Porod': {
             fit: 'Porod',
-            equation: "A-n*X",
+            equation: "A-n*x",
             yTransformation: "log(y)",
             xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
@@ -197,7 +197,7 @@ export default {
           },
           'Zimm': {
             fit: 'Zimm',
-            equation: "1/I0+Cl^2/I0*X",
+            equation: "1/I0+Cl^2/I0*x",
             yTransformation: "1/y",
             xTransformation: "x^2",
             eTransformation: "((-1/x^2)*e)^2",
@@ -206,7 +206,7 @@ export default {
           },
           'Kratky': {
             fit: 'Kratky',
-            equation: "m*X+b",
+            equation: "m*x+b",
             yTransformation: "log(x^2*y)",
             xTransformation: "x^2",
             eTransformation: "((1/x)*e)^2",
@@ -215,7 +215,7 @@ export default {
           },
           'Debye Beuche': {
             fit: 'Debye Beuche',
-            equation: "m*X+I0",
+            equation: "m*x+I0",
             yTransformation: "sqrt(y)",
             xTransformation: "x^2",
             eTransformation: "(1/(2*sqrt(x))*e)^2",
