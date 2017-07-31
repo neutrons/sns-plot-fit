@@ -74,13 +74,13 @@
                     </table>
                     </div>
                     <br>
-                    
-                        <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
-                        <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
-                        <button class="btn btn-danger btn-xs btn-files" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
-                    
+                        <button class="btn btn-danger btn-delete-all" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
                         </div>
                     </div>
+                </div>
+                <div id="btn-selections" v-if="GETFILES.length > 0 || UPLOADEDFILES.length > 0">
+                  <div class="col-md-6 btn-container"><button class="btn btn-default btn-select-all" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button></div>
+                  <div class="col-md-6 btn-container"><button class="btn btn-default btn-unselect-all" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button></div>
                 </div>
 
             </div>
@@ -194,9 +194,6 @@ export default {
 </script>
 
 <style scoped>
-.btn-files {
-  font-size: 11px;
-}
 .tabletop {
   margin: 0;
   padding: 0;
@@ -239,5 +236,20 @@ th {
 .btn-upload, .btn-fetch {
   width: 100%;
   margin-bottom: 10px;
+}
+
+.btn-delete-all {
+  width: 100%;
+  padding: 2px;
+}
+
+.btn-select-all, .btn-unselect-all {
+  width: 100%;
+  padding: 2px;
+  margin: 5px 0px;
+}
+
+.btn-container {
+  padding: 0px;
 }
 </style>
