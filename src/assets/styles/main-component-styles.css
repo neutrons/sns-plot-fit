@@ -65,6 +65,7 @@ font-weight: bold;
 #btn-reset-plot {
     padding-top: 2px;
     padding-bottom: 2px;
+    margin: 5px 0px 5px 5px;
 }
 
 div.panel.panel-default {
