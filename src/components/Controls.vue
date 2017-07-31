@@ -52,6 +52,7 @@
                                     <li>No additional variables (e.g., 'x+c' is incorrect)</li>
                                 </ol>
                             </p>
+                            <button id="btn-reset-transformation" class="btn btn-warning btn-sm" @click="resetTransformation" :disabled="!BUTTONDIS">Reset <span class="glyphicon glyphicon-refresh"></span></button>
                         </div>
                     </div>
                 </div>
@@ -184,6 +185,10 @@ export default {
     setFitSettings: function() {
         console.log(this.fitSettings);
         eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
+    },
+    resetTransformation: function() {
+        console.log("Resetting transformations...");
+        eventBus.$emit('reset-transformation');
     }
   },
   watch: {
@@ -218,7 +223,7 @@ export default {
   border-right: 1px solid rgba(0,0,0,0.25);
 }
 
-#btn-reset-scales, #btn-remove-fit, #btn-reset-fit-settings {
+#btn-reset-scales, #btn-remove-fit, #btn-reset-fit-settings, #btn-reset-transformation {
   width: 100%;
 }
 

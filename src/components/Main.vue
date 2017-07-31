@@ -106,6 +106,7 @@ export default {
       eventBus.$on('set-fit', this.setFit);
       eventBus.$on('set-fit-settings', this.setFitSettings);
       eventBus.$on('set-transformations', this.setTransformations);
+      eventBus.$on('reset-transformation', this.resetTransformation);
 
       // Event hooks for 'FileLoad.vue'
       eventBus.$on('fetch-data', this.fetchData);
@@ -531,6 +532,12 @@ export default {
       },
       setFitSettings: function(options) {
         this.fitSettings = options;
+      },
+      resetTransformation: function() {
+        let xt = this.fitConfigurations[this.currentConfiguration.fit].xTransformation;
+        let yt = this.fitConfigurations[this.currentConfiguration.fit].yTransformation;
+        this.currentConfiguration.xTransformation = xt;
+        this.currentConfiguration.yTransformation = yt;
       }
     },
     watch: {
