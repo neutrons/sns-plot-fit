@@ -44,11 +44,6 @@ ol {
 padding: 5px 10px;
 }
 
-#fit-results-table ul, li {
-list-style-type: none;
-text-align: left;
-}
-
 #fit-results-table .sub-heading {
 text-align: center;
 font-weight: bold;

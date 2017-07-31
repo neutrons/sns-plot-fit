@@ -44,6 +44,14 @@
                             <p class="transformation-title">Y:</p>
                             <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
                             <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
+                            <p class="equation-title alert alert-danger" v-if="isError">
+                                Error:
+                                <ol>
+                                    <li>Make sure to enter an appropriate transformation (e.g., 'x+2')</li>
+                                    <li>Check case, 'x' <em>must</em> be lowercase</li>
+                                    <li>No additional variables (e.g., 'x+c' is incorrect)</li>
+                                </ol>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -112,6 +120,7 @@ export default {
     return {
       isFocus: false,
       isTransFocus: false,
+      isError: false,
       xScale: 'X',
       xScales: ["X", "X^2", "Log(X)"],
       yScale: 'Y',
@@ -142,11 +151,18 @@ export default {
       eventBus.$emit('set-equation', newEq);
     },
     enterTransformations: function() {
-      console.log("Changing transformations...");
-      let newXTrans = document.getElementById('x-transform').value;
-      let newYTrans = document.getElementById('y-transform').value;
-      console.log("New transformations", newXTrans, newYTrans);
-      eventBus.$emit('set-transformations', newXTrans, newYTrans);
+    
+        let newXTrans = document.getElementById('x-transform').value;
+        let newYTrans = document.getElementById('y-transform').value;
+        if( newXTrans.match(/[^()xy0-9*+/-]/) || newYTrans.match(/[^()xy0-9*+/-]/) ) {
+            this.isError = true;
+            console.log("Hey wrong!");
+        } else {
+            this.isError = false;
+            console.log("Changing transformations...");
+            console.log("New transformations", newXTrans, newYTrans);
+            eventBus.$emit('set-transformations', newXTrans, newYTrans);
+        }
     },
     resetPlot: function() {
       eventBus.$emit('reset-plot');
