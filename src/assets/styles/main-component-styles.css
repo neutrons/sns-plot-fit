@@ -74,3 +74,18 @@ div.panel.panel-default {
 .panel-title {
     font-size: 14px;
 }
+
+.panel-heading {
+  padding: 0px;
+}
+
+.panel-title {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 7px 5px;
+}
+
+#file-panel-collapse, #control-panel-collapse, #plot-panel-collapse {
+    padding: 7px 5px;
+}

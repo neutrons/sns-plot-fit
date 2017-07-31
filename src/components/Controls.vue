@@ -34,7 +34,7 @@
                 <!-- X and Y Transformation Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-left" href="#collapse-transformations">Transformations</a>
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-transformations">Transformations</a>
                     </div>
                     <div id="collapse-transformations" class="panel-collapse collapse">
                         <div class="panel-body">
