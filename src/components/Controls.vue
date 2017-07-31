@@ -31,6 +31,32 @@
                     </div>
                 </div>
 
+                <!-- X and Y Transformation Panel -->
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-transformations">Transformations</a>
+                    </div>
+                    <div id="collapse-transformations" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <p class="transformation-title">X:</p>
+                            <input type="text" class="form-control" :value="XTRANS" id="x-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                            <br>
+                            <p class="transformation-title">Y:</p>
+                            <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                            <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
+                            <p class="equation-title alert alert-danger" v-if="isError">
+                                Error:
+                                <ol>
+                                    <li>Make sure to enter an appropriate transformation (e.g., 'x+2')</li>
+                                    <li>Check case, 'x' <em>must</em> be lowercase</li>
+                                    <li>No additional variables (e.g., 'x+c' is incorrect)</li>
+                                </ol>
+                            </p>
+                            <button id="btn-reset-transformation" class="btn btn-warning btn-sm" @click="resetTransformation" :disabled="!BUTTONDIS">Reset <span class="glyphicon glyphicon-refresh"></span></button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Fitting Selections Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
@@ -90,10 +116,12 @@ import * as _ from 'lodash';
 
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "FILETOFIT", "EQUATION"],
+  props: ["BUTTONDIS", "FILETOFIT", "EQUATION", "XTRANS", "YTRANS"],
   data: function() {
     return {
       isFocus: false,
+      isTransFocus: false,
+      isError: false,
       xScale: 'X',
       xScales: ["X", "X^2", "Log(X)"],
       yScale: 'Y',
@@ -123,6 +151,23 @@ export default {
       let newEq = document.getElementById('fit-equation').value;
       eventBus.$emit('set-equation', newEq);
     },
+    enterTransformations: function() {
+    
+        let newXTrans = document.getElementById('x-transform').value;
+        let newYTrans = document.getElementById('y-transform').value;
+        if( newXTrans.match(/[^()xy0-9*+/-]/) || newYTrans.match(/[^()xy0-9*+/-]/) ) {
+            this.isError = true;
+            console.log("Hey wrong!");
+        } else {
+            this.isError = false;
+            console.log("Changing transformations...");
+            console.log("New transformations", newXTrans, newYTrans);
+            eventBus.$emit('set-transformations', newXTrans, newYTrans);
+        }
+    },
+    resetPlot: function() {
+      eventBus.$emit('reset-plot');
+    },
     setScales: function() {
       eventBus.$emit('set-scales', this.xScale, this.yScale);
     },
@@ -140,6 +185,10 @@ export default {
     setFitSettings: function() {
         console.log(this.fitSettings);
         eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
+    },
+    resetTransformation: function() {
+        console.log("Resetting transformations...");
+        eventBus.$emit('reset-transformation');
     }
   },
   watch: {
@@ -174,11 +223,11 @@ export default {
   border-right: 1px solid rgba(0,0,0,0.25);
 }
 
-#btn-reset-scales, #btn-remove-fit, #btn-reset-fit-settings {
+#btn-reset-scales, #btn-remove-fit, #btn-reset-fit-settings, #btn-reset-transformation {
   width: 100%;
 }
 
-.equation-title {
+.equation-title, .transformation-title {
   color: gray;
   text-align: center;
 }

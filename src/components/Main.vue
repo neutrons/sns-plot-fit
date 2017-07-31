@@ -17,6 +17,8 @@
           :BUTTONDIS="buttonDis"
           :FILETOFIT="fileToFit"
           :EQUATION="$data.currentConfiguration.equation"
+          :XTRANS="$data.currentConfiguration.xTransformation"
+          :YTRANS="$data.currentConfiguration.yTransformation"
           ></app-controls>
 
     </div>
@@ -103,6 +105,8 @@ export default {
       eventBus.$on('set-scales', this.setScales);
       eventBus.$on('set-fit', this.setFit);
       eventBus.$on('set-fit-settings', this.setFitSettings);
+      eventBus.$on('set-transformations', this.setTransformations);
+      eventBus.$on('reset-transformation', this.resetTransformation);
 
       // Event hooks for 'FileLoad.vue'
       eventBus.$on('fetch-data', this.fetchData);
@@ -141,10 +145,6 @@ export default {
           yScale: d3.scaleLinear()
         },
         fileToFit: null,
-        titles: {
-          xTitle: 'X',
-          yTitle: 'Y'
-        },
         isUploaded: false,
         isCollapseRight: false,
         isCollapseLeft: false,
@@ -152,7 +152,7 @@ export default {
         plotParams: {},
         currentConfiguration: {
             fit: 'Linear',
-            equation: 'm*X+b',
+            equation: 'm*x+b',
             yTransformation: 'y',
             xTransformation: 'x',
             eTransformation: "e",
@@ -171,7 +171,7 @@ export default {
           },
           'Linear': {
             fit: 'Linear',
-            equation: 'm*X+b',
+            equation: 'm*x+b',
             yTransformation: 'y',
             xTransformation: 'x',
             eTransformation: "e",
@@ -180,7 +180,7 @@ export default {
           },
           'Guinier': {
             fit: 'Guinier',
-            equation: "-Rg^2/3*X+b",
+            equation: "-Rg^2/3*x+b",
             yTransformation: "log(y)",
             xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
@@ -189,7 +189,7 @@ export default {
           },
           'Porod': {
             fit: 'Porod',
-            equation: "A-n*X",
+            equation: "A-n*x",
             yTransformation: "log(y)",
             xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
@@ -198,7 +198,7 @@ export default {
           },
           'Zimm': {
             fit: 'Zimm',
-            equation: "1/I0+Cl^2/I0*X",
+            equation: "1/I0+Cl^2/I0*x",
             yTransformation: "1/y",
             xTransformation: "x^2",
             eTransformation: "((-1/x^2)*e)^2",
@@ -207,7 +207,7 @@ export default {
           },
           'Kratky': {
             fit: 'Kratky',
-            equation: "m*X+b",
+            equation: "m*x+b",
             yTransformation: "log(x^2*y)",
             xTransformation: "x^2",
             eTransformation: "((1/x)*e)^2",
@@ -216,7 +216,7 @@ export default {
           },
           'Debye Beuche': {
             fit: 'Debye Beuche',
-            equation: "m*X+I0",
+            equation: "m*x+I0",
             yTransformation: "sqrt(y)",
             xTransformation: "x^2",
             eTransformation: "(1/(2*sqrt(x))*e)^2",
@@ -476,8 +476,6 @@ export default {
         // console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
-        this.titles.xTitle = x;
-        this.titles.yTitle = y;
         this.scales.xScale = this.scaleConfigurations[x];
         this.scales.yScale = this.scaleConfigurations[y];
       },
@@ -503,7 +501,7 @@ export default {
         let temp = [];
         for (let i = 0; i < sd.length; i++) {
           // If a fit is set push transformed data, else push normal data
-          if(this.currentConfiguration.fit === 'None' || this.currentConfiguration.fit === 'Linear') {
+          if(this.fileToFit === null) {
             temp.push(sd[i].data);
           } else {
             temp.push(sd[i].dataTransformed);
@@ -520,7 +518,6 @@ export default {
           colorDomain: this.colorDomain,
           scales: this.scales,
           fileToFit: this.fileToFit,
-          titles: this.titles,
           fitConfiguration: this.currentConfiguration,
           fitSettings: this.fitSettings
         };
@@ -528,8 +525,19 @@ export default {
       setEquation: function(eq) {
         this.currentConfiguration.equation = eq;
       },
+      setTransformations: function(x,y) {
+        console.log("X: ", x);
+        this.currentConfiguration.xTransformation = x;
+        this.currentConfiguration.yTransformation = y;
+      },
       setFitSettings: function(options) {
         this.fitSettings = options;
+      },
+      resetTransformation: function() {
+        let xt = this.fitConfigurations[this.currentConfiguration.fit].xTransformation;
+        let yt = this.fitConfigurations[this.currentConfiguration.fit].yTransformation;
+        this.currentConfiguration.xTransformation = xt;
+        this.currentConfiguration.yTransformation = yt;
       }
     },
     watch: {
@@ -549,7 +557,9 @@ export default {
           eventBus.$emit("set-fit-settings-back");
           this.setFit("Linear"); 
         } else {
-          this.setParameters();
+          this.selectedData.forEach( el => {
+              el.dataTransformed = fd.transformData(el, this.currentConfiguration);
+            });
         }
       },
       selectedData: {
@@ -568,8 +578,9 @@ export default {
           // re-transform selected data according to 'xTransformation' and 'yTransformation'
           // then re-fit the 'dataToFit' according to the config's equation
           // console.log("Equation changed...", this.currentConfiguration.equation);
-          if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+          if(this.fileToFit !== null) {
             //When current data changes after selected
+            console.log("re-transforming...");
             this.selectedData.forEach( el => {
               el.dataTransformed = fd.transformData(el, this.currentConfiguration);
             })

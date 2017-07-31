@@ -65,9 +65,9 @@ export default {
             xScale.range([0,width]); //scales according to fit type
             var yScale = parameters.scales.yScale;
             yScale.range([height, 0]); //scales according to fit type
-            var xTitle = parameters.titles.xTitle; //xTitle according to label
-            var yTitle = parameters.titles.yTitle; //yTitle according to label
-            
+            var xTitle = parameters.fitConfiguration.xTransformation; //xTitle according to label
+            var yTitle = parameters.fitConfiguration.yTransformation; //yTitle according to label
+
             // Set scale domains
             xScale.domain(d3.extent(data, function (d) {
                 return d.x;
@@ -278,7 +278,7 @@ export default {
                         return yScale(d.y + d.error);
                     })
                     .attr('y2', function (d) {
-                        if(d.y - d.error < 0 && parameters.titles.yTitle === "Log(Y)") {
+                        if(d.y - d.error < 0 && yTitle === "Log(Y)") {
                             return yScale(d.y)
                         } else {
                             return yScale(d.y - d.error);
@@ -328,7 +328,7 @@ export default {
                     .attr("clip-path", "url(#clip)")
                     .attr('class', 'error-tick-bottom')
                     .filter( function(d) {
-                        if(parameters.titles.yTitle === "Log(Y)") {
+                        if(yTitle === "Log(Y)") {
                             return d.y - d.error > 0;
                         } else {
                             return true;
@@ -557,7 +557,7 @@ export default {
                         return new_yScale(d.y + d.error);
                     })
                     .attr('y2', function (d) {
-                        if(d.y - d.error < 0 && parameters.titles.yTitle === "Log(Y)") {
+                        if(d.y - d.error < 0 && yTitle === "Log(Y)") {
                             // console.log("Below zero! d.y = " + d.y + " | d.error = " + d.error + "| d.y - d.error = " + (d.y - d.error));
                             return new_yScale(d.y)
                         } else {
@@ -583,7 +583,7 @@ export default {
                 //re-draw error tick bottom
                 errorlines.selectAll(".error-tick-bottom")
                     .filter( function(d) {
-                        if(parameters.titles.yTitle === "Log(Y)") {
+                        if(yTitle === "Log(Y)") {
                             return d.y - d.error > 0;
                         } else {
                             return true;
