@@ -2,72 +2,76 @@
   <div id="main">
     <div class="container-fluid">
 
-    <!--Pass variables to controls component-->
-        <app-controls
-        :BUTTONDIS="buttonDis"
-        :FILETOFIT="fileToFit"
-        :EQUATION="$data.currentConfiguration.equation"
-        :XTRANS="$data.currentConfiguration.xTransformation"
-        :YTRANS="$data.currentConfiguration.yTransformation"
-        ></app-controls>
-        
-      <div id="plot-panel" class="col-md-8">
-          <div class="panel-group" id="accordion-plot">
-        <div class="panel panel-default">
+    <div id="left-sidebar" class="col-md-2">
 
-            <div class="panel-heading">
-              <a class="panel-title" data-toggle="collapse" data-parent="#accordion-plot" href="#collapse-plot">Plot</a>
+        <!--Pass variables to fileload component-->
+          <app-file-load
+          :BUTTONDIS="buttonDis"
+          :GETFILES="getFiles"
+          :UPLOADEDFILES="uploadedFiles"
+          :ISUPLOADED="isUploaded"
+          ></app-file-load>
+
+      <!--Pass variables to controls component-->
+          <app-controls
+          :BUTTONDIS="buttonDis"
+          :FILETOFIT="fileToFit"
+          :EQUATION="$data.currentConfiguration.equation"
+          :XTRANS="$data.currentConfiguration.xTransformation"
+          :YTRANS="$data.currentConfiguration.yTransformation"
+          ></app-controls>
+
+    </div>
+        
+      <div id="plot-panel" class="col-md-10">
+          <div class="panel-group">
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="buttonDis" :disabled="!buttonDis">Reset Plot</button>
+                <div id="plot-panel-collapse">Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
+              </div>
             </div>
-            <div id="collapse-plot" class="panel-collapse collapse in">
-                <div class="panel-body">
-                  <div id="plot-area"></div>
-                  
-                  <!-- Fit Results Table to add fit results -->
-                  <div id="fit-results-table" class="table-responsive" v-show="fileToFit && currentConfiguration.fit !== 'None'">          
-                    <table class="table table-bordered">
-                      <caption><h4>Fit Results:</h4></caption>
-                    
-                      <tbody>
-                      <tr>
-                        <td id="fit-file"></td>
-                        <td id="fit-type"></td>
-                        <td id="fit-points"></td>
-                        <td id="fit-range"></td>
-                        <td id="fit-error"></td>
-                      </tr>
-                    
-                        <tr>
-                          <td colspan="3" class="sub-heading">Fit Configuration:</td>
-                          <td colspan="2" class="sub-heading">Coefficients:</td>	
-                        </tr>
-                        <tr>
-                          <td colspan="3" id="fit-configs">
-                          <ul>
-                                <li id="fit-damping"></li>
-                                <li id="fit-iterations"></li>
-                                <li id="fit-tolerance"></li>
-                                <li id="fit-gradient"></li>
-                            </ul>
-                          </td>
-                          <td colspan="2" id="fit-coefficients">
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    </div>
-                  </div>
+
+            <div id="plot-collapse" class="panel-body">
+              <div id="plot-area"></div>
+              
+              <!-- Fit Results Table to add fit results -->
+              <div id="fit-results-table" class="table-responsive" v-show="fileToFit && currentConfiguration.fit !== 'None'">          
+                <table class="table table-bordered">
+                  <caption><h4>Fit Results:</h4></caption>
+                
+                  <tbody>
+                  <tr>
+                    <td id="fit-file"></td>
+                    <td id="fit-type"></td>
+                    <td id="fit-points"></td>
+                    <td id="fit-range"></td>
+                    <td id="fit-error"></td>
+                  </tr>
+                
+                    <tr>
+                      <td colspan="3" class="sub-heading">Fit Configuration:</td>
+                      <td colspan="2" class="sub-heading">Coefficients:</td>	
+                    </tr>
+                    <tr>
+                      <td colspan="3" id="fit-configs">
+                      <ul>
+                            <li id="fit-damping"></li>
+                            <li id="fit-iterations"></li>
+                            <li id="fit-tolerance"></li>
+                            <li id="fit-gradient"></li>
+                        </ul>
+                      </td>
+                      <td colspan="2" id="fit-coefficients">
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
                 </div>
-            </div>
+              </div>
         </div>
     </div>
-
-      <!--Pass variables to fileload component-->
-        <app-file-load
-        :BUTTONDIS="buttonDis"
-        :GETFILES="getFiles"
-        :UPLOADEDFILES="uploadedFiles"
-        :ISUPLOADED="isUploaded"
-        ></app-file-load>
       </div>
   </div>
 </template>
@@ -100,7 +104,6 @@ export default {
       eventBus.$on('set-equation', this.setEquation);
       eventBus.$on('set-scales', this.setScales);
       eventBus.$on('set-fit', this.setFit);
-      eventBus.$on('reset-plot', this.resetPlot);
       eventBus.$on('set-fit-settings', this.setFitSettings);
       eventBus.$on('set-transformations', this.setTransformations);
 
@@ -114,62 +117,21 @@ export default {
       eventBus.$on('disable-buttons', this.disableButtons);
     },
     mounted() {
-    // Code for Collapsible sidebars
-      var isLeft = false;
-      var isRight = false;
-
-      $('#left-panel-collapse').click(function(e) {
-          isLeft = !isLeft; //toggle isLeft
-          
-          if(!isLeft && !isRight) {
-              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-left pull-right"></span>');
-              $('#control-panel').toggleClass('col-md-2 col-md-1');
-              $("#control-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-8 col-md-9');
-          } else if (!isLeft && isRight) {
-              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-left pull-right"></span>');
-              $('#control-panel').toggleClass('col-md-2 col-md-1');
-              $("#control-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-9 col-md-10');
-          } else if (isLeft && !isRight) {
-              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-right pull-right"></span>');
-              $('#control-panel').toggleClass('col-md-1 col-md-2');
-              $("#control-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-9 col-md-8');
-          } else if (isLeft && isRight) {
-              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-right pull-right"></span>');
-              $('#control-panel').toggleClass('col-md-1 col-md-2');
-              $("#control-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-10 col-md-9');
-          }
+    // Code for Collapsible panels
+      $('#plot-panel-collapse').click(function(e) {
+          $('#plot-panel-collapse').find('span').toggleClass('glyphicon-menu-up glyphicon-menu-down');
+          $("#plot-collapse").slideToggle(300);
       });
 
-      $('#right-panel-collapse').click(function(e) {
-          isRight = !isRight; //toggle isLeft
-          $('#right-panel-collapse').find('span').toggleClass('glyphicon-menu-right glyphicon-menu-left');
+      $('#control-panel-collapse').click(function(e) {
+          $('#control-panel-collapse').find('span').toggleClass('glyphicon-menu-down glyphicon-menu-up');
+          $("#control-panel-group").slideToggle(300);
+      });
 
-          if(!isRight && !isLeft) {
-              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-right pull-left"></span> Files');
-              $('#file-panel').toggleClass('col-md-2 col-md-1');
-              $("#file-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-8 col-md-9');
-          } else if (!isRight && isLeft) {
-              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-right pull-left"></span> Files');
-              $('#file-panel').toggleClass('col-md-2 col-md-1');
-              $("#file-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-9 col-md-10');
-          } else if (isRight && !isLeft) {
-              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-left pull-left"></span> Files');
-              $('#file-panel').toggleClass('col-md-1 col-md-2');
-              $("#file-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-9 col-md-8');
-          } else if (isRight && isLeft) {
-              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-left pull-left"></span> Files');
-              $('#file-panel').toggleClass('col-md-1 col-md-2');
-              $("#file-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-10 col-md-9');
-          }
-});
+      $('#file-panel-collapse').click(function(e) {
+          $('#file-panel-collapse').find('span').toggleClass('glyphicon-menu-up glyphicon-menu-down');
+          $("#file-panel-group").slideToggle(300);
+      });
     },
     data: function () {
       return {
@@ -425,7 +387,6 @@ export default {
           // and reset to default values
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
-          d3.select(".fit-tooltip").remove();
 
           eventBus.$emit('reset-scales');
           eventBus.$emit('reset-fit');

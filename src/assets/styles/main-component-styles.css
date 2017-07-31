@@ -23,12 +23,9 @@ body {
   font-size: 8px;
 }
 
-#plot-area {
-    height: auto;
-}
-
 .panel-heading {
     text-align: center;
+    padding: 7px 5px;
 }
 
 ol {
@@ -55,4 +52,25 @@ text-align: left;
 #fit-results-table .sub-heading {
 text-align: center;
 font-weight: bold;
+}
+
+#plot-panel-collapse {
+    cursor: pointer;
+}
+
+#plot-collapse {
+    background: rgba(0,0,0, 0.02);
+}
+
+#btn-reset-plot {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+div.panel.panel-default {
+    margin-bottom: 0px;
+}
+
+.panel-title {
+    font-size: 14px;
 }
