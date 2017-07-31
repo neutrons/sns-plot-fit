@@ -81,10 +81,9 @@ export default {
                 yAxis = d3.axisLeft(yScale).ticks(10).tickSize(-width);
 
             //Add tool tip and hide it until invoked
-            var tooltip = d3.select("#plot-area").append("div")
+            var tooltip = d3.select("#app-container").append("div")
                 .attr("class", "tooltip")
-                .style("opacity", 0)
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                .style("opacity", 0);
 
             //Add main chart area
             var viewbox = "0 0 " + containerWidth + " " + viewHeight;
@@ -382,8 +381,8 @@ export default {
                                 .duration(200)
                                 .style("opacity", 1);
                             tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.error.toFixed(6))
-                                .style("left", (xScale(d.x)+50) + "px")
-                                .style("top", (yScale(d.y)) + "px");
+                                .style("top", (d3.event.pageY - 40) + "px")
+                                .style("left", (d3.event.pageX + 20) + "px");
                         })
                         .on("mouseout", function (d) {
                             d3.select(this).attr("r", 4);

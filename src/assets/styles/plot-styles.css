@@ -39,12 +39,13 @@ div.tooltip {
   width: auto;
   height: auto;
   padding: 10px 30px;
-  font: 12px sans-serif;
-  font-weight: bold;
-  color: white;
+  font: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
   border-radius: 0px;
+  border: 1px solid dimgray;
   pointer-events: none;
-  background: rgba(0,0,0,0.70);
+  background: white;
 }
 
 div.tooltip:before {
@@ -57,7 +58,7 @@ div.tooltip:before {
   position: absolute;
   pointer-events: none;
   border-color: rgba(255, 255, 255, 0);
-  border-right-color: rgba(0,0,0,0.75);
+  border-right-color: dimgray;
   border-width: 10px;
   margin-top: -10px;
 }
