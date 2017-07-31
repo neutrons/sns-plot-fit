@@ -25,6 +25,7 @@ body {
 
 .panel-heading {
     text-align: center;
+    padding: 7px 5px;
 }
 
 ol {
@@ -64,4 +65,8 @@ font-weight: bold;
 #btn-reset-plot {
     padding-top: 2px;
     padding-bottom: 2px;
+}
+
+div.panel.panel-default {
+    margin-bottom: 0px;
 }

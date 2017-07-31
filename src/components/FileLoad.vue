@@ -227,11 +227,13 @@ th {
   }
 
 #file-panel-group {
-    padding: 10px;
+    background: rgba(0,0,0, 0.02);
+    height: 100%;
+    padding: 10px 0px;
 }
 
 #files-bg {
-    background: rgba(0,0,0, 0.02);
+    margin-bottom: 15px;
 }
 
 .btn-upload, .btn-fetch {

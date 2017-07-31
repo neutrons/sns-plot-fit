@@ -192,12 +192,14 @@ export default {
 }
 
 #controls-bg {
-    background: rgba(0,0,0, 0.02);
+    margin-bottom: 15px;
 }
 
 #control-panel-group {
     display: none;
-    padding: 10px;
+    background: rgba(0,0,0, 0.02);
+    height: 100%;
+    padding: 10px 0px;
 }
 
 .iteration-output, .damping-output {
