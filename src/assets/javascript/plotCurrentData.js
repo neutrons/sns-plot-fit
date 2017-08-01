@@ -390,7 +390,7 @@ export default {
                             tooltip.transition()
                                 .duration(500)
                                 .style("opacity", 0);
-                        });;
+                        });
 
                     // Add the Legend
                     var legend = plot.append("g");

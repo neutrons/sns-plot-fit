@@ -125,7 +125,7 @@ export default {
       });
 
       $('#control-panel-collapse').click(function(e) {
-          $('#control-panel-collapse').find('span').toggleClass('glyphicon-menu-down glyphicon-menu-up');
+          $('#control-panel-collapse').find('span').toggleClass('glyphicon-menu-up glyphicon-menu-down');
           $("#control-panel-group").slideToggle(300);
       });
 

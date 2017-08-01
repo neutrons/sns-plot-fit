@@ -5,7 +5,7 @@
 
         <div id="controls-bg">
             <div class="panel panel-default">
-                <div id="control-panel-collapse" class="panel-heading"> Controls <span class="glyphicon glyphicon-menu-down pull-right"></span></div>
+                <div id="control-panel-collapse" class="panel-heading"> Controls <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
             </div>
             <div id="control-panel-group">
 
@@ -245,7 +245,6 @@ export default {
 }
 
 #control-panel-group {
-    display: none;
     background: rgba(0,0,0, 0.02);
     height: 100%;
     padding: 10px 0px;
