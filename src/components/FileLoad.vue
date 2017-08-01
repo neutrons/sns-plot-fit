@@ -1,21 +1,24 @@
 <template>
   <div id="fileuploads">
     
-    <div id="file-panel" class="col-md-2">
+    <div id="file-panel">
+
         <div id="files-bg">
 
             <div class="panel panel-default">
-                <div id="right-panel-collapse" class="panel-heading"><span class="glyphicon glyphicon-menu-right pull-left"></span> Files </div>
+                <div id="file-panel-collapse" class="panel-heading">Files <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
             </div>
 
             <div id="file-panel-group">
+
+              <div class="panel-group" id="accordion-file">
                 <div class="panel panel-success">
-                    <div class="panel-heading">Get Files
-                        <button class="btn btn-xs btn-primary pull-left" @click="fetchData"><span class="glyphicon glyphicon-download"></span></button>
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-get-files"></button>
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-file" href="#collapse-get-files">Get Files</a>
                     </div>
                     <div id="collapse-get-files" class="panel-collapse collapse in">
                         <div class="panel-body">
+                        <button class="btn btn-primary btn-sm btn-fetch" @click="fetchData">Fetch Files&hellip; <span class="glyphicon glyphicon-download"></span></button>
                             <table class="table table-condensed tabletop">
                                 <thead>
                                     <tr>
@@ -41,11 +44,13 @@
                 </div>
 
                 <div class="panel panel-success">
-                    <div class="panel-heading">Uploaded Files
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-uploaded-files"></button>
+                    <div class="panel-heading">
+                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-file" href="#collapse-uploaded-files">Uploaded Files</a>
                     </div>
                     <div id="collapse-uploaded-files" class="panel-collapse collapse in">
                         <div class="panel-body">
+                          
+                        <label class="btn btn-primary btn-sm btn-upload">Select Files&hellip; <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile" multiple></label>
                             <table class="table table-condensed tabletop">
                     <thead>
                         <tr>
@@ -69,32 +74,17 @@
                     </table>
                     </div>
                     <br>
-                    <div>
-                        <button class="btn btn-primary btn-xs btn-files" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button>
-                        <button class="btn btn-danger btn-xs btn-files" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button>
-                        <button class="btn btn-danger btn-xs btn-files" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
-                    </div>
+                        <button class="btn btn-danger btn-delete-all" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
                         </div>
                     </div>
+                </div>
+                <div id="btn-selections" v-if="GETFILES.length > 0 || UPLOADEDFILES.length > 0">
+                  <div class="col-md-6 btn-container"><button class="btn btn-default btn-select-all" @click="checkAll">Select all <span class="glyphicon glyphicon-plus-sign"></span></button></div>
+                  <div class="col-md-6 btn-container"><button class="btn btn-default btn-unselect-all" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button></div>
                 </div>
 
-                <div class="panel panel-success">
-                    <div class="panel-heading">Drop Files
-                        <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-drop-zone"></button>
-                    </div>
-                    <div id="collapse-drop-zone" class="panel-collapse collapse in">
-                        <div class="panel-body">
-                            <div class="dropzone-area" drag-over="handleDragOver">
-                                <div class="dropzone-text">
-                                <span class="dropzone-title">Drop file(s) here or click to select</span>
-                                </div>
-                                <input type="file" id="input" multiple @change="uploadFile">
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-        
+            </div>
         </div>
     </div>
   </div>
@@ -168,7 +158,9 @@ export default {
       this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
     },
     uploadFile: function() {
-      eventBus.$emit('upload-file');
+      let files = document.getElementById("file-upload").files;
+      console.log("Files:", files);
+      eventBus.$emit('upload-file', files);
     },
     fetchData: function() {
       eventBus.$emit('fetch-data');
@@ -202,9 +194,6 @@ export default {
 </script>
 
 <style scoped>
-.btn-files {
-  font-size: 11px;
-}
 .tabletop {
   margin: 0;
   padding: 0;
@@ -212,7 +201,8 @@ export default {
 
 .uploads-list,
 .getloads-list {
-  height: 125px;
+  height: auto;
+  max-height: 325px;
   overflow-y: scroll;
   background-color: whitesmoke;
 }
@@ -221,82 +211,45 @@ li {
   list-style: none;
 }
 
-.dropzone-area {
-  width: auto;
-  height: 175px;
-  position: relative;
-  border: 1.5px dashed white;
-  border-radius: 10px;
-}
-
-.dropzone-area:hover {
-  border: 1.5px dashed black;
-  color: black;
-  background-color: white;
-  border-radius: 10px;
-}
-
-.dropzone-area:hover .dropzone-title {
-  color: gray;
-}
-
-.dropzone-area input {
-  position: absolute;
-  cursor: pointer;
-  top: 0px;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-}
-
-.dropzone-text {
-  position: absolute;
-  top: 50%;
-  text-align: center;
-  transform: translate(0, -50%);
-  width: 100%;
-}
-
-.dropzone-text span {
-  display: block;
-  font-family: Arial, Helvetica;
-  line-height: 1.9;
-}
-
-.dropzone-title {
-  font-size: 13px;
-  color: black;
-  letter-spacing: 0.4px;
-}
-
-.dropzone-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: none;
-}
-
 th {
   text-align: center;
 }
 
-#right-panel-collapse {
+#file-panel-collapse {
       width: 100%;
   }
 
-#right-panel-collapse:hover {
+#file-panel-collapse:hover {
       cursor: pointer;
   }
 
- #file-panel-group {
-      padding: 10px;
-  }
+#file-panel-group {
+    background: rgba(0,0,0, 0.02);
+    height: 100%;
+    padding: 10px 0px;
+}
 
-  #files-bg {
-      background: rgba(0,0,0, 0.02);
-  }
-  
+#files-bg {
+    margin-bottom: 15px;
+}
+
+.btn-upload, .btn-fetch {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.btn-delete-all {
+  width: 100%;
+  padding: 2px;
+}
+
+.btn-select-all, .btn-unselect-all {
+  width: 100%;
+  padding: 2px;
+  margin: 5px 0px;
+}
+
+.btn-container {
+  padding: 0px;
+}
 </style>

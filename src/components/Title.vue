@@ -18,6 +18,6 @@
   background: white;
   border-bottom: 1px solid gainsboro;
   padding: 10px;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
 }
 </style>

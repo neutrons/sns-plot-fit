@@ -9,7 +9,7 @@ export default {
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
 
-            // console.log("Plotting data...");
+            console.log("Plotting data...");
             
             // Set isFit to check if a file is selected to fit
             var isFit = parameters.fileToFit !== null && parameters.fitConfiguration.fit !== 'None'
@@ -24,16 +24,23 @@ export default {
             var color = d3.scaleOrdinal(d3.schemeCategory20)
                 .domain(parameters.colorDomain);
 
+            // Pull plot's parent container width, this will be used to scale the plot responsively
+            var containerWidth = document.getElementById("plot-area").offsetWidth;
+
             //Set chart dimensions
             if(isFit) {
                 var margin = {
                     top: 50,
-                    right: 50, //this is to accomodate the right sidebar
-                    bottom: 150,
+                    right: 50,
+                    bottom: 100, // adjusts margin for slider
                     left: 50
                 };
-
-                var viewHeight = 650;
+                
+                // View Height is calculated on a 16:9 aspect ratio
+                // This is to properly adjust the plot to the container width
+                // This is mostly used when the user adjusts the browser 
+                // from small (mobile) to large (desktop) window sizes.
+                var viewHeight = containerWidth / (16/9);
                 var height = viewHeight - margin.top - margin.bottom;
             } else {
                 var margin = {
@@ -43,15 +50,12 @@ export default {
                     left: 50
                 };
 
-                var viewHeight = 550;
+                var viewHeight = containerWidth / (16/9);
                 var height = viewHeight - margin.top - margin.bottom;
             }
             
-            var containerWidth = document.getElementById("plot-area").offsetWidth;
-            console.log("container width = ", containerWidth);
+            
             var width = containerWidth - margin.left - margin.right;
-            //var height = 550 - margin.top - margin.bottom;
-
             var data = parameters.data; //regular data to plot
 
             // Filter any infinity values before plotting, this will happen when transforming log data = 0
@@ -61,9 +65,9 @@ export default {
             xScale.range([0,width]); //scales according to fit type
             var yScale = parameters.scales.yScale;
             yScale.range([height, 0]); //scales according to fit type
-            var xTitle = parameters.titles.xTitle; //xTitle according to label
-            var yTitle = parameters.titles.yTitle; //yTitle according to label
-            
+            var xTitle = parameters.fitConfiguration.xTransformation; //xTitle according to label
+            var yTitle = parameters.fitConfiguration.yTransformation; //yTitle according to label
+
             // Set scale domains
             xScale.domain(d3.extent(data, function (d) {
                 return d.x;
@@ -77,16 +81,15 @@ export default {
                 yAxis = d3.axisLeft(yScale).ticks(10).tickSize(-width);
 
             //Add tool tip and hide it until invoked
-            var tooltip = d3.select("#plot-area").append("div")
+            var tooltip = d3.select("#app-container").append("div")
                 .attr("class", "tooltip")
-                .style("opacity", 0)
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                .style("opacity", 0);
 
             //Add main chart area
             var viewbox = "0 0 " + containerWidth + " " + viewHeight;
             var svg = d3.select("#plot-area").append("svg")
                 .attr("viewBox", viewbox)
-                .attr("perserveAspectRatio","xMidYMid")
+                .attr("perserveAspectRatio","xMidYMid meet")
                 .attr("class", "sns-plot")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom);
@@ -132,30 +135,26 @@ export default {
                     return yScale(d.y);
                 });
             
-            
-
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
+                console.log("Setting up some stuff...");
 
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
 
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
-                var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
+                var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation, parameters.fitSettings);
                 var coefficients = fitResults.coefficients;
                 var dataFitted = fitResults.fittedData;
                 var fitError = fitResults.error;
-            
-                //var dataFitted = fd.fitData(dataToFit, parameters.fitConfiguration.equation);
-                // console.log("Data Fitted:", dataFitted);
 
                 var margin2 = {
-                    top: 525,
+                    top: 25,
                     right: 50,
-                    bottom: 100,
+                    bottom: 50,
                     left: 50
                 };
 
-                var height2 = 650 - margin2.top - margin2.bottom;
+                var height2 = 25;
 
                 var xScale2 = d3.scaleLinear().range([0, width]);
                 xScale2.domain(xScale.domain());
@@ -164,17 +163,15 @@ export default {
 
                 var slider = svg.append("g")
                     .attr("class", "slider")
-                    .attr("transform", "translate(" + margin2.left + "," + (margin2.top) + ")");
+                    .attr("transform", "translate(" + margin2.left + "," + (height + margin2.top + margin2.bottom) + ")");
     
                 var brush = d3.brushX()
                     .extent([
                         [0, 0],
                         [width, height2]
                     ])
-                    .on("brush end", brushed);
+                    .on("brush", brushed);
 
-                // var brushXScale = xScale;
-                // var brushYScale = yScale;
                 var brushPlotLine = plotLine;
 
                 // append scatter plot to brush chart area
@@ -227,7 +224,7 @@ export default {
             svg.append("text")
                 .attr("transform",
                     "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
-                    (height + margin.top + margin.bottom/1.5) + ")")
+                    (height + margin.top + margin.bottom) + ")")
                 .style("text-anchor", "middle")
                 .style("font-weight", "bold")
                 .text(xTitle);
@@ -281,8 +278,7 @@ export default {
                         return yScale(d.y + d.error);
                     })
                     .attr('y2', function (d) {
-                        if(d.y - d.error < 0 && parameters.titles.yTitle === "Log(Y)") {
-                            // console.log("Below zero! d.y = " + d.y + " | d.error = " + d.error + "| d.y - d.error = " + (d.y - d.error));
+                        if(d.y - d.error < 0 && yTitle === "Log(Y)") {
                             return yScale(d.y)
                         } else {
                             return yScale(d.y - d.error);
@@ -332,7 +328,7 @@ export default {
                     .attr("clip-path", "url(#clip)")
                     .attr('class', 'error-tick-bottom')
                     .filter( function(d) {
-                        if(parameters.titles.yTitle === "Log(Y)") {
+                        if(yTitle === "Log(Y)") {
                             return d.y - d.error > 0;
                         } else {
                             return true;
@@ -385,8 +381,8 @@ export default {
                                 .duration(200)
                                 .style("opacity", 1);
                             tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.error.toFixed(6))
-                                .style("left", (d3.event.pageX-300) + "px")
-                                .style("top", (d3.event.pageY-135) + "px");
+                                .style("top", (d3.event.pageY - 40) + "px")
+                                .style("left", (d3.event.pageX + 20) + "px");
                         })
                         .on("mouseout", function (d) {
                             d3.select(this).attr("r", 4);
@@ -394,7 +390,7 @@ export default {
                             tooltip.transition()
                                 .duration(500)
                                 .style("opacity", 0);
-                        });;
+                        });
 
                     // Add the Legend
                     var legend = plot.append("g");
@@ -452,10 +448,16 @@ export default {
                     coeffString += "</ul>";
                     return coeffString;
                 });
+
+                d3.select("li#fit-damping").html("<b>Damping: </b>" + parameters.fitSettings.damping);
+                d3.select("li#fit-iterations").html("<b>No. Iterations: </b>" + parameters.fitSettings.maxIterations);
+                d3.select("li#fit-tolerance").html("<b>Error Tolerance: </b>" + parameters.fitSettings.errorTolerance);
+                d3.select("li#fit-gradient").html("<b>Gradient Difference: </b>" + parameters.fitSettings.gradientDifference);
             }
 
             // Create brush function redraw scatterplot with selection
             function brushed() {
+                // console.log("Calling brush...");
                 var selection = d3.event.selection;
                 if (selection !== null) {
                     var e = d3.event.selection.map(xScale2.invert, xScale2);
@@ -473,20 +475,10 @@ export default {
                         return e[0] <= d.x && d.x <= e[1];
                     })
                     
-                    fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation);
+                    fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation, parameters.fitSettings);
                     coefficients = fitResults.coefficients;
                     dataFitted = fitResults.fittedData;
                     fitError = fitResults.error;
-                    // console.log("Data fitted:", dataFitted);
-                    // console.log("Coefficients:", coefficients);
-                    // Revise fit line function
-                    // var new_fitLine = d3.line()
-                    //     .x(function (d) {
-                    //         return brushXScale(d.x);
-                    //     })
-                    //     .y(function (d) {
-                    //         return brushYScale(d.y);
-                    //     });
 
                     //Add line plot
                     plot.select(".fitted-line")
@@ -565,7 +557,7 @@ export default {
                         return new_yScale(d.y + d.error);
                     })
                     .attr('y2', function (d) {
-                        if(d.y - d.error < 0 && parameters.titles.yTitle === "Log(Y)") {
+                        if(d.y - d.error < 0 && yTitle === "Log(Y)") {
                             // console.log("Below zero! d.y = " + d.y + " | d.error = " + d.error + "| d.y - d.error = " + (d.y - d.error));
                             return new_yScale(d.y)
                         } else {
@@ -591,7 +583,7 @@ export default {
                 //re-draw error tick bottom
                 errorlines.selectAll(".error-tick-bottom")
                     .filter( function(d) {
-                        if(parameters.titles.yTitle === "Log(Y)") {
+                        if(yTitle === "Log(Y)") {
                             return d.y - d.error > 0;
                         } else {
                             return true;

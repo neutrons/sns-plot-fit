@@ -2,69 +2,76 @@
   <div id="main">
     <div class="container-fluid">
 
-    <!--Pass variables to controls component-->
-        <app-controls
-        :BUTTONDIS="buttonDis"
-        :FILETOFIT="fileToFit"
-        :EQUATION="$data.currentConfiguration.equation"
-        ></app-controls>
+    <div id="left-sidebar" class="col-md-2">
+
+        <!--Pass variables to fileload component-->
+          <app-file-load
+          :BUTTONDIS="buttonDis"
+          :GETFILES="getFiles"
+          :UPLOADEDFILES="uploadedFiles"
+          :ISUPLOADED="isUploaded"
+          ></app-file-load>
+
+      <!--Pass variables to controls component-->
+          <app-controls
+          :BUTTONDIS="buttonDis"
+          :FILETOFIT="fileToFit"
+          :EQUATION="$data.currentConfiguration.equation"
+          :XTRANS="$data.currentConfiguration.xTransformation"
+          :YTRANS="$data.currentConfiguration.yTransformation"
+          ></app-controls>
+
+    </div>
         
-      <div id="plot-panel" class="col-md-8">
-        <div class="panel panel-default">
+      <div id="plot-panel" class="col-md-10">
+          <div class="panel-group">
 
-            <div class="panel-heading">Plot
-                <button class="btn btn-col btn-default btn-xs pull-right" data-toggle="collapse" href="#collapse-plot"></button>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="buttonDis" :disabled="!buttonDis">Reset Plot</button>
+                <div id="plot-panel-collapse">Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
+              </div>
             </div>
-            <div id="collapse-plot" class="panel-collapse collapse in">
-                <div class="panel-body">
-                  <div id="plot-area"></div>
-                  
-                  <!-- Fit Results Table to add fit results -->
-                  <div id="fit-results-table" class="table-responsive" v-show="fileToFit">          
-                    <table class="table table-bordered">
-                      <caption><h4>Fit Results:</h4></caption>
-                    
-                      <tbody>
-                      <tr>
-                        <td id="fit-file"></td>
-                        <td id="fit-type"></td>
-                        <td id="fit-points"></td>
-                        <td id="fit-range"></td>
-                        <td id="fit-error"></td>
-                      </tr>
-                    
-                        <tr>
-                          <td colspan="3" class="sub-heading">Fit Configuration:</td>
-                          <td colspan="2" class="sub-heading">Coefficients:</td>	
-                        </tr>
-                        <tr>
-                          <td colspan="3" id="fit-configs">
-                          <ul>
-                                <li id="fit-damping">Damping = 0.001</li>
-                                <li id="fit-iterations">No. Iterations = 200</li>
-                                <li id="fit-tolerance">Error Tolerance = 10e-3</li>
-                                <li id="fit-gradient">Gradient Difference = 10e-2</li>
-                            </ul>
-                          </td>
-                          <td colspan="2" id="fit-coefficients">
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    </div>
 
+            <div id="plot-collapse" class="panel-body">
+              <div id="plot-area"></div>
+              
+              <!-- Fit Results Table to add fit results -->
+              <div id="fit-results-table" class="table-responsive" v-show="fileToFit && currentConfiguration.fit !== 'None'">          
+                <table class="table table-bordered">
+                  <caption><h4>Fit Results:</h4></caption>
+                
+                  <tbody>
+                  <tr>
+                    <td id="fit-file"></td>
+                    <td id="fit-type"></td>
+                    <td id="fit-points"></td>
+                    <td id="fit-range"></td>
+                    <td id="fit-error"></td>
+                  </tr>
+                
+                    <tr>
+                      <td colspan="3" class="sub-heading">Fit Configuration:</td>
+                      <td colspan="2" class="sub-heading">Coefficients:</td>	
+                    </tr>
+                    <tr>
+                      <td colspan="3" id="fit-configs">
+                      <ul>
+                            <li id="fit-damping"></li>
+                            <li id="fit-iterations"></li>
+                            <li id="fit-tolerance"></li>
+                            <li id="fit-gradient"></li>
+                        </ul>
+                      </td>
+                      <td colspan="2" id="fit-coefficients">
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
                 </div>
-            </div>
+              </div>
         </div>
     </div>
-
-      <!--Pass variables to fileload component-->
-        <app-file-load
-        :BUTTONDIS="buttonDis"
-        :GETFILES="getFiles"
-        :UPLOADEDFILES="uploadedFiles"
-        :ISUPLOADED="isUploaded"
-        ></app-file-load>
       </div>
   </div>
 </template>
@@ -97,7 +104,9 @@ export default {
       eventBus.$on('set-equation', this.setEquation);
       eventBus.$on('set-scales', this.setScales);
       eventBus.$on('set-fit', this.setFit);
-      eventBus.$on('reset-plot', this.resetPlot);
+      eventBus.$on('set-fit-settings', this.setFitSettings);
+      eventBus.$on('set-transformations', this.setTransformations);
+      eventBus.$on('reset-transformation', this.resetTransformation);
 
       // Event hooks for 'FileLoad.vue'
       eventBus.$on('fetch-data', this.fetchData);
@@ -109,62 +118,21 @@ export default {
       eventBus.$on('disable-buttons', this.disableButtons);
     },
     mounted() {
-    // Code for Collapsible sidebars
-      var isLeft = false;
-      var isRight = false;
-
-      $('#left-panel-collapse').click(function(e) {
-          isLeft = !isLeft; //toggle isLeft
-          
-          if(!isLeft && !isRight) {
-              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-left pull-right"></span>');
-              $('#control-panel').toggleClass('col-md-2 col-md-1');
-              $("#control-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-8 col-md-9');
-          } else if (!isLeft && isRight) {
-              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-left pull-right"></span>');
-              $('#control-panel').toggleClass('col-md-2 col-md-1');
-              $("#control-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-9 col-md-10');
-          } else if (isLeft && !isRight) {
-              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-right pull-right"></span>');
-              $('#control-panel').toggleClass('col-md-1 col-md-2');
-              $("#control-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-9 col-md-8');
-          } else if (isLeft && isRight) {
-              $('#left-panel-collapse').html('Controls <span class="glyphicon glyphicon-menu-right pull-right"></span>');
-              $('#control-panel').toggleClass('col-md-1 col-md-2');
-              $("#control-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-10 col-md-9');
-          }
+    // Code for Collapsible panels
+      $('#plot-panel-collapse').click(function(e) {
+          $('#plot-panel-collapse').find('span').toggleClass('glyphicon-menu-up glyphicon-menu-down');
+          $("#plot-collapse").slideToggle(300);
       });
 
-      $('#right-panel-collapse').click(function(e) {
-          isRight = !isRight; //toggle isLeft
-          $('#right-panel-collapse').find('span').toggleClass('glyphicon-menu-right glyphicon-menu-left');
+      $('#control-panel-collapse').click(function(e) {
+          $('#control-panel-collapse').find('span').toggleClass('glyphicon-menu-up glyphicon-menu-down');
+          $("#control-panel-group").slideToggle(300);
+      });
 
-          if(!isRight && !isLeft) {
-              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-right pull-left"></span> Files');
-              $('#file-panel').toggleClass('col-md-2 col-md-1');
-              $("#file-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-8 col-md-9');
-          } else if (!isRight && isLeft) {
-              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-right pull-left"></span> Files');
-              $('#file-panel').toggleClass('col-md-2 col-md-1');
-              $("#file-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-9 col-md-10');
-          } else if (isRight && !isLeft) {
-              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-left pull-left"></span> Files');
-              $('#file-panel').toggleClass('col-md-1 col-md-2');
-              $("#file-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-9 col-md-8');
-          } else if (isRight && isLeft) {
-              $('#right-panel-collapse').html('<span class="glyphicon glyphicon-menu-left pull-left"></span> Files');
-              $('#file-panel').toggleClass('col-md-1 col-md-2');
-              $("#file-panel-group").slideToggle(300);
-              $('#plot-panel').toggleClass('col-md-10 col-md-9');
-          }
-});
+      $('#file-panel-collapse').click(function(e) {
+          $('#file-panel-collapse').find('span').toggleClass('glyphicon-menu-up glyphicon-menu-down');
+          $("#file-panel-group").slideToggle(300);
+      });
     },
     data: function () {
       return {
@@ -177,10 +145,6 @@ export default {
           yScale: d3.scaleLinear()
         },
         fileToFit: null,
-        titles: {
-          xTitle: 'X',
-          yTitle: 'Y'
-        },
         isUploaded: false,
         isCollapseRight: false,
         isCollapseLeft: false,
@@ -188,13 +152,12 @@ export default {
         plotParams: {},
         currentConfiguration: {
             fit: 'Linear',
-            equation: 'm*X+b',
+            equation: 'm*x+b',
             yTransformation: 'y',
             xTransformation: 'x',
             eTransformation: "e",
             yLabel: "I",
-            xLabel: "Q",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q"
         },
         fitConfigurations: {
           'None': {
@@ -204,68 +167,61 @@ export default {
             xTransformation: null,
             eTransformation: null,
             yLabel: "I",
-            xLabel: "Q",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q"
           },
           'Linear': {
             fit: 'Linear',
-            equation: 'm*X+b',
+            equation: 'm*x+b',
             yTransformation: 'y',
             xTransformation: 'x',
             eTransformation: "e",
             yLabel: "I",
-            xLabel: "Q",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q"
           },
           'Guinier': {
             fit: 'Guinier',
-            equation: "-Rg^2/3*X+b",
+            equation: "-Rg^2/3*x+b",
             yTransformation: "log(y)",
             xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
             yLabel: "Log(I)",
-            xLabel: "Log(Q)",
-            range: [-Infinity, +Infinity]
+            xLabel: "Log(Q)"
           },
           'Porod': {
             fit: 'Porod',
-            equation: "A-n*X",
+            equation: "A-n*x",
             yTransformation: "log(y)",
             xTransformation: "log(x)",
             eTransformation: "((1/x)*e)^2",
             yLabel: "Log(I)",
-            xLabel: "Log(Q)",
-            range: [-Infinity, +Infinity]
+            xLabel: "Log(Q)"
           },
           'Zimm': {
             fit: 'Zimm',
-            equation: "1/I0+Cl^2/I0*X",
+            equation: "1/I0+Cl^2/I0*x",
             yTransformation: "1/y",
             xTransformation: "x^2",
             eTransformation: "((-1/x^2)*e)^2",
             yLabel: "1/I",
-            xLabel: "Q^2",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q^2"
           },
           'Kratky': {
             fit: 'Kratky',
-            equation: "m*X+b",
+            equation: "m*x+b",
             yTransformation: "log(x^2*y)",
             xTransformation: "x^2",
             eTransformation: "((1/x)*e)^2",
             yLabel: "log(Q^2*I)",
-            xLabel: "Log(Q)",
-            range: [-Infinity, +Infinity]
+            xLabel: "Log(Q)"
           },
           'Debye Beuche': {
             fit: 'Debye Beuche',
-            equation: "m*X+I0",
+            equation: "m*x+I0",
             yTransformation: "sqrt(y)",
             xTransformation: "x^2",
             eTransformation: "(1/(2*sqrt(x))*e)^2",
             yLabel: "sqrt(I)",
-            xLabel: "Q^2",
-            range: [-Infinity, +Infinity]
+            xLabel: "Q^2"
           }
         },
         scaleConfigurations: {
@@ -275,6 +231,20 @@ export default {
           'Y': d3.scaleLinear(),
           'Y^2': d3.scalePow().exponent(2),
           'Log(Y)': d3.scaleLog()
+        },
+        defaultFitSettings: {
+          damping: 0.001,
+          initialValues: [],
+          gradientDifference: 0.1,
+          maxIterations: 100,
+          errorTolerance: 0.001
+        },
+        fitSettings: {
+          damping: 0.001,
+          initialValues: [],
+          gradientDifference: 0.1,
+          maxIterations: 100,
+          errorTolerance: 0.001
         }
       }
     },
@@ -328,8 +298,8 @@ export default {
           }
         }
       },
-      uploadFile: function () {
-        var files = document.getElementById("input").files;
+      uploadFile: function (files) {
+        //var files = document.getElementById("file-upload").files;
         var self = this;
 
         function loadFiles(file) {
@@ -385,6 +355,9 @@ export default {
             }
           };
         }
+
+        document.getElementById("file-upload").value = '';
+        // reset the file names so the last file uploaded & deleted can be uploaded again with no problems
       },
       checkDuplicateFile: function (filename) {
 
@@ -411,7 +384,6 @@ export default {
           // and reset to default values
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
-          d3.select(".fit-tooltip").remove();
 
           eventBus.$emit('reset-scales');
           eventBus.$emit('reset-fit');
@@ -463,7 +435,6 @@ export default {
                 } else {
                   this.selectedData.push(temp);
                 }
-                // this.selectedData.push(this.getFiles.find(a => a.fileName === el));
 
               } else if (this.uploadedFiles.find(a => a.fileName === el)) {
                 // console.log("Adding from uploaded file " + el);
@@ -479,17 +450,12 @@ export default {
                 } else {
                   this.selectedData.push(temp);
                 }
-                // this.selectedData.push(this.uploadedFiles.find(a => a.fileName === el));
               } else {
                 console.log("Uh oh shouldn't happen");
               }
               
             }
           };
-
-          // console.log("Selected Data", this.selectedData);
-          // console.log("length is " + this.selectedData.length);
-
         }
       },
       deleteFile: function (filename) {
@@ -510,8 +476,6 @@ export default {
         // console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
-        this.titles.xTitle = x;
-        this.titles.yTitle = y;
         this.scales.xScale = this.scaleConfigurations[x];
         this.scales.yScale = this.scaleConfigurations[y];
       },
@@ -537,7 +501,7 @@ export default {
         let temp = [];
         for (let i = 0; i < sd.length; i++) {
           // If a fit is set push transformed data, else push normal data
-          if(this.currentConfiguration.fit === 'None' || this.currentConfiguration.fit === 'Linear') {
+          if(this.fileToFit === null) {
             temp.push(sd[i].data);
           } else {
             temp.push(sd[i].dataTransformed);
@@ -554,12 +518,26 @@ export default {
           colorDomain: this.colorDomain,
           scales: this.scales,
           fileToFit: this.fileToFit,
-          titles: this.titles,
-          fitConfiguration: this.currentConfiguration
+          fitConfiguration: this.currentConfiguration,
+          fitSettings: this.fitSettings
         };
       },
       setEquation: function(eq) {
         this.currentConfiguration.equation = eq;
+      },
+      setTransformations: function(x,y) {
+        console.log("X: ", x);
+        this.currentConfiguration.xTransformation = x;
+        this.currentConfiguration.yTransformation = y;
+      },
+      setFitSettings: function(options) {
+        this.fitSettings = options;
+      },
+      resetTransformation: function() {
+        let xt = this.fitConfigurations[this.currentConfiguration.fit].xTransformation;
+        let yt = this.fitConfigurations[this.currentConfiguration.fit].yTransformation;
+        this.currentConfiguration.xTransformation = xt;
+        this.currentConfiguration.yTransformation = yt;
       }
     },
     watch: {
@@ -573,7 +551,16 @@ export default {
       fileToFit: function () {
         // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
         // If fileToFit is set to Null, don't transform anything and reset the fit to none
-        this.setParameters();
+        if(this.fileToFit === null) {
+          // Reset fit to Linear
+          eventBus.$emit("set-fit-back");
+          eventBus.$emit("set-fit-settings-back");
+          this.setFit("Linear"); 
+        } else {
+          this.selectedData.forEach( el => {
+              el.dataTransformed = fd.transformData(el, this.currentConfiguration);
+            });
+        }
       },
       selectedData: {
         handler: function() {
@@ -591,8 +578,9 @@ export default {
           // re-transform selected data according to 'xTransformation' and 'yTransformation'
           // then re-fit the 'dataToFit' according to the config's equation
           // console.log("Equation changed...", this.currentConfiguration.equation);
-          if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+          if(this.fileToFit !== null) {
             //When current data changes after selected
+            console.log("re-transforming...");
             this.selectedData.forEach( el => {
               el.dataTransformed = fd.transformData(el, this.currentConfiguration);
             })
@@ -618,6 +606,12 @@ export default {
         } else {
           this.isUploaded = false;
         }
+      },
+      fitSettings: {
+        handler: function() {
+          this.setParameters();
+        },
+        deep: true
       }
     }
   }

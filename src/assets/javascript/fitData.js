@@ -25,11 +25,10 @@ fd.transformData = function(data, configuration) {
         return t.data; // returns transformed data array
 }
 
-fd.fitData = function(data, equation) {
+fd.fitData = function(data, equation, fitsettings) {
     // Code to fit data on the transformed data
-    // console.log("Equation:", equation);
-    // console.log("Min X:", minX);
-    // console.log("Max X:", maxX);
+    let tempSettings = _.cloneDeep(fitsettings);
+
     let temp = _.cloneDeep(data);
     let tempData = {
         x: [],
@@ -47,7 +46,7 @@ fd.fitData = function(data, equation) {
     // here I'm getting all variables to fit and remove x!
     // May be the validation goes here
     var nodes_to_fit = n_parsed.filter(function(node) {
-    return node.isSymbolNode && node.name != 'X';
+    return node.isSymbolNode && node.name != 'x';
     });
 
 
@@ -56,25 +55,8 @@ fd.fitData = function(data, equation) {
     return node.name;
     });
 
-    // console.log("parameter_names_to_fit:", parameter_names_to_fit);
-
     // need to compile before evaluating
     var n_compiled = n_parsed.compile();
-
-    // fitting function
-    // Needs to be written like this because we have no idea
-    // What are the arguments that we getting
-    // Note that it returns a function that allows to vary x!
-    // var fit_function = new Function(parameter_names_to_fit,
-    //     'var scope = {};\
-    //     for (i = 0; i < arguments.length; i++) {\
-    //         scope[parameter_names_to_fit[i]] = arguments[i];\
-    //     }\
-    //     return function(x) {\
-    //         scope.x=x;\
-    //         return n_compiled.eval(scope);\
-    //     }'
-    // );
 
     var fit_function = function([...args]) {
         var scope = {};
@@ -85,7 +67,7 @@ fd.fitData = function(data, equation) {
         
         // console.log("Scope = ", scope);
         return function(x) {
-            scope.X = x;
+            scope.x = x;
             return n_compiled.eval(scope);
         }
     };
@@ -94,13 +76,8 @@ fd.fitData = function(data, equation) {
     var initialValues = parameter_names_to_fit.map(function (x, i) { return 1.0; });
     
     // LM options. We might need to adapt some of these values
-    const options = {
-        damping: 0.001,
-        initialValues: initialValues,
-        gradientDifference: 10e-2,
-        maxIterations: 200,
-        errorTolerance: 10e-3
-    };
+    tempSettings.initialValues = initialValues;
+    var options = _.cloneDeep(tempSettings);
 
     // Fitting   
     var fitted_params = LM(tempData, fit_function, options);
@@ -111,6 +88,7 @@ fd.fitData = function(data, equation) {
     // console.log("Error =", fitted_params.parameterError)
     // console.log("Iterations =", fitted_params.iterations)
     // console.log("--------------------------")
+
     // Get's the fitted function from the fitted parameters
     // only coefficients are set! Remember it returns a function!)
     // console.log("fitted_params.parameterValues = ", fitted_params.parameterValues);
@@ -124,7 +102,7 @@ fd.fitData = function(data, equation) {
 
     // Return the fitted values
     var fittedPoints = [];
-    // console.log("Fitted Length = " + y_fitted.length + " | X length = " + tempData.x.length);
+    
     for(let i = 0; i < y_fitted.length; i++) {
         fittedPoints.push({
             x: tempData.x[i],
@@ -136,9 +114,7 @@ fd.fitData = function(data, equation) {
     for(let i = 0; i < parameter_names_to_fit.length; i++) {
         coeff[parameter_names_to_fit[i]] = fitted_params.parameterValues[i];
     }
-    // console.log("Coefficients:", coeff);
-
-    // t = configuration.fit === "None" || configuration.fit === "Linear" ? t.data : t.dataTransformed;
+    
     return { fittedData: fittedPoints, coefficients: coeff, error: fitted_params.parameterError }; // Return fit data array
 }
 
