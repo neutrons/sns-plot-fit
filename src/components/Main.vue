@@ -23,55 +23,12 @@
 
     </div>
         
-      <div id="plot-panel" class="col-md-10">
-          <div class="panel-group">
-
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="buttonDis" :disabled="!buttonDis">Reset Plot</button>
-                <div id="plot-panel-collapse">Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
-              </div>
-            </div>
-
-            <div id="plot-collapse" class="panel-body">
-              <div id="plot-area"></div>
-              
-              <!-- Fit Results Table to add fit results -->
-              <div id="fit-results-table" class="table-responsive" v-show="fileToFit && currentConfiguration.fit !== 'None'">          
-                <table class="table table-bordered">
-                  <caption><h4>Fit Results:</h4></caption>
-                
-                  <tbody>
-                  <tr>
-                    <td id="fit-file"></td>
-                    <td id="fit-type"></td>
-                    <td id="fit-points"></td>
-                    <td id="fit-range"></td>
-                    <td id="fit-error"></td>
-                  </tr>
-                
-                    <tr>
-                      <td colspan="3" class="sub-heading">Fit Configuration:</td>
-                      <td colspan="2" class="sub-heading">Coefficients:</td>	
-                    </tr>
-                    <tr>
-                      <td colspan="3" id="fit-configs">
-                      <ul>
-                            <li id="fit-damping"></li>
-                            <li id="fit-iterations"></li>
-                            <li id="fit-tolerance"></li>
-                            <li id="fit-gradient"></li>
-                        </ul>
-                      </td>
-                      <td colspan="2" id="fit-coefficients">
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                </div>
-              </div>
-        </div>
-    </div>
+    <app-plot 
+      :PARAMS="plotParams" 
+      :BUTTONDIS="buttonDis"
+      :FILETOFIT="fileToFit"
+      :FITNAME="$data.currentConfiguration.fit"
+      ></app-plot>
       </div>
   </div>
 </template>
@@ -81,9 +38,9 @@ import * as d3 from 'd3';
 import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
 import $ from 'jquery';
-import plotCurrentData from '../assets/javascript/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
+import Plot from './Plot.vue';
 
 import fd from '../assets/javascript/fitData.js';
 
@@ -93,11 +50,11 @@ import fd from '../assets/javascript/fitData.js';
 import { eventBus } from '../assets/javascript/eventBus';
 
 export default {
-  name: 'main',
-  mixins: [plotCurrentData],
+    name: 'main',
     components: {
       'app-controls': Controls,
-      'app-file-load': FileLoad
+      'app-file-load': FileLoad,
+      'app-plot': Plot
     },
     created() {
       // Event hooks for 'Controls.vue'
@@ -369,9 +326,6 @@ export default {
         }
 
       },
-      resetPlot: function () {
-        this.plotParameters();
-      },
       disableButtons: function (bool) {
         this.buttonDis = bool;
       },
@@ -428,7 +382,7 @@ export default {
                 // console.log("Temp", temp);
                 temp.dataTransformed = [];
 
-                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                if(this.currentConfiguration.fit !== 'None') {
                   temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
                   // console.log("Temp data:", temp);
                   this.selectedData.push(temp);
@@ -443,7 +397,7 @@ export default {
                 let temp = _.cloneDeep(this.uploadedFiles.find(a => a.fileName === el));
                 temp.dataTransformed = [];
 
-                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                if(this.currentConfiguration.fit !== 'None') {
                   temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
                   // console.log("Temp data:", temp);
                   this.selectedData.push(temp);
@@ -489,7 +443,7 @@ export default {
         // then pass all parameters into an object
         // when plotting selected data
         if (this.selectedData.length > 0) {
-          this.plotCurrentData(this.plotParams);
+          eventBus.$emit("plot-data", this.plotParams);
         }
       },
       prepData: function (sd) {
@@ -596,7 +550,7 @@ export default {
       plotParams: function () {
         // Watch for any changes to plotParams, if so plot data
         if (this.selectedData.length > 0) {
-          this.plotCurrentData(this.plotParams);
+          eventBus.$emit("plot-data", this.plotParams);
         }
       },
       uploadedFiles: function () {
@@ -619,5 +573,4 @@ export default {
 
 <style scoped>
 @import '../assets/styles/main-component-styles.css';
-@import '../assets/styles/plot-styles.css';
 </style>
