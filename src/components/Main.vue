@@ -24,10 +24,8 @@
     </div>
         
     <app-plot 
-      :PARAMS="plotParams" 
       :BUTTONDIS="buttonDis"
       :FILETOFIT="fileToFit"
-      :FITNAME="$data.currentConfiguration.fit"
       ></app-plot>
       </div>
   </div>
@@ -120,9 +118,9 @@ export default {
           'None': {
             fit: 'None',
             equation: null,
-            yTransformation: null,
-            xTransformation: null,
-            eTransformation: null,
+            yTransformation: 'y',
+            xTransformation: 'x',
+            eTransformation: 'e',
             yLabel: "I",
             xLabel: "Q"
           },
@@ -336,6 +334,7 @@ export default {
           // If no data is selected to be plotted, then
           // remove any elements previously plotted
           // and reset to default values
+          console.log("Removing plot elements...");
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
 
@@ -380,13 +379,14 @@ export default {
                 // Set temp file for get
                 let temp = _.cloneDeep(this.getFiles.find(a => a.fileName === el));
                 // console.log("Temp", temp);
-                temp.dataTransformed = [];
+                // temp.dataTransformed = [];
 
-                if(this.currentConfiguration.fit !== 'None') {
+                if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                   temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
                   // console.log("Temp data:", temp);
                   this.selectedData.push(temp);
                 } else {
+                  temp.dataTransformed = _.cloneDeep(temp.data);
                   this.selectedData.push(temp);
                 }
 
@@ -395,13 +395,14 @@ export default {
                 
                 // Set temp file for uploaded
                 let temp = _.cloneDeep(this.uploadedFiles.find(a => a.fileName === el));
-                temp.dataTransformed = [];
+                // temp.dataTransformed = [];
 
-                if(this.currentConfiguration.fit !== 'None') {
+                if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                   temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
                   // console.log("Temp data:", temp);
                   this.selectedData.push(temp);
                 } else {
+                  temp.dataTransformed = _.cloneDeep(temp.data);
                   this.selectedData.push(temp);
                 }
               } else {
@@ -446,11 +447,7 @@ export default {
         let temp = [];
         for (let i = 0; i < sd.length; i++) {
           // If a fit is set push transformed data, else push normal data
-          if(this.fileToFit === null) {
-            temp.push(sd[i].data);
-          } else {
             temp.push(sd[i].dataTransformed);
-          }
         }
         // console.log("Temp", temp);
         return d3.merge(temp);
@@ -458,20 +455,33 @@ export default {
       setParameters: function () {
         // Function to wrap up all the parameters needed for plotting
         // console.log("Data", this.selectedData);
-        this.plotParams = {
-          data: this.prepData(this.selectedData),
-          colorDomain: this.colorDomain,
-          scales: this.scales,
-          fileToFit: this.fileToFit,
-          fitConfiguration: this.currentConfiguration,
-          fitSettings: this.fitSettings
-        };
+        if(this.selectedData.length > 0) {
+          eventBus.$emit("set-parameters", {
+            data: this.prepData(this.selectedData),
+            colorDomain: this.colorDomain,
+            scales: this.scales,
+            fileToFit: this.fileToFit,
+            fitConfiguration: this.currentConfiguration,
+            fitSettings: this.fitSettings
+          });
+        } else {
+          console.log("No data to plot...");
+        }
+
+        // this.plotParams = {
+        //   data: this.prepData(this.selectedData),
+        //   colorDomain: this.colorDomain,
+        //   scales: this.scales,
+        //   fileToFit: this.fileToFit,
+        //   fitConfiguration: this.currentConfiguration,
+        //   fitSettings: this.fitSettings
+        // };
       },
       setEquation: function(eq) {
         this.currentConfiguration.equation = eq;
       },
       setTransformations: function(x,y) {
-        console.log("X: ", x);
+        //console.log("X: ", x);
         this.currentConfiguration.xTransformation = x;
         this.currentConfiguration.yTransformation = y;
       },
@@ -523,32 +533,20 @@ export default {
           // re-transform selected data according to 'xTransformation' and 'yTransformation'
           // then re-fit the 'dataToFit' according to the config's equation
           // console.log("Equation changed...", this.currentConfiguration.equation);
-          if(this.fileToFit !== null) {
+          if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
             //When current data changes after selected
             console.log("re-transforming...");
-            if(this.currentConfiguration.fit !== 'None') {
               this.selectedData.forEach( el => {
                 el.dataTransformed = fd.transformData(el, this.currentConfiguration);
               });
-            } else {
-              this.selectedData.forEach( el => {
-                el.dataTransformed = el.data;
-              });
-            }
             // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
           } else {
             this.selectedData.forEach( el => {
-              el.dataTransformed = []; // reset since transformed data is 'None' or 'Linear'
+              el.dataTransformed = _.cloneDeep(el.data); // reset since transformed data is 'None' or 'Linear'
             });
           }
         },
         deep: true
-      },
-      plotParams: function () {
-        // Watch for any changes to plotParams, if so plot data
-        if (this.selectedData.length > 0) {
-          eventBus.$emit("plot-data", this.plotParams);
-        }
       },
       uploadedFiles: function () {
         // Watch if a file has been uploaded, if so enable delete file buttons

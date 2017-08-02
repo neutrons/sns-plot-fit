@@ -34,15 +34,15 @@
                 <!-- X and Y Transformation Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" href="#collapse-transformations">Fit Transformations</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-transformations">Transformations</a>
                     </div>
                     <div id="collapse-transformations" class="panel-collapse collapse">
                         <div class="panel-body">
                             <p class="transformation-title">X:</p>
-                            <input type="text" class="form-control" :value="XTRANS" id="x-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                            <input type="text" class="form-control" :value="XTRANS" id="x-transform" @keyup.enter="enterTransformations" :disabled="!BUTTONDIS" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
                             <br>
                             <p class="transformation-title">Y:</p>
-                            <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                            <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" :disabled="!BUTTONDIS" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
                             <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
                             <p class="equation-title alert alert-danger" v-if="isError">
                                 Error:
@@ -70,6 +70,11 @@
                             <p class="equation-title">Equation:</p>
                             <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT" @focus="isFocus = !isFocus" @blur="isFocus = !isFocus">
                             <p class="equation-title" v-if="isFocus">Press <strong>[enter]</strong> to change equation</p>
+                            <!-- Section on Editing Coefficients -->
+                            <ul id="coefficients-list" v-if="isCoefficients">
+                                <p class="equation-title">Coefficients:</p>
+                                <li v-for="(coef, key) in coefficients">{{ key }} : <input :id="key + '-input'" class="form-control" type="text" :value="coef" @keyup.enter="enterCoefficients" /></li>
+                            </ul>
                             <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit" :disabled="!FILETOFIT">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
                         </div>
                     </div>
@@ -122,6 +127,7 @@ export default {
       isFocus: false,
       isTransFocus: false,
       isError: false,
+      coefficients: {},
       xScale: 'X',
       xScales: ["X", "X^2", "Log(X)"],
       yScale: 'Y',
@@ -136,6 +142,11 @@ export default {
         errorTolerance: 0.001
       }
     }
+  },
+  computed: {
+      isCoefficients: function() {
+          return Object.keys(this.coefficients).length > 0;
+      }
   },
   methods: {
     resetScales: function() {
@@ -161,9 +172,24 @@ export default {
         } else {
             this.isError = false;
             console.log("Changing transformations...");
-            console.log("New transformations", newXTrans, newYTrans);
+            console.log("New transformations X", newXTrans);
+            console.log("New transformation y", newYTrans);
             eventBus.$emit('set-transformations', newXTrans, newYTrans);
         }
+    },
+    enterCoefficients: function() {
+        console.log("Entering coefficients...");
+        let c = [];
+        for(let key in this.coefficients) {
+            let val = document.getElementById(key+"-input").value;
+            //this.coefficients[key] = val;
+            c.push(val);
+        }
+
+        eventBus.$emit("coefficients-updated", _.cloneDeep(c));
+    },
+    updateCoefficients: function(coeff) {
+        this.coefficients = coeff;
     },
     resetPlot: function() {
       eventBus.$emit('reset-plot');
@@ -193,7 +219,8 @@ export default {
   },
   watch: {
     fit: function() {
-      eventBus.$emit('set-fit', this.fit);
+        if(this.fit === 'None') this.coefficients = {};
+        eventBus.$emit('set-fit', this.fit);
     }
   },
   created() {
@@ -201,6 +228,9 @@ export default {
     eventBus.$on('reset-scales', this.resetScales);
     eventBus.$on('set-fit-back', this.setFitBack);
     eventBus.$on('set-fit-settings-back', this.resetSettings);
+
+    //Listen to emit from plotCurrentData.js
+    eventBus.$on('update-coefficients', this.updateCoefficients);
   }
 }
 </script>

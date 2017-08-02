@@ -20,6 +20,7 @@ fd.transformData = function(data, configuration) {
                 // math.eval spits out an array of transformed [x,y] values
                 // so d.x = math.eval()[0], d.y = math.eval()[1]
                 [el.x, el.y, el.e] = math.eval(exp, el);
+                console.log("El", el);
             });
         
         return t.data; // returns transformed data array
@@ -115,7 +116,7 @@ fd.fitData = function(data, equation, fitsettings) {
         coeff[parameter_names_to_fit[i]] = fitted_params.parameterValues[i];
     }
     
-    return { fittedData: fittedPoints, coefficients: coeff, error: fitted_params.parameterError }; // Return fit data array
+    return { fittedData: fittedPoints, coefficients: coeff, error: fitted_params.parameterError, fitEquation: fit_function }; // Return fit data array
 }
 
 export default fd;

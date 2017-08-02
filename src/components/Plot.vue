@@ -14,7 +14,7 @@
               <div id="plot-area"></div>
               
               <!-- Fit Results Table to add fit results -->
-              <div id="fit-results-table" class="table-responsive" v-show="FILETOFIT && FITNAME !== 'None'">          
+              <div id="fit-results-table" class="table-responsive" v-show="FILETOFIT && fitName !== 'None'">          
                 <table class="table table-bordered">
                   <caption><h4>Fit Results:</h4></caption>
                 
@@ -65,14 +65,19 @@ import fd from '../assets/javascript/fitData';
 
 export default {
     name: 'Plot',
-    props: ["PARAMS", "FILETOFIT", "BUTTONDIS", "FITNAME"],
+    props: ["FILETOFIT", "BUTTONDIS"],
     data: function() {
         return {
-
+            fitEquation: null,
+            fitLineFunction: null,
+            fitResults: null,
+            plotParams: {}
         }
     },
     computed: {
-
+        fitName: function() {
+            return this.plotParams.fitConfiguration.fit;
+        }
     },
     methods: {
         plotData: function (parameters) {
@@ -217,6 +222,9 @@ export default {
                 var coefficients = fitResults.coefficients;
                 var dataFitted = fitResults.fittedData;
                 var fitError = fitResults.error;
+                
+                // Assign new fit equation to property data
+                this.fitEquation = fitResults.fitEquation;
 
                 var margin2 = {
                     top: 25,
@@ -244,6 +252,8 @@ export default {
                     .on("brush", brushed);
 
                 var brushPlotLine = plotLine;
+                // Assign property data for fitline
+                this.fitLineFunction = brushPlotLine;
 
                 // append scatter plot to brush chart area
                 var sliderdots = slider.append("g");
@@ -551,6 +561,13 @@ export default {
                     dataFitted = fitResults.fittedData;
                     fitError = fitResults.error;
 
+                    // Re-assign updated fit equation and fitline function
+                    this.fitEquation = fitResults.fitEquation;
+                    this.fitLineFunction = brushPlotLine;
+
+                    //Emit coefficients to controls panel
+                    eventBus.$emit('update-coefficients', coefficients);
+
                     //Add line plot
                     plot.select(".fitted-line")
                         .attr("d", brushPlotLine(dataFitted));
@@ -720,11 +737,58 @@ export default {
 
     },
     resetPlot: function () {
-        this.plotData(this.PARAMS);
+        this.plotData(this.plotParams);
+    },
+    redrawFit: function(c) {
+        console.log("Coefficients are:", c);
+        let temp = d3.select(".fitted-line").datum();
+        let tempX = [];
+
+        temp.forEach(function(d) {
+            tempX.push(d.x);
+        });
+
+        let newFitEq = this.fitEquation(c);
+
+        let y_fitted = tempX.map(function(el) {
+            return newFitEq(el);
+        });
+
+        // console.log('y_fitted =', y_fitted);
+
+        // Return the fitted values
+        let fittedPoints = [];
+        
+        for(let i = 0; i < y_fitted.length; i++) {
+            fittedPoints.push({
+                x: tempX[i],
+                y: y_fitted[i]
+            });
+        }
+
+        d3.select(".fitted-line").data([fittedPoints])
+            .attr("d", this.fitLineFunction);
+    },
+    setParameters: function(parameters) {
+        this.plotParams = _.cloneDeep(parameters);
     }
 },
 created() {
-        eventBus.$on("plot-data", this.plotData);
+        //eventBus.$on("plot-data", this.plotData);
+
+        //Listen for cofficient changes
+        eventBus.$on("coefficients-updated", this.redrawFit);
+
+        // Listen for events form Main.vue
+        eventBus.$on('set-parameters', this.setParameters);
+    },
+    watch: {
+        plotParams: {
+            handler: function() {
+                this.$nextTick(function() { this.plotData(this.plotParams);});
+            },
+            deep: true
+        }
     }
 }
 </script>
