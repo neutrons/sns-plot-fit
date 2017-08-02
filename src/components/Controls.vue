@@ -9,12 +9,12 @@
             </div>
             <div id="control-panel-group">
 
-                <div class="panel-group" id="accordion-control">
+                <div class="panel-group">
 
                 <!-- Scales Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-scales">Scales</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-scales">Scales</a>
                     </div>
                     <div id="collapse-scales" class="panel-collapse collapse in">
                         <div class="panel-body">
@@ -34,7 +34,7 @@
                 <!-- X and Y Transformation Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-transformations">Fit Transformations</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-transformations">Fit Transformations</a>
                     </div>
                     <div id="collapse-transformations" class="panel-collapse collapse">
                         <div class="panel-body">
@@ -60,7 +60,7 @@
                 <!-- Fitting Selections Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-fit">Fit</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-fit">Fit</a>
                     </div>
                     <div id="collapse-fit" class="panel-collapse collapse">
                         <div class="panel-body">
@@ -78,7 +78,7 @@
                 <!-- Fit Settings Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-fit-settings">Levenberg–Marquardt Parameters</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-fit-settings">Levenberg–Marquardt Parameters</a>
                     </div>
                     <div id="collapse-fit-settings" class="panel-collapse collapse">
                         <div class="panel-body">

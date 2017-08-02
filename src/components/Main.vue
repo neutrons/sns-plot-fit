@@ -535,9 +535,15 @@ export default {
           if(this.fileToFit !== null) {
             //When current data changes after selected
             console.log("re-transforming...");
-            this.selectedData.forEach( el => {
-              el.dataTransformed = fd.transformData(el, this.currentConfiguration);
-            })
+            if(this.currentConfiguration.fit !== 'None') {
+              this.selectedData.forEach( el => {
+                el.dataTransformed = fd.transformData(el, this.currentConfiguration);
+              });
+            } else {
+              this.selectedData.forEach( el => {
+                el.dataTransformed = el.data;
+              });
+            }
             // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
           } else {
             this.selectedData.forEach( el => {
