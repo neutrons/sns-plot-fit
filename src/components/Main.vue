@@ -437,15 +437,6 @@ export default {
         //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
         this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]);
       },
-      plotParameters: function () {
-
-        // Make sure there is selected data to plot
-        // then pass all parameters into an object
-        // when plotting selected data
-        if (this.selectedData.length > 0) {
-          eventBus.$emit("plot-data", this.plotParams);
-        }
-      },
       prepData: function (sd) {
         // This function is to prepare the data before calling 'plotCurrentData' function
         // The initial array has multiple arrays with objects inside,

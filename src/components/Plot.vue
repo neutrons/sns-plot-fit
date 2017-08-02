@@ -72,9 +72,7 @@ export default {
         }
     },
     computed: {
-        isFit: function() {
-            return this.PARAMS.fileToFit !== null && this.PARAMS.fitConfiguration.fit !== 'None'
-        }
+
     },
     methods: {
         plotData: function (parameters) {
