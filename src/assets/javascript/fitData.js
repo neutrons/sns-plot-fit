@@ -14,11 +14,17 @@ fd.transformData = function(data, configuration) {
         // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
         let t = _.cloneDeep(data);
         var exp = [configuration.xTransformation, configuration.yTransformation, configuration.eTransformation];
+        // var expX = configuration.xTransformation;
+        // var expY = configuration.yTransformation;
+        // var expX = configuration.xTransformation;
         
         t.data.forEach( (el) => {      
                 // Re-assign the transformed data to x and y
                 // math.eval spits out an array of transformed [x,y] values
                 // so d.x = math.eval()[0], d.y = math.eval()[1]
+                // el.x = math.eval(expX, el);
+                // el.y = math.eval(expY, el);
+                // el.x = math.eval(expX, el);
                 [el.x, el.y, el.e] = math.eval(exp, el);
                 console.log("El", el);
             });
