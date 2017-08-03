@@ -71,7 +71,8 @@ export default {
             fitEquation: null,
             fitLineFunction: null,
             fitResults: null,
-            plotParams: {}
+            plotParams: {},
+            fitData: null
         }
     },
     computed: {
@@ -220,7 +221,7 @@ export default {
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
                 var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation, parameters.fitSettings);
                 var coefficients = fitResults.coefficients;
-                var dataFitted = fitResults.fittedData;
+                this.fitData = fitResults.fittedData;
                 var fitError = fitResults.error;
                 
                 // Assign new fit equation to property data
@@ -508,7 +509,7 @@ export default {
                 plot.append("path")
                     .attr("clip-path", "url(#clip)")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    .datum(dataFitted)
+                    .datum(this.fitData)
                     .attr("class", "fitted-line")
                     .attr("d", plotLine)
                     .style("fill", "none")
@@ -558,7 +559,7 @@ export default {
                     
                     fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation, parameters.fitSettings);
                     coefficients = fitResults.coefficients;
-                    dataFitted = fitResults.fittedData;
+                    this.fitData = fitResults.fittedData;
                     fitError = fitResults.error;
 
                     // Re-assign updated fit equation and fitline function
@@ -569,8 +570,8 @@ export default {
                     eventBus.$emit('update-coefficients', coefficients);
 
                     //Add line plot
-                    plot.select(".fitted-line")
-                        .attr("d", brushPlotLine(dataFitted));
+                    plot.select(".fitted-line").data([this.fitData])
+                        .attr("d", brushPlotLine);
 
                     // Revise fit results below chart
                     d3.select("td#fit-file").html("<b>File: </b>" + parameters.fileToFit);
@@ -630,7 +631,7 @@ export default {
 
                     // Re-draw fitted line
                     plot.select(".fitted-line")
-                        .attr("d", new_plotLine(dataFitted));
+                        .attr("d", new_plotLine);
                 }
 
                 //re-draw error
