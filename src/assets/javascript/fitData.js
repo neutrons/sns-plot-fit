@@ -18,7 +18,7 @@ fd.transformData = function(data, configuration) {
         // var expY = configuration.yTransformation;
         // var expX = configuration.xTransformation;
         
-        t.dataTransformed.forEach( (el) => {      
+        t.data.forEach( (el) => {      
                 // Re-assign the transformed data to x and y
                 // math.eval spits out an array of transformed [x,y] values
                 // so d.x = math.eval()[0], d.y = math.eval()[1]
@@ -28,8 +28,8 @@ fd.transformData = function(data, configuration) {
                 [el.x, el.y, el.e] = math.eval(exp, el);
                 // console.log("El", el);
             });
-       
-        return t.dataTransformed; // returns transformed data array
+        
+        return t.data; // returns transformed data array
 }
 
 fd.fitData = function(data, equation, fitsettings) {
