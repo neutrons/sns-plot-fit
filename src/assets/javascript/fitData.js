@@ -14,22 +14,48 @@ fd.transformData = function(data, configuration) {
         // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
         let t = _.cloneDeep(data);
         var exp = [configuration.xTransformation, configuration.yTransformation, configuration.eTransformation];
-        // var expX = configuration.xTransformation;
-        // var expY = configuration.yTransformation;
-        // var expX = configuration.xTransformation;
+       
+       
+        // Mathjs to parse each transformation into a node
+        var node_parsed = math.parse(transformations);
+        //console.log("Parsed Nodes", node_parsed);
+
+        // Check if any transformations symbols other than x or y
+        if(isSymbols(node_parsed)) {
+            console.log("Error!");
+        } else {
+            console.log("You're good!");
+            t.data.forEach( (el) => {      
+                    // Re-assign the transformed data to x and y
+                    // math.eval spits out an array of transformed [x,y] values
+                    // so d.x = math.eval()[0], d.y = math.eval()[1]
+                    // el.x = math.eval(expX, el);
+                    // el.y = math.eval(expY, el);
+                    // el.x = math.eval(expX, el);
+                    [el.x, el.y, el.e] = math.eval(exp, el);
+                    // console.log("El", el);
+                });
+            
+            return t.data; // returns transformed data array
+        }
         
-        t.data.forEach( (el) => {      
-                // Re-assign the transformed data to x and y
-                // math.eval spits out an array of transformed [x,y] values
-                // so d.x = math.eval()[0], d.y = math.eval()[1]
-                // el.x = math.eval(expX, el);
-                // el.y = math.eval(expY, el);
-                // el.x = math.eval(expX, el);
-                [el.x, el.y, el.e] = math.eval(exp, el);
-                // console.log("El", el);
-            });
-        
-        return t.data; // returns transformed data array
+
+
+        // Function to check that user did not enter a transformation that doesn't include 'x' or 'y'
+        // E.g. x*2+c would throw an error
+        function isSymbols(node) {
+            var result = 0;
+            node.forEach(function(el) {
+                
+                var t = el.filter(function(n) {
+                    return n.isSymbolNode;
+                });
+                
+                t.forEach( el => result += (el.name !== 'y' && el.name !=='x'));
+            }); 
+            
+            return result > 0 ? true : false;
+        }
 }
 
 fd.fitData = function(data, equation, fitsettings) {
