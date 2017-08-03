@@ -72,7 +72,8 @@ export default {
             fitLineFunction: null,
             fitResults: null,
             plotParams: {},
-            fitData: null
+            fitData: null,
+            brushSelection: null
         }
     },
     computed: {
@@ -244,11 +245,13 @@ export default {
                 var slider = svg.append("g")
                     .attr("class", "slider")
                     .attr("transform", "translate(" + margin2.left + "," + (height + margin2.top + margin2.bottom) + ")");
+                
+                if(this.brushSelection === null) this.brushSelection = [0, width];
 
                 var brush = d3.brushX()
                     .extent([
-                        [0, 0],
-                        [width, height2]
+                        [this.brushSelection[0], 0],
+                        [this.brushSelection[1], height2]
                     ])
                     .on("brush", brushed);
 
@@ -540,9 +543,10 @@ export default {
             // Create brush function redraw scatterplot with selection
             function brushed() {
                 // console.log("Calling brush...");
-                var selection = d3.event.selection;
-                if (selection !== null) {
-                    var e = d3.event.selection.map(xScale2.invert, xScale2);
+                // var selection = d3.event.selection;
+                this.brushSelection = d3.event.selection;
+                if (this.brushSelection !== null) {
+                    var e = this.brushSelection.map(xScale2.invert, xScale2);
 
                     slider.selectAll(".dotslider")
                         .style("stroke", function (d) {
