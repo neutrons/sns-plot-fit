@@ -28,11 +28,12 @@
                   </tr>
                 
                     <tr>
-                      <td colspan="3" class="sub-heading">Fit Configuration:</td>
+                      <td colspan="2" class="sub-heading">Fit Configuration:</td>
                       <td colspan="2" class="sub-heading">Coefficients:</td>	
+                      <td colspan="1" class="sub-heading">Note:</td>
                     </tr>
                     <tr>
-                      <td colspan="3" id="fit-configs">
+                      <td colspan="2" id="fit-configs">
                       <ul>
                             <li id="fit-damping"></li>
                             <li id="fit-iterations"></li>
@@ -41,6 +42,8 @@
                         </ul>
                       </td>
                       <td colspan="2" id="fit-coefficients">
+                      </td>
+                      <td colspan="1" id="fit-note">
                       </td>
                     </tr>
                   </tbody>
@@ -553,6 +556,8 @@ export default {
                 d3.select("li#fit-iterations").html("<b>No. Iterations: </b>" + parameters.fitSettings.maxIterations);
                 d3.select("li#fit-tolerance").html("<b>Error Tolerance: </b>" + parameters.fitSettings.errorTolerance);
                 d3.select("li#fit-gradient").html("<b>Gradient Difference: </b>" + parameters.fitSettings.gradientDifference);
+
+                d3.select("#fit-note").html(parameters.fitConfiguration.note);
             }
 
             // Create brush function redraw scatterplot with selection
