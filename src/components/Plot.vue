@@ -69,20 +69,25 @@ export default {
     data: function() {
         return {
             fitEquation: null,
-            fitLineFunction: null,
+            plotLine: null,
             fitResults: null,
             plotParams: {},
-            fitData: null,
-            brushSelection: null
+            fitData: null
         }
     },
     computed: {
         fitName: function() {
             return this.plotParams.fitConfiguration.fit;
+        },
+        isFit: function() {
+            return this.plotParams.fileToFit !== null && this.plotParams.fitConfiguration.fit !== 'None';
         }
     },
     methods: {
         plotData: function (parameters) {
+            //Setting 'this' as global when calling vue data variables inside nested functions
+            var self = this;
+
             //Remove any elements previously plotted
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
@@ -90,7 +95,7 @@ export default {
             console.log("Plotting data...");
             
             // Set isFit to check if a file is selected to fit
-            var isFit = parameters.fileToFit !== null && parameters.fitConfiguration.fit !== 'None'
+            var isFit = self.isFit;
 
             // Set Color Scale
             // color domain is set in order for filenames to have
@@ -205,7 +210,7 @@ export default {
                 .attr("class", "chart");
 
             //Add a Line Plot Function
-            var plotLine = d3.line()
+            self.plotLine = d3.line()
                 .x(function (d) {
                     return xScale(d.x);
                 })
@@ -222,11 +227,11 @@ export default {
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
                 var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation, parameters.fitSettings);
                 var coefficients = fitResults.coefficients;
-                this.fitData = fitResults.fittedData;
+                self.fitData = fitResults.fittedData;
                 var fitError = fitResults.error;
                 
                 // Assign new fit equation to property data
-                this.fitEquation = fitResults.fitEquation;
+                //this.fitEquation = fitResults.fitEquation;
 
                 var margin2 = {
                     top: 25,
@@ -245,23 +250,20 @@ export default {
                 var slider = svg.append("g")
                     .attr("class", "slider")
                     .attr("transform", "translate(" + margin2.left + "," + (height + margin2.top + margin2.bottom) + ")");
-                
-                if(this.brushSelection === null) this.brushSelection = [0, width];
 
                 var brush = d3.brushX()
                     .extent([
-                        [this.brushSelection[0], 0],
-                        [this.brushSelection[1], height2]
+                        [0, 0],
+                        [width, height2]
                     ])
                     .on("brush", brushed);
 
-                var brushPlotLine = plotLine;
+                //var brushPlotLine = plotLine;
                 // Assign property data for fitline
-                this.fitLineFunction = brushPlotLine;
+                //self.fitLineFunction = brushPlotLine;
 
                 // append scatter plot to brush chart area
-                var sliderdots = slider.append("g");
-                sliderdots.selectAll("dotslider")
+                slider.append("g").selectAll("dotslider")
                     .data(dataToFit)
                     .enter().append("line")
                     .attr('class', 'dotslider')
@@ -271,14 +273,15 @@ export default {
                     .attr("y2", 0);
 
                 slider.append("g")
+                    .attr("class", "brush")
+                    .call(brush)
+                    .call(brush.move, xScale.range());
+                
+                slider.append("g")
                     .attr("class", "axis axis--x")
                     .attr("transform", "translate(0," + height2 + ")")
                     .call(xAxis2);
 
-                slider.append("g")
-                    .attr("class", "brush")
-                    .call(brush)
-                    .call(brush.move, xScale.range());
             }
 
             /* END OF IS FIT SETUP*/
@@ -339,7 +342,7 @@ export default {
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                     .datum(d.values)
                     .attr("class", "pointlines")
-                    .attr("d", plotLine)
+                    .attr("d", self.plotLine)
                     .style("fill", "none")
                     .style("stroke", function () {
                         return d.color = color(d.key);
@@ -512,9 +515,9 @@ export default {
                 plot.append("path")
                     .attr("clip-path", "url(#clip)")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    .datum(this.fitData)
+                    .datum(self.fitData)
                     .attr("class", "fitted-line")
-                    .attr("d", plotLine)
+                    .attr("d", self.plotLine)
                     .style("fill", "none")
                     .style("stroke", color(parameters.fileToFit));
 
@@ -543,10 +546,9 @@ export default {
             // Create brush function redraw scatterplot with selection
             function brushed() {
                 // console.log("Calling brush...");
-                // var selection = d3.event.selection;
-                this.brushSelection = d3.event.selection;
-                if (this.brushSelection !== null) {
-                    var e = this.brushSelection.map(xScale2.invert, xScale2);
+                var selection = d3.event.selection;
+                if (selection !== null) {
+                    var e = d3.event.selection.map(xScale2.invert, xScale2);
 
                     slider.selectAll(".dotslider")
                         .style("stroke", function (d) {
@@ -563,19 +565,19 @@ export default {
                     
                     fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation, parameters.fitSettings);
                     coefficients = fitResults.coefficients;
-                    this.fitData = fitResults.fittedData;
+                    self.fitData = fitResults.fittedData;
                     fitError = fitResults.error;
 
                     // Re-assign updated fit equation and fitline function
-                    this.fitEquation = fitResults.fitEquation;
-                    this.fitLineFunction = brushPlotLine;
+                    self.fitEquation = fitResults.fitEquation;
+                    //self.fitLineFunction = brushPlotLine;
 
                     //Emit coefficients to controls panel
                     eventBus.$emit('update-coefficients', coefficients);
 
                     //Add line plot
-                    plot.select(".fitted-line").data([this.fitData])
-                        .attr("d", brushPlotLine);
+                    plot.select(".fitted-line").data([self.fitData])
+                        .attr("d", self.plotLine);
 
                     // Revise fit results below chart
                     d3.select("td#fit-file").html("<b>File: </b>" + parameters.fileToFit);
@@ -618,7 +620,7 @@ export default {
                     });
 
                 //re-draw line
-                var new_plotLine = d3.line()
+                self.plotLine = d3.line()
                     .x(function (d) {
                         return new_xScale(d.x);
                     })
@@ -627,15 +629,15 @@ export default {
                     });
 
                 plot.selectAll(".pointlines")
-                    .attr("d", new_plotLine);
+                    .attr("d", self.plotLine);
 
                 if(isFit) {
                     // Update brush scales
-                    brushPlotLine = new_plotLine;
+                    //brushPlotLine = new_plotLine;
 
                     // Re-draw fitted line
                     plot.select(".fitted-line")
-                        .attr("d", new_plotLine);
+                        .attr("d", self.plotLine);
                 }
 
                 //re-draw error
@@ -772,7 +774,7 @@ export default {
         }
 
         d3.select(".fitted-line").data([fittedPoints])
-            .attr("d", this.fitLineFunction);
+            .attr("d", this.plotLine);
     },
     setParameters: function(parameters) {
         this.plotParams = _.cloneDeep(parameters);
