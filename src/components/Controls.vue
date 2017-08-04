@@ -331,5 +331,10 @@ select, input {
 
 .input-group {
     margin-bottom: 10px;
+    width: 100%;
+}
+
+.input-group-addon {
+    width: 35%;
 }
 </style>
