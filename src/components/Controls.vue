@@ -82,7 +82,7 @@
                             <!-- Equation Input/Editer-->
                             <div class="input-group">
                                 <span class="input-group-addon">Equation</span>
-                                <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT" @focus="isFocus = !isFocus" @blur="isFocus = !isFocus">
+                                <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT || fit === 'None'" @focus="isFocus = !isFocus" @blur="isFocus = !isFocus">
                             </div>
                             <p class="equation-title" v-if="isFocus">Press <strong>[enter]</strong> to change equation</p>
 
