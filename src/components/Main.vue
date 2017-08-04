@@ -415,7 +415,6 @@ export default {
       },
       deleteFile: function (filename) {
         // Function to delete file from the uploaded list
-
         for (var i = 0; i < this.uploadedFiles.length; i++) {
           if (this.uploadedFiles[i].fileName === filename) {
             // Splice will remove the object from array index i    
@@ -469,15 +468,6 @@ export default {
           //reset brush selection
           eventBus.$emit("reset-brush-selection");
         }
-
-        // this.plotParams = {
-        //   data: this.prepData(this.selectedData),
-        //   colorDomain: this.colorDomain,
-        //   scales: this.scales,
-        //   fileToFit: this.fileToFit,
-        //   fitConfiguration: this.currentConfiguration,
-        //   fitSettings: this.fitSettings
-        // };
       },
       setEquation: function(eq) {
         this.currentConfiguration.equation = eq;

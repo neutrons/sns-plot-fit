@@ -259,10 +259,6 @@ export default {
                     ])
                     .on("brush", brushed);
 
-                //var brushPlotLine = plotLine;
-                // Assign property data for fitline
-                //self.fitLineFunction = brushPlotLine;
-
                 // append scatter plot to brush chart area
                 slider.append("g").selectAll("dotslider")
                     .data(dataToFit)
@@ -275,13 +271,16 @@ export default {
 
                 //set initial brushSelection
                 if(self.brushSelection === null) {
-                    self.brushSelection = xScale.range();
+                    self.brushSelection = xScale.range(); // Default selection [0, max(x)]
                 }
 
                 slider.append("g")
                     .attr("class", "brush")
                     .call(brush)
-                    .call(brush.move, self.brushSelection);
+                    .call(brush.move, self.brushSelection); 
+                    //brush.move allows you to set the current selection for the brush element
+                    // this will dynamically update according to the last selection made.
+                    // This is to allow for persistent selections upon the plot being re-drawn.
 
                 //console.log("Here is the xScale range", xScale.range());
                 
@@ -770,8 +769,6 @@ export default {
             return newFitEq(el);
         });
 
-        // console.log('y_fitted =', y_fitted);
-
         // Return the fitted values
         let fittedPoints = [];
         
@@ -793,8 +790,6 @@ export default {
     }
 },
 created() {
-        //eventBus.$on("plot-data", this.plotData);
-
         //Listen for cofficient changes
         eventBus.$on("coefficients-updated", this.redrawFit);
 
