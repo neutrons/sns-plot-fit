@@ -7,8 +7,8 @@
           <a class="navbar-brand" href="#"><img src="../assets/ornl_logo.png"></a>
         </div>
           <ul class="nav navbar-nav navbar-right">
-            <li><button class="btn btn-primary btn-fetch" @click="fetchData">Fetch Files&hellip; <span class="glyphicon glyphicon-download"></span></button></li>
-            <li><label class="btn btn-primary btn-upload">Select Files&hellip; <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile" multiple></label></li>
+            <li><button class="btn btn-primary btn-fetch" @click="fetchData">Fetch Data <span class="glyphicon glyphicon-download"></span></button></li>
+            <li><label class="btn btn-primary btn-upload">Load Files <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile" multiple></label></li>
           </ul>
       </div>
     </nav>
