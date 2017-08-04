@@ -554,7 +554,7 @@ export default {
             function brushed() {
                 // console.log("Calling brush...");
                 self.brushSelection = d3.event.selection;
-                console.log("brush selection:", self.brushSelection);
+
                 if (self.brushSelection !== null) {
                     var e = d3.event.selection.map(xScale2.invert, xScale2);
 
