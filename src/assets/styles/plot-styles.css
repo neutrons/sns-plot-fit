@@ -1,3 +1,35 @@
+/* Styles for Fit results Table */
+#fit-results-table {
+    width: 85%;
+    padding: 0 auto;
+    margin: 0 auto;
+}
+
+#fit-results-table td {
+padding: 5px 10px;
+}
+
+#fit-results-table .sub-heading {
+text-align: center;
+font-weight: bold;
+}
+
+/* Styles for Plot Area */
+#plot-panel-collapse {
+    cursor: pointer;
+}
+
+#plot-collapse {
+    background: rgba(0,0,0, 0.02);
+}
+
+#btn-reset-plot {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin: 5px 0px 5px 5px;
+}
+
+/* Plot Styles */
 div.plot {
   width: 100%;
   height: 650px;
@@ -84,9 +116,9 @@ iframe.width-changed {
 }
 
 .fitted-line {
-		  stroke-width: 2px;
-		  stroke: steelblue;
-		  stroke-dasharray: 10,5;
+    stroke-width: 2px;
+    stroke: steelblue;
+    stroke-dasharray: 10,5;
 }
 
 ul {

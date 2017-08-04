@@ -9,22 +9,31 @@
             </div>
             <div id="control-panel-group">
 
-                <div class="panel-group" id="accordion-control">
+                <div class="panel-group">
 
                 <!-- Scales Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-scales">Scales</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-scales">Scales</a>
                     </div>
                     <div id="collapse-scales" class="panel-collapse collapse in">
                         <div class="panel-body">
-                            <select class="form-control" v-model="xScale" :disabled="!BUTTONDIS" @change="setScales">
-                            <option v-for="option in xScales">{{option}}</option>
-                            </select>
+
+                            <!-- X Scale Selection -->
+                            <div class="input-group">
+                                <span class="input-group-addon">X Scale</span>
+                                <select class="form-control" v-model="xScale" :disabled="!BUTTONDIS" @change="setScales">
+                                    <option v-for="option in xScales">{{option}}</option>
+                                </select>
+                            </div>
                             
-                            <select class="form-control" v-model="yScale" :disabled="!BUTTONDIS" @change="setScales">
-                            <option v-for="option in yScales">{{option}}</option>
-                            </select>
+                            <!-- Y Scale Selection -->
+                            <div class="input-group">
+                                <span class="input-group-addon">Y Scale</span>
+                                <select class="form-control" v-model="yScale" :disabled="!BUTTONDIS" @change="setScales">
+                                    <option v-for="option in yScales">{{option}}</option>
+                                </select>
+                            </div>
                             
                             <button id="btn-reset-scales" class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
                         </div>
@@ -34,24 +43,22 @@
                 <!-- X and Y Transformation Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-transformations">Transformations</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-transformations">Transformations</a>
                     </div>
                     <div id="collapse-transformations" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <p class="transformation-title">X:</p>
-                            <input type="text" class="form-control" :value="XTRANS" id="x-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
-                            <br>
-                            <p class="transformation-title">Y:</p>
-                            <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" :disabled="!FILETOFIT" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                            <div class="input-group">
+                                <span class="input-group-addon">X</span>
+                                <input type="text" class="form-control" :value="XTRANS" id="x-transform" @keyup.enter="enterTransformations" :disabled="!BUTTONDIS" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                            </div>
+
+                            <div class="input-group">
+                                <span class="input-group-addon">Y</span>
+                                <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" :disabled="!BUTTONDIS" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                            </div>
+                            
                             <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
-                            <p class="equation-title alert alert-danger" v-if="isError">
-                                Error:
-                                <ol>
-                                    <li>Make sure to enter an appropriate transformation (e.g., 'x+2')</li>
-                                    <li>Check case, 'x' <em>must</em> be lowercase</li>
-                                    <li>No additional variables (e.g., 'x+c' is incorrect)</li>
-                                </ol>
-                            </p>
+                            <div id="transformation-error"></div>
                             <button id="btn-reset-transformation" class="btn btn-warning btn-sm" @click="resetTransformation" :disabled="!BUTTONDIS">Reset <span class="glyphicon glyphicon-refresh"></span></button>
                         </div>
                     </div>
@@ -60,16 +67,32 @@
                 <!-- Fitting Selections Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-fit">Fit</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-fit">Fit</a>
                     </div>
                     <div id="collapse-fit" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <select class="form-control" v-model="fit" :disabled="!FILETOFIT">
-                            <option v-for="fit in fits">{{fit}}</option>
-                            </select>
-                            <p class="equation-title">Equation:</p>
-                            <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT" @focus="isFocus = !isFocus" @blur="isFocus = !isFocus">
+                            <!-- Fit Type Selections -->
+                            <div class="input-group">
+                                <span class="input-group-addon">Fit Type</span>
+                                <select class="form-control" v-model="fit" :disabled="!FILETOFIT">
+                                    <option v-for="fit in fits">{{fit}}</option>
+                                </select>
+                            </div>
+
+                            <!-- Equation Input/Editer-->
+                            <div class="input-group">
+                                <span class="input-group-addon">Equation</span>
+                                <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="!FILETOFIT || fit === 'None'" @focus="isFocus = !isFocus" @blur="isFocus = !isFocus">
+                            </div>
                             <p class="equation-title" v-if="isFocus">Press <strong>[enter]</strong> to change equation</p>
+
+                            <!-- Coefficients Input/Editer-->
+                            <div v-if="isCoefficients">
+                                <div class="coefficients-input input-group" v-for="(coef, key) in coefficients">
+                                    <span class="input-group-addon">{{ key }}</span>
+                                    <input type="text" class="form-control" :id="key + '-input'" :value="coef" @keyup.enter="enterCoefficients">
+                                </div>
+                            </div>
                             <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit" :disabled="!FILETOFIT">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
                         </div>
                     </div>
@@ -78,7 +101,7 @@
                 <!-- Fit Settings Panel -->
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-control" href="#collapse-fit-settings">Levenberg–Marquardt Parameters</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-fit-settings">Levenberg–Marquardt Parameters</a>
                     </div>
                     <div id="collapse-fit-settings" class="panel-collapse collapse">
                         <div class="panel-body">
@@ -111,7 +134,7 @@
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../assets/javascript/eventBus';
-
+import fd from '../assets/javascript/fitData';
 import * as _ from 'lodash';
 
 export default {
@@ -121,7 +144,7 @@ export default {
     return {
       isFocus: false,
       isTransFocus: false,
-      isError: false,
+      coefficients: {},
       xScale: 'X',
       xScales: ["X", "X^2", "Log(X)"],
       yScale: 'Y',
@@ -136,6 +159,11 @@ export default {
         errorTolerance: 0.001
       }
     }
+  },
+  computed: {
+      isCoefficients: function() {
+          return Object.keys(this.coefficients).length > 0;
+      }
   },
   methods: {
     resetScales: function() {
@@ -155,15 +183,50 @@ export default {
     
         let newXTrans = document.getElementById('x-transform').value;
         let newYTrans = document.getElementById('y-transform').value;
-        if( newXTrans.match(/[^()xy0-9*+/-]/) || newYTrans.match(/[^()xy0-9*+/-]/) ) {
-            this.isError = true;
+        if(fd.isSymbols([newXTrans, newYTrans])) {
             console.log("Hey wrong!");
+
+            document.getElementById('transformation-error').innerHTML = 
+                '<div class="alert alert-danger alert-dismissable">\
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>\
+                <strong>Error:</strong> Incorrect input.\
+                    <ol>\
+                        <li>Make sure to enter an appropriate transformation (e.g., "x+2")</li>\
+                        <li>Check case, "x" <em>must</em> be lowercase</li>\
+                        <li>No additional variables (e.g., "x+c" is incorrect)</li>\
+                    </ol>\
+                </div>';
         } else {
-            this.isError = false;
+            document.getElementById('transformation-error').innerHTML = "";
             console.log("Changing transformations...");
-            console.log("New transformations", newXTrans, newYTrans);
+            console.log("New transformations X", newXTrans);
+            console.log("New transformation y", newYTrans);
             eventBus.$emit('set-transformations', newXTrans, newYTrans);
         }
+        // if( newXTrans.match(/[^()xy0-9*+/-]/) || newYTrans.match(/[^()xy0-9*+/-]/) ) {
+        //     this.isError = true;
+        //     console.log("Hey wrong!");
+        // } else {
+        //     this.isError = false;
+        //     console.log("Changing transformations...");
+        //     console.log("New transformations X", newXTrans);
+        //     console.log("New transformation y", newYTrans);
+        //     eventBus.$emit('set-transformations', newXTrans, newYTrans);
+        // }
+    },
+    enterCoefficients: function() {
+        console.log("Entering coefficients...");
+        let c = [];
+        for(let key in this.coefficients) {
+            let val = document.getElementById(key+"-input").value;
+            //this.coefficients[key] = val;
+            c.push(val);
+        }
+
+        eventBus.$emit("coefficients-updated", _.cloneDeep(c));
+    },
+    updateCoefficients: function(coeff) {
+        this.coefficients = coeff;
     },
     resetPlot: function() {
       eventBus.$emit('reset-plot');
@@ -193,7 +256,8 @@ export default {
   },
   watch: {
     fit: function() {
-      eventBus.$emit('set-fit', this.fit);
+        if(this.fit === 'None') this.coefficients = {};
+        eventBus.$emit('set-fit', this.fit);
     }
   },
   created() {
@@ -201,6 +265,9 @@ export default {
     eventBus.$on('reset-scales', this.resetScales);
     eventBus.$on('set-fit-back', this.setFitBack);
     eventBus.$on('set-fit-settings-back', this.resetSettings);
+
+    //Listen to emit from plotCurrentData.js
+    eventBus.$on('update-coefficients', this.updateCoefficients);
   }
 }
 </script>
@@ -260,5 +327,14 @@ export default {
 
 select, input {
     margin-bottom: 5px;
+}
+
+.input-group {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.input-group-addon {
+    width: 35%;
 }
 </style>

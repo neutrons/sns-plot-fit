@@ -23,55 +23,10 @@
 
     </div>
         
-      <div id="plot-panel" class="col-md-10">
-          <div class="panel-group">
-
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="buttonDis" :disabled="!buttonDis">Reset Plot</button>
-                <div id="plot-panel-collapse">Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
-              </div>
-            </div>
-
-            <div id="plot-collapse" class="panel-body">
-              <div id="plot-area"></div>
-              
-              <!-- Fit Results Table to add fit results -->
-              <div id="fit-results-table" class="table-responsive" v-show="fileToFit && currentConfiguration.fit !== 'None'">          
-                <table class="table table-bordered">
-                  <caption><h4>Fit Results:</h4></caption>
-                
-                  <tbody>
-                  <tr>
-                    <td id="fit-file"></td>
-                    <td id="fit-type"></td>
-                    <td id="fit-points"></td>
-                    <td id="fit-range"></td>
-                    <td id="fit-error"></td>
-                  </tr>
-                
-                    <tr>
-                      <td colspan="3" class="sub-heading">Fit Configuration:</td>
-                      <td colspan="2" class="sub-heading">Coefficients:</td>	
-                    </tr>
-                    <tr>
-                      <td colspan="3" id="fit-configs">
-                      <ul>
-                            <li id="fit-damping"></li>
-                            <li id="fit-iterations"></li>
-                            <li id="fit-tolerance"></li>
-                            <li id="fit-gradient"></li>
-                        </ul>
-                      </td>
-                      <td colspan="2" id="fit-coefficients">
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                </div>
-              </div>
-        </div>
-    </div>
+    <app-plot 
+      :BUTTONDIS="buttonDis"
+      :FILETOFIT="fileToFit"
+      ></app-plot>
       </div>
   </div>
 </template>
@@ -81,9 +36,9 @@ import * as d3 from 'd3';
 import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
 import $ from 'jquery';
-import plotCurrentData from '../assets/javascript/plotCurrentData';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
+import Plot from './Plot.vue';
 
 import fd from '../assets/javascript/fitData.js';
 
@@ -93,11 +48,11 @@ import fd from '../assets/javascript/fitData.js';
 import { eventBus } from '../assets/javascript/eventBus';
 
 export default {
-  name: 'main',
-  mixins: [plotCurrentData],
+    name: 'main',
     components: {
       'app-controls': Controls,
-      'app-file-load': FileLoad
+      'app-file-load': FileLoad,
+      'app-plot': Plot
     },
     created() {
       // Event hooks for 'Controls.vue'
@@ -142,7 +97,9 @@ export default {
         selectedData: [],
         scales: {
           xScale: d3.scaleLinear(),
-          yScale: d3.scaleLinear()
+          xScaleType: 'X',
+          yScale: d3.scaleLinear(),
+          yScaleType: 'Y'
         },
         fileToFit: null,
         isUploaded: false,
@@ -163,9 +120,9 @@ export default {
           'None': {
             fit: 'None',
             equation: null,
-            yTransformation: null,
-            xTransformation: null,
-            eTransformation: null,
+            yTransformation: 'y',
+            xTransformation: 'x',
+            eTransformation: 'e',
             yLabel: "I",
             xLabel: "Q"
           },
@@ -369,9 +326,6 @@ export default {
         }
 
       },
-      resetPlot: function () {
-        this.plotParameters();
-      },
       disableButtons: function (bool) {
         this.buttonDis = bool;
       },
@@ -382,6 +336,7 @@ export default {
           // If no data is selected to be plotted, then
           // remove any elements previously plotted
           // and reset to default values
+          console.log("Removing plot elements...");
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
 
@@ -426,13 +381,14 @@ export default {
                 // Set temp file for get
                 let temp = _.cloneDeep(this.getFiles.find(a => a.fileName === el));
                 // console.log("Temp", temp);
-                temp.dataTransformed = [];
+                // temp.dataTransformed = [];
 
-                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                   temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
                   // console.log("Temp data:", temp);
                   this.selectedData.push(temp);
                 } else {
+                  temp.dataTransformed = _.cloneDeep(temp.data);
                   this.selectedData.push(temp);
                 }
 
@@ -441,13 +397,14 @@ export default {
                 
                 // Set temp file for uploaded
                 let temp = _.cloneDeep(this.uploadedFiles.find(a => a.fileName === el));
-                temp.dataTransformed = [];
+                // temp.dataTransformed = [];
 
-                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                   temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
                   // console.log("Temp data:", temp);
                   this.selectedData.push(temp);
                 } else {
+                  temp.dataTransformed = _.cloneDeep(temp.data);
                   this.selectedData.push(temp);
                 }
               } else {
@@ -460,7 +417,6 @@ export default {
       },
       deleteFile: function (filename) {
         // Function to delete file from the uploaded list
-
         for (var i = 0; i < this.uploadedFiles.length; i++) {
           if (this.uploadedFiles[i].fileName === filename) {
             // Splice will remove the object from array index i    
@@ -477,20 +433,13 @@ export default {
       },
       setScales: function (x, y) {
         this.scales.xScale = this.scaleConfigurations[x];
+        this.scales.xScaleType = x;
         this.scales.yScale = this.scaleConfigurations[y];
+        this.scales.yScaleType = y;
       },
       setFit: function (fitname) {
         //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
         this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]);
-      },
-      plotParameters: function () {
-
-        // Make sure there is selected data to plot
-        // then pass all parameters into an object
-        // when plotting selected data
-        if (this.selectedData.length > 0) {
-          this.plotCurrentData(this.plotParams);
-        }
       },
       prepData: function (sd) {
         // This function is to prepare the data before calling 'plotCurrentData' function
@@ -501,11 +450,7 @@ export default {
         let temp = [];
         for (let i = 0; i < sd.length; i++) {
           // If a fit is set push transformed data, else push normal data
-          if(this.fileToFit === null) {
-            temp.push(sd[i].data);
-          } else {
             temp.push(sd[i].dataTransformed);
-          }
         }
         // console.log("Temp", temp);
         return d3.merge(temp);
@@ -513,20 +458,26 @@ export default {
       setParameters: function () {
         // Function to wrap up all the parameters needed for plotting
         // console.log("Data", this.selectedData);
-        this.plotParams = {
-          data: this.prepData(this.selectedData),
-          colorDomain: this.colorDomain,
-          scales: this.scales,
-          fileToFit: this.fileToFit,
-          fitConfiguration: this.currentConfiguration,
-          fitSettings: this.fitSettings
-        };
+        if(this.selectedData.length > 0) {
+          eventBus.$emit("set-parameters", {
+            data: this.prepData(this.selectedData),
+            colorDomain: this.colorDomain,
+            scales: this.scales,
+            fileToFit: this.fileToFit,
+            fitConfiguration: this.currentConfiguration,
+            fitSettings: this.fitSettings
+          });
+        } else {
+          console.log("No data to plot...");
+          //reset brush selection
+          eventBus.$emit("reset-brush-selection");
+        }
       },
       setEquation: function(eq) {
         this.currentConfiguration.equation = eq;
       },
       setTransformations: function(x,y) {
-        console.log("X: ", x);
+        //console.log("X: ", x);
         this.currentConfiguration.xTransformation = x;
         this.currentConfiguration.yTransformation = y;
       },
@@ -578,26 +529,20 @@ export default {
           // re-transform selected data according to 'xTransformation' and 'yTransformation'
           // then re-fit the 'dataToFit' according to the config's equation
           // console.log("Equation changed...", this.currentConfiguration.equation);
-          if(this.fileToFit !== null) {
+          if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
             //When current data changes after selected
             console.log("re-transforming...");
-            this.selectedData.forEach( el => {
-              el.dataTransformed = fd.transformData(el, this.currentConfiguration);
-            })
+              this.selectedData.forEach( el => {
+                el.dataTransformed = fd.transformData(el, this.currentConfiguration);
+              });
             // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
           } else {
             this.selectedData.forEach( el => {
-              el.dataTransformed = []; // reset since transformed data is 'None' or 'Linear'
+              el.dataTransformed = _.cloneDeep(el.data); // reset since transformed data is 'None' or 'Linear'
             });
           }
         },
         deep: true
-      },
-      plotParams: function () {
-        // Watch for any changes to plotParams, if so plot data
-        if (this.selectedData.length > 0) {
-          this.plotCurrentData(this.plotParams);
-        }
       },
       uploadedFiles: function () {
         // Watch if a file has been uploaded, if so enable delete file buttons
@@ -619,5 +564,4 @@ export default {
 
 <style scoped>
 @import '../assets/styles/main-component-styles.css';
-@import '../assets/styles/plot-styles.css';
 </style>
