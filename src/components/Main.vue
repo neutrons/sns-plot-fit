@@ -97,7 +97,9 @@ export default {
         selectedData: [],
         scales: {
           xScale: d3.scaleLinear(),
-          yScale: d3.scaleLinear()
+          xScaleType: 'X',
+          yScale: d3.scaleLinear(),
+          yScaleType: 'Y'
         },
         fileToFit: null,
         isUploaded: false,
@@ -431,7 +433,9 @@ export default {
       },
       setScales: function (x, y) {
         this.scales.xScale = this.scaleConfigurations[x];
+        this.scales.xScaleType = x;
         this.scales.yScale = this.scaleConfigurations[y];
+        this.scales.yScaleType = y;
       },
       setFit: function (fitname) {
         //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
