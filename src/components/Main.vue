@@ -19,6 +19,7 @@
           :EQUATION="$data.currentConfiguration.equation"
           :XTRANS="$data.currentConfiguration.xTransformation"
           :YTRANS="$data.currentConfiguration.yTransformation"
+          :FITS="fitConfigurations"
           ></app-controls>
 
     </div>
@@ -114,7 +115,8 @@ export default {
             xTransformation: 'x',
             eTransformation: "e",
             yLabel: "I",
-            xLabel: "Q"
+            xLabel: "Q",
+            note: ""
         },
         fitConfigurations: {
           'None': {
@@ -124,7 +126,8 @@ export default {
             xTransformation: 'x',
             eTransformation: 'e',
             yLabel: "I",
-            xLabel: "Q"
+            xLabel: "Q",
+            note: ""
           },
           'Linear': {
             fit: 'Linear',
@@ -133,25 +136,58 @@ export default {
             xTransformation: 'x',
             eTransformation: "e",
             yLabel: "I",
-            xLabel: "Q"
+            xLabel: "Q",
+            note: ""
           },
           'Guinier': {
             fit: 'Guinier',
-            equation: "-Rg^2/3*x+b",
+            equation: "-Rg^2/3*x+I0",
             yTransformation: "log(y)",
-            xTransformation: "log(x)",
+            xTransformation: "x^2",
             eTransformation: "((1/x)*e)^2",
-            yLabel: "Log(I)",
-            xLabel: "Log(Q)"
+            yLabel: "Log(I(q))",
+            xLabel: "q^2",
+            note: ""
+          },
+          'Low-Q Guinier': {
+            fit: 'Low-Q Guinier',
+            equation: "-(L^2/12+R^2/2)/3*x+I0",
+            yTransformation: "log(y)",
+            xTransformation: "x^2",
+            eTransformation: "((1/x)*e)^2",
+            yLabel: "Log(I(q))",
+            xLabel: "q^2",
+            note: "Cylinder of length L and Radius R"
+          },
+          'Intermediate-Q Guinier': {
+            fit: 'Intermediate-Q Guinier',
+            equation: "-(R^2/2)/3*x+I0/x",
+            yTransformation: "log(x*y)",
+            xTransformation: "x^2",
+            eTransformation: "((1/x)*e)^2",
+            yLabel: "Log(q*I(q))",
+            xLabel: "q^2",
+            note: "Radius R"
+          },
+          'Flat Object Guinier': {
+            fit: 'Flat Object Guinier',
+            equation: "-(T^2/12)/3*x+I0/x^2",
+            yTransformation: "log(x^2*y)",
+            xTransformation: "x^2",
+            eTransformation: "((1/x)*e)^2",
+            yLabel: "Log(q^2*I(q))",
+            xLabel: "q^2",
+            note: "T is the thickness of a flat (lamella) object."
           },
           'Porod': {
             fit: 'Porod',
-            equation: "A-n*x",
-            yTransformation: "log(y)",
-            xTransformation: "log(x)",
-            eTransformation: "((1/x)*e)^2",
-            yLabel: "Log(I)",
-            xLabel: "Log(Q)"
+            equation: "log10(A)-n*log10(x)",
+            yTransformation: "log10(y)",
+            xTransformation: "log10(x)",
+            eTransformation: "(1/y * e)^2",
+            yLabel: "Log10(I(q))",
+            xLabel: "Log10(q)",
+            note: "This is valid for high Q."
           },
           'Zimm': {
             fit: 'Zimm',
@@ -159,17 +195,19 @@ export default {
             yTransformation: "1/y",
             xTransformation: "x^2",
             eTransformation: "((-1/x^2)*e)^2",
-            yLabel: "1/I",
-            xLabel: "Q^2"
+            yLabel: "1/I(q)",
+            xLabel: "q^2",
+            note: ""
           },
           'Kratky': {
             fit: 'Kratky',
             equation: "m*x+b",
-            yTransformation: "log(x^2*y)",
-            xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
-            yLabel: "log(Q^2*I)",
-            xLabel: "Log(Q)"
+            yTransformation: "x^2*log(y)",
+            xTransformation: "x",
+            eTransformation: "(2*x*log(y))^2 + (x^2/y * e)^2",
+            yLabel: "q^2 \times log(I)",
+            xLabel: "q",
+            note: ""
           },
           'Debye Beuche': {
             fit: 'Debye Beuche',
@@ -178,7 +216,8 @@ export default {
             xTransformation: "x^2",
             eTransformation: "(1/(2*sqrt(x))*e)^2",
             yLabel: "sqrt(I)",
-            xLabel: "Q^2"
+            xLabel: "Q^2",
+            note: ""
           }
         },
         scaleConfigurations: {

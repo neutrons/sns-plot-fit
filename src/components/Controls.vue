@@ -75,7 +75,7 @@
                             <div class="input-group">
                                 <span class="input-group-addon">Fit Type</span>
                                 <select class="form-control" v-model="fit" :disabled="!FILETOFIT">
-                                    <option v-for="fit in fits">{{fit}}</option>
+                                    <option v-for="fit in FITS">{{fit.fit}}</option>
                                 </select>
                             </div>
 
@@ -139,7 +139,7 @@ import * as _ from 'lodash';
 
 export default {
   name: 'Controls',
-  props: ["BUTTONDIS", "FILETOFIT", "EQUATION", "XTRANS", "YTRANS"],
+  props: ["BUTTONDIS", "FILETOFIT", "EQUATION", "XTRANS", "YTRANS", "FITS"],
   data: function() {
     return {
       isFocus: false,
@@ -150,7 +150,6 @@ export default {
       yScale: 'Y',
       yScales: ["Y", "Y^2", "Log(Y)"],
       fit: 'Linear',
-      fits: ["None", "Linear", "Guinier", "Porod", "Zimm", "Kratky", "Debye Beuche"],
       fitSettings: {
     	damping: 0.001,
         initialValues: [],
