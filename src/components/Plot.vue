@@ -72,7 +72,8 @@ export default {
             plotLine: null,
             fitResults: null,
             plotParams: {},
-            fitData: null
+            fitData: null,
+            brushSelection: null
         }
     },
     computed: {
@@ -272,10 +273,17 @@ export default {
                     .attr("x2", function(d) { return xScale2(d.x); })
                     .attr("y2", 0);
 
+                //set initial brushSelection
+                if(self.brushSelection === null) {
+                    self.brushSelection = xScale.range();
+                }
+
                 slider.append("g")
                     .attr("class", "brush")
                     .call(brush)
-                    .call(brush.move, xScale.range());
+                    .call(brush.move, self.brushSelection);
+
+                //console.log("Here is the xScale range", xScale.range());
                 
                 slider.append("g")
                     .attr("class", "axis axis--x")
@@ -546,8 +554,9 @@ export default {
             // Create brush function redraw scatterplot with selection
             function brushed() {
                 // console.log("Calling brush...");
-                var selection = d3.event.selection;
-                if (selection !== null) {
+                self.brushSelection = d3.event.selection;
+                console.log("brush selection:", self.brushSelection);
+                if (self.brushSelection !== null) {
                     var e = d3.event.selection.map(xScale2.invert, xScale2);
 
                     slider.selectAll(".dotslider")
@@ -778,6 +787,9 @@ export default {
     },
     setParameters: function(parameters) {
         this.plotParams = _.cloneDeep(parameters);
+    },
+    resetBrushSelection: function() {
+        this.brushSelection = null;
     }
 },
 created() {
@@ -788,6 +800,7 @@ created() {
 
         // Listen for events form Main.vue
         eventBus.$on('set-parameters', this.setParameters);
+        eventBus.$on('reset-brush-selection', this.resetBrushSelection);
     },
     watch: {
         plotParams: {

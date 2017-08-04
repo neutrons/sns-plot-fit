@@ -466,6 +466,8 @@ export default {
           });
         } else {
           console.log("No data to plot...");
+          //reset brush selection
+          eventBus.$emit("reset-brush-selection");
         }
 
         // this.plotParams = {
