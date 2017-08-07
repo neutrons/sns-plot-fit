@@ -37,6 +37,7 @@ import * as d3 from 'd3';
 import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
 import $ from 'jquery';
+import pp from 'papaparse';
 import Controls from './Controls.vue';
 import FileLoad from './FileLoad.vue';
 import Plot from './Plot.vue';
@@ -257,38 +258,59 @@ export default {
           getFiles(i);
 
           // Set a variable to 'this' to be able to reference the getFiles variable in the scope of the 'getFiles' function
-          var vthis = this;
+          var self = this;
 
           function getFiles(i, test) {
 
             //Make a GET request to data file
             axios.get(files[i].url).then(response => {
 
-              var data = d3.csvParse(response.data, function (d) {
-                // The return statement renames the columns
-                // and removes spaces/formatting and converts the strings to
-                // to numerical values by prefixing with '+'
-                return {
-                  x: +d['# X '],
-                  y: +d[' Y '],
-                  error: +d[' E '],
-                  dx: +d[' DX'],
-                  name: files[i].name
+          var results = pp.parse(response.data, {
+              header : true,
+              dynamicTyping : true, // parse string to int
+              delimiter : "",       // auto-detect
+              newline : "",         // auto-detect
+              quoteChar : '"',
+              skipEmptyLines: true,
+              // This is called before the parsing of the file
+              beforeFirstChunk : function(chunk) {
+                var rows = chunk.split(/\r\n|\r|\n/);
+                // let's find the delimiter on the 3rd row
+                var delimiter = ",";
+                if (rows[2].split("\t").length > 1)
+                  delimiter = "\t";
+
+                var header = rows[0];
+                if (header.startsWith("#")) {
+                  header = header.replace(/#\s*/, '');
+                  header = header.split(/[\s,]+/).join(delimiter);
                 }
-              });
+                rows[0] = header.toLowerCase();
+                // Remove the 2nd row if it's "1"
+                if (rows[1].length <= 1) {
+                  rows.splice(1, 1);
+                }
+                return rows.join("\r\n");
+              },
+              complete : function(result) { console.log(result); }
+            });
 
-              // Each data file has an empty second row so removing it with splice
-              data = data.splice(1, data.length);
-              data = data.filter( (d) => d.y > 0 && d.x > 0); // Filter out negative values for x and y
+          // Filter out negative values for x and y
+          results.data.filter( el => el.y > 0 && el.x > 0);
 
-              vthis.getFiles.push({
-                data: data,
-                fileName: files[i].name,
-              });
+          // Add file name to data objects
+          results.data.forEach( el => el.name = files[i].name);
+          //console.log("results data:", results.data);
+          
+          // Push to Get Files list
+          self.getFiles.push({
+            data: results.data,
+            fileName: files[i].name
+          })
 
               // Add filename to color domain
-              if (vthis.colorDomain.indexOf(files[i].name) === -1) {
-                vthis.colorDomain.push(files[i].name);
+              if (self.colorDomain.indexOf(files[i].name) === -1) {
+                self.colorDomain.push(files[i].name);
               }
             });
           }
@@ -299,34 +321,56 @@ export default {
         var self = this;
 
         function loadFiles(file) {
+
           // Pull the file name and remove the ".txt" extension
           var name = file.name.substr(0, file.name.lastIndexOf('.txt')) || file.name;
           var reader = new FileReader();
 
           reader.onload = function (e) {
-            // Get file content
-            var content = e.target.result;
-            var data = d3.csvParse(content, function (d) {
-              // The return statement renames the columns
-              // and removes spaces/formatting and converts the strings to
-              // to numerical values by prefixing with '+'
-              return {
-                x: +d['# X '],
-                y: +d[' Y '],
-                error: +d[' E '],
-                dx: +d[' DX'],
-                name: name
-              }
+            
+          // Get file content
+          var content = e.target.result;
+
+          var results = pp.parse(content, {
+              header : true,
+              dynamicTyping : true, // parse string to int
+              delimiter : "",       // auto-detect
+              newline : "",         // auto-detect
+              quoteChar : '"',
+              skipEmptyLines: true,
+              // This is called before the parsing of the file
+              beforeFirstChunk : function(chunk) {
+                var rows = chunk.split(/\r\n|\r|\n/);
+                // let's find the delimiter on the 3rd row
+                var delimiter = ",";
+                if (rows[2].split("\t").length > 1)
+                  delimiter = "\t";
+
+                var header = rows[0];
+                if (header.startsWith("#")) {
+                  header = header.replace(/#\s*/, '');
+                  header = header.split(/[\s,]+/).join(delimiter);
+                }
+                rows[0] = header.toLowerCase();
+                // Remove the 2nd row if it's "1"
+                if (rows[1].length <= 1) {
+                  rows.splice(1, 1);
+                }
+                return rows.join("\r\n");
+              },
+              complete : function(result) { console.log(result); }
             });
 
-            // Each data file has an empty second row so removing it with splice
-            data = data.splice(1, data.length);
-            data = data.filter( (d) => d.y > 0 && d.x > 0); // Filter out negative values for x and y
-            // Once data is read in add it to the uploaded list
-            self.uploadedFiles.unshift({
-              data: data,
-              fileName: name
-            });
+          // Add file name to data objects
+          results.data.forEach( el => el.name = name);
+
+          //console.log("results data:", results.data);
+          
+          // Add data to uploaded files list
+          self.uploadedFiles.unshift({
+            data: results.data,
+            fileName: name
+          })
 
             // Add filename to color domain
             if (self.colorDomain.indexOf(name) === -1) {

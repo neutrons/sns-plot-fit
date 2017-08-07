@@ -375,13 +375,13 @@ export default {
                         return xScale(d.x);
                     })
                     .attr('y1', function (d) {
-                        return yScale(d.y + d.error);
+                        return yScale(d.y + d.e);
                     })
                     .attr('y2', function (d) {
-                        if(d.y - d.error < 0 && yScaleType === "Log(Y)") {
+                        if(d.y - d.e < 0 && yScaleType === "Log(Y)") {
                             return yScale(d.y)
                         } else {
-                            return yScale(d.y - d.error);
+                            return yScale(d.y - d.e);
                         }
                     })
                     .style("stroke", function () {
@@ -410,10 +410,10 @@ export default {
                         return xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
-                        return yScale(d.y + d.error);
+                        return yScale(d.y + d.e);
                     })
                     .attr('y2', function (d) {
-                        return yScale(d.y + d.error);
+                        return yScale(d.y + d.e);
                     })
                     .style("stroke", function () {
                         return d.color = color(d.key);
@@ -429,7 +429,7 @@ export default {
                     .attr('class', 'error-tick-bottom')
                     .filter( function(d) {
                         if(yScaleType === "Log(Y)") {
-                            return d.y - d.error > 0;
+                            return d.y - d.e > 0;
                         } else {
                             return true;
                         }
@@ -441,10 +441,10 @@ export default {
                         return xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
-                        return yScale(d.y - d.error);
+                        return yScale(d.y - d.e);
                     })
                     .attr('y2', function (d) {
-                        return yScale(d.y - d.error);
+                        return yScale(d.y - d.e);
                     })
                     .style("stroke", function () {
                         return d.color = color(d.key);
@@ -483,7 +483,7 @@ export default {
                             tooltip.transition()
                                 .duration(200)
                                 .style("opacity", 1);
-                            tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.error.toFixed(6))
+                            tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6))
                                 .style("top", (d3.event.pageY - 40) + "px")
                                 .style("left", (d3.event.pageX + 20) + "px");
                         })
@@ -667,14 +667,14 @@ export default {
                         return new_xScale(d.x);
                     })
                     .attr('y1', function (d) {
-                        return new_yScale(d.y + d.error);
+                        return new_yScale(d.y + d.e);
                     })
                     .attr('y2', function (d) {
-                        if(d.y - d.error < 0 && yScaleType === "Log(Y)") {
-                            // console.log("Below zero! d.y = " + d.y + " | d.error = " + d.error + "| d.y - d.error = " + (d.y - d.error));
+                        if(d.y - d.e < 0 && yScaleType === "Log(Y)") {
+                            // console.log("Below zero! d.y = " + d.y + " | d.e = " + d.e + "| d.y - d.e = " + (d.y - d.e));
                             return new_yScale(d.y)
                         } else {
-                            return new_yScale(d.y - d.error);
+                            return new_yScale(d.y - d.e);
                         }
                     });
                 
@@ -687,17 +687,17 @@ export default {
                         return new_xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
-                        return new_yScale(d.y + d.error);
+                        return new_yScale(d.y + d.e);
                     })
                     .attr('y2', function (d) {
-                        return new_yScale(d.y + d.error);
+                        return new_yScale(d.y + d.e);
                     });
 
                 //re-draw error tick bottom
                 errorlines.selectAll(".error-tick-bottom")
                     .filter( function(d) {
                         if(yScaleType === "Log(Y)") {
-                            return d.y - d.error > 0;
+                            return d.y - d.e > 0;
                         } else {
                             return true;
                         }
@@ -709,10 +709,10 @@ export default {
                         return new_xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
-                        return new_yScale(d.y - d.error);
+                        return new_yScale(d.y - d.e);
                     })
                     .attr('y2', function (d) {
-                        return new_yScale(d.y - d.error);
+                        return new_yScale(d.y - d.e);
                     });
             }
 
