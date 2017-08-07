@@ -5,12 +5,12 @@
     <div id="left-sidebar" class="col-md-2">
 
         <!--Pass variables to fileload component-->
-          <app-file-load
+          <app-files
           :BUTTONDIS="buttonDis"
           :GETFILES="getFiles"
           :UPLOADEDFILES="uploadedFiles"
           :ISUPLOADED="isUploaded"
-          ></app-file-load>
+          ></app-files>
 
       <!--Pass variables to controls component-->
           <app-controls
@@ -38,8 +38,8 @@ import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
 import $ from 'jquery';
 import pp from 'papaparse';
-import Controls from './Controls.vue';
-import FileLoad from './FileLoad.vue';
+import Controls from './ControlsPanel.vue';
+import Files from './FilePanel.vue';
 import Plot from './Plot.vue';
 
 import fd from '../assets/javascript/fitData.js';
@@ -53,7 +53,7 @@ export default {
     name: 'main',
     components: {
       'app-controls': Controls,
-      'app-file-load': FileLoad,
+      'app-files': Files,
       'app-plot': Plot
     },
     created() {
