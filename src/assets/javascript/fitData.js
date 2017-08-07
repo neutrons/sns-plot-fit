@@ -5,6 +5,28 @@ import LM from 'ml-levenberg-marquardt';
 import * as _ from 'lodash';
 var fd = {};
 
+fd.isSymbols = function(expression) {
+    // Function to check that user did not enter a transformation that doesn't include 'x' or 'y'
+    // E.g. x*2+c would throw an error
+    var result = 0;
+    
+    console.log("Expression", expression);
+    // Mathjs to parse each transformation into a node
+    var nodeParsed = math.parse(expression);
+    //console.log("Parsed Nodes", node_parsed);
+
+    nodeParsed.forEach(function(el) {       
+        var t = el.filter(function(n) {
+            return n.isSymbolNode;
+        });
+        
+        t.forEach( el => result += (el.name !== 'y' && el.name !=='x'));
+    }); 
+    
+    console.log("result", result);
+    return result > 0;
+}
+
 fd.transformData = function(data, configuration) {
 
         // Need to make a temp value of data, so as to not alter the original values
@@ -14,15 +36,22 @@ fd.transformData = function(data, configuration) {
         // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
         let t = _.cloneDeep(data);
         var exp = [configuration.xTransformation, configuration.yTransformation, configuration.eTransformation];
-        
+
+        console.log("You're good!");
         t.data.forEach( (el) => {      
                 // Re-assign the transformed data to x and y
                 // math.eval spits out an array of transformed [x,y] values
                 // so d.x = math.eval()[0], d.y = math.eval()[1]
+                // el.x = math.eval(expX, el);
+                // el.y = math.eval(expY, el);
+                // el.x = math.eval(expX, el);
                 [el.x, el.y, el.e] = math.eval(exp, el);
+                // console.log("El", el);
             });
         
         return t.data; // returns transformed data array
+
+        
 }
 
 fd.fitData = function(data, equation, fitsettings) {
@@ -115,7 +144,7 @@ fd.fitData = function(data, equation, fitsettings) {
         coeff[parameter_names_to_fit[i]] = fitted_params.parameterValues[i];
     }
     
-    return { fittedData: fittedPoints, coefficients: coeff, error: fitted_params.parameterError }; // Return fit data array
+    return { fittedData: fittedPoints, coefficients: coeff, error: fitted_params.parameterError, fitEquation: fit_function }; // Return fit data array
 }
 
 export default fd;

@@ -11,14 +11,14 @@
 
             <div id="file-panel-group">
 
-              <div class="panel-group" id="accordion-file">
+              <!-- Get Files Panel  -->
+              <div class="panel-group">
                 <div class="panel panel-success">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-file" href="#collapse-get-files">Get Files</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-get-files">Get Files</a>
                     </div>
                     <div id="collapse-get-files" class="panel-collapse collapse in">
                         <div class="panel-body">
-                        <button class="btn btn-primary btn-sm btn-fetch" @click="fetchData">Fetch Files&hellip; <span class="glyphicon glyphicon-download"></span></button>
                             <table class="table table-condensed tabletop">
                                 <thead>
                                     <tr>
@@ -43,14 +43,13 @@
                   </div>
                 </div>
 
+                <!-- Uploaded Files Panel  -->
                 <div class="panel panel-success">
                     <div class="panel-heading">
-                        <a class="panel-title" data-toggle="collapse" data-parent="#accordion-file" href="#collapse-uploaded-files">Uploaded Files</a>
+                        <a class="panel-title" data-toggle="collapse" href="#collapse-uploaded-files">Uploaded Files</a>
                     </div>
                     <div id="collapse-uploaded-files" class="panel-collapse collapse in">
                         <div class="panel-body">
-                          
-                        <label class="btn btn-primary btn-sm btn-upload">Select Files&hellip; <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile" multiple></label>
                             <table class="table table-condensed tabletop">
                     <thead>
                         <tr>
@@ -121,7 +120,7 @@ export default {
       this.fileToFit = null;
     },
     isPlotted: function(filename) {
-      // This function dynamically styles the file lists blue for selected, default 
+      // This function dynamically styles the file lists blue for selected data
       if(this.filesToPlot.indexOf(filename) > -1){
         return "info";
       } else {
@@ -156,14 +155,6 @@ export default {
     setFileToFit: function() {
       if(this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
       this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
-    },
-    uploadFile: function() {
-      let files = document.getElementById("file-upload").files;
-      console.log("Files:", files);
-      eventBus.$emit('upload-file', files);
-    },
-    fetchData: function() {
-      eventBus.$emit('fetch-data');
     },
     deleteFile: function(filename) {
       eventBus.$emit('delete-file', filename);

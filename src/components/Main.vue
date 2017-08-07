@@ -5,12 +5,12 @@
     <div id="left-sidebar" class="col-md-2">
 
         <!--Pass variables to fileload component-->
-          <app-file-load
+          <app-files
           :BUTTONDIS="buttonDis"
           :GETFILES="getFiles"
           :UPLOADEDFILES="uploadedFiles"
           :ISUPLOADED="isUploaded"
-          ></app-file-load>
+          ></app-files>
 
       <!--Pass variables to controls component-->
           <app-controls
@@ -19,59 +19,15 @@
           :EQUATION="$data.currentConfiguration.equation"
           :XTRANS="$data.currentConfiguration.xTransformation"
           :YTRANS="$data.currentConfiguration.yTransformation"
+          :FITS="fitConfigurations"
           ></app-controls>
 
     </div>
         
-      <div id="plot-panel" class="col-md-10">
-          <div class="panel-group">
-
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="buttonDis" :disabled="!buttonDis">Reset Plot</button>
-                <div id="plot-panel-collapse">Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
-              </div>
-            </div>
-
-            <div id="plot-collapse" class="panel-body">
-              <div id="plot-area"></div>
-              
-              <!-- Fit Results Table to add fit results -->
-              <div id="fit-results-table" class="table-responsive" v-show="fileToFit && currentConfiguration.fit !== 'None'">          
-                <table class="table table-bordered">
-                  <caption><h4>Fit Results:</h4></caption>
-                
-                  <tbody>
-                  <tr>
-                    <td id="fit-file"></td>
-                    <td id="fit-type"></td>
-                    <td id="fit-points"></td>
-                    <td id="fit-range"></td>
-                    <td id="fit-error"></td>
-                  </tr>
-                
-                    <tr>
-                      <td colspan="3" class="sub-heading">Fit Configuration:</td>
-                      <td colspan="2" class="sub-heading">Coefficients:</td>	
-                    </tr>
-                    <tr>
-                      <td colspan="3" id="fit-configs">
-                      <ul>
-                            <li id="fit-damping"></li>
-                            <li id="fit-iterations"></li>
-                            <li id="fit-tolerance"></li>
-                            <li id="fit-gradient"></li>
-                        </ul>
-                      </td>
-                      <td colspan="2" id="fit-coefficients">
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                </div>
-              </div>
-        </div>
-    </div>
+    <app-plot 
+      :BUTTONDIS="buttonDis"
+      :FILETOFIT="fileToFit"
+      ></app-plot>
       </div>
   </div>
 </template>
@@ -81,9 +37,10 @@ import * as d3 from 'd3';
 import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
 import $ from 'jquery';
-import plotCurrentData from '../assets/javascript/plotCurrentData';
-import Controls from './Controls.vue';
-import FileLoad from './FileLoad.vue';
+import pp from 'papaparse';
+import Controls from './ControlsPanel.vue';
+import Files from './FilePanel.vue';
+import Plot from './Plot.vue';
 
 import fd from '../assets/javascript/fitData.js';
 
@@ -93,11 +50,11 @@ import fd from '../assets/javascript/fitData.js';
 import { eventBus } from '../assets/javascript/eventBus';
 
 export default {
-  name: 'main',
-  mixins: [plotCurrentData],
+    name: 'main',
     components: {
       'app-controls': Controls,
-      'app-file-load': FileLoad
+      'app-files': Files,
+      'app-plot': Plot
     },
     created() {
       // Event hooks for 'Controls.vue'
@@ -142,7 +99,9 @@ export default {
         selectedData: [],
         scales: {
           xScale: d3.scaleLinear(),
-          yScale: d3.scaleLinear()
+          xScaleType: 'X',
+          yScale: d3.scaleLinear(),
+          yScaleType: 'Y'
         },
         fileToFit: null,
         isUploaded: false,
@@ -157,17 +116,19 @@ export default {
             xTransformation: 'x',
             eTransformation: "e",
             yLabel: "I",
-            xLabel: "Q"
+            xLabel: "Q",
+            note: ""
         },
         fitConfigurations: {
           'None': {
             fit: 'None',
             equation: null,
-            yTransformation: null,
-            xTransformation: null,
-            eTransformation: null,
+            yTransformation: 'y',
+            xTransformation: 'x',
+            eTransformation: 'e',
             yLabel: "I",
-            xLabel: "Q"
+            xLabel: "Q",
+            note: ""
           },
           'Linear': {
             fit: 'Linear',
@@ -176,25 +137,58 @@ export default {
             xTransformation: 'x',
             eTransformation: "e",
             yLabel: "I",
-            xLabel: "Q"
+            xLabel: "Q",
+            note: ""
           },
           'Guinier': {
             fit: 'Guinier',
-            equation: "-Rg^2/3*x+b",
+            equation: "-Rg^2/3*x+I0",
             yTransformation: "log(y)",
-            xTransformation: "log(x)",
+            xTransformation: "x^2",
             eTransformation: "((1/x)*e)^2",
-            yLabel: "Log(I)",
-            xLabel: "Log(Q)"
+            yLabel: "Log(I(q))",
+            xLabel: "q^2",
+            note: ""
+          },
+          'Low-Q Guinier': {
+            fit: 'Low-Q Guinier',
+            equation: "-(L^2/12+R^2/2)/3*x+I0",
+            yTransformation: "log(y)",
+            xTransformation: "x^2",
+            eTransformation: "((1/x)*e)^2",
+            yLabel: "Log(I(q))",
+            xLabel: "q^2",
+            note: "Cylinder of length L and Radius R"
+          },
+          'Intermediate-Q Guinier': {
+            fit: 'Intermediate-Q Guinier',
+            equation: "-(R^2/2)/3*x+I0/x",
+            yTransformation: "log(x*y)",
+            xTransformation: "x^2",
+            eTransformation: "((1/x)*e)^2",
+            yLabel: "Log(q*I(q))",
+            xLabel: "q^2",
+            note: "Radius R"
+          },
+          'Flat Object Guinier': {
+            fit: 'Flat Object Guinier',
+            equation: "-(T^2/12)/3*x+I0/x^2",
+            yTransformation: "log(x^2*y)",
+            xTransformation: "x^2",
+            eTransformation: "((1/x)*e)^2",
+            yLabel: "Log(q^2*I(q))",
+            xLabel: "q^2",
+            note: "T is the thickness of a flat (lamella) object."
           },
           'Porod': {
             fit: 'Porod',
-            equation: "A-n*x",
-            yTransformation: "log(y)",
-            xTransformation: "log(x)",
-            eTransformation: "((1/x)*e)^2",
-            yLabel: "Log(I)",
-            xLabel: "Log(Q)"
+            equation: "log10(A)-n*log10(x)",
+            yTransformation: "log10(y)",
+            xTransformation: "log10(x)",
+            eTransformation: "(1/y * e)^2",
+            yLabel: "Log10(I(q))",
+            xLabel: "Log10(q)",
+            note: "This is valid for high Q."
           },
           'Zimm': {
             fit: 'Zimm',
@@ -202,17 +196,19 @@ export default {
             yTransformation: "1/y",
             xTransformation: "x^2",
             eTransformation: "((-1/x^2)*e)^2",
-            yLabel: "1/I",
-            xLabel: "Q^2"
+            yLabel: "1/I(q)",
+            xLabel: "q^2",
+            note: ""
           },
           'Kratky': {
             fit: 'Kratky',
             equation: "m*x+b",
-            yTransformation: "log(x^2*y)",
-            xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
-            yLabel: "log(Q^2*I)",
-            xLabel: "Log(Q)"
+            yTransformation: "x^2*log(y)",
+            xTransformation: "x",
+            eTransformation: "(2*x*log(y))^2 + (x^2/y * e)^2",
+            yLabel: "q^2 \times log(I)",
+            xLabel: "q",
+            note: ""
           },
           'Debye Beuche': {
             fit: 'Debye Beuche',
@@ -221,7 +217,8 @@ export default {
             xTransformation: "x^2",
             eTransformation: "(1/(2*sqrt(x))*e)^2",
             yLabel: "sqrt(I)",
-            xLabel: "Q^2"
+            xLabel: "Q^2",
+            note: ""
           }
         },
         scaleConfigurations: {
@@ -261,38 +258,59 @@ export default {
           getFiles(i);
 
           // Set a variable to 'this' to be able to reference the getFiles variable in the scope of the 'getFiles' function
-          var vthis = this;
+          var self = this;
 
           function getFiles(i, test) {
 
             //Make a GET request to data file
             axios.get(files[i].url).then(response => {
 
-              var data = d3.csvParse(response.data, function (d) {
-                // The return statement renames the columns
-                // and removes spaces/formatting and converts the strings to
-                // to numerical values by prefixing with '+'
-                return {
-                  x: +d['# X '],
-                  y: +d[' Y '],
-                  error: +d[' E '],
-                  dx: +d[' DX'],
-                  name: files[i].name
+          var results = pp.parse(response.data, {
+              header : true,
+              dynamicTyping : true, // parse string to int
+              delimiter : "",       // auto-detect
+              newline : "",         // auto-detect
+              quoteChar : '"',
+              skipEmptyLines: true,
+              // This is called before the parsing of the file
+              beforeFirstChunk : function(chunk) {
+                var rows = chunk.split(/\r\n|\r|\n/);
+                // let's find the delimiter on the 3rd row
+                var delimiter = ",";
+                if (rows[2].split("\t").length > 1)
+                  delimiter = "\t";
+
+                var header = rows[0];
+                if (header.startsWith("#")) {
+                  header = header.replace(/#\s*/, '');
+                  header = header.split(/[\s,]+/).join(delimiter);
                 }
-              });
+                rows[0] = header.toLowerCase();
+                // Remove the 2nd row if it's "1"
+                if (rows[1].length <= 1) {
+                  rows.splice(1, 1);
+                }
+                return rows.join("\r\n");
+              },
+              complete : function(result) { console.log(result); }
+            });
 
-              // Each data file has an empty second row so removing it with splice
-              data = data.splice(1, data.length);
-              data = data.filter( (d) => d.y > 0 && d.x > 0); // Filter out negative values for x and y
+          // Filter out negative values for x and y
+          results.data.filter( el => el.y > 0 && el.x > 0);
 
-              vthis.getFiles.push({
-                data: data,
-                fileName: files[i].name,
-              });
+          // Add file name to data objects
+          results.data.forEach( el => el.name = files[i].name);
+          //console.log("results data:", results.data);
+          
+          // Push to Get Files list
+          self.getFiles.push({
+            data: results.data,
+            fileName: files[i].name
+          })
 
               // Add filename to color domain
-              if (vthis.colorDomain.indexOf(files[i].name) === -1) {
-                vthis.colorDomain.push(files[i].name);
+              if (self.colorDomain.indexOf(files[i].name) === -1) {
+                self.colorDomain.push(files[i].name);
               }
             });
           }
@@ -303,34 +321,56 @@ export default {
         var self = this;
 
         function loadFiles(file) {
+
           // Pull the file name and remove the ".txt" extension
           var name = file.name.substr(0, file.name.lastIndexOf('.txt')) || file.name;
           var reader = new FileReader();
 
           reader.onload = function (e) {
-            // Get file content
-            var content = e.target.result;
-            var data = d3.csvParse(content, function (d) {
-              // The return statement renames the columns
-              // and removes spaces/formatting and converts the strings to
-              // to numerical values by prefixing with '+'
-              return {
-                x: +d['# X '],
-                y: +d[' Y '],
-                error: +d[' E '],
-                dx: +d[' DX'],
-                name: name
-              }
+            
+          // Get file content
+          var content = e.target.result;
+
+          var results = pp.parse(content, {
+              header : true,
+              dynamicTyping : true, // parse string to int
+              delimiter : "",       // auto-detect
+              newline : "",         // auto-detect
+              quoteChar : '"',
+              skipEmptyLines: true,
+              // This is called before the parsing of the file
+              beforeFirstChunk : function(chunk) {
+                var rows = chunk.split(/\r\n|\r|\n/);
+                // let's find the delimiter on the 3rd row
+                var delimiter = ",";
+                if (rows[2].split("\t").length > 1)
+                  delimiter = "\t";
+
+                var header = rows[0];
+                if (header.startsWith("#")) {
+                  header = header.replace(/#\s*/, '');
+                  header = header.split(/[\s,]+/).join(delimiter);
+                }
+                rows[0] = header.toLowerCase();
+                // Remove the 2nd row if it's "1"
+                if (rows[1].length <= 1) {
+                  rows.splice(1, 1);
+                }
+                return rows.join("\r\n");
+              },
+              complete : function(result) { console.log(result); }
             });
 
-            // Each data file has an empty second row so removing it with splice
-            data = data.splice(1, data.length);
-            data = data.filter( (d) => d.y > 0 && d.x > 0); // Filter out negative values for x and y
-            // Once data is read in add it to the uploaded list
-            self.uploadedFiles.unshift({
-              data: data,
-              fileName: name
-            });
+          // Add file name to data objects
+          results.data.forEach( el => el.name = name);
+
+          //console.log("results data:", results.data);
+          
+          // Add data to uploaded files list
+          self.uploadedFiles.unshift({
+            data: results.data,
+            fileName: name
+          })
 
             // Add filename to color domain
             if (self.colorDomain.indexOf(name) === -1) {
@@ -369,9 +409,6 @@ export default {
         }
 
       },
-      resetPlot: function () {
-        this.plotParameters();
-      },
       disableButtons: function (bool) {
         this.buttonDis = bool;
       },
@@ -382,6 +419,7 @@ export default {
           // If no data is selected to be plotted, then
           // remove any elements previously plotted
           // and reset to default values
+          console.log("Removing plot elements...");
           d3.select("svg").remove();
           d3.select(".tooltip").remove();
 
@@ -426,13 +464,14 @@ export default {
                 // Set temp file for get
                 let temp = _.cloneDeep(this.getFiles.find(a => a.fileName === el));
                 // console.log("Temp", temp);
-                temp.dataTransformed = [];
+                // temp.dataTransformed = [];
 
-                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                   temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
                   // console.log("Temp data:", temp);
                   this.selectedData.push(temp);
                 } else {
+                  temp.dataTransformed = _.cloneDeep(temp.data);
                   this.selectedData.push(temp);
                 }
 
@@ -441,13 +480,14 @@ export default {
                 
                 // Set temp file for uploaded
                 let temp = _.cloneDeep(this.uploadedFiles.find(a => a.fileName === el));
-                temp.dataTransformed = [];
+                // temp.dataTransformed = [];
 
-                if(this.currentConfiguration.fit !== 'None' && this.currentConfiguration.fit !== 'Linear') {
+                if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                   temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
                   // console.log("Temp data:", temp);
                   this.selectedData.push(temp);
                 } else {
+                  temp.dataTransformed = _.cloneDeep(temp.data);
                   this.selectedData.push(temp);
                 }
               } else {
@@ -460,7 +500,6 @@ export default {
       },
       deleteFile: function (filename) {
         // Function to delete file from the uploaded list
-
         for (var i = 0; i < this.uploadedFiles.length; i++) {
           if (this.uploadedFiles[i].fileName === filename) {
             // Splice will remove the object from array index i    
@@ -477,20 +516,13 @@ export default {
       },
       setScales: function (x, y) {
         this.scales.xScale = this.scaleConfigurations[x];
+        this.scales.xScaleType = x;
         this.scales.yScale = this.scaleConfigurations[y];
+        this.scales.yScaleType = y;
       },
       setFit: function (fitname) {
         //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
         this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]);
-      },
-      plotParameters: function () {
-
-        // Make sure there is selected data to plot
-        // then pass all parameters into an object
-        // when plotting selected data
-        if (this.selectedData.length > 0) {
-          this.plotCurrentData(this.plotParams);
-        }
       },
       prepData: function (sd) {
         // This function is to prepare the data before calling 'plotCurrentData' function
@@ -501,11 +533,7 @@ export default {
         let temp = [];
         for (let i = 0; i < sd.length; i++) {
           // If a fit is set push transformed data, else push normal data
-          if(this.fileToFit === null) {
-            temp.push(sd[i].data);
-          } else {
             temp.push(sd[i].dataTransformed);
-          }
         }
         // console.log("Temp", temp);
         return d3.merge(temp);
@@ -513,20 +541,26 @@ export default {
       setParameters: function () {
         // Function to wrap up all the parameters needed for plotting
         // console.log("Data", this.selectedData);
-        this.plotParams = {
-          data: this.prepData(this.selectedData),
-          colorDomain: this.colorDomain,
-          scales: this.scales,
-          fileToFit: this.fileToFit,
-          fitConfiguration: this.currentConfiguration,
-          fitSettings: this.fitSettings
-        };
+        if(this.selectedData.length > 0) {
+          eventBus.$emit("set-parameters", {
+            data: this.prepData(this.selectedData),
+            colorDomain: this.colorDomain,
+            scales: this.scales,
+            fileToFit: this.fileToFit,
+            fitConfiguration: this.currentConfiguration,
+            fitSettings: this.fitSettings
+          });
+        } else {
+          console.log("No data to plot...");
+          //reset brush selection
+          eventBus.$emit("reset-brush-selection");
+        }
       },
       setEquation: function(eq) {
         this.currentConfiguration.equation = eq;
       },
       setTransformations: function(x,y) {
-        console.log("X: ", x);
+        //console.log("X: ", x);
         this.currentConfiguration.xTransformation = x;
         this.currentConfiguration.yTransformation = y;
       },
@@ -578,26 +612,20 @@ export default {
           // re-transform selected data according to 'xTransformation' and 'yTransformation'
           // then re-fit the 'dataToFit' according to the config's equation
           // console.log("Equation changed...", this.currentConfiguration.equation);
-          if(this.fileToFit !== null) {
+          if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
             //When current data changes after selected
             console.log("re-transforming...");
-            this.selectedData.forEach( el => {
-              el.dataTransformed = fd.transformData(el, this.currentConfiguration);
-            })
+              this.selectedData.forEach( el => {
+                el.dataTransformed = fd.transformData(el, this.currentConfiguration);
+              });
             // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
           } else {
             this.selectedData.forEach( el => {
-              el.dataTransformed = []; // reset since transformed data is 'None' or 'Linear'
+              el.dataTransformed = _.cloneDeep(el.data); // reset since transformed data is 'None' or 'Linear'
             });
           }
         },
         deep: true
-      },
-      plotParams: function () {
-        // Watch for any changes to plotParams, if so plot data
-        if (this.selectedData.length > 0) {
-          this.plotCurrentData(this.plotParams);
-        }
       },
       uploadedFiles: function () {
         // Watch if a file has been uploaded, if so enable delete file buttons
@@ -619,5 +647,4 @@ export default {
 
 <style scoped>
 @import '../assets/styles/main-component-styles.css';
-@import '../assets/styles/plot-styles.css';
 </style>

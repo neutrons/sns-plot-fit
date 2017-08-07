@@ -1,10 +1,97 @@
+<template>
+  <div id="Plot">
+          <div id="plot-panel" class="col-md-10">
+          <div class="panel-group">
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="BUTTONDIS">Reset Plot</button>
+                <div id="plot-panel-collapse">Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
+              </div>
+            </div>
+
+            <div id="plot-collapse" class="panel-body">
+              <div id="plot-area"></div>
+              
+              <!-- Fit Results Table to add fit results -->
+              <div id="fit-results-table" class="table-responsive" v-show="FILETOFIT && fitName !== 'None'">          
+                <table class="table table-bordered">
+                  <caption><h4>Fit Results:</h4></caption>
+                
+                  <tbody>
+                  <tr>
+                    <td id="fit-file"></td>
+                    <td id="fit-type"></td>
+                    <td id="fit-points"></td>
+                    <td id="fit-range"></td>
+                    <td id="fit-error"></td>
+                  </tr>
+                
+                    <tr>
+                      <td colspan="2" class="sub-heading">Fit Configuration:</td>
+                      <td colspan="2" class="sub-heading">Coefficients:</td>	
+                      <td colspan="1" class="sub-heading">Note:</td>
+                    </tr>
+                    <tr>
+                      <td colspan="2" id="fit-configs">
+                      <ul>
+                            <li id="fit-damping"></li>
+                            <li id="fit-iterations"></li>
+                            <li id="fit-tolerance"></li>
+                            <li id="fit-gradient"></li>
+                        </ul>
+                      </td>
+                      <td colspan="2" id="fit-coefficients">
+                      </td>
+                      <td colspan="1" id="fit-note">
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                </div>
+              </div>
+        </div>
+    </div>
+  </div>
+</template>
+
+<script>
+// The eventBus serves as the means to communicating between components.
+// e.g., If scales are reset in 'Controls.vue', an event is emitted
+//       and the event is then 'caught' in 'Main.vue'
+import { eventBus } from '../assets/javascript/eventBus';
+
+import * as _ from 'lodash';
 import * as d3 from 'd3';
 import $ from 'jquery';
-import fd from './fitData';
+import fd from '../assets/javascript/fitData';
 
 export default {
+    name: 'Plot',
+    props: ["FILETOFIT", "BUTTONDIS"],
+    data: function() {
+        return {
+            fitEquation: null,
+            plotLine: null,
+            fitResults: null,
+            plotParams: {},
+            fitData: null,
+            brushSelection: null
+        }
+    },
+    computed: {
+        fitName: function() {
+            return this.plotParams.fitConfiguration.fit;
+        },
+        isFit: function() {
+            return this.plotParams.fileToFit !== null && this.plotParams.fitConfiguration.fit !== 'None';
+        }
+    },
     methods: {
-        plotCurrentData: function (parameters) {
+        plotData: function (parameters) {
+            //Setting 'this' as global when calling vue data variables inside nested functions
+            var self = this;
+
             //Remove any elements previously plotted
             d3.select("svg").remove();
             d3.select(".tooltip").remove();
@@ -12,7 +99,7 @@ export default {
             console.log("Plotting data...");
             
             // Set isFit to check if a file is selected to fit
-            var isFit = parameters.fileToFit !== null && parameters.fitConfiguration.fit !== 'None'
+            var isFit = self.isFit;
 
             // Set Color Scale
             // color domain is set in order for filenames to have
@@ -62,8 +149,10 @@ export default {
             data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x) && d.y > 0);
 
             var xScale = parameters.scales.xScale;
+            var xScaleType = parameters.scales.xScaleType;
             xScale.range([0,width]); //scales according to fit type
             var yScale = parameters.scales.yScale;
+            var yScaleType = parameters.scales.yScaleType;
             yScale.range([height, 0]); //scales according to fit type
             var xTitle = parameters.fitConfiguration.xTransformation; //xTitle according to label
             var yTitle = parameters.fitConfiguration.yTransformation; //yTitle according to label
@@ -127,7 +216,7 @@ export default {
                 .attr("class", "chart");
 
             //Add a Line Plot Function
-            var plotLine = d3.line()
+            self.plotLine = d3.line()
                 .x(function (d) {
                     return xScale(d.x);
                 })
@@ -144,8 +233,11 @@ export default {
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
                 var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation, parameters.fitSettings);
                 var coefficients = fitResults.coefficients;
-                var dataFitted = fitResults.fittedData;
+                self.fitData = fitResults.fittedData;
                 var fitError = fitResults.error;
+                
+                // Assign new fit equation to property data
+                //this.fitEquation = fitResults.fitEquation;
 
                 var margin2 = {
                     top: 25,
@@ -164,7 +256,7 @@ export default {
                 var slider = svg.append("g")
                     .attr("class", "slider")
                     .attr("transform", "translate(" + margin2.left + "," + (height + margin2.top + margin2.bottom) + ")");
-    
+
                 var brush = d3.brushX()
                     .extent([
                         [0, 0],
@@ -172,11 +264,8 @@ export default {
                     ])
                     .on("brush", brushed);
 
-                var brushPlotLine = plotLine;
-
                 // append scatter plot to brush chart area
-                var sliderdots = slider.append("g");
-                sliderdots.selectAll("dotslider")
+                slider.append("g").selectAll("dotslider")
                     .data(dataToFit)
                     .enter().append("line")
                     .attr('class', 'dotslider')
@@ -185,15 +274,26 @@ export default {
                     .attr("x2", function(d) { return xScale2(d.x); })
                     .attr("y2", 0);
 
+                //set initial brushSelection
+                if(self.brushSelection === null) {
+                    self.brushSelection = xScale.range(); // Default selection [0, max(x)]
+                }
+
+                slider.append("g")
+                    .attr("class", "brush")
+                    .call(brush)
+                    .call(brush.move, self.brushSelection); 
+                    //brush.move allows you to set the current selection for the brush element
+                    // this will dynamically update according to the last selection made.
+                    // This is to allow for persistent selections upon the plot being re-drawn.
+
+                //console.log("Here is the xScale range", xScale.range());
+                
                 slider.append("g")
                     .attr("class", "axis axis--x")
                     .attr("transform", "translate(0," + height2 + ")")
                     .call(xAxis2);
 
-                slider.append("g")
-                    .attr("class", "brush")
-                    .call(brush)
-                    .call(brush.move, xScale.range());
             }
 
             /* END OF IS FIT SETUP*/
@@ -237,7 +337,7 @@ export default {
                     (margin.top / 1.5) + ")")
                 .text(yTitle + " vs " + xTitle);
 
-          
+            
             // Nest the entries by name
             var dataNest = d3.nest()
                 .key(function (d) {
@@ -254,7 +354,7 @@ export default {
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                     .datum(d.values)
                     .attr("class", "pointlines")
-                    .attr("d", plotLine)
+                    .attr("d", self.plotLine)
                     .style("fill", "none")
                     .style("stroke", function () {
                         return d.color = color(d.key);
@@ -275,13 +375,13 @@ export default {
                         return xScale(d.x);
                     })
                     .attr('y1', function (d) {
-                        return yScale(d.y + d.error);
+                        return yScale(d.y + d.e);
                     })
                     .attr('y2', function (d) {
-                        if(d.y - d.error < 0 && yTitle === "Log(Y)") {
+                        if(d.y - d.e < 0 && yScaleType === "Log(Y)") {
                             return yScale(d.y)
                         } else {
-                            return yScale(d.y - d.error);
+                            return yScale(d.y - d.e);
                         }
                     })
                     .style("stroke", function () {
@@ -310,10 +410,10 @@ export default {
                         return xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
-                        return yScale(d.y + d.error);
+                        return yScale(d.y + d.e);
                     })
                     .attr('y2', function (d) {
-                        return yScale(d.y + d.error);
+                        return yScale(d.y + d.e);
                     })
                     .style("stroke", function () {
                         return d.color = color(d.key);
@@ -328,8 +428,8 @@ export default {
                     .attr("clip-path", "url(#clip)")
                     .attr('class', 'error-tick-bottom')
                     .filter( function(d) {
-                        if(yTitle === "Log(Y)") {
-                            return d.y - d.error > 0;
+                        if(yScaleType === "Log(Y)") {
+                            return d.y - d.e > 0;
                         } else {
                             return true;
                         }
@@ -341,10 +441,10 @@ export default {
                         return xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
-                        return yScale(d.y - d.error);
+                        return yScale(d.y - d.e);
                     })
                     .attr('y2', function (d) {
-                        return yScale(d.y - d.error);
+                        return yScale(d.y - d.e);
                     })
                     .style("stroke", function () {
                         return d.color = color(d.key);
@@ -359,6 +459,9 @@ export default {
                         .data(d.values)
                         .enter()
                         .append("circle")
+                        .filter(function(d) {
+                            return d.x !== null && d.x !== NaN && d.y !== null && d.y !== NaN;
+                        })
                         .attr("r", 4)
                         .attr("cx", function (d) {
                             return xScale(d.x);
@@ -380,7 +483,7 @@ export default {
                             tooltip.transition()
                                 .duration(200)
                                 .style("opacity", 1);
-                            tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.error.toFixed(6))
+                            tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6))
                                 .style("top", (d3.event.pageY - 40) + "px")
                                 .style("left", (d3.event.pageX + 20) + "px");
                         })
@@ -427,9 +530,9 @@ export default {
                 plot.append("path")
                     .attr("clip-path", "url(#clip)")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    .datum(dataFitted)
+                    .datum(self.fitData)
                     .attr("class", "fitted-line")
-                    .attr("d", plotLine)
+                    .attr("d", self.plotLine)
                     .style("fill", "none")
                     .style("stroke", color(parameters.fileToFit));
 
@@ -453,13 +556,16 @@ export default {
                 d3.select("li#fit-iterations").html("<b>No. Iterations: </b>" + parameters.fitSettings.maxIterations);
                 d3.select("li#fit-tolerance").html("<b>Error Tolerance: </b>" + parameters.fitSettings.errorTolerance);
                 d3.select("li#fit-gradient").html("<b>Gradient Difference: </b>" + parameters.fitSettings.gradientDifference);
+
+                d3.select("#fit-note").html(parameters.fitConfiguration.note);
             }
 
             // Create brush function redraw scatterplot with selection
             function brushed() {
                 // console.log("Calling brush...");
-                var selection = d3.event.selection;
-                if (selection !== null) {
+                self.brushSelection = d3.event.selection;
+
+                if (self.brushSelection !== null) {
                     var e = d3.event.selection.map(xScale2.invert, xScale2);
 
                     slider.selectAll(".dotslider")
@@ -477,12 +583,19 @@ export default {
                     
                     fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation, parameters.fitSettings);
                     coefficients = fitResults.coefficients;
-                    dataFitted = fitResults.fittedData;
+                    self.fitData = fitResults.fittedData;
                     fitError = fitResults.error;
 
+                    // Re-assign updated fit equation and fitline function
+                    self.fitEquation = fitResults.fitEquation;
+                    //self.fitLineFunction = brushPlotLine;
+
+                    //Emit coefficients to controls panel
+                    eventBus.$emit('update-coefficients', coefficients);
+
                     //Add line plot
-                    plot.select(".fitted-line")
-                        .attr("d", brushPlotLine(dataFitted));
+                    plot.select(".fitted-line").data([self.fitData])
+                        .attr("d", self.plotLine);
 
                     // Revise fit results below chart
                     d3.select("td#fit-file").html("<b>File: </b>" + parameters.fileToFit);
@@ -525,7 +638,7 @@ export default {
                     });
 
                 //re-draw line
-                var new_plotLine = d3.line()
+                self.plotLine = d3.line()
                     .x(function (d) {
                         return new_xScale(d.x);
                     })
@@ -534,15 +647,15 @@ export default {
                     });
 
                 plot.selectAll(".pointlines")
-                    .attr("d", new_plotLine);
+                    .attr("d", self.plotLine);
 
                 if(isFit) {
                     // Update brush scales
-                    brushPlotLine = new_plotLine;
+                    //brushPlotLine = new_plotLine;
 
                     // Re-draw fitted line
                     plot.select(".fitted-line")
-                        .attr("d", new_plotLine(dataFitted));
+                        .attr("d", self.plotLine);
                 }
 
                 //re-draw error
@@ -554,14 +667,14 @@ export default {
                         return new_xScale(d.x);
                     })
                     .attr('y1', function (d) {
-                        return new_yScale(d.y + d.error);
+                        return new_yScale(d.y + d.e);
                     })
                     .attr('y2', function (d) {
-                        if(d.y - d.error < 0 && yTitle === "Log(Y)") {
-                            // console.log("Below zero! d.y = " + d.y + " | d.error = " + d.error + "| d.y - d.error = " + (d.y - d.error));
+                        if(d.y - d.e < 0 && yScaleType === "Log(Y)") {
+                            // console.log("Below zero! d.y = " + d.y + " | d.e = " + d.e + "| d.y - d.e = " + (d.y - d.e));
                             return new_yScale(d.y)
                         } else {
-                            return new_yScale(d.y - d.error);
+                            return new_yScale(d.y - d.e);
                         }
                     });
                 
@@ -574,17 +687,17 @@ export default {
                         return new_xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
-                        return new_yScale(d.y + d.error);
+                        return new_yScale(d.y + d.e);
                     })
                     .attr('y2', function (d) {
-                        return new_yScale(d.y + d.error);
+                        return new_yScale(d.y + d.e);
                     });
 
                 //re-draw error tick bottom
                 errorlines.selectAll(".error-tick-bottom")
                     .filter( function(d) {
-                        if(yTitle === "Log(Y)") {
-                            return d.y - d.error > 0;
+                        if(yScaleType === "Log(Y)") {
+                            return d.y - d.e > 0;
                         } else {
                             return true;
                         }
@@ -596,10 +709,10 @@ export default {
                         return new_xScale(d.x) + 4;
                     })
                     .attr('y1', function (d) {
-                        return new_yScale(d.y - d.error);
+                        return new_yScale(d.y - d.e);
                     })
                     .attr('y2', function (d) {
-                        return new_yScale(d.y - d.error);
+                        return new_yScale(d.y - d.e);
                     });
             }
 
@@ -647,6 +760,79 @@ export default {
                 snsChart.attr("height", Math.round(targetWidth / aspectRatio));
             });
 
+    },
+    resetPlot: function () {
+        this.plotData(this.plotParams);
+    },
+    redrawFit: function(c) {
+        console.log("Coefficients are:", c);
+        let temp = d3.select(".fitted-line").datum();
+        let tempX = [];
+
+        temp.forEach(function(d) {
+            tempX.push(d.x);
+        });
+
+        let tempCoefficients = [];
+        for(let key in c) {
+            tempCoefficients.push(c[key]);
+        }
+
+        let newFitEq = this.fitEquation(tempCoefficients);
+
+        let y_fitted = tempX.map(function(el) {
+            return newFitEq(el);
+        });
+
+        // Return the fitted values
+        let fittedPoints = [];
+        
+        for(let i = 0; i < y_fitted.length; i++) {
+            fittedPoints.push({
+                x: tempX[i],
+                y: y_fitted[i]
+            });
+        }
+
+        d3.select(".fitted-line").data([fittedPoints])
+            .attr("d", this.plotLine);
+
+        // Update coefficient values in results table
+        d3.select("td#fit-coefficients").html(function() {
+            let coeffString = "<ul>";
+            for( let key in c) {
+                coeffString += "<li>" + key + " = " + c[key].toFixed(6) + "</li>";
+            }
+            coeffString += "</ul>";
+            return coeffString;
+        });
+    },
+    setParameters: function(parameters) {
+        this.plotParams = _.cloneDeep(parameters);
+    },
+    resetBrushSelection: function() {
+        this.brushSelection = null;
+    }
+},
+created() {
+        //Listen for cofficient changes
+        eventBus.$on("coefficients-updated", this.redrawFit);
+
+        // Listen for events form Main.vue
+        eventBus.$on('set-parameters', this.setParameters);
+        eventBus.$on('reset-brush-selection', this.resetBrushSelection);
+    },
+    watch: {
+        plotParams: {
+            handler: function() {
+                this.$nextTick(function() { this.plotData(this.plotParams);});
+            },
+            deep: true
         }
     }
 }
+</script>
+
+<style scoped>
+@import '../assets/styles/plot-styles.css';
+</style>
