@@ -35,7 +35,7 @@ export default {
     },
     uploadFile: function() {
       let files = document.getElementById("file-upload").files;
-      console.log("Files:", files[0]);
+      //console.log("Files:", files[0]);
       eventBus.$emit('upload-file', files);
     }
   }
