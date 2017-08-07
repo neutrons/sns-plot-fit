@@ -146,8 +146,8 @@ export default {
                 var margin = {
                     top: 50,
                     right: 50,
-                    bottom: 100, // adjusts margin for slider
-                    left: 50
+                    bottom: 120, // adjusts margin for slider
+                    left: 60
                 };
                 
                 // View Height is calculated on a 16:9 aspect ratio
@@ -160,8 +160,8 @@ export default {
                 var margin = {
                     top: 50,
                     right: 50,
-                    bottom: 50,
-                    left: 50
+                    bottom: 70,
+                    left: 60
                 };
 
                 var viewHeight = containerWidth / (16/9);
@@ -263,10 +263,10 @@ export default {
                 //this.fitEquation = fitResults.fitEquation;
 
                 var margin2 = {
-                    top: 25,
+                    top: 10,
                     right: 50,
-                    bottom: 50,
-                    left: 50
+                    bottom: 70,
+                    left: 60
                 };
 
                 var height2 = 25;
@@ -347,7 +347,7 @@ export default {
             svg.append("text")
                 .attr("transform",
                     "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
-                    (height + margin.top + margin.bottom) + ")")
+                    (height + margin.top / 1.5 + margin.bottom) + ")")
                 .style("text-anchor", "middle")
                 .style("font-weight", "bold")
                 .text(xTitle);
