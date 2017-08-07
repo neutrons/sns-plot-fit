@@ -34,6 +34,7 @@ export default {
   },
   mounted() {
 
+      // Event listeners are added for monitoring drag 'n drop of data files.
       window.addEventListener("dragenter", function (e) {
               document.querySelector("#dropzone").style.visibility = "";
               document.querySelector("#dropzone").style.opacity = 1;
@@ -62,11 +63,11 @@ export default {
           document.querySelector("#dropzone").style.opacity = 0;
           document.querySelector("#textnode").style.fontSize = "42px";
           
-        var files = e.dataTransfer.files;
-          console.log("Drop files:", files);
-          //this.uploadFile(files);
-          eventBus.$emit("upload-file", files);
-        });
+      var files = e.dataTransfer.files;
+        console.log("Drop files:", files);
+        //this.uploadFile(files);
+        eventBus.$emit("upload-file", files);
+      });
   }
 }
 </script>
