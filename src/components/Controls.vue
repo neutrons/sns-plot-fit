@@ -215,11 +215,10 @@ export default {
     },
     enterCoefficients: function() {
         console.log("Entering coefficients...");
-        let c = [];
+        let c = {};
         for(let key in this.coefficients) {
             let val = document.getElementById(key+"-input").value;
-            //this.coefficients[key] = val;
-            c.push(val);
+            c[key] = +val;
         }
 
         eventBus.$emit("coefficients-updated", _.cloneDeep(c));

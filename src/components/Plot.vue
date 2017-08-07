@@ -773,7 +773,12 @@ export default {
             tempX.push(d.x);
         });
 
-        let newFitEq = this.fitEquation(c);
+        let tempCoefficients = [];
+        for(let key in c) {
+            tempCoefficients.push(c[key]);
+        }
+
+        let newFitEq = this.fitEquation(tempCoefficients);
 
         let y_fitted = tempX.map(function(el) {
             return newFitEq(el);
@@ -791,6 +796,16 @@ export default {
 
         d3.select(".fitted-line").data([fittedPoints])
             .attr("d", this.plotLine);
+
+        // Update coefficient values in results table
+        d3.select("td#fit-coefficients").html(function() {
+            let coeffString = "<ul>";
+            for( let key in c) {
+                coeffString += "<li>" + key + " = " + c[key].toFixed(6) + "</li>";
+            }
+            coeffString += "</ul>";
+            return coeffString;
+        });
     },
     setParameters: function(parameters) {
         this.plotParams = _.cloneDeep(parameters);
