@@ -202,16 +202,6 @@ export default {
             console.log("New transformation y", newYTrans);
             eventBus.$emit('set-transformations', newXTrans, newYTrans);
         }
-        // if( newXTrans.match(/[^()xy0-9*+/-]/) || newYTrans.match(/[^()xy0-9*+/-]/) ) {
-        //     this.isError = true;
-        //     console.log("Hey wrong!");
-        // } else {
-        //     this.isError = false;
-        //     console.log("Changing transformations...");
-        //     console.log("New transformations X", newXTrans);
-        //     console.log("New transformation y", newYTrans);
-        //     eventBus.$emit('set-transformations', newXTrans, newYTrans);
-        // }
     },
     enterCoefficients: function() {
         console.log("Entering coefficients...");
@@ -264,7 +254,7 @@ export default {
     eventBus.$on('set-fit-back', this.setFitBack);
     eventBus.$on('set-fit-settings-back', this.resetSettings);
 
-    //Listen to emit from plotCurrentData.js
+    // Listen to emit from plotCurrentData.js
     eventBus.$on('update-coefficients', this.updateCoefficients);
   }
 }
