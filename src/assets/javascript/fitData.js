@@ -69,6 +69,8 @@ fd.fitData = function(data, equation, fitsettings) {
         tempData.y.push(d.y);
     });
 
+    // console.log("temp data:", tempData);
+
     // Parse the string. We might need some validation here
     var n_parsed = math.parse(equation);
 
@@ -112,7 +114,7 @@ fd.fitData = function(data, equation, fitsettings) {
     var fitted_params = LM(tempData, fit_function, options);
     // console.log("---- Fitted Parameters ---")
     // for (let i = 0; i < parameter_names_to_fit.length; i++) {
-        // console.log(parameter_names_to_fit[i], "=", fitted_params.parameterValues[i])
+    //     console.log(parameter_names_to_fit[i], "=", fitted_params.parameterValues[i])
     // }
     // console.log("Error =", fitted_params.parameterError)
     // console.log("Iterations =", fitted_params.iterations)

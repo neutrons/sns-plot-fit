@@ -618,6 +618,9 @@ export default {
                     //Emit coefficients to controls panel
                     eventBus.$emit('update-coefficients', coefficients);
 
+                    // Filter out fitted y's <=0, this is to prevent Y-scale: log(y <= 0) and Y values cannot be negative.
+                    self.fitData = self.fitData.filter( el => el.y > 0);
+
                     //Add line plot
                     plot.select(".fitted-line").data([self.fitData])
                         .attr("d", self.plotLine);
