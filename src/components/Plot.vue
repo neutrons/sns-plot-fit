@@ -11,10 +11,12 @@
             </div>
 
             <div id="plot-collapse" class="panel-body">
+              <div id="plot-errors"></div>
+
               <div id="plot-area"></div>
               
               <!-- Fit Results Table to add fit results -->
-              <div id="fit-results-table" class="table-responsive" v-show="FILETOFIT && fitName !== 'None'">          
+              <div id="fit-results-table" class="table-responsive" v-show="FILETOFIT && fitName !== 'None' && !isError">          
                 <table class="table table-bordered">
                   <caption><h4>Fit Results:</h4></caption>
                 
@@ -76,7 +78,8 @@ export default {
             fitResults: null,
             plotParams: {},
             fitData: null,
-            brushSelection: null
+            brushSelection: null,
+            isError: false
         }
     },
     computed: {
@@ -91,6 +94,30 @@ export default {
         plotData: function (parameters) {
             //Setting 'this' as global when calling vue data variables inside nested functions
             var self = this;
+
+            var data = parameters.data; //regular data to plot
+            // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
+            data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x) && d.y > 0);
+           
+            //Catch any empty data and throw an error
+            if(data.length < 1) {
+                console.log("No data! Error!");
+
+                //Remove any elements previously plotted
+                d3.select("svg").remove();
+                d3.select(".tooltip").remove();
+                self.isError = !self.isError;
+
+                let div = document.createElement("div");
+                div.innerHTML = '<div id="nodata-error" class="alert alert-danger alert-dismissable fade in">\
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
+                    <strong>Warning!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.\
+                </div>';
+                document.getElementById("plot-errors").appendChild(div);
+                return;
+            } else {
+                self.isError = false;
+            }
 
             //Remove any elements previously plotted
             d3.select("svg").remove();
@@ -119,8 +146,8 @@ export default {
                 var margin = {
                     top: 50,
                     right: 50,
-                    bottom: 100, // adjusts margin for slider
-                    left: 50
+                    bottom: 120, // adjusts margin for slider
+                    left: 60
                 };
                 
                 // View Height is calculated on a 16:9 aspect ratio
@@ -133,8 +160,8 @@ export default {
                 var margin = {
                     top: 50,
                     right: 50,
-                    bottom: 50,
-                    left: 50
+                    bottom: 70,
+                    left: 60
                 };
 
                 var viewHeight = containerWidth / (16/9);
@@ -143,10 +170,6 @@ export default {
             
             
             var width = containerWidth - margin.left - margin.right;
-            var data = parameters.data; //regular data to plot
-
-            // Filter any infinity values before plotting, this will happen when transforming log data = 0
-            data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x) && d.y > 0);
 
             var xScale = parameters.scales.xScale;
             var xScaleType = parameters.scales.xScaleType;
@@ -240,10 +263,10 @@ export default {
                 //this.fitEquation = fitResults.fitEquation;
 
                 var margin2 = {
-                    top: 25,
+                    top: 10,
                     right: 50,
-                    bottom: 50,
-                    left: 50
+                    bottom: 70,
+                    left: 60
                 };
 
                 var height2 = 25;
@@ -324,7 +347,7 @@ export default {
             svg.append("text")
                 .attr("transform",
                     "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
-                    (height + margin.top + margin.bottom) + ")")
+                    (height + margin.top / 1.5 + margin.bottom) + ")")
                 .style("text-anchor", "middle")
                 .style("font-weight", "bold")
                 .text(xTitle);
@@ -564,9 +587,14 @@ export default {
             function brushed() {
                 // console.log("Calling brush...");
                 self.brushSelection = d3.event.selection;
+                
+                var e = d3.event.selection.map(xScale2.invert, xScale2);
+                
+                let selectedData = dataToFit.filter(function(d) {
+                    return e[0] <= d.x && d.x <= e[1];
+                })
 
-                if (self.brushSelection !== null) {
-                    var e = d3.event.selection.map(xScale2.invert, xScale2);
+                if (self.brushSelection !== null && selectedData.length > 1) {
 
                     slider.selectAll(".dotslider")
                         .style("stroke", function (d) {
@@ -577,9 +605,6 @@ export default {
                             }
                         })
 
-                    let selectedData = dataToFit.filter(function(d) {
-                        return e[0] <= d.x && d.x <= e[1];
-                    })
                     
                     fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation, parameters.fitSettings);
                     coefficients = fitResults.coefficients;
@@ -590,8 +615,23 @@ export default {
                     self.fitEquation = fitResults.fitEquation;
                     //self.fitLineFunction = brushPlotLine;
 
+                    // Filter out fitted y's <=0, this is to prevent Y-scale: log(y <= 0) and Y values cannot be negative.
+                    self.fitData = self.fitData.filter( el => el.y > 0);
+
+                    if(self.fitData.length <= 0) {
+                        let errorCheck = document.getElementById("selection-error");
+                        if(errorCheck === null) {
+                            let div = document.createElement("div");
+                            div.innerHTML = '<div id="selection-error" class="alert alert-danger alert-dismissable fade in">\
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
+                                <strong>Warning!</strong> Fitted y-values < 0, thus no fit-line to display.\
+                            </div>';
+                            document.getElementById("plot-area").appendChild(div);
+                        }
+                    }
                     //Emit coefficients to controls panel
                     eventBus.$emit('update-coefficients', coefficients);
+
 
                     //Add line plot
                     plot.select(".fitted-line").data([self.fitData])
@@ -612,6 +652,18 @@ export default {
                         coeffString += "</ul>";
                         return coeffString;
                     });
+                } else {
+                    // Notify user that more data needs to be selected for the fit
+                    var errorCheck = document.getElementById("selection-error");
+                    if(errorCheck === null) {
+                        var div = document.createElement("div");
+                        div.innerHTML = '<div id="selection-error" class="alert alert-danger alert-dismissable fade in">\
+                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
+                            <strong>Warning!</strong> Not enough data selected, please select 2 or more points...\
+                            If plot is blank, no data is available for generating a fit line.\
+                        </div>';
+                        document.getElementById("plot-area").appendChild(div);
+                    }
                 }
             }
 
@@ -808,6 +860,7 @@ export default {
         });
     },
     setParameters: function(parameters) {
+        // Check data is valid prior to plotting
         this.plotParams = _.cloneDeep(parameters);
     },
     resetBrushSelection: function() {
@@ -835,4 +888,10 @@ created() {
 
 <style scoped>
 @import '../assets/styles/plot-styles.css';
+
+#selection-error {
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
 </style>
