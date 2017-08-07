@@ -615,11 +615,23 @@ export default {
                     self.fitEquation = fitResults.fitEquation;
                     //self.fitLineFunction = brushPlotLine;
 
+                    // Filter out fitted y's <=0, this is to prevent Y-scale: log(y <= 0) and Y values cannot be negative.
+                    self.fitData = self.fitData.filter( el => el.y > 0);
+
+                    if(self.fitData.length <= 0) {
+                        let errorCheck = document.getElementById("selection-error");
+                        if(errorCheck === null) {
+                            let div = document.createElement("div");
+                            div.innerHTML = '<div id="selection-error" class="alert alert-danger alert-dismissable fade in">\
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
+                                <strong>Warning!</strong> Fitted y-values < 0, thus no fit-line to display.\
+                            </div>';
+                            document.getElementById("plot-area").appendChild(div);
+                        }
+                    }
                     //Emit coefficients to controls panel
                     eventBus.$emit('update-coefficients', coefficients);
 
-                    // Filter out fitted y's <=0, this is to prevent Y-scale: log(y <= 0) and Y values cannot be negative.
-                    self.fitData = self.fitData.filter( el => el.y > 0);
 
                     //Add line plot
                     plot.select(".fitted-line").data([self.fitData])
