@@ -7,13 +7,18 @@
       </div>
       
       <app-title></app-title>
-      <app-main></app-main>
+
+      <keep-alive>
+        <component :is="currentPlot">
+        </component>
+      </keep-alive>
   </div>
 </template>
 
 <script>
 
-import Main from './components/Main.vue';
+import main1D from './components/1D/main1D.vue';
+import main2D from './components/2D/main2d.vue';
 import Title from './components/Title.vue';
 
 // The eventBus serves as the means to communicating between components.
@@ -24,15 +29,24 @@ import { eventBus } from './assets/javascript/eventBus';
 export default {
   name: 'app',
   components: {
-    'app-main': Main,
+    main1D,
+    main2D,
     'app-title': Title
   },
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      currentPlot: "main1D"
+    }
+  },
+  methods: {
+    switchPlotComponent: function(plotComp) {
+      this.currentPlot = plotComp;
     }
   },
   mounted() {
+
+      // Listen for events from Title
+      eventBus.$on('switch-plot-component', this.switchPlotComponent);
 
       // Event listeners are added for monitoring drag 'n drop of data files.
       window.addEventListener("dragenter", function (e) {

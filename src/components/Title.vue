@@ -6,10 +6,16 @@
         <div class="navbar-header">
           <a class="navbar-brand" href="#"><img src="../assets/ornl_logo.png"></a>
         </div>
-          <ul class="nav navbar-nav navbar-right">
-            <li><button class="btn btn-primary btn-fetch" @click="fetchData">Fetch Data <span class="glyphicon glyphicon-download"></span></button></li>
-            <li><label class="btn btn-primary btn-upload">Load Files <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile" multiple></label></li>
-          </ul>
+
+        <ul class="nav navbar-nav">
+          <li @click="switchPlots('main1D')">1D Plot</li>
+          <li @click="switchPlots('main2D')">2D Plot</li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li><button class="btn btn-primary btn-fetch" @click="fetchData">Fetch Data <span class="glyphicon glyphicon-download"></span></button></li>
+          <li><label class="btn btn-primary btn-upload">Load Files <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile" multiple></label></li>
+        </ul>
       </div>
     </nav>
     
@@ -37,6 +43,10 @@ export default {
       let files = document.getElementById("file-upload").files;
       //console.log("Files:", files[0]);
       eventBus.$emit('upload-file', files);
+    },
+    switchPlots: function(plotType) {
+      console.log("Switching plots...", plotType);
+      eventBus.$emit('switch-plot-component', plotType);
     }
   }
 }

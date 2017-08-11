@@ -61,12 +61,12 @@
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
-import { eventBus } from '../assets/javascript/eventBus';
+import { eventBus } from '../../assets/javascript/eventBus';
 
 import * as _ from 'lodash';
 import * as d3 from 'd3';
 import $ from 'jquery';
-import fd from '../assets/javascript/fitData';
+import fd from '../../assets/javascript/fitData';
 
 export default {
     name: 'Plot',
@@ -887,7 +887,7 @@ created() {
 </script>
 
 <style scoped>
-@import '../assets/styles/plot-styles.css';
+@import '../../assets/styles/plot-styles.css';
 
 #selection-error {
     position: absolute;

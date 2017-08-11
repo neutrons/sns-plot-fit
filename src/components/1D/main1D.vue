@@ -42,12 +42,12 @@ import Controls from './ControlsPanel.vue';
 import Files from './FilePanel.vue';
 import Plot from './Plot.vue';
 
-import fd from '../assets/javascript/fitData.js';
+import fd from '../../assets/javascript/fitData.js';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
-import { eventBus } from '../assets/javascript/eventBus';
+import { eventBus } from '../../assets/javascript/eventBus';
 
 export default {
     name: 'main',
@@ -646,5 +646,5 @@ export default {
 </script>
 
 <style scoped>
-@import '../assets/styles/main-component-styles.css';
+@import '../../assets/styles/main-component-styles.css';
 </style>
