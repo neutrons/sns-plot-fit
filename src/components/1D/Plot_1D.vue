@@ -1,12 +1,12 @@
 <template>
-  <div id="Plot">
-          <div id="plot-panel" class="col-md-10">
+  <div id="Plot" class="col-md-10">
+          <div id="plot-panel">
           <div class="panel-group">
 
             <div class="panel panel-default">
               <div class="panel-heading">
                 <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="BUTTONDIS">Reset Plot</button>
-                <div id="plot-panel-collapse">Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
+                <div id="plot-panel-collapse">1D Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
               </div>
             </div>
 

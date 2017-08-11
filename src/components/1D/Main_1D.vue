@@ -1,34 +1,34 @@
 <template>
-  <div id="main">
+  <div id="main1D" class="col-md-12">
     <div class="container-fluid">
 
-    <div id="left-sidebar" class="col-md-2">
+      <div id="left-sidebar" class="col-md-2">
 
-        <!--Pass variables to fileload component-->
-          <app-files
-          :BUTTONDIS="buttonDis"
-          :GETFILES="getFiles"
-          :UPLOADEDFILES="uploadedFiles"
-          :ISUPLOADED="isUploaded"
-          ></app-files>
+          <!--Pass variables to fileload component-->
+            <app-files
+            :BUTTONDIS="buttonDis"
+            :GETFILES="getFiles"
+            :UPLOADEDFILES="uploadedFiles"
+            :ISUPLOADED="isUploaded"
+            ></app-files>
 
-      <!--Pass variables to controls component-->
-          <app-controls
-          :BUTTONDIS="buttonDis"
-          :FILETOFIT="fileToFit"
-          :EQUATION="$data.currentConfiguration.equation"
-          :XTRANS="$data.currentConfiguration.xTransformation"
-          :YTRANS="$data.currentConfiguration.yTransformation"
-          :FITS="fitConfigurations"
-          ></app-controls>
+        <!--Pass variables to controls component-->
+            <app-controls
+            :BUTTONDIS="buttonDis"
+            :FILETOFIT="fileToFit"
+            :EQUATION="$data.currentConfiguration.equation"
+            :XTRANS="$data.currentConfiguration.xTransformation"
+            :YTRANS="$data.currentConfiguration.yTransformation"
+            :FITS="fitConfigurations"
+            ></app-controls>
 
-    </div>
-        
-    <app-plot 
-      :BUTTONDIS="buttonDis"
-      :FILETOFIT="fileToFit"
-      ></app-plot>
       </div>
+          
+      <app-plot 
+        :BUTTONDIS="buttonDis"
+        :FILETOFIT="fileToFit"
+      ></app-plot>
+    </div>
   </div>
 </template>
 
@@ -38,9 +38,9 @@ import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
 import $ from 'jquery';
 import pp from 'papaparse';
-import Controls from './ControlsPanel.vue';
-import Files from './FilePanel.vue';
-import Plot from './Plot.vue';
+import Controls from './ControlsPanel_1D.vue';
+import Files from './FilePanel_1D.vue';
+import Plot from './Plot_1D.vue';
 
 import fd from '../../assets/javascript/fitData.js';
 
@@ -50,7 +50,7 @@ import fd from '../../assets/javascript/fitData.js';
 import { eventBus } from '../../assets/javascript/eventBus';
 
 export default {
-    name: 'main',
+    name: 'main1D',
     components: {
       'app-controls': Controls,
       'app-files': Files,
