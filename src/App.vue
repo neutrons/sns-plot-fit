@@ -136,7 +136,7 @@ div#textnode {
 /* Transition Effects for 1D and 2D plot components  */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.75s;
+  transition: opacity 1.5s;
 }
 
 .fade-enter,

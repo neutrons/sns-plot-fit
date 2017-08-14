@@ -18,24 +18,25 @@
                     </div>
                     <div id="collapse-scales" class="panel-collapse collapse in">
                         <div class="panel-body">
-
-                            <!-- X Scale Selection -->
-                            <div class="input-group">
-                                <span class="input-group-addon">X Scale</span>
-                                <select class="form-control" v-model="xScale" :disabled="!BUTTONDIS" @change="setScales">
-                                    <option v-for="option in xScales">{{option}}</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Y Scale Selection -->
-                            <div class="input-group">
-                                <span class="input-group-addon">Y Scale</span>
-                                <select class="form-control" v-model="yScale" :disabled="!BUTTONDIS" @change="setScales">
-                                    <option v-for="option in yScales">{{option}}</option>
-                                </select>
-                            </div>
-                            
-                            <button id="btn-reset-scales" class="btn btn-warning btn-sm" @click="resetScales" :disabled="!BUTTONDIS">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
+                            <fieldset :disabled="!BUTTONDIS">
+                                <!-- X Scale Selection -->
+                                <div class="input-group">
+                                    <span class="input-group-addon">X Scale</span>
+                                    <select class="form-control" v-model="xScale" @change="setScales">
+                                        <option v-for="option in xScales">{{option}}</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Y Scale Selection -->
+                                <div class="input-group">
+                                    <span class="input-group-addon">Y Scale</span>
+                                    <select class="form-control" v-model="yScale" @change="setScales">
+                                        <option v-for="option in yScales">{{option}}</option>
+                                    </select>
+                                </div>
+                                
+                                <button id="btn-reset-scales" class="btn btn-warning btn-sm" @click="resetScales">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
+                            </fieldset>
                         </div>
                     </div>
                 </div>
@@ -47,19 +48,21 @@
                     </div>
                     <div id="collapse-transformations" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <div class="input-group">
-                                <span class="input-group-addon">X</span>
-                                <input type="text" class="form-control" :value="XTRANS" id="x-transform" @keyup.enter="enterTransformations" :disabled="!BUTTONDIS" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
-                            </div>
+                            <fieldset :disabled="!BUTTONDIS">
+                                <div class="input-group">
+                                    <span class="input-group-addon">X</span>
+                                    <input type="text" class="form-control" :value="XTRANS" id="x-transform" @keyup.enter="enterTransformations" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                                </div>
 
-                            <div class="input-group">
-                                <span class="input-group-addon">Y</span>
-                                <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" :disabled="!BUTTONDIS" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
-                            </div>
-                            
-                            <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
-                            <div id="transformation-error"></div>
-                            <button id="btn-reset-transformation" class="btn btn-warning btn-sm" @click="resetTransformation" :disabled="!BUTTONDIS">Reset <span class="glyphicon glyphicon-refresh"></span></button>
+                                <div class="input-group">
+                                    <span class="input-group-addon">Y</span>
+                                    <input type="text" class="form-control" :value="YTRANS" id="y-transform" @keyup.enter="enterTransformations" @focus="isTransFocus = !isTransFocus" @blur="isTransFocus = !isTransFocus">
+                                </div>
+                                
+                                <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
+                                <div id="transformation-error"></div>
+                                <button id="btn-reset-transformation" class="btn btn-warning btn-sm" @click="resetTransformation">Reset <span class="glyphicon glyphicon-refresh"></span></button>
+                            </fieldset>
                         </div>
                     </div>
                 </div>
@@ -87,13 +90,15 @@
                             <p class="equation-title" v-if="isFocus">Press <strong>[enter]</strong> to change equation</p>
 
                             <!-- Coefficients Input/Editer-->
-                            <div v-if="isCoefficients">
-                                <div class="coefficients-input input-group" v-for="(coef, key) in coefficients">
-                                    <span class="input-group-addon">{{ key }}</span>
-                                    <input type="text" class="form-control" :id="key + '-input'" :value="coef" @keyup.enter="enterCoefficients">
+                            <fieldset :disabled="!FILETOFIT">
+                                <div v-if="isCoefficients">
+                                    <div class="coefficients-input input-group" v-for="(coef, key) in coefficients">
+                                        <span class="input-group-addon">{{ key }}</span>
+                                        <input type="text" class="form-control" :id="key + '-input'" :value="coef" @keyup.enter="enterCoefficients">
+                                    </div>
                                 </div>
-                            </div>
-                            <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit" :disabled="!FILETOFIT">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
+                                <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
+                            </fieldset>
                         </div>
                     </div>
                 </div>
@@ -105,19 +110,21 @@
                     </div>
                     <div id="collapse-fit-settings" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <label>Damping: <span class="damping-output">{{ fitSettings.damping }}</span></label>
-                            <input type="range" v-model.number="fitSettings.damping" min="0.001" max="10" step="0.001" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
+                            <fieldset :disabled="!FILETOFIT">
+                                <label>Damping: <span class="damping-output">{{ fitSettings.damping }}</span></label>
+                                <input type="range" v-model.number="fitSettings.damping" min="0.001" max="10" step="0.001" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
 
-                            <label>Gradient Difference: <span class="iteration-output">{{ fitSettings.gradientDifference }}</span></label>
-                            <input type="range" v-model.number="fitSettings.gradientDifference" min="0.01" max="1" step="0.01" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
-                            
-                            <label>Max Iterations: <span class="iteration-output">{{ fitSettings.maxIterations }}</span></label>
-                            <input type="range" v-model.number="fitSettings.maxIterations" min="100" max="10000" step="100" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
-                            
-                            <label>Error Tolerance: <span class="tolerance-output">{{ fitSettings.errorTolerance }}</span></label>
-                            <input type="range" v-model.number="fitSettings.errorTolerance" min="0.001" max="1" step="0.001" :disabled="!FILETOFIT" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
-                            <br>
-                            <button id="btn-reset-fit-settings" class="btn btn-warning btn-sm" @click="resetSettings" :disabled="!FILETOFIT">Default Settings <span class="glyphicon glyphicon-remove-sign" ></span></button>
+                                <label>Gradient Difference: <span class="iteration-output">{{ fitSettings.gradientDifference }}</span></label>
+                                <input type="range" v-model.number="fitSettings.gradientDifference" min="0.01" max="1" step="0.01" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
+                                
+                                <label>Max Iterations: <span class="iteration-output">{{ fitSettings.maxIterations }}</span></label>
+                                <input type="range" v-model.number="fitSettings.maxIterations" min="100" max="10000" step="100" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
+                                
+                                <label>Error Tolerance: <span class="tolerance-output">{{ fitSettings.errorTolerance }}</span></label>
+                                <input type="range" v-model.number="fitSettings.errorTolerance" min="0.001" max="1" step="0.001" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
+                                <br>
+                                <button id="btn-reset-fit-settings" class="btn btn-warning btn-sm" @click="resetSettings">Default Settings <span class="glyphicon glyphicon-remove-sign" ></span></button>
+                            </fieldset>
                         </div>
                     </div>
                 </div>
