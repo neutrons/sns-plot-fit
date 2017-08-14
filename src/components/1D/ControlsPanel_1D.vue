@@ -35,7 +35,7 @@
                                     </select>
                                 </div>
                                 
-                                <button id="btn-reset-scales" class="btn btn-warning btn-sm" @click="resetScales">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
+                                <button class="btn btn-warning btn-sm btn-block" @click="resetScales">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
                             </fieldset>
                         </div>
                     </div>
@@ -61,7 +61,7 @@
                                 
                                 <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
                                 <div id="transformation-error"></div>
-                                <button id="btn-reset-transformation" class="btn btn-warning btn-sm" @click="resetTransformation">Reset <span class="glyphicon glyphicon-refresh"></span></button>
+                                <button class="btn btn-warning btn-sm btn-block" @click="resetTransformation">Reset <span class="glyphicon glyphicon-refresh"></span></button>
                             </fieldset>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                                         <input type="text" class="form-control" :id="key + '-input'" :value="coef" @keyup.enter="enterCoefficients">
                                     </div>
                                 </div>
-                                <button id="btn-remove-fit" class="btn btn-danger btn-sm" @click="resetFit">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
+                                <button class="btn btn-danger btn-sm btn-block" @click="resetFit">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
                             </fieldset>
                         </div>
                     </div>
@@ -123,7 +123,7 @@
                                 <label>Error Tolerance: <span class="tolerance-output">{{ fitSettings.errorTolerance }}</span></label>
                                 <input type="range" v-model.number="fitSettings.errorTolerance" min="0.001" max="1" step="0.001" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
                                 <br>
-                                <button id="btn-reset-fit-settings" class="btn btn-warning btn-sm" @click="resetSettings">Default Settings <span class="glyphicon glyphicon-remove-sign" ></span></button>
+                                <button class="btn btn-warning btn-sm btn-block" @click="resetSettings">Default Settings <span class="glyphicon glyphicon-remove-sign" ></span></button>
                             </fieldset>
                         </div>
                     </div>
@@ -283,10 +283,6 @@ export default {
   padding: 25px;
   background-color: gainsboro;
   border-right: 1px solid rgba(0,0,0,0.25);
-}
-
-#btn-reset-scales, #btn-remove-fit, #btn-reset-fit-settings, #btn-reset-transformation {
-  width: 100%;
 }
 
 .equation-title, .transformation-title {
