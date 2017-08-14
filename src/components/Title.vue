@@ -98,7 +98,7 @@ export default {
               results.data.forEach(el => el.name = fileName);
 
               // Push to 2D Get Files list
-              eventBus.$emit('add-get-2D', data);
+              eventBus.$emit('add-get-2D', {data: results.data, fileName: fileName});
               });
             } else {
               // error, don't read for now
@@ -125,7 +125,6 @@ export default {
 
           // Pull the file name and remove the ".txt" extension
           var fileURL = file.name;
-          var fileName = file.name.substr(0, file.name.lastIndexOf('.txt')) || file.name;
           var reader = new FileReader();
 
           reader.onload = function (e) {
@@ -141,22 +140,24 @@ export default {
             results.data.filter(el => el.y > 0 && el.x > 0);
 
             // Add file name to data objects
+            var fileName = file.name.substr(0, file.name.lastIndexOf('.txt')) || file.name;
             results.data.forEach(el => el.name = fileName);
             //console.log("results data:", results.data);
 
             // Push to 1D Get Files list
-            eventBus.$emit('add-uploaded-1D', {data: results.data,
-                                          fileName: fileName });
+            eventBus.$emit('add-uploaded-1D', {data: results.data, fileName: fileName });
 
           } else if (self.dataType(fileURL) === '2D') {
             // Code to read Upload 2D file
-            let results = self.read2D(response.data);
+            let results = self.read2D(content);
+            // console.log("results", results);
 
             // Add file name to data objects
+            var fileName = file.name.substr(0, file.name.lastIndexOf('.dat')) || file.name;
             results.data.forEach(el => el.name = fileName);
 
             // Push to 2D Get Files list
-            eventBus.$emit('add-uploaded-2D', data);
+            eventBus.$emit('add-uploaded-2D', {data: results.data, fileName: fileName });
 
           } else {
             let errorMsg = "<strong>Error! </strong>" + fileURL + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
@@ -170,9 +171,9 @@ export default {
         }
 
         for (var i = 0; i < files.length; i++) {
-          console.log("File["+i+"]", files[i]);
-          let fileName = files[i].name.substr(0, files[i].name.lastIndexOf('.txt')) || files[i].name;
-          console.log("Filename:", fileName);
+          // console.log("File["+i+"]", files[i]);
+          // let fileName = files[i].name.substr(0, files[i].name.lastIndexOf('.txt')) || files[i].name;
+          // console.log("Filename:", fileName);
           
           loadFiles(files[i]);
           // if (files[i].type !== "text/plain") {

@@ -1,5 +1,5 @@
 <template>
-  <div id="Controls">
+  <div id="Controls1d">
 
       <div id="control-panel">
 
@@ -145,7 +145,7 @@ import fd from '../../assets/javascript/fitData';
 import * as _ from 'lodash';
 
 export default {
-  name: 'Controls',
+  name: 'Controls1d',
   props: ["BUTTONDIS", "FILETOFIT", "EQUATION", "XTRANS", "YTRANS", "FITS"],
   data: function() {
     return {

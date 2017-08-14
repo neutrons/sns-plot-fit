@@ -66,8 +66,6 @@ export default {
       eventBus.$on('reset-transformation', this.resetTransformation);
 
       // Event hooks for 'FileLoad.vue'
-      eventBus.$on('fetch-data', this.fetchData);
-      eventBus.$on('upload-file', this.uploadFile);
       eventBus.$on('set-current-data', this.setCurrentData);
       eventBus.$on('set-fit-file', this.setFitFile);
       eventBus.$on('remove-uploaded-files', this.removeUploadedFiles);

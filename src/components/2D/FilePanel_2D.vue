@@ -13,7 +13,7 @@
 
               <!-- Get Files Panel  -->
               <div class="panel-group">
-                <div class="panel panel-success">
+                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" href="#collapse-get-files-2d">Get Files</a>
                     </div>
@@ -31,7 +31,7 @@
                                     <table class="table table-condensed table-hover table-bordered">
                                     <tbody>
                                         <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
-                                        <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(data.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
+                                        <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="filePlotChoices" @change="setFileToPlot"></td>
                                         <td>{{ data.fileName }}</td>
                                         </tr>
                                     </tbody>
@@ -39,7 +39,7 @@
                         </div>
                     </div>
                   </div>
-                </div>
+                </div> 
 
                 <!-- Uploaded Files Panel  -->
                 <div class="panel panel-success">
@@ -61,7 +61,7 @@
                         <table class="table table-condensed table-hover table-bordered">
                         <tbody>
                             <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
-                            <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(file.fileName) == 'info' ? false : true)" @change="setFileToFit"></td>
+                            <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="filePlotChoices" @change="setFileToPlot"></td>
                             <td>{{ file.fileName }}</td>
                             <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | deleteFile(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
                             </tr>
@@ -91,7 +91,7 @@ export default {
   props: ["GETFILES", "BUTTONDIS", "UPLOADEDFILES", "ISUPLOADED"],
   data: function () {
     return {
-      filePlotChoice: [],
+      filePlotChoices: [],
       fileToPlot: null
     }
   },
@@ -101,46 +101,54 @@ export default {
   },
   methods: {
     resetFileFitChoice: function() {
-      this.filePlotChoice = [];
+      this.filePlotChoices = [];
       this.fileToPlot = null;
     },
     clearSelected: function () {
-      this.filePlotChoice = [];
+      this.filePlotChoices = [];
       this.fileToPlot = null
     },
     isPlotted: function(filename) {
       // This function dynamically styles the file lists blue for selected data
-      if(this.filesToPlot.indexOf(filename) > -1){
+      if(this.fileToPlot === filename){
         return "info";
       } else {
         return "default";
       }
     },
     uncheckFile: function(filename) {
-      if(this.filesToPlot.indexOf(filename) > -1) {
-        this.filesToPlot.splice(this.filesToPlot.indexOf(filename),1);
+      if(this.fileToPlot === filename) {
+        this.fileToPlot = null;
       }
     },
     deleteAllUploaded: function() {
       for(var i = 0; i < this.UPLOADEDFILES.length; i++) {
-        if(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName) > -1) {
-          this.filesToPlot.splice(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName),1);
+        if(this.fileToPlot === this.UPLOADEDFILES[i].fileName) {
+          this.fileToPlot = null;
         }
       }
-      eventBus.$emit('remove-uploaded-files');
-    },
-    setFileToPlot: function() {
-      if(this.filePlotChoice.length > 0) this.filePlotChoice = this.filePlotChoice.slice(-1);
-      this.fileToPlot = this.filePlotChoice[0] ? this.filePlotChoice[0] : null;
+      eventBus.$emit('remove-uploaded-files-2d');
     },
     deleteFile: function(filename) {
-      eventBus.$emit('delete-file', filename);
+      eventBus.$emit('delete-file-2d', filename);
+    },
+    isPlotted: function(filename) {
+      // This function dynamically styles the file lists blue for selected data
+      if(this.fileToPlot === filename){
+        return "info";
+      } else {
+        return "default";
+      }
+    },
+    setFileToPlot: function() {
+      if(this.filePlotChoices.length > 0) this.filePlotChoices = this.filePlotChoices.slice(-1);
+      this.fileToPlot = this.filePlotChoices[0] ? this.filePlotChoices[0] : null;
     }
   },
   watch: {
     fileToPlot: function() {
       // Watch if a file is selected to be fit if so, set it to the fileToFit
-      eventBus.$emit('set-file-to-plot', this.fileToPlot);
+      console.log("File to plot changed", this.fileToPlot);
     }
   }
 }
@@ -165,6 +173,10 @@ li {
 }
 
 th {
+  text-align: center;
+}
+
+td {
   text-align: center;
 }
 

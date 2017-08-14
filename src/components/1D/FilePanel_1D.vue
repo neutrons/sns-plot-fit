@@ -1,5 +1,5 @@
 <template>
-<div id="fileuploads">
+<div id="fileuploads1d">
 
   <div id="file-panel">
 
@@ -98,7 +98,7 @@
 import { eventBus } from '../../assets/javascript/eventBus';
 
 export default {
-  name: 'fileuploads',
+  name: 'fileuploads1d',
   props: ["GETFILES", "BUTTONDIS", "UPLOADEDFILES", "ISUPLOADED"],
   data: function () {
     return {

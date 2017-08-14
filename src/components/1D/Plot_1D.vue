@@ -1,5 +1,5 @@
 <template>
-  <div id="Plot" class="col-md-10">
+  <div id="Plot1d" class="col-md-10">
           <div id="plot-panel">
           <div class="panel-group">
 
@@ -69,7 +69,7 @@ import $ from 'jquery';
 import fd from '../../assets/javascript/fitData';
 
 export default {
-    name: 'Plot',
+    name: 'Plot1d',
     props: ["FILETOFIT", "BUTTONDIS"],
     data: function() {
         return {

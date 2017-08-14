@@ -38,7 +38,7 @@ import Plot_2D from './Plot_2D.vue';
 import { eventBus } from '../../assets/javascript/eventBus';
 
 export default {
-    name: 'main1D',
+    name: 'main2D',
     components: {
       'controls-2d': Controls_2D,
       'files-2d': Files_2D,
@@ -53,7 +53,14 @@ export default {
       }
     },
     created() {
+      // Event hooks for 'Title.vue'
+      eventBus.$on('add-get-2D', this.addGetData);
+      eventBus.$on('add-uploaded-2D', this.addUploadedData);
+      eventBus.$on('check-duplicate', this.checkDuplicateFile);
 
+      // Event hooks for 'FileLoad.vue'
+      eventBus.$on('remove-uploaded-files-2d', this.removeUploadedFiles);
+      eventBus.$on('delete-file-2d', this.deleteFile);
     },
     mounted() {
     // Code for Collapsible panels
@@ -72,8 +79,56 @@ export default {
           $("#file-panel-group-2d").slideToggle(300);
       });
     },
-    methods: {},
-    watch: {}
+    methods: {
+      addGetData: function(data) {
+        this.getFiles.push(data);
+      },
+      addUploadedData: function(data) {
+        // Add data to uploaded files list
+        console.log("Adding data...", data);
+        this.uploadedFiles.unshift(data);
+      },
+      checkDuplicateFile: function (filename) {
+
+        if (this.uploadedFiles.find(el => el.fileName === filename)) {
+          alert("Duplicate file: " + filename);
+          return true;
+        } else if (this.getFiles.find(el => el.fileName === filename)) {
+          alert("Duplicate file: " + filename);
+        } else {
+          return false;
+        }
+
+      },
+      disableButtons: function (bool) {
+        this.buttonDis = bool;
+      },
+      setCurrentData: function (checkedfiles) {
+      },
+      deleteFile: function (filename) {
+        // Function to delete file from the uploaded list
+        for (var i = 0; i < this.uploadedFiles.length; i++) {
+          if (this.uploadedFiles[i].fileName === filename) {
+            // Splice will remove the object from array index i    
+            this.uploadedFiles.splice(i, 1);
+          }
+        }
+      },
+      removeUploadedFiles: function () {
+        this.uploadedFiles = [];
+      }
+
+    },
+    watch: {
+      uploadedFiles: function () {
+        // Watch if a file has been uploaded, if so enable delete file buttons
+        if (this.uploadedFiles.length > 0) {
+          this.isUploaded = true;
+        } else {
+          this.isUploaded = false;
+        }
+      }
+    }
   }
 </script>
 
