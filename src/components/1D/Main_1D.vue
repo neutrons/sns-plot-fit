@@ -73,6 +73,11 @@ export default {
       eventBus.$on('remove-uploaded-files', this.removeUploadedFiles);
       eventBus.$on('delete-file', this.deleteFile);
       eventBus.$on('disable-buttons', this.disableButtons);
+
+      // Event hooks for 'Title.vue'
+      eventBus.$on('add-get-1D', this.addGetData);
+      eventBus.$on('add-uploaded-1D', this.addUploadedData);
+      eventBus.$on('check-duplicate', this.checkDuplicateFile);
     },
     mounted() {
     // Code for Collapsible panels
@@ -246,164 +251,30 @@ export default {
       }
     },
     methods: {
-      fetchData: function () {
-        var url = document.getElementById("urlid").getAttribute("data-urlid");
-        var files = JSON.parse(url);
-        this.getFiles = [];
+      addGetData: function(data) {
+        this.getFiles.push(data);
 
-        // For loop to GET multiple files and push them to an array
-        for (var i = 0; i < files.length; i++) {
-
-          // Call 'getFiles' passing in i each time to access appropriate elements in files array
-          getFiles(i);
-
-          // Set a variable to 'this' to be able to reference the getFiles variable in the scope of the 'getFiles' function
-          var self = this;
-
-          function getFiles(i, test) {
-
-            //Make a GET request to data file
-            axios.get(files[i].url).then(response => {
-
-          var results = pp.parse(response.data, {
-              header : true,
-              dynamicTyping : true, // parse string to int
-              delimiter : "",       // auto-detect
-              newline : "",         // auto-detect
-              quoteChar : '"',
-              skipEmptyLines: true,
-              // This is called before the parsing of the file
-              beforeFirstChunk : function(chunk) {
-                var rows = chunk.split(/\r\n|\r|\n/);
-                // let's find the delimiter on the 3rd row
-                var delimiter = ",";
-                if (rows[2].split("\t").length > 1)
-                  delimiter = "\t";
-
-                var header = rows[0];
-                if (header.startsWith("#")) {
-                  header = header.replace(/#\s*/, '');
-                  header = header.split(/[\s,]+/).join(delimiter);
-                }
-                rows[0] = header.toLowerCase();
-                // Remove the 2nd row if it's "1"
-                if (rows[1].length <= 1) {
-                  rows.splice(1, 1);
-                }
-                return rows.join("\r\n");
-              },
-              complete : function(result) { console.log(result); }
-            });
-
-          // Filter out negative values for x and y
-          results.data.filter( el => el.y > 0 && el.x > 0);
-
-          // Add file name to data objects
-          results.data.forEach( el => el.name = files[i].name);
-          //console.log("results data:", results.data);
-          
-          // Push to Get Files list
-          self.getFiles.push({
-            data: results.data,
-            fileName: files[i].name
-          })
-
-              // Add filename to color domain
-              if (self.colorDomain.indexOf(files[i].name) === -1) {
-                self.colorDomain.push(files[i].name);
-              }
-            });
-          }
+        // Add filename to color domain
+        if (this.colorDomain.indexOf(data.fileName) === -1) {
+          this.colorDomain.push(data.fileName);
         }
       },
-      uploadFile: function (files) {
-        //var files = document.getElementById("file-upload").files;
-        var self = this;
+      addUploadedData: function(data) {
+        // Add data to uploaded files list
+        this.uploadedFiles.unshift(data);
 
-        function loadFiles(file) {
-
-          // Pull the file name and remove the ".txt" extension
-          var name = file.name.substr(0, file.name.lastIndexOf('.txt')) || file.name;
-          var reader = new FileReader();
-
-          reader.onload = function (e) {
-            
-          // Get file content
-          var content = e.target.result;
-
-          var results = pp.parse(content, {
-              header : true,
-              dynamicTyping : true, // parse string to int
-              delimiter : "",       // auto-detect
-              newline : "",         // auto-detect
-              quoteChar : '"',
-              skipEmptyLines: true,
-              // This is called before the parsing of the file
-              beforeFirstChunk : function(chunk) {
-                var rows = chunk.split(/\r\n|\r|\n/);
-                // let's find the delimiter on the 3rd row
-                var delimiter = ",";
-                if (rows[2].split("\t").length > 1)
-                  delimiter = "\t";
-
-                var header = rows[0];
-                if (header.startsWith("#")) {
-                  header = header.replace(/#\s*/, '');
-                  header = header.split(/[\s,]+/).join(delimiter);
-                }
-                rows[0] = header.toLowerCase();
-                // Remove the 2nd row if it's "1"
-                if (rows[1].length <= 1) {
-                  rows.splice(1, 1);
-                }
-                return rows.join("\r\n");
-              },
-              complete : function(result) { console.log(result); }
-            });
-
-          // Add file name to data objects
-          results.data.forEach( el => el.name = name);
-
-          //console.log("results data:", results.data);
-          
-          // Add data to uploaded files list
-          self.uploadedFiles.unshift({
-            data: results.data,
-            fileName: name
-          })
-
-            // Add filename to color domain
-            if (self.colorDomain.indexOf(name) === -1) {
-              self.colorDomain.push(name);
-            }
-          }
-          reader.readAsText(file, "UTF-8");
+        // Add filename to color domain
+        if (this.colorDomain.indexOf(data.fileName) === -1) {
+          this.colorDomain.push(data.fileName);
         }
-
-        for (var i = 0; i < files.length; i++) {
-          if (files[i].type !== "text/plain") {
-            //if text file is not submitted alert and skip over it
-            alert("Sorry, " + files[i].type + " is not an accepted file type.")
-            continue;
-          } else {
-            if (this.uploadedFiles.length > 0) {
-              if (!this.checkDuplicateFile(files[i].name.substr(0, files[i].name.lastIndexOf('.txt')))) {
-                loadFiles(files[i]);
-              }
-            } else {
-              loadFiles(files[i]);
-            }
-          };
-        }
-
-        document.getElementById("file-upload").value = '';
-        // reset the file names so the last file uploaded & deleted can be uploaded again with no problems
       },
       checkDuplicateFile: function (filename) {
 
         if (this.uploadedFiles.find(el => el.fileName === filename)) {
           alert("Duplicate file: " + filename);
           return true;
+        } else if (this.getFiles.find(el => el.fileName === filename)) {
+          alert("Duplicate file: " + filename);
         } else {
           return false;
         }

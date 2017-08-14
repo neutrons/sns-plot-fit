@@ -1,6 +1,6 @@
 <template>
   <div id="app-container" class="container-fluid">
-
+      <div id="error-container"></div>
       <!-- File Drop Zone -->
       <div style="visibility:hidden; opacity:0" id="dropzone">
         <div id="textnode">Drop files to add data.</div>
@@ -20,6 +20,7 @@
 
 <script>
 
+import $ from 'jquery';
 import main1D from './components/1D/Main_1D.vue';
 import main2D from './components/2D/Main_2D.vue';
 import Title from './components/Title.vue';
@@ -38,7 +39,8 @@ export default {
   },
   data () {
     return {
-      togglePlot: false
+      togglePlot: false,
+      errorCount: 0
     }
   },
   methods: {
@@ -48,6 +50,28 @@ export default {
       } else {
         this.togglePlot = true;
       }
+    },
+    generateError: function(errorMSG) {
+      var self = this;
+      document.getElementById("error_"+this.errorCount) === null ? this.errorCount = 0 : this.errorCount += 1;
+      var newDiv = document.createElement("div");
+      var timer = this.errorCount === 0 ? 5000 : 5000+(this.errorCount*1000);
+      
+      console.log("Timer:", timer);
+      console.log("Error count:", this.errorCount);
+      
+      newDiv.innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' + errorMSG;
+      newDiv.classList.add("error", "alert", "alert-danger", "alert-dismissable", "fade", "in")
+      var tempID = "error_" + this.errorCount;
+      newDiv.id = tempID;
+      
+      // add the newly created element and its content into the DOM 
+      document.getElementById("error-container").append(newDiv);
+      setTimeout(function() {
+          $("#"+tempID).fadeTo(500, 0).slideUp(500, function(){
+          $(this).remove(); 
+        });
+      }, timer);
     }
   },
   mounted() {
@@ -87,8 +111,12 @@ export default {
       var files = e.dataTransfer.files;
         console.log("Drop files:", files);
         //this.uploadFile(files);
-        eventBus.$emit("upload-file", files);
+        eventBus.$emit("upload-files", files);
       });
+  },
+  created() {
+    // Listen for error messages
+    eventBus.$on('error-message', this.generateError);
   }
 }
 </script>
@@ -148,5 +176,17 @@ div#textnode {
   position: absolute;
   right: 0;
   left: 0;
+}
+
+/* Error Message Styles  */
+#error-container {
+  position: absolute;
+  z-index: 9999;
+  top: 25px;
+  left: 25px;
+}
+
+.error {
+  position: relative;
 }
 </style>
