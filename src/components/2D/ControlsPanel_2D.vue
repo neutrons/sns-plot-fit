@@ -62,6 +62,9 @@ export default {
       }
     }
   },
+  created() {
+
+  },
   methods: {
     resetSettings: function() {
       this.hexSettings = {
@@ -77,9 +80,6 @@ export default {
     hexSettings: function() {
         
     }
-  },
-  created() {
-
   }
 }
 </script>

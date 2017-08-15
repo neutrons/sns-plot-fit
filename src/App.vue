@@ -37,41 +37,10 @@ export default {
     main2D,
     'app-title': Title
   },
-  data () {
+  data: function () {
     return {
       togglePlot: false,
       errorCount: 0
-    }
-  },
-  methods: {
-    switchPlotComponent: function(plotType) {
-      if(plotType === '1D') {
-        this.togglePlot = false;
-      } else {
-        this.togglePlot = true;
-      }
-    },
-    generateError: function(errorMSG) {
-      var self = this;
-      document.getElementById("error_"+this.errorCount) === null ? this.errorCount = 0 : this.errorCount += 1;
-      var newDiv = document.createElement("div");
-      var timer = this.errorCount === 0 ? 5000 : 5000+(this.errorCount*1000);
-      
-      console.log("Timer:", timer);
-      console.log("Error count:", this.errorCount);
-      
-      newDiv.innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' + errorMSG;
-      newDiv.classList.add("error", "alert", "alert-danger", "alert-dismissable", "fade", "in")
-      var tempID = "error_" + this.errorCount;
-      newDiv.id = tempID;
-      
-      // add the newly created element and its content into the DOM 
-      document.getElementById("error-container").append(newDiv);
-      setTimeout(function() {
-          $("#"+tempID).fadeTo(500, 0).slideUp(500, function(){
-          $(this).remove(); 
-        });
-      }, timer);
     }
   },
   mounted() {
@@ -117,6 +86,37 @@ export default {
   created() {
     // Listen for error messages
     eventBus.$on('error-message', this.generateError);
+  },
+  methods: {
+    switchPlotComponent: function(plotType) {
+      if(plotType === '1D') {
+        this.togglePlot = false;
+      } else {
+        this.togglePlot = true;
+      }
+    },
+    generateError: function(errorMSG) {
+      var self = this;
+      document.getElementById("error_"+this.errorCount) === null ? this.errorCount = 0 : this.errorCount += 1;
+      var newDiv = document.createElement("div");
+      var timer = this.errorCount === 0 ? 5000 : 5000+(this.errorCount*1000);
+      
+      console.log("Timer:", timer);
+      console.log("Error count:", this.errorCount);
+      
+      newDiv.innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' + errorMSG;
+      newDiv.classList.add("error", "alert", "alert-danger", "alert-dismissable", "fade", "in")
+      var tempID = "error_" + this.errorCount;
+      newDiv.id = tempID;
+      
+      // add the newly created element and its content into the DOM 
+      document.getElementById("error-container").append(newDiv);
+      setTimeout(function() {
+          $("#"+tempID).fadeTo(500, 0).slideUp(500, function(){
+          $(this).remove(); 
+        });
+      }, timer);
+    }
   }
 }
 </script>

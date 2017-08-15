@@ -166,6 +166,15 @@ export default {
       }
     }
   },
+  created() {
+    eventBus.$on('reset-fit', this.resetFit);
+    eventBus.$on('reset-scales', this.resetScales);
+    eventBus.$on('set-fit-back', this.setFitBack);
+    eventBus.$on('set-fit-settings-back', this.resetSettings);
+
+    // Listen to emit from plotCurrentData.js
+    eventBus.$on('update-coefficients', this.updateCoefficients);
+  },
   computed: {
       isCoefficients: function() {
           return Object.keys(this.coefficients).length > 0;
@@ -254,15 +263,6 @@ export default {
         if(this.fit === 'None') this.coefficients = {};
         eventBus.$emit('set-fit', this.fit);
     }
-  },
-  created() {
-    eventBus.$on('reset-fit', this.resetFit);
-    eventBus.$on('reset-scales', this.resetScales);
-    eventBus.$on('set-fit-back', this.setFitBack);
-    eventBus.$on('set-fit-settings-back', this.resetSettings);
-
-    // Listen to emit from plotCurrentData.js
-    eventBus.$on('update-coefficients', this.updateCoefficients);
   }
 }
 </script>
