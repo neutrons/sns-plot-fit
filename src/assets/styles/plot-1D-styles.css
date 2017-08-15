@@ -61,11 +61,11 @@ div.plot {
   opacity: 1;
 }
 
-.tick line {
+#axis-1D .tick line {
   stroke: gainsboro;
 }
 
-div.tooltip {
+div.tooltip-1D {
   position: absolute;
   text-align: center;
   width: auto;
@@ -80,7 +80,7 @@ div.tooltip {
   background: white;
 }
 
-div.tooltip:before {
+div.tooltip-1D:before {
   right: 100%;
   top: 50%;
   border: solid transparent;

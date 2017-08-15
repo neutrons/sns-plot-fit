@@ -289,8 +289,8 @@ export default {
           // remove any elements previously plotted
           // and reset to default values
           console.log("Removing plot elements...");
-          d3.select("svg").remove();
-          d3.select(".tooltip").remove();
+          d3.select(".chart-1D").remove();
+          d3.select(".tooltip-1D").remove();
 
           eventBus.$emit('reset-scales');
           eventBus.$emit('reset-fit');

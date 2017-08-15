@@ -19,7 +19,7 @@
                         <div id="collapse-settings-2d" class="panel-collapse collapse in">
                             <div class="panel-body">
                                 <label>Bin Size: <span class="damping-output">{{ hexSettings.binSize }}</span></label>
-                                <input type="range" v-model.number="hexSettings.binSize" min="5" max="10" step="1" :disabled="!BUTTONDIS" @mouseup="setHexSettings"
+                                <input type="range" v-model.number="hexSettings.binSize" min="5" max="25" step="1" :disabled="!BUTTONDIS" @mouseup="setHexSettings"
                                     @keyup="setHexSettings" @touchend="setHexSettings">
 
                                 <br>
@@ -27,7 +27,7 @@
                                 <!-- Intensity Transfomration Selection -->
                                 <div class="input-group">
                                     <span class="input-group-addon">Intensity Scale</span>
-                                    <select class="form-control" v-model="hexSettings.intensityTransformation" :disabled="!BUTTONDIS">
+                                    <select class="form-control" v-model="hexSettings.intensityTransformation" :disabled="!BUTTONDIS" @change="setHexSettings">
                                         <option>Log</option>
                                         <option>Linear</option>
                                     </select>
@@ -71,14 +71,13 @@ export default {
           intensityTransformation: 'Log',
           binSize: 10
       };
+
+      console.log("Reset hex settings...");
+      eventBus.$emit('set-hex-settings', _.cloneDeep(this.hexSettings));
     },
     setHexSettings: function() {
-      eventBus.$emit('set-scales', this.hexSettings);
-    }
-  },
-  watch: {
-    hexSettings: function() {
-        
+        console.log("Hex Settings", this.hexSettings);
+        eventBus.$emit('set-hex-settings', _.cloneDeep(this.hexSettings));
     }
   }
 }

@@ -104,8 +104,8 @@ export default {
                 console.log("No data! Error!");
 
                 //Remove any elements previously plotted
-                d3.select("svg").remove();
-                d3.select(".tooltip").remove();
+                d3.select(".chart-1D").remove();
+                d3.select(".tooltip-1D").remove();
                 self.isError = !self.isError;
 
                 let div = document.createElement("div");
@@ -120,8 +120,8 @@ export default {
             }
 
             //Remove any elements previously plotted
-            d3.select("svg").remove();
-            d3.select(".tooltip").remove();
+            d3.select(".chart-1D").remove();
+            d3.select(".tooltip-1D").remove();
 
             console.log("Plotting data...");
             
@@ -194,7 +194,7 @@ export default {
 
             //Add tool tip and hide it until invoked
             var tooltip = d3.select("#app-container").append("div")
-                .attr("class", "tooltip")
+                .attr("class", "tooltip-1D")
                 .style("opacity", 0);
 
             //Add main chart area
@@ -202,7 +202,7 @@ export default {
             var svg = d3.select("#plot-area").append("svg")
                 .attr("viewBox", viewbox)
                 .attr("perserveAspectRatio","xMidYMid meet")
-                .attr("class", "sns-plot")
+                .attr("class", "chart-1D")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom);
             
@@ -221,7 +221,7 @@ export default {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             //Add Axis and Gridline section
-            var axis = svg.append("g");
+            var axis = svg.append("g").attr("id", "axis-1D");
 
             //Add zoom window
             svg.append('rect')
@@ -802,14 +802,14 @@ export default {
                 }
             }
 
-            var snsChart = $(".sns-plot");
-            var aspectRatio = snsChart.width() / snsChart.height()
-            var container = snsChart.parent();
+            var chart1D = $(".chart-1D");
+            var aspectRatio = chart1D.width() / chart1D.height()
+            var container = chart1D.parent();
 
             $("#plot-area").on("widthChanged", function() {
                 var targetWidth = container.width();
-                snsChart.attr("width", targetWidth);
-                snsChart.attr("height", Math.round(targetWidth / aspectRatio));
+                chart1D.attr("width", targetWidth);
+                chart1D.attr("height", Math.round(targetWidth / aspectRatio));
             });
 
     },
@@ -887,7 +887,7 @@ created() {
 </script>
 
 <style scoped>
-@import '../../assets/styles/plot-styles.css';
+@import '../../assets/styles/plot-1D-styles.css';
 
 #selection-error {
     position: absolute;

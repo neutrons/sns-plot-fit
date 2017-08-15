@@ -1,0 +1,67 @@
+/* Styles for Plot Area */
+
+#plot-panel-collapse-2d {
+    cursor: pointer;
+    padding: 7px 5px;
+}
+
+#plot-collapse-2d {
+    background: rgba(0,0,0, 0.02);
+}
+
+#plot-area-2d {
+  position: relative;
+  padding: 0 10px;
+  margin: 0 auto;
+  width: 90%;
+  min-width: 400px;
+}
+
+#btn-reset-2d-plot {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin: 5px 0px 5px 5px;
+}
+
+/* Tooltip 2D Styles */
+
+div.tooltip-2D {
+  position: absolute;
+  text-align: center;
+  width: auto;
+  height: auto;
+  padding: 10px 30px;
+  font: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+  border-radius: 0px;
+  border: 1px solid dimgray;
+  pointer-events: none;
+  background: white;
+}
+
+div.tooltip-2D:before {
+  right: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(255, 255, 255, 0);
+  border-right-color: dimgray;
+  border-width: 10px;
+  margin-top: -10px;
+}
+
+#axis-2D .tick line {
+  stroke: black;
+}
+
+iframe.width-changed-2D {
+    width: 90%;
+    display: block;
+    border: 0;
+    height: 0;
+}

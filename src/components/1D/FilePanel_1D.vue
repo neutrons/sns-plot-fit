@@ -208,6 +208,10 @@ th {
   text-align: center;
 }
 
+td {
+  text-align: center;
+}
+
 #file-panel-collapse {
       width: 100%;
   }

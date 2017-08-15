@@ -27,6 +27,7 @@
 <script>
 import * as _ from 'lodash';
 import $ from 'jquery';
+import * as d3 from 'd3';
 
 import Controls_2D from './ControlsPanel_2D.vue';
 import Files_2D from './FilePanel_2D.vue';
@@ -49,18 +50,28 @@ export default {
         buttonDis: false,
         getFiles: [],
         uploadedFiles: [],
-        isUploaded: false
+        isUploaded: false,
+        selected2DData: [],
+        hexSettings: {
+          intensityTransformation: 'Log',
+          binSize: 10
+        }
       }
     },
     created() {
       // Event hooks for 'Title.vue'
       eventBus.$on('add-get-2D', this.addGetData);
       eventBus.$on('add-uploaded-2D', this.addUploadedData);
-      eventBus.$on('check-duplicate', this.checkDuplicateFile);
+      //eventBus.$on('check-duplicate', this.checkDuplicateFile);
 
-      // Event hooks for 'FileLoad.vue'
+      // Event hooks for 'FileLoad_2D.vue'
       eventBus.$on('remove-uploaded-files-2d', this.removeUploadedFiles);
       eventBus.$on('delete-file-2d', this.deleteFile);
+      eventBus.$on('set-2D-data', this.set2DData);
+      eventBus.$on('disable-2D-buttons', this.disable2DButtons);
+
+      // Event hooks for 'ControlsPanel_2D.vue'
+      eventBus.$on('set-hex-settings', this.setHexSettings);
     },
     mounted() {
     // Code for Collapsible panels
@@ -100,7 +111,7 @@ export default {
         }
 
       },
-      disableButtons: function (bool) {
+      disable2DButtons: function (bool) {
         this.buttonDis = bool;
       },
       setCurrentData: function (checkedfiles) {
@@ -116,6 +127,42 @@ export default {
       },
       removeUploadedFiles: function () {
         this.uploadedFiles = [];
+      },
+      set2DData: function(filename) {
+
+        console.log("Setting 2d data...");
+        let isGetMatch = this.getFiles.find(el => el.fileName === filename);
+        let isUploadMatch = this.uploadedFiles.find(el => el.fileName === filename);
+
+        if(isGetMatch !== undefined) {
+          // Set data to get file
+          this.selected2DData = isGetMatch;
+        } else if (isUploadMatch !== undefined) {
+          // Set data to upload file
+          this.selected2DData = isUploadMatch;
+        } else {
+          // No match, so reset all parameters
+          this.selected2DData = null;
+        }
+      },
+      set2DParameters: function() {
+        // Function to wrap up all the parameters needed for plotting
+
+        if(this.selected2DData !== null) {
+          eventBus.$emit("set-2D-parameters", {
+            data: this.selected2DData.data,
+            binSize: this.hexSettings.binSize,
+            intensityTransformation: this.hexSettings.intensityTransformation
+          });
+        } else {
+          d3.select(".chart-2D").remove();
+          d3.select(".tooltip-2D").remove();
+          console.log("No 2D data to plot...");
+        }
+      },
+      setHexSettings: function(settings) {
+        console.log("Settings are:", settings);
+        this.hexSettings = settings;
       }
 
     },
@@ -127,6 +174,15 @@ export default {
         } else {
           this.isUploaded = false;
         }
+      },
+      selected2DData: function() {
+        this.set2DParameters();
+      },
+      hexSettings: {
+        handler: function() {
+          this.set2DParameters();
+        },
+        deep: true
       }
     }
   }

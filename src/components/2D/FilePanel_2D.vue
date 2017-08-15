@@ -31,7 +31,7 @@
                                     <table class="table table-condensed table-hover table-bordered">
                                     <tbody>
                                         <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
-                                        <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="filePlotChoices" @change="setFileToPlot"></td>
+                                        <td><input type="checkbox" :value="data.fileName" v-model="filePlotChoices" @change="setFileToPlot"></td>
                                         <td>{{ data.fileName }}</td>
                                         </tr>
                                     </tbody>
@@ -85,6 +85,7 @@
 // e.g., If files are uploaded in 'fileUpload.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../../assets/javascript/eventBus';
+import * as _ from 'lodash';
 
 export default {
   name: 'fileuploads-2d',
@@ -95,15 +96,7 @@ export default {
       fileToPlot: null
     }
   },
-  created() {
-    // Receive event emitter from Controls component
-    eventBus.$on('reset-file-to-fit', this.resetFileFitChoice);
-  },
   methods: {
-    resetFileFitChoice: function() {
-      this.filePlotChoices = [];
-      this.fileToPlot = null;
-    },
     clearSelected: function () {
       this.filePlotChoices = [];
       this.fileToPlot = null
@@ -148,7 +141,9 @@ export default {
   watch: {
     fileToPlot: function() {
       // Watch if a file is selected to be fit if so, set it to the fileToFit
-      //console.log("File to plot changed", this.fileToPlot);
+      console.log("File to plot changed", this.fileToPlot);
+      eventBus.$emit('disable-2D-buttons', true);
+      eventBus.$emit("set-2D-data", this.fileToPlot);
     }
   }
 }
