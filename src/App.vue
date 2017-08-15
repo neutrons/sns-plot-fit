@@ -1,6 +1,7 @@
 <template>
   <div id="app-container" class="container-fluid">
-      <div id="error-container"></div>
+      <div id="wrapper" class="container-fluid">
+        <div id="error-container"></div>
       <!-- File Drop Zone -->
       <div style="visibility:hidden; opacity:0" id="dropzone">
         <div id="textnode">Drop files to add data.</div>
@@ -8,13 +9,14 @@
       
       <app-title></app-title>
 
-      <transition name="fade" mode="out-in" appear>
+      <transition name="slide" mode="out-in" appear>
         <main1D v-show="!togglePlot"></main1D>
       </transition>
 
-      <transition name="fade" mode="out-in">
+      <transition name="slide" mode="out-in">
         <main2D v-show="togglePlot"></main2D>
       </transition>
+  </div>
   </div>
 </template>
 
@@ -131,6 +133,7 @@ body {
 body {
     background: white;
 }
+
 .container-fluid {
     padding-left: 0px;
     padding-right: 0px;
@@ -139,6 +142,17 @@ body {
 #app-container {
   height: 100vh;
 }
+
+#wrapper {
+  position: absolute;
+  padding: 15px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
 div#dropzone {
     position: fixed;
     top: 0;
@@ -162,7 +176,7 @@ div#textnode {
 }
 
 /* Transition Effects for 1D and 2D plot components  */
-.fade-enter-active,
+/* .fade-enter-active,
 .fade-leave-active {
   transition: opacity 1.5s;
 }
@@ -170,6 +184,32 @@ div#textnode {
 .fade-enter,
 .fade-leave-active {
   opacity: 0
+}
+
+#main1D, #main2D {
+  position: absolute;
+  right: 0;
+  left: 0;
+} */
+
+/* Transition effects for Sliding  */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 1.5s ease;
+}
+
+#main1D.slide-enter {
+  transform: translateX(100vw);
+}
+#main1D.slide-leave-active {
+  transform: translateX(100vw);
+}
+
+#main2D.slide-enter {
+  transform: translateX(-100vw);
+}
+#main2D.slide-leave-active {
+  transform: translateX(-100vw);
 }
 
 #main1D, #main2D {
