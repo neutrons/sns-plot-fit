@@ -148,7 +148,7 @@ export default {
   watch: {
     fileToPlot: function() {
       // Watch if a file is selected to be fit if so, set it to the fileToFit
-      console.log("File to plot changed", this.fileToPlot);
+      //console.log("File to plot changed", this.fileToPlot);
     }
   }
 }
