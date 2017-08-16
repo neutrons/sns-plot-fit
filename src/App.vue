@@ -1,6 +1,5 @@
 <template>
   <div id="app-container" class="container-fluid">
-      <div id="wrapper" class="container-fluid">
         <div id="error-container"></div>
       <!-- File Drop Zone -->
       <div style="visibility:hidden; opacity:0" id="dropzone">
@@ -9,14 +8,13 @@
       
       <app-title></app-title>
 
-      <transition name="slide" mode="out-in" appear>
+      <transition name="slide" mode="out-in">
         <main1D v-show="!togglePlot"></main1D>
       </transition>
 
       <transition name="slide" mode="out-in">
         <main2D v-show="togglePlot"></main2D>
       </transition>
-  </div>
   </div>
 </template>
 
@@ -141,16 +139,6 @@ body {
 
 #app-container {
   height: 100vh;
-}
-
-#wrapper {
-  position: absolute;
-  padding: 15px;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  overflow: hidden;
 }
 
 div#dropzone {
