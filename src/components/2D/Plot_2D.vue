@@ -82,7 +82,7 @@ export default {
                 .style("opacity", 0);
 
             // Pull plot's parent container width, this will be used to scale the plot responsively
-            var margin = {top: 50, right: 65, bottom: 50, left: 50 };
+            var margin = {top: 50, right: 65, bottom: 50, left: 65 };
             var containerWidth = document.getElementById("plot-area-2d").offsetWidth;
             var viewHeight = containerWidth / (16/9);
             var height = viewHeight - margin.top - margin.bottom;
@@ -123,7 +123,7 @@ export default {
             // Create plot elements (plot area, axes, and color legend)
             var plot = svg.append("g").attr("class", "plot").attr("clip-path", "url(#clip-2D)").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
             var axes = svg.append("g").attr("id", "axis-2D").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-            var legend = svg.append("g").attr("class", "legend").attr("transform", "translate(" + (width+55) + "," + margin.top + ")");
+            var legend = svg.append("g").attr("class", "legend").attr("transform", "translate(" + (width+75) + "," + margin.top + ")");
 
             // Add zoom window
             svg.call(d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", zoomed));
@@ -232,6 +232,33 @@ export default {
                 .attr("class", "axis axis--x")
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis);
+
+                //Add Y Axis Label
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", -2.5)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .style("font-weight", "bold")
+                .text("Qy");
+
+            //Add X Axis Label
+            svg.append("text")
+                .attr("transform",
+                    "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
+                    (height + margin.top / 1.5 + margin.bottom) + ")")
+                .style("text-anchor", "middle")
+                .style("font-weight", "bold")
+                .text("Qx");
+
+            //Add Chart Title
+            svg.append("text")
+                .attr("class", "charttitle")
+                .attr("transform",
+                    "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
+                    (margin.top / 1.5) + ")")
+                .text("Intensity Plot (Hexbin Size = " + binSize + ")");
 
             function zoomed() {
                 // re-scale axes during zoom
