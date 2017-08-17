@@ -64,13 +64,11 @@ export default {
         // Set a variable to 'this' to be able to reference the getFiles variable in the scope of the 'getFiles' function
         var self = this;
 
-        // For loop to GET multiple files and push them to an array
-        for (var i = 0; i < files.length; i++) {
-
-          function getFiles(i) {
+          var getFiles = function(i) {
             
             var fileName= files[i].name;
             var fileURL = files[i].url;
+            var group = files[i].id;
 
             if( self.dataType(fileURL) === '1D') {
               //Make a GET request to data file
@@ -85,7 +83,8 @@ export default {
                 //console.log("results data:", results.data);
 
                 // Push to 1D Get Files list
-                eventBus.$emit('add-get-1D', {data: results.data,
+                eventBus.$emit('add-get-1D', {group: group,
+                                              data: results.data,
                                               fileName: fileName });
               });
 
@@ -106,7 +105,8 @@ export default {
               eventBus.$emit('error-message', errorMsg);
             }
           }
-
+        // For loop to GET multiple files and push them to an array
+        for (var i = 0; i < files.length; i++) {
           // Call 'getFiles' passing in i each time to access appropriate elements in files array
           getFiles(i);
         }
