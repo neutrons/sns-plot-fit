@@ -1,19 +1,28 @@
 <template>
   <div id="app-container" class="container-fluid">
-
+        <div id="error-container"></div>
       <!-- File Drop Zone -->
       <div style="visibility:hidden; opacity:0" id="dropzone">
         <div id="textnode">Drop files to add data.</div>
       </div>
       
       <app-title></app-title>
-      <app-main></app-main>
+
+      <transition name="slide" mode="out-in">
+        <main1D v-show="!togglePlot"></main1D>
+      </transition>
+
+      <transition name="slide" mode="out-in">
+        <main2D v-show="togglePlot"></main2D>
+      </transition>
   </div>
 </template>
 
 <script>
 
-import Main from './components/Main.vue';
+import $ from 'jquery';
+import main1D from './components/1D/Main_1D.vue';
+import main2D from './components/2D/Main_2D.vue';
 import Title from './components/Title.vue';
 
 // The eventBus serves as the means to communicating between components.
@@ -24,15 +33,20 @@ import { eventBus } from './assets/javascript/eventBus';
 export default {
   name: 'app',
   components: {
-    'app-main': Main,
+    main1D,
+    main2D,
     'app-title': Title
   },
-  data () {
+  data: function () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      togglePlot: false,
+      errorCount: 0
     }
   },
   mounted() {
+
+      // Listen for events from Title
+      eventBus.$on('switch-plot-component', this.switchPlotComponent);
 
       // Event listeners are added for monitoring drag 'n drop of data files.
       window.addEventListener("dragenter", function (e) {
@@ -66,16 +80,67 @@ export default {
       var files = e.dataTransfer.files;
         console.log("Drop files:", files);
         //this.uploadFile(files);
-        eventBus.$emit("upload-file", files);
+        eventBus.$emit("upload-files", files);
       });
+  },
+  created() {
+    // Listen for error messages
+    eventBus.$on('error-message', this.generateError);
+  },
+  methods: {
+    switchPlotComponent: function(plotType) {
+      if(plotType === '1D') {
+        this.togglePlot = false;
+      } else {
+        this.togglePlot = true;
+      }
+    },
+    generateError: function(errorMSG) {
+      var self = this;
+      document.getElementById("error_"+this.errorCount) === null ? this.errorCount = 0 : this.errorCount += 1;
+      var newDiv = document.createElement("div");
+      var timer = this.errorCount === 0 ? 5000 : 5000+(this.errorCount*1000);
+      
+      console.log("Timer:", timer);
+      console.log("Error count:", this.errorCount);
+      
+      newDiv.innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' + errorMSG;
+      newDiv.classList.add("error", "alert", "alert-danger", "alert-dismissable", "fade", "in")
+      var tempID = "error_" + this.errorCount;
+      newDiv.id = tempID;
+      
+      // add the newly created element and its content into the DOM 
+      document.getElementById("error-container").append(newDiv);
+      setTimeout(function() {
+          $("#"+tempID).fadeTo(500, 0).slideUp(500, function(){
+          $(this).remove(); 
+        });
+      }, timer);
+    }
   }
 }
 </script>
 
 <style>
+html,
+body {
+   margin:0;
+   padding:0;
+}
+
+body {
+    background: white;
+}
+
+.container-fluid {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
 #app-container {
   height: 100vh;
 }
+
 div#dropzone {
     position: fixed;
     top: 0;
@@ -96,5 +161,60 @@ div#textnode {
     text-align: center;
     vertical-align: middle;
     transition: font-size 175ms;
+}
+
+/* Transition Effects for 1D and 2D plot components  */
+/* .fade-enter-active,
+.fade-leave-active {
+  transition: opacity 1.5s;
+}
+
+.fade-enter,
+.fade-leave-active {
+  opacity: 0
+}
+
+#main1D, #main2D {
+  position: absolute;
+  right: 0;
+  left: 0;
+} */
+
+/* Transition effects for Sliding  */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 1.5s ease;
+}
+
+#main1D.slide-enter {
+  transform: translateX(100vw);
+}
+#main1D.slide-leave-active {
+  transform: translateX(100vw);
+}
+
+#main2D.slide-enter {
+  transform: translateX(-100vw);
+}
+#main2D.slide-leave-active {
+  transform: translateX(-100vw);
+}
+
+#main1D, #main2D {
+  position: absolute;
+  right: 0;
+  left: 0;
+}
+
+/* Error Message Styles  */
+#error-container {
+  position: absolute;
+  z-index: 9999;
+  top: 25px;
+  left: 25px;
+}
+
+.error {
+  position: relative;
 }
 </style>
