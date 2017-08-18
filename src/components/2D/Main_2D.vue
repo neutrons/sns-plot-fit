@@ -92,12 +92,12 @@ export default {
     },
     methods: {
       addGetData: function(data) {
-        this.getFiles.push(data);
+        this.getFiles = _.cloneDeep(data);
       },
       addUploadedData: function(data) {
         // Add data to uploaded files list
         console.log("Adding data...", data);
-        this.uploadedFiles.unshift(data);
+        this.uploadedFiles = _.cloneDeep(data);
       },
       checkDuplicateFile: function (filename) {
 
@@ -128,22 +128,23 @@ export default {
       removeUploadedFiles: function () {
         this.uploadedFiles = [];
       },
-      set2DData: function(filename) {
+      set2DData: function(data) {
 
-        console.log("Setting 2d data...");
-        let isGetMatch = this.getFiles.find(el => el.fileName === filename);
-        let isUploadMatch = this.uploadedFiles.find(el => el.fileName === filename);
+        console.log("Setting 2d data...", data);
+        this.selected2DData = data;
+        // let isGetMatch = this.getFiles.find(el => el.fileName === filename);
+        // let isUploadMatch = this.uploadedFiles.find(el => el.fileName === filename);
 
-        if(isGetMatch !== undefined) {
-          // Set data to get file
-          this.selected2DData = isGetMatch;
-        } else if (isUploadMatch !== undefined) {
-          // Set data to upload file
-          this.selected2DData = isUploadMatch;
-        } else {
-          // No match, so reset all parameters
-          this.selected2DData = null;
-        }
+        // if(isGetMatch !== undefined) {
+        //   // Set data to get file
+        //   this.selected2DData = isGetMatch;
+        // } else if (isUploadMatch !== undefined) {
+        //   // Set data to upload file
+        //   this.selected2DData = isUploadMatch;
+        // } else {
+        //   // No match, so reset all parameters
+        //   this.selected2DData = null;
+        // }
       },
       set2DParameters: function() {
         // Function to wrap up all the parameters needed for plotting

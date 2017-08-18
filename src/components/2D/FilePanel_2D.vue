@@ -30,9 +30,9 @@
                                 <div class="getloads-list">
                                     <table class="table table-condensed table-hover table-bordered">
                                     <tbody>
-                                        <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
-                                        <td><input type="checkbox" :value="data.fileName" v-model="filePlotChoices" @change="setFileToPlot"></td>
-                                        <td>{{ data.fileName }}</td>
+                                        <tr v-for="name in getFilenames" :class="isPlotted(name)">
+                                        <td><input type="checkbox" :value="name" v-model="filePlotChoices" @change="setFileToPlot"></td>
+                                        <td :id="name+'-Get'">{{ name }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -60,10 +60,10 @@
                     <div class="uploads-list">
                         <table class="table table-condensed table-hover table-bordered">
                         <tbody>
-                            <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
-                            <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="filePlotChoices" @change="setFileToPlot"></td>
-                            <td>{{ file.fileName }}</td>
-                            <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | deleteFile(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
+                            <tr v-for="name in uploadedFilenames" :class="isPlotted(name)">
+                            <td><input class="oneFit" type="checkbox" :value="name" v-model="filePlotChoices" @change="setFileToPlot"></td>
+                            <td :id="name +'-Upload'">{{ name }}</td>
+                            <td><button class="btn btn-danger btn-xs" @click="uncheckFile(name) | deleteFile(name)"><span class="glyphicon glyphicon-trash"></span></button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -85,6 +85,8 @@
 // e.g., If files are uploaded in 'fileUpload.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../../assets/javascript/eventBus';
+import pp from 'papaparse';
+import axios from 'axios';
 import * as _ from 'lodash';
 
 export default {
@@ -93,7 +95,8 @@ export default {
   data: function () {
     return {
       filePlotChoices: [],
-      fileToPlot: null
+      fileToPlot: null,
+      storedData: {}
     }
   },
   methods: {
@@ -136,14 +139,206 @@ export default {
     setFileToPlot: function() {
       if(this.filePlotChoices.length > 0) this.filePlotChoices = this.filePlotChoices.slice(-1);
       this.fileToPlot = this.filePlotChoices[0] ? this.filePlotChoices[0] : null;
+    },
+    parse2D: function(data) {
+      function beforeFirstChunk2D(chunk) {
+          // Split the text into rows
+          var rows = chunk.split(/\r\n|\r|\n/);
+          var header = rows[0];
+          header = header.replace(/,/, '');
+          if (header.startsWith("Data columns")) {
+            header = header.replace(/Data columns\s*/, '');
+            header = header.split(/[\s,-]+/).join("  ");
+          }
+
+          // Rename headings for readability
+          header = header.replace(/I\(QxQy\)/, 'intensity');
+          header = header.replace(/err\(I\)/, 'error');
+
+          rows[0] = header.toLowerCase();
+          // Remove the 2nd row if it's not data
+          if (rows[1].split(/[\s,-]+/).length <= 2) {
+            rows.splice(1, 1);
+          }
+          return rows.join("\r\n");
+        }
+
+        // files endind in Iqxy.dat
+        var config2D = {
+          header : true,
+          dynamicTyping : true, // parse string to int
+          delimiter : "  ",
+          newline : "", // auto-detect
+          quoteChar : '"',
+          skipEmptyLines : true,
+          beforeFirstChunk : beforeFirstChunk2D
+        }
+
+        var results2D = pp.parse(data, config2D );
+
+        return results2D;
+    },
+    get2DData: function(file) {
+        var vm = this;
+        var inStored = Object.keys(vm.storedData).indexOf(file.filename) === -1;
+        console.log("stored data = ", vm.storedData);
+
+        if(!inStored) {
+          // Send the stored data file to be plotted
+          console.log("Sending stored data");
+          eventBus.$emit('set-2D-data', {data: _.cloneDeep(vm.storedData[file.filename]), filename: file.filename});
+        } else {
+          console.log("URL = ", file.url);
+          // If data is not stored, fetch it, store it, and send data to be plotted
+          axios.get(file.url).then(response => {
+
+              let results = vm.parse2D(response.data);
+              vm.storedData[file.filename] = results.data;
+
+              // Push to 2D Get Files list
+              eventBus.$emit('set-2D-data', {data: results.data, filename: file.filename});
+          });
+        }
+    },
+    read2DData: function(file) {
+          var vm = this;
+      // Pull the file name and remove the ".txt" extension
+          var url = file.url;
+
+          var inStored = Object.keys(vm.storedData).indexOf(file.filename) === -1;
+          console.log("stored data = ", vm.storedData);
+
+          if(!inStored) {
+            // Send the stored data file to be plotted
+            console.log("Sending stored data");
+            eventBus.$emit('set-2D-data', {data: _.cloneDeep(vm.storedData[file.filename]), filename: file.filename});
+          } else {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {  
+              // Get file content
+              var content = e.target.result;
+              // Code to read Upload 2D file
+              let results = vm.parse2D(content);
+              // console.log("results", results);
+              results.data.forEach(el => el.name = file.filename);
+              
+              // Push to 2D Get Files list
+              vm.storedData[file.filename] = results.data;
+
+              // Push to 2D Get Files list
+              eventBus.$emit('set-2D-data', {data: results.data, filename: file.filename});
+              //eventBus.$emit('add-uploaded-2D', {data: results.data, fileName: fileName });          
+            }
+            reader.readAsText(file.blob, "UTF-8");
+        }
+    }
+  },
+  computed: {
+    getFilenames: function() {
+      var fileList = [];
+
+      for(let i = 0, len=this.GETFILES.length; i < len; i++) {
+        this.GETFILES[i].files.forEach(item => fileList.push(item.filename));
+      }
+
+      return fileList;
+    },
+    uploadedFilenames: function() {
+      var fileList = [];
+
+      this.UPLOADEDFILES.forEach(item => fileList.push(item.filename));
+
+      return fileList;
     }
   },
   watch: {
     fileToPlot: function() {
+      var vm = this;
       // Watch if a file is selected to be fit if so, set it to the fileToFit
       console.log("File to plot changed", this.fileToPlot);
       eventBus.$emit('disable-2D-buttons', true);
-      eventBus.$emit("set-2D-data", this.fileToPlot);
+      // eventBus.$emit("set-2D-data", this.fileToPlot);
+
+      // console.log("Url list", url1DList);
+      //Testing Fetching data
+      // Create url list
+      var file2D = null;
+      
+      if(this.fileToPlot === null) {
+        eventBus.$emit("set-2D-data", null);
+      } else {
+        var inGet = document.getElementById(this.fileToPlot + '-Get');
+        var inUpload = document.getElementById(this.fileToPlot + '-Upload');
+
+        // If in GET List fetch data
+        if(inGet) {
+          for(let i = 0, len=this.GETFILES.length; i < len; i++) {
+            var found = false;
+            for(let j = 0, len=this.GETFILES[i].files.length; j < len; j++) {
+              var item = this.GETFILES[i].files[j];
+              if(item.filename === this.fileToPlot) {
+                file2D = {url: item.url, filename: item.filename};
+                found = true;
+                break;
+              }
+            }
+
+            if(found) break;
+          }
+
+        this.get2DData(file2D);
+
+        } else if(inUpload) {
+          for(let i = 0, len=this.UPLOADEDFILES.length; i < len; i++) {
+            var item = this.UPLOADEDFILES[i];
+            if(item.filename === this.fileToPlot) {
+              file2D = item;
+              break;
+            }
+          }
+
+          console.log("file2D", file2D);
+          this.read2DData(file2D);
+        } else {
+          console.log("No file to select");
+        }
+      }
+
+      // var promises = get2DList.map((url) => {
+        
+      //   var inStored = Object.keys(vm.storedData).indexOf(url.fileName) === -1;
+      //   if(!inStored) {
+      //     // Pull stored data
+      //     //vm.storedData[url.fileName];
+      //     console.log("In store!");
+      //   } else {
+      //     axios.get(url).then(response => response.data)
+      //   }
+      
+      // });
+      
+      // console.log("Promises", promises);
+      // Promise.all(promises).then(results => {
+      //     console.log("Results", results);
+
+      //     // Code to parse data results
+      //     var temp = [];
+      //     results.forEach(el => {
+      //       let data = vm.read1D(el);
+      //       data.filter(el => el.y > 0 && e.x > 0); // Filter out negative values
+      //       data.forEach(el => el.name = files[i].name); // Need to find a way to get file name
+
+      //       temp.push(data); // add data to an array of objects
+      //     });
+
+      //     // Code to assign data
+      //     vm.addPlotData(temp); // send array of data to get stored
+
+
+      // }).catch(reason => {
+      //   console.log(reason);
+      // });
     }
   }
 }

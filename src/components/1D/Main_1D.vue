@@ -250,7 +250,7 @@ export default {
     },
     methods: {
       addGetData: function(data) {
-        this.getFiles.push(data);
+        this.getFiles = _.cloneDeep(data);
 
         // Add filename to color domain
         if (this.colorDomain.indexOf(data.fileName) === -1) {
@@ -319,6 +319,30 @@ export default {
           }
 
           //console.log("Selected Data After", this.selectedData);
+      //     console.log("Url list", url1DList);
+      // //Testing Fetching data
+      // var promises = url1DList.map(url => axios.get(url).then(response => response.data));
+      // // console.log("Promises", promises);
+      // Promise.all(promises).then(results => {
+      //     console.log("Results", results);
+
+      //     // Code to parse data results
+      //     var temp = [];
+      //     results.forEach(el => {
+      //       let data = vm.read1D(el);
+      //       data.filter(el => el.y > 0 && e.x > 0); // Filter out negative values
+      //       data.forEach(el => el.name = files[i].name); // Need to find a way to get file name
+
+      //       temp.push(data); // add data to an array of objects
+      //     });
+
+      //     // Code to assign data
+      //     vm.addPlotData(temp); // send array of data to get stored
+
+
+      // }).catch(reason => {
+      //   console.log(reason);
+      // });
 
           // Add selected file
           for (let i = 0; i < checkedfiles.length; i++) {
@@ -327,11 +351,14 @@ export default {
             if (this.selectedData.find(a => a.fileName === el) === undefined) {
               // console.log("not in selectedData " + el);
 
-              if (this.getFiles.find(a => a.fileName === el)) {
+              var inGet = this.getFiles.find(a => a.fileName === el);
+              var inUploaded = this.uploadedFiles.find(a => a.fileName === el);
+
+              if (inGet) {
                 // console.log("Adding from get file " + el);
                 
                 // Set temp file for get
-                let temp = _.cloneDeep(this.getFiles.find(a => a.fileName === el));
+                let temp = _.cloneDeep(inGet);
                 // console.log("Temp", temp);
                 // temp.dataTransformed = [];
 
@@ -344,11 +371,11 @@ export default {
                   this.selectedData.push(temp);
                 }
 
-              } else if (this.uploadedFiles.find(a => a.fileName === el)) {
+              } else if (inUploaded) {
                 // console.log("Adding from uploaded file " + el);
                 
                 // Set temp file for uploaded
-                let temp = _.cloneDeep(this.uploadedFiles.find(a => a.fileName === el));
+                let temp = _.cloneDeep(inUploaded);
                 // temp.dataTransformed = [];
 
                 if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {

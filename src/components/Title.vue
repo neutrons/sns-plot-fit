@@ -55,6 +55,97 @@ export default {
   },
   methods: {
     fetchData: function() {
+      var url = document.getElementById("urlid").getAttribute("data-urlid");
+      var files = JSON.parse(url);
+
+      var temp1D = [];
+      var temp2D = [];
+      var vm = this;
+
+      for (let i = 0, len = files.length; i < len; i++) {
+          var temp1DFiles = [];
+          var temp2DFiles = [];
+
+          files[i].results.forEach(function(item) {
+            
+            if( vm.dataType(item.url) === '1D') {
+              // console.log("1D Item", {url: url, group: group, fileName: name});
+              // Push to 1D Get Files list
+              temp1DFiles.push({  id: item.id, filename: item.filename, url: item.url});
+              // url1DList.push({url:url, filename: name});
+
+            } else if ( vm.dataType(item.url) === '2D') {
+              // console.log("2D Item", {url: url, group: group, fileName: name});
+              // Push to 1D Get Files list
+              temp2DFiles.push({  id: item.id, filename: item.filename, url: item.url});
+
+            } else {
+              // error, don't read for now
+              let errorMsg = "<strong>Error! </strong>" + item.url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
+              eventBus.$emit('error-message', errorMsg);
+            }
+          });
+
+          
+          if(temp1DFiles.length > 0) {
+            temp1D.push({jobID: files[i].job_id,
+                      jobTitle: files[i].job_title,
+                      dateModified: files[i].date_modified,
+                      files: temp1DFiles});
+          }
+          
+          if(temp2DFiles.length > 0) {
+            temp2D.push({jobID: files[i].job_id,
+                        jobTitle: files[i].job_title,
+                        dateModified: files[i].date_modified,
+                        files: temp2DFiles});
+          }
+      
+      }
+
+      if(temp1D.length > 0) eventBus.$emit('add-get-1D', temp1D);
+      if(temp2D.length > 0) eventBus.$emit('add-get-2D', temp2D);
+      
+    },
+    uploadFile: function(files) {
+
+      // CODE TO UPLOAD DATA FILES //
+        var vm = this;
+
+        var temp1D = [];
+        var temp2D = [];
+
+        for (var i = 0, len = files.length; i < len; i++) {         
+          // loadFiles(files[i]);
+          let url = files[i].name;
+          let blob = files[i];
+
+          if( vm.dataType(url) === '1D') {
+              // console.log("1D Item", {url: url, group: group, fileName: name});
+              // Push to 1D Get Files list
+              let filename = url.substr(0, url.lastIndexOf('.txt')) || url;
+              temp1D.push( {url: url, filename: filename, blob: blob});
+
+            } else if ( vm.dataType(url) === '2D') {
+              // console.log("2D Item", {url: url, group: group, fileName: name});
+              // Push to 1D Get Files list
+              let filename = url.substr(0, url.lastIndexOf('.dat')) || url;
+              temp2D.push( {url: url, filename: filename, blob: blob});
+
+            } else {
+              // error, don't read for now
+              let errorMsg = "<strong>Error! </strong>" + item.url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
+              eventBus.$emit('error-message', errorMsg);
+            }
+        }
+
+        if(temp1D.length > 0) eventBus.$emit('add-uploaded-1D', temp1D);
+        if(temp2D.length > 0) eventBus.$emit('add-uploaded-2D', temp2D);
+
+        document.getElementById("file-upload").value = '';
+        // END OF CODE TO UPLOAD FILES //
+    },
+    fetchData2: function() {
       //eventBus.$emit('fetch-data');
 
       // CODE TO GET DATA WITH API REQUEST //
@@ -112,7 +203,7 @@ export default {
         }
       // END API REQUEST FOR DATA //
     },
-    uploadFile: function(files) {
+    uploadFile2: function(files) {
       //let files = document.getElementById("file-upload").files;
       //console.log("Files:", files[0]);
       //eventBus.$emit('upload-file', files);

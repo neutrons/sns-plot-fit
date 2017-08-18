@@ -31,11 +31,11 @@
                 <div class="getloads-list">
                   <table class="table table-condensed table-hover table-bordered">
                     <tbody>
-                      <tr v-for="data in this.GETFILES" :class="isPlotted(data.fileName)">
-                        <td><input class="oneFit" type="checkbox" :value="data.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(data.fileName) == 'info' ? false : true)"
+                      <tr v-for="name in getFilenames" :class="isPlotted(name)">
+                        <td><input class="oneFit" type="checkbox" :value="name" v-model="fileFitChoice" :disabled=" (isPlotted(name) == 'info' ? false : true)"
                             @change="setFileToFit"></td>
-                        <td><input class="checks" type="checkbox" :id="data.fileName + '-plot'" :value="data.fileName" v-model="filesToPlot"></td>
-                        <td>{{ data.fileName }}</td>
+                        <td><input class="checks" type="checkbox" :id="name + '-plot'" :value="name" v-model="filesToPlot"></td>
+                        <td>{{ name }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -64,12 +64,12 @@
                 <div class="uploads-list">
                   <table class="table table-condensed table-hover table-bordered">
                     <tbody>
-                      <tr v-for="file in this.UPLOADEDFILES" :class="isPlotted(file.fileName)">
-                        <td><input class="oneFit" type="checkbox" :value="file.fileName" v-model="fileFitChoice" :disabled=" (isPlotted(file.fileName) == 'info' ? false : true)"
+                      <tr v-for="name in uploadedFilenames" :class="isPlotted(name)">
+                        <td><input class="oneFit" type="checkbox" :value="name" v-model="fileFitChoice" :disabled=" (isPlotted(name) == 'info' ? false : true)"
                             @change="setFileToFit"></td>
-                        <td><input class="checks" type="checkbox" :id="file.fileName" :value="file.fileName" v-model="filesToPlot"></td>
-                        <td>{{ file.fileName }}</td>
-                        <td><button class="btn btn-danger btn-xs" @click="uncheckFile(file.fileName) | deleteFile(file.fileName)"><span class="glyphicon glyphicon-trash"></span></button></td>
+                        <td><input class="checks" type="checkbox" :id="name" :value="name" v-model="filesToPlot"></td>
+                        <td>{{ name }}</td>
+                        <td><button class="btn btn-danger btn-xs" @click="uncheckFile(name) | deleteFile(name)"><span class="glyphicon glyphicon-trash"></span></button></td>
                       </tr>
                     </tbody>
                   </table>
@@ -160,6 +160,26 @@ export default {
     },
     deleteFile: function(filename) {
       eventBus.$emit('delete-file', filename);
+    }
+  },
+  computed: {
+    getFilenames: function() {
+      var fileList = [];
+
+      for(let i = 0, len=this.GETFILES.length; i < len; i++) {
+        this.GETFILES[i].files.forEach(item => fileList.push(item.filename));
+      }
+
+      return fileList;
+    },
+    uploadedFilenames: function() {
+      var fileList = [];
+
+      for(let i = 0, len=this.UPLOADEDFILES.length; i < len; i++) {
+        this.UPLOADEDFILES[i].files.forEach(item => fileList.push(item.filename));
+      }
+
+      return fileList;
     }
   },
   watch: {
