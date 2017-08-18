@@ -34,7 +34,7 @@
                       <tr v-for="name in getFilenames" :class="isPlotted(name)">
                         <td><input class="oneFit" type="checkbox" :value="name" v-model="fileFitChoice" :disabled=" (isPlotted(name) == 'info' ? false : true)"
                             @change="setFileToFit"></td>
-                        <td><input class="checks" type="checkbox" :id="name + '-plot'" :value="name" v-model="filesToPlot"></td>
+                        <td><input class="checks" type="checkbox" :id="name + '-Get1D'" :value="name" v-model="filesToPlot"></td>
                         <td>{{ name }}</td>
                       </tr>
                     </tbody>
@@ -67,7 +67,7 @@
                       <tr v-for="name in uploadedFilenames" :class="isPlotted(name)">
                         <td><input class="oneFit" type="checkbox" :value="name" v-model="fileFitChoice" :disabled=" (isPlotted(name) == 'info' ? false : true)"
                             @change="setFileToFit"></td>
-                        <td><input class="checks" type="checkbox" :id="name" :value="name" v-model="filesToPlot"></td>
+                        <td><input class="checks" type="checkbox" :id="name + '-Upload1D'" :value="name" v-model="filesToPlot"></td>
                         <td>{{ name }}</td>
                         <td><button class="btn btn-danger btn-xs" @click="uncheckFile(name) | deleteFile(name)"><span class="glyphicon glyphicon-trash"></span></button></td>
                       </tr>
@@ -96,6 +96,8 @@
 // e.g., If files are uploaded in 'fileUpload.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../../assets/javascript/eventBus';
+import axios from 'axios';
+import pp from 'papaparse';
 
 export default {
   name: 'fileuploads1d',
@@ -104,7 +106,8 @@ export default {
     return {
       filesToPlot: [],
       fileFitChoice: [],
-      fileToFit: null
+      fileToFit: null,
+      storedData: {}
     }
   },
   created() {
@@ -160,6 +163,84 @@ export default {
     },
     deleteFile: function(filename) {
       eventBus.$emit('delete-file', filename);
+    },
+    getURLs: function(files) {
+
+        var tempURLs = [];
+
+        for(let i = 0, len = files.length; i < len; i++) {
+          var inGet = document.getElementById(files[i] + "-Get1D");
+          var inUpload = document.getElementById(files[i] + "-Upload1D");
+          var tempName = files[i];
+
+          if(inGet) {
+            for(let i = 0, len=this.GETFILES.length; i < len; i++) {
+              for(let j = 0, len=this.GETFILES[i].files.length; j < len; j++) {
+                var item = this.GETFILES[i].files[j];
+
+                if(item.filename === tempName) {
+                  console.log("matched filename:", item.filename, tempName);
+                  tempURLs.push({type: "get", url: item.url, filename: item.filename});
+                  break;
+                }
+              }
+            }
+          } else if(inUpload) {
+
+            this.UPLOADEDFILES.forEach(function(item) {
+              if(item.filename === tempName) {
+                tempURLs.push({type: "upload", url: item.blob, filename: tempName});
+              }
+            });
+
+          } else {
+            console.log("No file to select");
+          }
+        }
+
+        return tempURLs;
+    },
+    parse1D: function(file) {
+      function beforeFirstChunk1D(chunk) {
+        // Split the text into rows
+        var rows = chunk.split(/\r\n|\r|\n/);
+
+        var delimiterRegex = /([\s,]+)/g;
+        // Find the delimiter on 3rd row
+        var match = delimiterRegex.exec(rows[2]);
+        var delimiter = match[1];
+        var header = rows[0];
+
+        if (header.startsWith("#")) {
+          header = header.replace(/#\s*/, '');
+          header = header.split(/[\s,]+/).join(delimiter);
+        }
+
+        rows[0] = header.toLowerCase();
+        // Remove the 2nd row if it's not data
+        if (rows[1].length <= 2) {
+          rows.splice(1, 1);
+        }
+        return rows.join("\r\n");
+      }
+
+      // files ending in Iq.txt
+      var config1D =
+          {
+            header : true,
+            dynamicTyping : true, // parse string to int
+            delimiter : "",       // auto-detect
+            newline : "",         // auto-detect
+            quoteChar : '"',
+            skipEmptyLines : true,
+            beforeFirstChunk : beforeFirstChunk1D
+          }
+
+      var results1D = pp.parse(file.data, config1D ).data;
+      results1D = results1D.filter(row => row.y > 0 && row.x > 0);
+      results1D.forEach(row => row.name = file.filename);
+      
+      return results1D;
     }
   },
   computed: {
@@ -175,9 +256,10 @@ export default {
     uploadedFilenames: function() {
       var fileList = [];
 
-      for(let i = 0, len=this.UPLOADEDFILES.length; i < len; i++) {
-        this.UPLOADEDFILES[i].files.forEach(item => fileList.push(item.filename));
-      }
+      this.UPLOADEDFILES.forEach(function(item) {
+        var name = item.filename;
+        fileList.push(name);
+      });
 
       return fileList;
     }
@@ -186,15 +268,111 @@ export default {
     filesToPlot: {
       // Watch if a file is selected, if so enable buttons and append selected data to a list
       handler: function () {
-        
-        // If a file is unselected while it has a fit, unselect the fit
-        if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
-          this.fileToFit = null;
-          this.fileFitChoice = [];
-        }
+        var vm = this;
 
-        eventBus.$emit('disable-buttons', true);
-        eventBus.$emit('set-current-data', this.filesToPlot);
+        console.log("Files to plot changed...", this.filesToPlot);
+
+        // If a file is unselected while it has a fit, unselect the fit
+        // if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
+        //   this.fileToFit = null;
+        //   this.fileFitChoice = [];
+        // }
+
+        var filesToFetch = [];
+
+        // First check if files to plot are in stored data
+        var tempData = this.filesToPlot.map(function(file) {
+          var temp = vm.storedData[file.filename];
+          if(temp === undefined) {
+            filesToFetch.push(file);
+          } else {
+            return temp;
+          }
+        }).filter(item => item !== undefined);
+
+        console.log("URLs", filesToFetch);
+        console.log("Temp data", tempData);
+        
+        // Next fetch the files' URL
+        var fileURLs = this.getURLs(filesToFetch);
+        console.log("File URLs", fileURLs);
+
+        // Next fetch unstored files
+        var promises = fileURLs.map(function(url) {
+          if(url.type === 'get') {
+            return axios.get(url.url).then(function(response) {
+              vm.storedData[url.filename] = response.data;
+              return {filename: url.filename, data: response.data};
+            });        
+          } else if(url.type === 'upload') {
+
+            //NEED TO TURN FILE READER INTO A PROMISE
+            new Promise((resolve, reject) => {
+              var reader = new FileReader();
+
+              reader.onload = function (e) {  
+                // Get file content
+                var content = e.target.result;
+                // Code to read Upload 2D file
+                vm.storedData[url.filename] = content;
+                
+                resolve({filename: url.filename, data: content});    
+              }
+              
+              reader.readAsText(url.url, "UTF-8");
+            });
+          } else {
+            console.log("Sorry, uknown type.");
+          }
+        });
+
+        Promise.all(promises).then(results => {
+          console.log("Results", results);
+          // var data = results.map(function(result) {
+          //    return { filename: result.filename, data: vm.parse1D(result)}
+          // });
+
+          // console.log("Data", data);
+        });
+        // eventBus.$emit('disable-buttons', true);
+        // eventBus.$emit('set-current-data', this.filesToPlot);
+
+
+
+      // var promises = get2DList.map((url) => {
+        
+      //   var inStored = Object.keys(vm.storedData).indexOf(url.fileName) === -1;
+      //   if(!inStored) {
+      //     // Pull stored data
+      //     //vm.storedData[url.fileName];
+      //     console.log("In store!");
+      //   } else {
+      //     axios.get(url).then(response => response.data)
+      //   }
+      
+      // });
+      
+      // console.log("Promises", promises);
+      // Promise.all(promises).then(results => {
+      //     console.log("Results", results);
+
+      //     // Code to parse data results
+      //     var temp = [];
+      //     results.forEach(el => {
+      //       let data = vm.read1D(el);
+      //       data.filter(el => el.y > 0 && e.x > 0); // Filter out negative values
+      //       data.forEach(el => el.name = files[i].name); // Need to find a way to get file name
+
+      //       temp.push(data); // add data to an array of objects
+      //     });
+
+      //     // Code to assign data
+      //     vm.addPlotData(temp); // send array of data to get stored
+
+
+      // }).catch(reason => {
+      //   console.log(reason);
+      // });
       },
       deep: true
     },

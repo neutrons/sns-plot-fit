@@ -259,7 +259,7 @@ export default {
       },
       addUploadedData: function(data) {
         // Add data to uploaded files list
-        this.uploadedFiles.unshift(data);
+        this.uploadedFiles = _.cloneDeep(data);
 
         // Add filename to color domain
         if (this.colorDomain.indexOf(data.fileName) === -1) {

@@ -202,8 +202,6 @@ export default {
     },
     read2DData: function(file) {
           var vm = this;
-      // Pull the file name and remove the ".txt" extension
-          var url = file.url;
 
           var inStored = Object.keys(vm.storedData).indexOf(file.filename) === -1;
           console.log("stored data = ", vm.storedData);
@@ -304,41 +302,6 @@ export default {
           console.log("No file to select");
         }
       }
-
-      // var promises = get2DList.map((url) => {
-        
-      //   var inStored = Object.keys(vm.storedData).indexOf(url.fileName) === -1;
-      //   if(!inStored) {
-      //     // Pull stored data
-      //     //vm.storedData[url.fileName];
-      //     console.log("In store!");
-      //   } else {
-      //     axios.get(url).then(response => response.data)
-      //   }
-      
-      // });
-      
-      // console.log("Promises", promises);
-      // Promise.all(promises).then(results => {
-      //     console.log("Results", results);
-
-      //     // Code to parse data results
-      //     var temp = [];
-      //     results.forEach(el => {
-      //       let data = vm.read1D(el);
-      //       data.filter(el => el.y > 0 && e.x > 0); // Filter out negative values
-      //       data.forEach(el => el.name = files[i].name); // Need to find a way to get file name
-
-      //       temp.push(data); // add data to an array of objects
-      //     });
-
-      //     // Code to assign data
-      //     vm.addPlotData(temp); // send array of data to get stored
-
-
-      // }).catch(reason => {
-      //   console.log(reason);
-      // });
     }
   }
 }
