@@ -146,14 +146,21 @@ export default {
       eventBus.$emit('remove-uploaded-files');
     },
     checkAll: function() {
-      for(let i = 0; i < this.GETFILES.length; i++) {
-        if(this.filesToPlot.indexOf(this.GETFILES[i].fileName) === -1) {
-          this.filesToPlot.push(this.GETFILES[i].fileName);
-        }
+      var vm = this;
+      for(let i = 0, len = this.GETFILES.length; i < len; i++) {
+        let content = this.GETFILES[i].files;
+        console.log("CONTENT", content);
+        content.forEach(function(item) {
+          if(vm.filesToPlot.indexOf(item.filename) === -1) {
+            vm.filesToPlot.push(item.filename);
+          }
+        });
       }
-      for(let i = 0; i < this.UPLOADEDFILES.length; i++) {
-        if(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName) === -1) {
-          this.filesToPlot.push(this.UPLOADEDFILES[i].fileName);
+      
+      for(let i = 0, len = this.UPLOADEDFILES.length; i < len; i++) {
+        let fname = this.UPLOADEDFILES[i].filename;
+        if(this.filesToPlot.indexOf(fname) === -1) {
+          this.filesToPlot.push(fname);
         }
       }
     },
@@ -162,6 +169,10 @@ export default {
       this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
     },
     deleteFile: function(filename) {
+      // Remove file from stored list
+      delete this.storedData[filename];
+
+      // Remove filename from uploads list
       eventBus.$emit('delete-file', filename);
     },
     getURLs: function(files) {
@@ -179,7 +190,7 @@ export default {
                 var item = this.GETFILES[i].files[j];
 
                 if(item.filename === tempName) {
-                  console.log("matched filename:", item.filename, tempName);
+                  //console.log("matched filename:", item.filename, tempName);
                   tempURLs.push({type: "get", url: item.url, filename: item.filename});
                   break;
                 }
@@ -200,7 +211,7 @@ export default {
 
         return tempURLs;
     },
-    parse1D: function(file) {
+    parse1D: function(data, filename) {
       function beforeFirstChunk1D(chunk) {
         // Split the text into rows
         var rows = chunk.split(/\r\n|\r|\n/);
@@ -236,11 +247,14 @@ export default {
             beforeFirstChunk : beforeFirstChunk1D
           }
 
-      var results1D = pp.parse(file.data, config1D ).data;
+      var results1D = pp.parse(data, config1D ).data;
+
+      // Filter out any negative values
       results1D = results1D.filter(row => row.y > 0 && row.x > 0);
-      results1D.forEach(row => row.name = file.filename);
+
+      results1D.forEach(row => row.name = filename);
       
-      return results1D;
+      return {filename: filename, data: results1D};
     }
   },
   computed: {
@@ -273,31 +287,42 @@ export default {
         console.log("Files to plot changed...", this.filesToPlot);
 
         // If a file is unselected while it has a fit, unselect the fit
-        // if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
-        //   this.fileToFit = null;
-        //   this.fileFitChoice = [];
-        // }
+        if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
+          this.fileToFit = null;
+          this.fileFitChoice = [];
+        }
 
         var filesToFetch = [];
 
         // First check if files to plot are in stored data
-        var tempData = this.filesToPlot.map(function(file) {
-          var temp = vm.storedData[file.filename];
+        var tempData = this.filesToPlot.map(function(filename) {
+          var temp = vm.storedData[filename];
+          
           if(temp === undefined) {
-            filesToFetch.push(file);
+            filesToFetch.push(filename);
           } else {
-            return temp;
+            return vm.parse1D(temp, filename);
           }
         }).filter(item => item !== undefined);
 
         console.log("URLs", filesToFetch);
         console.log("Temp data", tempData);
         
-        // Next fetch the files' URL
+        // Next fetch the file URLs
         var fileURLs = this.getURLs(filesToFetch);
         console.log("File URLs", fileURLs);
 
         // Next fetch unstored files
+        /*****************************************
+          When a user selects data to be plotted,
+          it first must be fetched, either from
+          an HTTP request or FileReader. In order
+          to handle pulling multiple files
+          asynchronously, JavaScript promises are used.
+          That way we can "wait" for all data
+          to be loaded asynchronously before moving on
+          to plotting the data.
+        *****************************************/
         var promises = fileURLs.map(function(url) {
           if(url.type === 'get') {
             return axios.get(url.url).then(function(response) {
@@ -307,12 +332,13 @@ export default {
           } else if(url.type === 'upload') {
 
             //NEED TO TURN FILE READER INTO A PROMISE
-            new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) => {
               var reader = new FileReader();
 
               reader.onload = function (e) {  
                 // Get file content
                 var content = e.target.result;
+
                 // Code to read Upload 2D file
                 vm.storedData[url.filename] = content;
                 
@@ -326,16 +352,23 @@ export default {
           }
         });
 
-        Promise.all(promises).then(results => {
-          console.log("Results", results);
-          // var data = results.map(function(result) {
-          //    return { filename: result.filename, data: vm.parse1D(result)}
-          // });
+        if(promises.length === 0) {
+          eventBus.$emit('disable-buttons', true);
+          eventBus.$emit('set-current-data', tempData, this.filesToPlot);
+        } else {
+          Promise.all(promises).then(results => {
+            // console.log("Results", results);
+            // console.log("tempData", tempData);
+            var fetchData = results.map(function(result) {
+              return vm.parse1D(result.data, result.filename);
+            });
 
-          // console.log("Data", data);
-        });
-        // eventBus.$emit('disable-buttons', true);
-        // eventBus.$emit('set-current-data', this.filesToPlot);
+            var data = fetchData.concat(tempData);
+            
+            eventBus.$emit('disable-buttons', true);
+            eventBus.$emit('set-current-data', data, this.filesToPlot);
+          }).catch(reason => { console.log(reason) });
+        }
 
 
 
