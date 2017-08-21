@@ -138,9 +138,13 @@ export default {
       }
     },
     deleteAllUploaded: function() {
-      for(var i = 0; i < this.UPLOADEDFILES.length; i++) {
-        if(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName) > -1) {
-          this.filesToPlot.splice(this.filesToPlot.indexOf(this.UPLOADEDFILES[i].fileName),1);
+      for(var i = 0, len = this.UPLOADEDFILES.length; i < len; i++) {
+        let match = this.filesToPlot.indexOf(this.UPLOADEDFILES[i].filename);
+        if(match > -1) {
+          this.filesToPlot.splice(match,1);
+
+          // Remove the file from the stored list
+          delete this.storedData[this.UPLOADEDFILES[i].filename];
         }
       }
       eventBus.$emit('remove-uploaded-files');
@@ -427,8 +431,13 @@ export default {
 .getloads-list {
   height: auto;
   max-height: 225px;
-  overflow-y: scroll;
+  overflow-y: hidden;
   background-color: whitesmoke;
+}
+
+.uploads-list:hover,
+.getloads-list:hover {
+  overflow-y: auto;
 }
 
 li {

@@ -258,22 +258,17 @@ export default {
             this.colorDomain.push(file.filename);
             }
           }));
-
-        // data.forEach(item => item.files.forEach(el => {
-        //   if (this.colorDomain.indexOf(item.filename) === -1) {
-        //     //this.colorDomain.push(item.filename);
-        //     console.log("file name", item.filename);
-        //   }
-        // }));
       },
       addUploadedData: function(data) {
         // Add data to uploaded files list
-        this.uploadedFiles = _.cloneDeep(data);
+        this.uploadedFiles = this.uploadedFiles.concat(_.cloneDeep(data));
 
         // Add filename to color domain
-        if (this.colorDomain.indexOf(data.filename) === -1) {
-          this.colorDomain.push(data.filename);
-        }
+        data.forEach(file => {
+          if (this.colorDomain.indexOf(file.filename) === -1) {
+            this.colorDomain.push(file.filename);
+          }
+        });
       },
       checkDuplicateFile: function (filename) {
 
@@ -353,6 +348,17 @@ export default {
         }
       },
       removeUploadedFiles: function () {
+        var vm = this;
+        // Remove all uploaded file names from the color domain list
+        this.colorDomain = this.colorDomain.filter(function(name) {
+          let match = vm.uploadedFiles.find(file => file.filename === name);
+          if(match === undefined) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+
         this.uploadedFiles = [];
       },
       setFitFile: function (filename) {
