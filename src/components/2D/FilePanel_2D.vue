@@ -118,14 +118,20 @@ export default {
       }
     },
     deleteAllUploaded: function() {
-      for(var i = 0; i < this.UPLOADEDFILES.length; i++) {
-        if(this.fileToPlot === this.UPLOADEDFILES[i].fileName) {
+      for(var i = 0, len = this.UPLOADEDFILES.length; i < len; i++) {
+        if(this.fileToPlot === this.UPLOADEDFILES[i].filename) {
           this.fileToPlot = null;
         }
+
+        // Remove the file from the stored list
+        delete this.storedData[this.UPLOADEDFILES[i].filename];
       }
       eventBus.$emit('remove-uploaded-files-2d');
     },
     deleteFile: function(filename) {
+      // Remove file from stored list
+      delete this.storedData[filename];
+      
       eventBus.$emit('delete-file-2d', filename);
     },
     isPlotted: function(filename) {
@@ -255,7 +261,7 @@ export default {
       var vm = this;
       // Watch if a file is selected to be fit if so, set it to the fileToFit
       console.log("File to plot changed", this.fileToPlot);
-      eventBus.$emit('disable-2D-buttons', true);
+      // eventBus.$emit('disable-2D-buttons', true);
       // eventBus.$emit("set-2D-data", this.fileToPlot);
 
       // console.log("Url list", url1DList);
@@ -264,6 +270,7 @@ export default {
       var file2D = null;
       
       if(this.fileToPlot === null) {
+        this.filePlotChoices = [];
         eventBus.$emit("set-2D-data", null);
       } else {
         var inGet = document.getElementById(this.fileToPlot + '-Get');

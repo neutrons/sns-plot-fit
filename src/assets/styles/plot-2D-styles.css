@@ -65,3 +65,7 @@ iframe.width-changed-2D {
     border: 0;
     height: 0;
 }
+
+.hexagon {
+  cursor: all-scroll;
+}

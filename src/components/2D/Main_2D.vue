@@ -97,7 +97,7 @@ export default {
       addUploadedData: function(data) {
         // Add data to uploaded files list
         console.log("Adding data...", data);
-        this.uploadedFiles = _.cloneDeep(data);
+        this.uploadedFiles = this.uploadedFiles.concat(_.cloneDeep(data));
       },
       checkDuplicateFile: function (filename) {
 
@@ -119,7 +119,7 @@ export default {
       deleteFile: function (filename) {
         // Function to delete file from the uploaded list
         for (var i = 0; i < this.uploadedFiles.length; i++) {
-          if (this.uploadedFiles[i].fileName === filename) {
+          if (this.uploadedFiles[i].filename === filename) {
             // Splice will remove the object from array index i    
             this.uploadedFiles.splice(i, 1);
           }
@@ -150,12 +150,14 @@ export default {
         // Function to wrap up all the parameters needed for plotting
 
         if(this.selected2DData !== null) {
+          this.buttonDis = true;
           eventBus.$emit("set-2D-parameters", {
             data: this.selected2DData.data,
             binSize: this.hexSettings.binSize,
             intensityTransformation: this.hexSettings.intensityTransformation
           });
         } else {
+          this.buttonDis = false;
           d3.select(".chart-2D").remove();
           d3.select(".tooltip-2D").remove();
           console.log("No 2D data to plot...");
