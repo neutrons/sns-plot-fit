@@ -455,10 +455,14 @@ td.over:hover
     white-space: normal;
     text-overflow: wrap;
     word-wrap: break-word;
-    height:auto; /* just added this line */
+    height:auto;
 }
 
 #filter-selection {
   width: 50%;
+}
+
+.form-control {
+  text-align-last: center;
 }
 </style>

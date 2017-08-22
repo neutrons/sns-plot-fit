@@ -440,43 +440,6 @@ export default {
             eventBus.$emit('set-current-data', data, this.filesToPlot);
           }).catch(reason => { console.log(reason) });
         }
-
-
-
-      // var promises = get2DList.map((url) => {
-        
-      //   var inStored = Object.keys(vm.storedData).indexOf(url.fileName) === -1;
-      //   if(!inStored) {
-      //     // Pull stored data
-      //     //vm.storedData[url.fileName];
-      //     console.log("In store!");
-      //   } else {
-      //     axios.get(url).then(response => response.data)
-      //   }
-      
-      // });
-      
-      // console.log("Promises", promises);
-      // Promise.all(promises).then(results => {
-      //     console.log("Results", results);
-
-      //     // Code to parse data results
-      //     var temp = [];
-      //     results.forEach(el => {
-      //       let data = vm.read1D(el);
-      //       data.filter(el => el.y > 0 && e.x > 0); // Filter out negative values
-      //       data.forEach(el => el.name = files[i].name); // Need to find a way to get file name
-
-      //       temp.push(data); // add data to an array of objects
-      //     });
-
-      //     // Code to assign data
-      //     vm.addPlotData(temp); // send array of data to get stored
-
-
-      // }).catch(reason => {
-      //   console.log(reason);
-      // });
       },
       deep: true
     },
@@ -573,10 +536,14 @@ td.over:hover
     white-space: normal;
     text-overflow: wrap;
     word-wrap: break-word;
-    height:auto; /* just added this line */
+    height:auto;
 }
 
 #filter-selection {
   width: 50%;
+}
+
+.form-control {
+  text-align-last: center;
 }
 </style>
