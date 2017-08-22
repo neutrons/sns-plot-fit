@@ -17,6 +17,7 @@ font-weight: bold;
 /* Styles for Plot Area */
 #plot-panel-collapse {
     cursor: pointer;
+    padding: 7px 15px;
 }
 
 #plot-collapse {

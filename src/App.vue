@@ -183,7 +183,7 @@ div#textnode {
 /* Transition effects for Sliding  */
 .slide-enter-active,
 .slide-leave-active {
-  transition: all 1.5s ease;
+  transition: all 1.25s ease;
 }
 
 #main1D.slide-enter {

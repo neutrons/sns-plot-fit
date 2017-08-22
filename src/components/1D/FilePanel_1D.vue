@@ -521,6 +521,7 @@ td {
 
 #file-panel-collapse {
       width: 100%;
+      padding: 7px 15px;
   }
 
 #file-panel-collapse:hover {

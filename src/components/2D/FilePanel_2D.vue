@@ -51,7 +51,7 @@
                                     <tbody>
                                         <tr v-for="file in filteredGroup" :class="isPlotted(file.filename)">
                                         <td><input type="checkbox" :value="file.filename" v-model="filePlotChoices" @change="setFileToPlot"></td>
-                                        <td :id="file+'-Get'" class="over">{{ file.filename }}</td>
+                                        <td :id="file.filename+'-Get'" class="over">{{ file.filename }}</td>
                                         <td class="over">{{ file.group }}</td>
                                         </tr>
                                     </tbody>
@@ -403,7 +403,7 @@ td {
 
 #file-panel-collapse-2d {
       width: 100%;
-      padding: 7px 5px;
+      padding: 7px 15px;
   }
 
 #file-panel-collapse-2d:hover {

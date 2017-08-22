@@ -292,6 +292,7 @@ export default {
 
 #control-panel-collapse {
     width: 100%;
+    padding: 7px 15px;
 }
 
 #control-panel-collapse:hover {

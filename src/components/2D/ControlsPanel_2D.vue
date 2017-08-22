@@ -112,7 +112,7 @@ export default {
 
 #control-panel-collapse-2d {
     width: 100%;
-    padding: 7px 5px;
+    padding: 7px 15px;
 }
 
 #control-panel-collapse-2d:hover {

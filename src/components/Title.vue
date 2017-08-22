@@ -9,6 +9,16 @@
 
 
         <ul class="nav navbar-nav navbar-right">
+          <li>
+            <div id="toggle-switch">
+              <label class="toggle-label">1D</label>
+              <label class="switch">
+                <input type="checkbox" v-model="plotCheck">
+                <span class="slider round"></span>
+              </label>
+              <label class="toggle-label">2D</label>
+            </div>
+          </li>
           <li><button class="btn btn-default btn-fetch" @click="fetchData">Fetch Data <span class="glyphicon glyphicon-download"></span></button></li>
           <li><label class="btn btn-default btn-upload">Load Files <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
         </ul>
@@ -18,14 +28,6 @@
           <li @click="switchPlots('2D')">2D Plot</li>
         </ul> -->
 
-        <div id="toggle-switch" class="nav navbar-nav navbar-right">
-          <label class="toggle-label">1D</label>
-          <label class="switch">
-            <input type="checkbox" v-model="plotCheck">
-            <span class="slider round"></span>
-          </label>
-          <label class="toggle-label">2D</label>
-        </div>
       </div>
     </nav>
     
@@ -407,7 +409,7 @@ export default {
 #toggle-switch {
   display: flex;
   vertical-align: center;
-  margin: 10px 25px;
+  margin: 5px 25px;
 }
 
 .toggle-label {
