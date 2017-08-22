@@ -4,10 +4,15 @@
     <nav id="title" class="navbar navbar-default">
       <div id="menu" class="container-fluid">
         <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbarElements">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>                        
+          </button>
           <img src="../assets/ornl_logo.png">
         </div>
 
-
+      <div class="collapse navbar-collapse" id="navbarElements">
         <ul class="nav navbar-nav navbar-right">
           <li>
             <div id="toggle-switch">
@@ -22,7 +27,7 @@
           <li><button class="btn btn-default btn-fetch" @click="fetchData">Fetch Data <span class="glyphicon glyphicon-download"></span></button></li>
           <li><label class="btn btn-default btn-upload">Load Files <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
         </ul>
-
+      </div>
         <!-- <ul id="toggle-plots" class="nav navbar-nav navbar-right">
           <li @click="switchPlots('1D')">1D Plot</li>
           <li @click="switchPlots('2D')">2D Plot</li>
