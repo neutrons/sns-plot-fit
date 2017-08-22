@@ -18,7 +18,24 @@
               <a class="panel-title" data-toggle="collapse" href="#collapse-get-files">Get Files</a>
             </div>
             <div id="collapse-get-files" class="panel-collapse collapse in">
+              
+              <!-- Sort Options  -->
+              <div class="panel-body" v-if="this.GETFILES.length > 0">
+                <div class="form-inline">
+                  <div class="input-group">
+                    <span id="select-tag" class="input-group-addon">Job:</span>
+                    <select id="group-selection" v-model="gSelect" class="form-control input-sm">
+                      <option>All</option>
+                      <option v-for="group in groups">{{ group }}</option>
+                    </select>
+                  </div>
+                  
+                    <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Descending'" @click="sortOrder='Ascending'">Date <span class="glyphicon glyphicon-sort-by-attributes-alt"></span></button>
+                    <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Ascending'" @click="sortOrder='Descending'">Date <span class="glyphicon glyphicon-sort-by-attributes"></span></button>
+                </div>
+              </div>
               <div class="panel-body">
+                <!-- Get List Table  -->
                 <table class="table table-condensed tabletop">
                   <thead>
                     <tr>
@@ -31,11 +48,11 @@
                 <div class="getloads-list">
                   <table class="table table-condensed table-hover table-bordered">
                     <tbody>
-                      <tr v-for="name in getFilenames" :class="isPlotted(name)">
-                        <td><input class="oneFit" type="checkbox" :value="name" v-model="fileFitChoice" :disabled=" (isPlotted(name) == 'info' ? false : true)"
+                      <tr v-for="fName in filteredGroup" :class="isPlotted(fName)">
+                        <td><input class="oneFit" type="checkbox" :value="fName" v-model="fileFitChoice" :disabled=" (isPlotted(fName) == 'info' ? false : true)"
                             @change="setFileToFit"></td>
-                        <td><input class="checks" type="checkbox" :id="name + '-Get1D'" :value="name" v-model="filesToPlot"></td>
-                        <td>{{ name }}</td>
+                        <td><input class="checks" type="checkbox" :id="fName + '-Get1D'" :value="fName" v-model="filesToPlot"></td>
+                        <td>{{ fName }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -107,7 +124,9 @@ export default {
       filesToPlot: [],
       fileFitChoice: [],
       fileToFit: null,
-      storedData: {}
+      storedData: {},
+      gSelect: "All",
+      sortOrder: "Descending"
     }
   },
   created() {
@@ -262,14 +281,44 @@ export default {
     }
   },
   computed: {
-    getFilenames: function() {
-      var fileList = [];
-
-      for(let i = 0, len=this.GETFILES.length; i < len; i++) {
-        this.GETFILES[i].files.forEach(item => fileList.push(item.filename));
+    filteredGroup: function() {
+      var vm = this;   
+      var temp = [];
+      var tempGetFiles = _.cloneDeep(this.GETFILES);
+      
+      if(this.gSelect === 'All') {
+        if(this.sortOrder === 'Descending') {
+          tempGetFiles.sort(function(a,b){
+            return new Date(b.dateModified) - new Date(a.dateModified);
+          });
+        } else {
+          // console.log("Sorting ascending");
+          tempGetFiles.sort(function(a,b){
+            return new Date(a.dateModified) - new Date(b.dateModified);
+          });
+        }
+        
+        // console.log("Temp Get Files", tempGetFiles);
+        tempGetFiles.forEach(group => group.files.forEach(file => {
+          temp.push(file.filename);
+        }));
+      } else {
+        // console.log("Filter for: ", this.gSelect);
+        let group = tempGetFiles.filter(group => group.jobTitle === vm.gSelect);
+        //console.log("group", group);
+        group[0].files.forEach(file => temp.push(file.filename));
       }
+      
+      //console.log("Temp", temp);
+      return temp;
+    },
+    groups: function() {
+      var temp = [];
 
-      return fileList;
+      this.GETFILES.forEach(group => temp.push(group.jobTitle));
+      
+      // console.log("Temp", temp);
+      return temp.sort();
     },
     uploadedFilenames: function() {
       var fileList = [];

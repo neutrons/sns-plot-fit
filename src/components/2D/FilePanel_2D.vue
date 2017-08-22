@@ -18,7 +18,25 @@
                         <a class="panel-title" data-toggle="collapse" href="#collapse-get-files-2d">Get Files</a>
                     </div>
                     <div id="collapse-get-files-2d" class="panel-collapse collapse in">
+                        <div class="panel-body" v-if="this.GETFILES.length > 0">
+
+                          <!-- Sort Options  -->
+                            <div class="form-inline">
+                              <div class="input-group">
+                                <span id="select-tag" class="input-group-addon">Job:</span>
+                                <select id="group-selection" v-model="gSelect" class="form-control input-sm">
+                                  <option>All</option>
+                                  <option v-for="group in groups">{{ group }}</option>
+                                </select>
+                              </div>
+                              
+                                <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Descending'" @click="sortOrder='Ascending'">Date <span class="glyphicon glyphicon-sort-by-attributes-alt"></span></button>
+                                <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Ascending'" @click="sortOrder='Descending'">Date <span class="glyphicon glyphicon-sort-by-attributes"></span></button>
+                              
+                          </div>
+                        </div>
                         <div class="panel-body">
+                          <!-- Get List Table  -->
                             <table class="table table-condensed tabletop">
                                 <thead>
                                     <tr>
@@ -27,12 +45,12 @@
                                     </tr>
                                 </thead>
                                 </table>
-                                <div class="getloads-list">
+                                <div class="getloads-list-2d">
                                     <table class="table table-condensed table-hover table-bordered">
                                     <tbody>
-                                        <tr v-for="name in getFilenames" :class="isPlotted(name)">
-                                        <td><input type="checkbox" :value="name" v-model="filePlotChoices" @change="setFileToPlot"></td>
-                                        <td :id="name+'-Get'">{{ name }}</td>
+                                        <tr v-for="fName in filteredGroup" :class="isPlotted(fName)">
+                                        <td><input type="checkbox" :value="fName" v-model="filePlotChoices" @change="setFileToPlot"></td>
+                                        <td :id="fName+'-Get'">{{ fName }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -57,7 +75,7 @@
                         </tr>
                     </thead>
                     </table>
-                    <div class="uploads-list">
+                    <div class="uploads-list-2d">
                         <table class="table table-condensed table-hover table-bordered">
                         <tbody>
                             <tr v-for="name in uploadedFilenames" :class="isPlotted(name)">
@@ -96,7 +114,9 @@ export default {
     return {
       filePlotChoices: [],
       fileToPlot: null,
-      storedData: {}
+      storedData: {},
+      gSelect: "All",
+      sortOrder: "Descending"
     }
   },
   methods: {
@@ -239,21 +259,51 @@ export default {
     }
   },
   computed: {
-    getFilenames: function() {
-      var fileList = [];
-
-      for(let i = 0, len=this.GETFILES.length; i < len; i++) {
-        this.GETFILES[i].files.forEach(item => fileList.push(item.filename));
-      }
-
-      return fileList;
-    },
     uploadedFilenames: function() {
       var fileList = [];
 
       this.UPLOADEDFILES.forEach(item => fileList.push(item.filename));
 
       return fileList;
+    },
+    filteredGroup: function() {
+      var vm = this;   
+      var temp = [];
+      var tempGetFiles = _.cloneDeep(this.GETFILES);
+      
+      if(this.gSelect === 'All') {
+        if(this.sortOrder === 'Descending') {
+          tempGetFiles.sort(function(a,b){
+            return new Date(b.dateModified) - new Date(a.dateModified);
+          });
+        } else {
+          // console.log("Sorting ascending");
+          tempGetFiles.sort(function(a,b){
+            return new Date(a.dateModified) - new Date(b.dateModified);
+          });
+        }
+        
+        // console.log("Temp Get Files", tempGetFiles);
+        tempGetFiles.forEach(group => group.files.forEach(file => {
+          temp.push(file.filename);
+        }));
+      } else {
+        // console.log("Filter for: ", this.gSelect);
+        let group = tempGetFiles.filter(group => group.jobTitle === vm.gSelect);
+        //console.log("group", group);
+        group[0].files.forEach(file => temp.push(file.filename));
+      }
+      
+      //console.log("Temp", temp);
+      return temp;
+    },
+    groups: function() {
+      var temp = [];
+
+      this.GETFILES.forEach(group => temp.push(group.jobTitle));
+      
+      // console.log("Temp", temp);
+      return temp.sort();
     }
   },
   watch: {
@@ -320,12 +370,17 @@ export default {
   padding: 0;
 }
 
-.uploads-list,
-.getloads-list {
+.uploads-list-2d,
+.getloads-list-2d {
   height: auto;
   max-height: 325px;
-  overflow-y: scroll;
+  overflow-y: hidden;
   background-color: whitesmoke;
+}
+
+.uploads-list-2d:hover,
+.getloads-list-2d:hober {
+  overflow-y: auto;
 }
 
 li {
