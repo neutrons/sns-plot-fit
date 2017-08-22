@@ -23,7 +23,7 @@
               <div class="panel-body" v-if="this.GETFILES.length > 0">
                 <div class="form-inline">
                   <div id="filter-selection" class="input-group">
-                    <span id="select-tag" class="input-group-addon">Job:</span>
+                    <span id="select-tag" class="input-group-addon">Filter:</span>
                     <select id="group-selection" v-model="gSelect" class="form-control input-sm">
                       <option>All</option>
                       <option v-for="group in groups">{{ group }}</option>
