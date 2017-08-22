@@ -22,7 +22,7 @@
               <!-- Sort Options  -->
               <div class="panel-body" v-if="this.GETFILES.length > 0">
                 <div class="form-inline">
-                  <div class="input-group">
+                  <div id="filter-selection" class="input-group">
                     <span id="select-tag" class="input-group-addon">Job:</span>
                     <select id="group-selection" v-model="gSelect" class="form-control input-sm">
                       <option>All</option>
@@ -37,22 +37,36 @@
               <div class="panel-body">
                 <!-- Get List Table  -->
                 <table class="table table-condensed tabletop">
+                  <colgroup>
+                    <col class="col-md-1">
+                    <col class="col-md-1">
+                    <col class="col-md-5">
+                    <col class="col-md-5">
+                  </colgroup>
                   <thead>
                     <tr>
-                      <th class="col-md-1" data-toggle="tooltip" title="You can only select one dataset to fit a line to.">Fit</th>
-                      <th class="col-md-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
-                      <th class="col-md-9">File Name</th>
+                      <th>Fit</th>
+                      <th>Plot</th>
+                      <th>File Name</th>
+                      <th>Group</th>
                     </tr>
                   </thead>
                 </table>
                 <div class="getloads-list">
                   <table class="table table-condensed table-hover table-bordered">
+                    <colgroup>
+                    <col class="col-md-1">
+                    <col class="col-md-1">
+                    <col class="col-md-5">
+                    <col class="col-md-5">
+                  </colgroup>
                     <tbody>
-                      <tr v-for="fName in filteredGroup" :class="isPlotted(fName)">
-                        <td><input class="oneFit" type="checkbox" :value="fName" v-model="fileFitChoice" :disabled=" (isPlotted(fName) == 'info' ? false : true)"
+                      <tr v-for="file in filteredGroup" :class="isPlotted(file.filename)">
+                        <td><input class="oneFit" type="checkbox" :value="file.filename" v-model="fileFitChoice" :disabled=" (isPlotted(file.filename) == 'info' ? false : true)"
                             @change="setFileToFit"></td>
-                        <td><input class="checks" type="checkbox" :id="fName + '-Get1D'" :value="fName" v-model="filesToPlot"></td>
-                        <td>{{ fName }}</td>
+                        <td><input class="checks" type="checkbox" :id="file.filename + '-Get1D'" :value="file.filename" v-model="filesToPlot"></td>
+                        <td class="over">{{ file.filename }}</td>
+                        <td class="over">{{ file.group }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -85,8 +99,8 @@
                         <td><input class="oneFit" type="checkbox" :value="name" v-model="fileFitChoice" :disabled=" (isPlotted(name) == 'info' ? false : true)"
                             @change="setFileToFit"></td>
                         <td><input class="checks" type="checkbox" :id="name + '-Upload1D'" :value="name" v-model="filesToPlot"></td>
-                        <td>{{ name }}</td>
-                        <td><button class="btn btn-danger btn-xs" @click="uncheckFile(name) | deleteFile(name)"><span class="glyphicon glyphicon-trash"></span></button></td>
+                        <td class="over">{{ name }}</td>
+                        <td class="over"><button class="btn btn-danger btn-xs" @click="uncheckFile(name) | deleteFile(name)"><span class="glyphicon glyphicon-trash"></span></button></td>
                       </tr>
                     </tbody>
                   </table>
@@ -300,13 +314,17 @@ export default {
         
         // console.log("Temp Get Files", tempGetFiles);
         tempGetFiles.forEach(group => group.files.forEach(file => {
-          temp.push(file.filename);
+          temp.push({filename: file.filename, group: group.jobTitle});
         }));
       } else {
         // console.log("Filter for: ", this.gSelect);
         let group = tempGetFiles.filter(group => group.jobTitle === vm.gSelect);
         //console.log("group", group);
-        group[0].files.forEach(file => temp.push(file.filename));
+        //group[0].files.forEach(file => temp.push(file.filename));
+        var gName = group[0].jobTitle;
+        for(let i = 0, len = group[0].files.length; i < len; i++) {
+          temp.push({group: gName, filename: group[0].files[i].filename});
+        }
       }
       
       //console.log("Temp", temp);
@@ -481,7 +499,7 @@ export default {
   height: auto;
   max-height: 225px;
   overflow-y: hidden;
-  background-color: whitesmoke;
+  background-color: white;
 }
 
 .uploads-list:hover,
@@ -537,5 +555,27 @@ td {
 
 .btn-container {
   padding: 0px;
+}
+
+/* Styles to handle long file/group names  */
+td.over
+{
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+td.over:hover
+{
+    overflow: visible; 
+    white-space: normal;
+    text-overflow: wrap;
+    word-wrap: break-word;
+    height:auto; /* just added this line */
+}
+
+#filter-selection {
+  width: 50%;
 }
 </style>

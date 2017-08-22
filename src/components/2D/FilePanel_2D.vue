@@ -41,16 +41,18 @@
                                 <thead>
                                     <tr>
                                     <th class="col-md-2" data-toggle="tooltip" title="Select multiple datasets to plot">Plot</th>
-                                    <th class="col-md-10">File Name</th>
+                                    <th class="col-md-5">File Name</th>
+                                    <th class="col-md-5">Group</th>
                                     </tr>
                                 </thead>
                                 </table>
                                 <div class="getloads-list-2d">
                                     <table class="table table-condensed table-hover table-bordered">
                                     <tbody>
-                                        <tr v-for="fName in filteredGroup" :class="isPlotted(fName)">
-                                        <td><input type="checkbox" :value="fName" v-model="filePlotChoices" @change="setFileToPlot"></td>
-                                        <td :id="fName+'-Get'">{{ fName }}</td>
+                                        <tr v-for="file in filteredGroup" :class="isPlotted(file.filename)">
+                                        <td><input type="checkbox" :value="file.filename" v-model="filePlotChoices" @change="setFileToPlot"></td>
+                                        <td :id="file+'-Get'" class="over">{{ file.filename }}</td>
+                                        <td class="over">{{ file.group }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -80,7 +82,7 @@
                         <tbody>
                             <tr v-for="name in uploadedFilenames" :class="isPlotted(name)">
                             <td><input class="oneFit" type="checkbox" :value="name" v-model="filePlotChoices" @change="setFileToPlot"></td>
-                            <td :id="name +'-Upload'">{{ name }}</td>
+                            <td :id="name +'-Upload'" class="over">{{ name }}</td>
                             <td><button class="btn btn-danger btn-xs" @click="uncheckFile(name) | deleteFile(name)"><span class="glyphicon glyphicon-trash"></span></button></td>
                             </tr>
                         </tbody>
@@ -285,13 +287,17 @@ export default {
         
         // console.log("Temp Get Files", tempGetFiles);
         tempGetFiles.forEach(group => group.files.forEach(file => {
-          temp.push(file.filename);
+          temp.push({filename: file.filename, group: group.jobTitle});
         }));
       } else {
         // console.log("Filter for: ", this.gSelect);
         let group = tempGetFiles.filter(group => group.jobTitle === vm.gSelect);
         //console.log("group", group);
-        group[0].files.forEach(file => temp.push(file.filename));
+        //group[0].files.forEach(file => temp.push(file.filename));
+        var gName = group[0].jobTitle;
+        for(let i = 0, len = group[0].files.length; i < len; i++) {
+          temp.push({group: gName, filename: group[0].files[i].filename});
+        }
       }
       
       //console.log("Temp", temp);
@@ -375,7 +381,7 @@ export default {
   height: auto;
   max-height: 325px;
   overflow-y: hidden;
-  background-color: whitesmoke;
+  background-color: white;
 }
 
 .uploads-list-2d:hover,
@@ -432,5 +438,27 @@ td {
 
 .btn-container {
   padding: 0px;
+}
+
+/* Styles to handle long file/group names  */
+td.over
+{
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+td.over:hover
+{
+    overflow: visible; 
+    white-space: normal;
+    text-overflow: wrap;
+    word-wrap: break-word;
+    height:auto; /* just added this line */
+}
+
+#filter-selection {
+  width: 50%;
 }
 </style>
