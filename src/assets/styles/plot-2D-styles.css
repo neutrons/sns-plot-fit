@@ -2,7 +2,7 @@
 
 #plot-panel-collapse-2d {
     cursor: pointer;
-    padding: 7px 5px;
+    padding: 7px 15px;
 }
 
 #plot-collapse-2d {
@@ -20,7 +20,7 @@
 #btn-reset-2d-plot {
     padding-top: 2px;
     padding-bottom: 2px;
-    margin: 5px 0px 5px 5px;
+    margin: 5px 0px 5px 10px;
 }
 
 /* Tooltip 2D Styles */
@@ -64,4 +64,8 @@ iframe.width-changed-2D {
     display: block;
     border: 0;
     height: 0;
+}
+
+.hexagon {
+  cursor: all-scroll;
 }

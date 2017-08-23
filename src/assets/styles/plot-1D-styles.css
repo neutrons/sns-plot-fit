@@ -17,6 +17,7 @@ font-weight: bold;
 /* Styles for Plot Area */
 #plot-panel-collapse {
     cursor: pointer;
+    padding: 7px 15px;
 }
 
 #plot-collapse {
@@ -26,7 +27,7 @@ font-weight: bold;
 #btn-reset-plot {
     padding-top: 2px;
     padding-bottom: 2px;
-    margin: 5px 0px 5px 5px;
+    margin: 5px 0px 5px 10px;
 }
 
 /* Plot Styles */
@@ -61,7 +62,11 @@ div.plot {
   opacity: 1;
 }
 
-#axis-1D .tick line {
+.axis .tick line {
+  stroke: black;
+}
+
+.gridline .tick line {
   stroke: gainsboro;
 }
 

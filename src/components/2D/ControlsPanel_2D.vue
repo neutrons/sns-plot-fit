@@ -4,7 +4,7 @@
     <div id="control-panel-2d">
 
         <div class="controls-bg">
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
                 <div id="control-panel-collapse-2d" class="panel-heading"> Controls <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
             </div>
             <div id="control-panel-group-2d">
@@ -12,7 +12,7 @@
                 <div class="panel-group">
 
                     <!-- 2D Settings Panel -->
-                    <div class="panel panel-info">
+                    <div class="panel panel-success">
                         <div class="panel-heading">
                             <a class="panel-title" data-toggle="collapse" href="#collapse-settings-2d">Settings</a>
                         </div>
@@ -33,7 +33,7 @@
                                     </select>
                                 </div>
 
-                                <button id="btn-reset-hex-settings" class="btn btn-warning btn-sm" @click="resetSettings" :disabled="!BUTTONDIS">Reset <span class="glyphicon glyphicon-refresh"></span></button>
+                                <button id="btn-reset-hex-settings" class="btn btn-warning btn-sm" @click="resetSettings" :disabled="!BUTTONDIS"><span class="glyphicon glyphicon-refresh"></span> Reset</button>
                             </div>
                         </div>
                     </div>
@@ -112,7 +112,7 @@ export default {
 
 #control-panel-collapse-2d {
     width: 100%;
-    padding: 7px 5px;
+    padding: 7px 15px;
 }
 
 #control-panel-collapse-2d:hover {

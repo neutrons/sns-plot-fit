@@ -78,8 +78,7 @@ export default {
           document.querySelector("#textnode").style.fontSize = "42px";
           
       var files = e.dataTransfer.files;
-        console.log("Drop files:", files);
-        //this.uploadFile(files);
+        // console.log("Drop files:", files);
         eventBus.$emit("upload-files", files);
       });
   },
@@ -101,8 +100,8 @@ export default {
       var newDiv = document.createElement("div");
       var timer = this.errorCount === 0 ? 5000 : 5000+(this.errorCount*1000);
       
-      console.log("Timer:", timer);
-      console.log("Error count:", this.errorCount);
+      // console.log("Timer:", timer);
+      // console.log("Error count:", this.errorCount);
       
       newDiv.innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' + errorMSG;
       newDiv.classList.add("error", "alert", "alert-danger", "alert-dismissable", "fade", "in")
@@ -183,7 +182,7 @@ div#textnode {
 /* Transition effects for Sliding  */
 .slide-enter-active,
 .slide-leave-active {
-  transition: all 1.5s ease;
+  transition: all 1.25s ease;
 }
 
 #main1D.slide-enter {

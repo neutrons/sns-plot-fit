@@ -4,28 +4,30 @@
     <nav id="title" class="navbar navbar-default">
       <div id="menu" class="container-fluid">
         <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbarElements">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>                        
+          </button>
           <img src="../assets/ornl_logo.png">
         </div>
 
-
+      <div class="collapse navbar-collapse" id="navbarElements">
         <ul class="nav navbar-nav navbar-right">
-          <li><button class="btn btn-default btn-fetch" @click="fetchData">Fetch Data <span class="glyphicon glyphicon-download"></span></button></li>
-          <li><label class="btn btn-default btn-upload">Load Files <span class="glyphicon glyphicon-file"></span> <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
+          <li>
+            <div id="toggle-switch">
+              <label class="toggle-label">1D</label>
+              <label class="switch">
+                <input type="checkbox" v-model="plotCheck">
+                <span class="slider round"></span>
+              </label>
+              <label class="toggle-label">2D</label>
+            </div>
+          </li>
+          <li><button class="btn btn-primary btn-fetch" @click="fetchData"><span class="glyphicon glyphicon-download"></span> Fetch Data</button></li>
+          <li><label class="btn btn-primary"><span class="glyphicon glyphicon-file"></span> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
         </ul>
-
-        <!-- <ul id="toggle-plots" class="nav navbar-nav navbar-right">
-          <li @click="switchPlots('1D')">1D Plot</li>
-          <li @click="switchPlots('2D')">2D Plot</li>
-        </ul> -->
-
-        <div id="toggle-switch" class="nav navbar-nav navbar-right">
-          <label class="toggle-label">1D</label>
-          <label class="switch">
-            <input type="checkbox" v-model="plotCheck">
-            <span class="slider round"></span>
-          </label>
-          <label class="toggle-label">2D</label>
-        </div>
+      </div>
       </div>
     </nav>
     
@@ -55,141 +57,92 @@ export default {
   },
   methods: {
     fetchData: function() {
-      //eventBus.$emit('fetch-data');
+      var url = document.getElementById("urlid").getAttribute("data-urlid");
+      var files = JSON.parse(url);
 
-      // CODE TO GET DATA WITH API REQUEST //
-        var url = document.getElementById("urlid").getAttribute("data-urlid");
-        var files = JSON.parse(url);
+      var temp1D = [];
+      var temp2D = [];
+      var vm = this;
 
-        // Set a variable to 'this' to be able to reference the getFiles variable in the scope of the 'getFiles' function
-        var self = this;
+      for (let i = 0, len = files.length; i < len; i++) {
+          var temp1DFiles = [];
+          var temp2DFiles = [];
 
-          var getFiles = function(i) {
+          files[i].results.forEach(function(item) {
             
-            var fileName= files[i].name;
-            var fileURL = files[i].url;
-            var group = files[i].id;
+            if( vm.dataType(item.url) === '1D') {
+              // console.log("1D Item", {url: url, group: group, fileName: name});
+              // Push to 1D Get Files list
+              temp1DFiles.push({  id: item.id, filename: item.filename, url: item.url});
+              // url1DList.push({url:url, filename: name});
 
-            if( self.dataType(fileURL) === '1D') {
-              //Make a GET request to data file
-              axios.get(fileURL).then(response => {
-                let results = self.read1D(response.data);
+            } else if ( vm.dataType(item.url) === '2D') {
+              // console.log("2D Item", {url: url, group: group, fileName: name});
+              // Push to 1D Get Files list
+              temp2DFiles.push({  id: item.id, filename: item.filename, url: item.url});
 
-                // Filter out negative values for x and y
-                results.data.filter(el => el.y > 0 && el.x > 0);
-
-                // Add file name to data objects
-                results.data.forEach(el => el.name = files[i].name);
-                //console.log("results data:", results.data);
-
-                // Push to 1D Get Files list
-                eventBus.$emit('add-get-1D', {group: group,
-                                              data: results.data,
-                                              fileName: fileName });
-              });
-
-            } else if ( self.dataType(fileURL) === '2D') {
-              //Make a GET request to data file
-              axios.get(fileURL).then(response => {
-                let results = self.read2D(response.data);
-
-              // Add file name to data objects
-              results.data.forEach(el => el.name = fileName);
-
-              // Push to 2D Get Files list
-              eventBus.$emit('add-get-2D', {data: results.data, fileName: fileName});
-              });
             } else {
               // error, don't read for now
-              let errorMsg = "<strong>Error! </strong>" + fileURL + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
+              let errorMsg = "<strong>Error! </strong>" + item.url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
               eventBus.$emit('error-message', errorMsg);
             }
+          });
+
+          
+          if(temp1DFiles.length > 0) {
+            temp1D.push({jobID: files[i].job_id,
+                      jobTitle: files[i].job_title,
+                      dateModified: files[i].date_modified,
+                      files: temp1DFiles});
           }
-        // For loop to GET multiple files and push them to an array
-        for (var i = 0; i < files.length; i++) {
-          // Call 'getFiles' passing in i each time to access appropriate elements in files array
-          getFiles(i);
-        }
-      // END API REQUEST FOR DATA //
+          
+          if(temp2DFiles.length > 0) {
+            temp2D.push({jobID: files[i].job_id,
+                        jobTitle: files[i].job_title,
+                        dateModified: files[i].date_modified,
+                        files: temp2DFiles});
+          }
+      
+      }
+
+      if(temp1D.length > 0) eventBus.$emit('add-get-1D', temp1D);
+      if(temp2D.length > 0) eventBus.$emit('add-get-2D', temp2D);
+      
     },
     uploadFile: function(files) {
-      //let files = document.getElementById("file-upload").files;
-      //console.log("Files:", files[0]);
-      //eventBus.$emit('upload-file', files);
-
 
       // CODE TO UPLOAD DATA FILES //
-        var self = this;
+        var vm = this;
 
-        function loadFiles(file) {
+        var temp1D = [];
+        var temp2D = [];
 
-          // Pull the file name and remove the ".txt" extension
-          var fileURL = file.name;
-          var reader = new FileReader();
+        for (var i = 0, len = files.length; i < len; i++) {         
+          // loadFiles(files[i]);
+          let url = files[i].name;
+          let blob = files[i];
 
-          reader.onload = function (e) {
-            
-          // Get file content
-          var content = e.target.result;
+          if( vm.dataType(url) === '1D') {
+              // console.log("1D Item", {url: url, group: group, fileName: name});
+              // Push to 1D Get Files list
+              let filename = url.substr(0, url.lastIndexOf('.txt')) || url;
+              temp1D.push( {url: url, filename: filename, blob: blob});
 
-          if(self.dataType(fileURL) === '1D') {
-            // Code to read Upload 1D file
-            let results = self.read1D(content);
+            } else if ( vm.dataType(url) === '2D') {
+              // console.log("2D Item", {url: url, group: group, fileName: name});
+              // Push to 1D Get Files list
+              let filename = url.substr(0, url.lastIndexOf('.dat')) || url;
+              temp2D.push( {url: url, filename: filename, blob: blob});
 
-            // Filter out negative values for x and y
-            results.data.filter(el => el.y > 0 && el.x > 0);
-
-            // Add file name to data objects
-            var fileName = file.name.substr(0, file.name.lastIndexOf('.txt')) || file.name;
-            results.data.forEach(el => el.name = fileName);
-            //console.log("results data:", results.data);
-
-            // Push to 1D Get Files list
-            eventBus.$emit('add-uploaded-1D', {data: results.data, fileName: fileName });
-
-          } else if (self.dataType(fileURL) === '2D') {
-            // Code to read Upload 2D file
-            let results = self.read2D(content);
-            // console.log("results", results);
-
-            // Add file name to data objects
-            var fileName = file.name.substr(0, file.name.lastIndexOf('.dat')) || file.name;
-            results.data.forEach(el => el.name = fileName);
-
-            // Push to 2D Get Files list
-            eventBus.$emit('add-uploaded-2D', {data: results.data, fileName: fileName });
-
-          } else {
-            let errorMsg = "<strong>Error! </strong>" + fileURL + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
-            eventBus.$emit("error-message", errorMsg);
-          }
-
-          //console.log("results data:", results.data);
-          
-          }
-          reader.readAsText(file, "UTF-8");
+            } else {
+              // error, don't read for now
+              let errorMsg = "<strong>Error! </strong>" + url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
+              eventBus.$emit('error-message', errorMsg);
+            }
         }
 
-        for (var i = 0; i < files.length; i++) {
-          // console.log("File["+i+"]", files[i]);
-          // let fileName = files[i].name.substr(0, files[i].name.lastIndexOf('.txt')) || files[i].name;
-          // console.log("Filename:", fileName);
-          
-          loadFiles(files[i]);
-          // if (files[i].type !== "text/plain") {
-          //   //if text file is not submitted alert and skip over it
-          //   alert("Sorry, " + files[i].type + " is not an accepted file type.")
-          //   continue;
-          // } else {
-          //   if (this.uploadedFiles.length > 0) {
-          //     if (!this.checkDuplicateFile(files[i].name.substr(0, files[i].name.lastIndexOf('.txt')))) {
-          //       loadFiles(files[i]);
-          //     }
-          //   } else {
-          //     loadFiles(files[i]);
-          //   }
-          // };
-        }
+        if(temp1D.length > 0) eventBus.$emit('add-uploaded-1D', temp1D);
+        if(temp2D.length > 0) eventBus.$emit('add-uploaded-2D', temp2D);
 
         document.getElementById("file-upload").value = '';
         // END OF CODE TO UPLOAD FILES //
@@ -205,84 +158,6 @@ export default {
         // File doesn't match for either 1D or 2D, throw error message
         return false;
       }
-    },
-    read1D: function(data) {
-       function beforeFirstChunk1D(chunk) {
-        // Split the text into rows
-        var rows = chunk.split(/\r\n|\r|\n/);
-
-        var delimiterRegex = /([\s,]+)/g;
-        // Find the delimiter on 3rd row
-        var match = delimiterRegex.exec(rows[2]);
-        var delimiter = match[1];
-        var header = rows[0];
-
-        if (header.startsWith("#")) {
-          header = header.replace(/#\s*/, '');
-          header = header.split(/[\s,]+/).join(delimiter);
-        }
-
-        rows[0] = header.toLowerCase();
-        // Remove the 2nd row if it's not data
-        if (rows[1].length <= 2) {
-          rows.splice(1, 1);
-        }
-        return rows.join("\r\n");
-      }
-
-      // files ending in Iq.txt
-      var config1D =
-          {
-            header : true,
-            dynamicTyping : true, // parse string to int
-            delimiter : "",       // auto-detect
-            newline : "",         // auto-detect
-            quoteChar : '"',
-            skipEmptyLines : true,
-            beforeFirstChunk : beforeFirstChunk1D
-          }
-
-      var results1D = pp.parse(data, config1D );
-      
-      return results1D;
-    },
-    read2D: function(data) {
-      function beforeFirstChunk2D(chunk) {
-        // Split the text into rows
-        var rows = chunk.split(/\r\n|\r|\n/);
-        var header = rows[0];
-        header = header.replace(/,/, '');
-        if (header.startsWith("Data columns")) {
-          header = header.replace(/Data columns\s*/, '');
-          header = header.split(/[\s,-]+/).join("  ");
-        }
-
-        // Rename headings for readability
-        header = header.replace(/I\(QxQy\)/, 'intensity');
-        header = header.replace(/err\(I\)/, 'error');
-
-        rows[0] = header.toLowerCase();
-        // Remove the 2nd row if it's not data
-        if (rows[1].split(/[\s,-]+/).length <= 2) {
-          rows.splice(1, 1);
-        }
-        return rows.join("\r\n");
-      }
-
-      // files endind in Iqxy.dat
-      var config2D = {
-        header : true,
-        dynamicTyping : true, // parse string to int
-        delimiter : "  ",
-        newline : "", // auto-detect
-        quoteChar : '"',
-        skipEmptyLines : true,
-        beforeFirstChunk : beforeFirstChunk2D
-      }
-
-      var results2D = pp.parse(data, config2D );
-
-      return results2D;
     }
   },
   watch: {
@@ -311,12 +186,11 @@ export default {
   height: 100%;
 }
 
-
 /* Switch Styles  */
 #toggle-switch {
   display: flex;
   vertical-align: center;
-  margin: 10px 25px;
+  margin: 5px 25px;
 }
 
 .toggle-label {
@@ -357,11 +231,11 @@ export default {
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #5091cd;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px #5091cd;
 }
 
 input:checked + .slider:before {

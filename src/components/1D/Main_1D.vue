@@ -250,21 +250,25 @@ export default {
     },
     methods: {
       addGetData: function(data) {
-        this.getFiles.push(data);
+        this.getFiles = _.cloneDeep(data);
 
         // Add filename to color domain
-        if (this.colorDomain.indexOf(data.fileName) === -1) {
-          this.colorDomain.push(data.fileName);
-        }
+        data.forEach(group => group.files.forEach(file => {
+          if(this.colorDomain.indexOf(file.filename) === -1) {
+            this.colorDomain.push(file.filename);
+            }
+          }));
       },
       addUploadedData: function(data) {
         // Add data to uploaded files list
-        this.uploadedFiles.unshift(data);
+        this.uploadedFiles = this.uploadedFiles.concat(_.cloneDeep(data));
 
         // Add filename to color domain
-        if (this.colorDomain.indexOf(data.fileName) === -1) {
-          this.colorDomain.push(data.fileName);
-        }
+        data.forEach(file => {
+          if (this.colorDomain.indexOf(file.filename) === -1) {
+            this.colorDomain.push(file.filename);
+          }
+        });
       },
       checkDuplicateFile: function (filename) {
 
@@ -281,10 +285,10 @@ export default {
       disableButtons: function (bool) {
         this.buttonDis = bool;
       },
-      setCurrentData: function (checkedfiles) {
+      setCurrentData: function (chosenData, checkList) {
         // Function that adds selected data to be plotted
-
-        if (checkedfiles.length == 0) {
+        var vm = this;
+        if (checkList.length == 0) {
           // If no data is selected to be plotted, then
           // remove any elements previously plotted
           // and reset to default values
@@ -301,82 +305,60 @@ export default {
           // console.log(this.selectedData);
           // console.log("checkfiles", checkedfiles);
 
-          // Remove any instances where checked file isn't in selected
-          for (let i = 0; i < this.selectedData.length; i++) {
-            let key = this.selectedData[i].fileName;
-            // console.log("key", key);
-            // console.log(this.checkedfiles.indexOf(key));
-            if (checkedfiles.indexOf(key) === -1) {
-              // console.log("Removing: " + key + " | index: " + i);
-              this.selectedData.splice(i, 1);
-              
-              // Check if you are removing a file that was also being fitted
-              // if so reset back to null
-              if(key === this.fileToFit) {
-                this.fileToFit = null;
-              }
-            }
+        // Remove any instances where checked file isn't in selected
+        var toDelete = [];
+        
+        this.selectedData = this.selectedData.filter(function(item) { 
+          var match = checkList.indexOf(item.filename);
+          if(match > -1) {
+            toDelete.push(checkList[match]);
           }
 
-          //console.log("Selected Data After", this.selectedData);
 
-          // Add selected file
-          for (let i = 0; i < checkedfiles.length; i++) {
-            let el = checkedfiles[i];
+          return checkList.indexOf(item.filename) > -1;
+        });
 
-            if (this.selectedData.find(a => a.fileName === el) === undefined) {
-              // console.log("not in selectedData " + el);
+        // console.log("Delete list", toDelete);
+        var addList = checkList.filter(el => toDelete.indexOf(el) < 0).map(function(fname) {
+          let temp = chosenData.find(el => el.filename === fname);
+          return {filename: fname, data: temp};
+        });
 
-              if (this.getFiles.find(a => a.fileName === el)) {
-                // console.log("Adding from get file " + el);
-                
-                // Set temp file for get
-                let temp = _.cloneDeep(this.getFiles.find(a => a.fileName === el));
-                // console.log("Temp", temp);
-                // temp.dataTransformed = [];
-
-                if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
-                  temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
-                  // console.log("Temp data:", temp);
-                  this.selectedData.push(temp);
-                } else {
-                  temp.dataTransformed = _.cloneDeep(temp.data);
-                  this.selectedData.push(temp);
-                }
-
-              } else if (this.uploadedFiles.find(a => a.fileName === el)) {
-                // console.log("Adding from uploaded file " + el);
-                
-                // Set temp file for uploaded
-                let temp = _.cloneDeep(this.uploadedFiles.find(a => a.fileName === el));
-                // temp.dataTransformed = [];
-
-                if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
-                  temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
-                  // console.log("Temp data:", temp);
-                  this.selectedData.push(temp);
-                } else {
-                  temp.dataTransformed = _.cloneDeep(temp.data);
-                  this.selectedData.push(temp);
-                }
-              } else {
-                console.log("Uh oh shouldn't happen");
-              }
-              
-            }
-          };
+        // console.log("Add list", addList);
+        for(let i = 0, len = addList.length; i < len; i++) {
+          let temp = addList[i].data;
+          if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
+            temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
+            // console.log("Temp data:", temp);
+            this.selectedData.push(temp);
+          } else {
+            temp.dataTransformed = _.cloneDeep(temp.data);
+            this.selectedData.push(temp);
+          }
+        }
         }
       },
       deleteFile: function (filename) {
         // Function to delete file from the uploaded list
         for (var i = 0; i < this.uploadedFiles.length; i++) {
-          if (this.uploadedFiles[i].fileName === filename) {
+          if (this.uploadedFiles[i].filename === filename) {
             // Splice will remove the object from array index i    
             this.uploadedFiles.splice(i, 1);
           }
         }
       },
       removeUploadedFiles: function () {
+        var vm = this;
+        // Remove all uploaded file names from the color domain list
+        this.colorDomain = this.colorDomain.filter(function(name) {
+          let match = vm.uploadedFiles.find(file => file.filename === name);
+          if(match === undefined) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+
         this.uploadedFiles = [];
       },
       setFitFile: function (filename) {
