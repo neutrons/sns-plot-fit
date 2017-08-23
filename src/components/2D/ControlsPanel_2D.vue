@@ -33,7 +33,7 @@
                                     </select>
                                 </div>
 
-                                <button id="btn-reset-hex-settings" class="btn btn-warning btn-sm" @click="resetSettings" :disabled="!BUTTONDIS">Reset <span class="glyphicon glyphicon-refresh"></span></button>
+                                <button id="btn-reset-hex-settings" class="btn btn-warning btn-sm" @click="resetSettings" :disabled="!BUTTONDIS"><span class="glyphicon glyphicon-refresh"></span> Reset</button>
                             </div>
                         </div>
                     </div>
@@ -111,6 +111,8 @@ export default {
 }
 
 #control-panel-collapse-2d {
+    background: #5091cd;
+    color: white;
     width: 100%;
     padding: 7px 15px;
 }

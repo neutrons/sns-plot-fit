@@ -1,6 +1,8 @@
 /* Styles for Plot Area */
 
 #plot-panel-collapse-2d {
+    background: #5091cd;
+    color: white;
     cursor: pointer;
     padding: 7px 15px;
 }
@@ -20,7 +22,7 @@
 #btn-reset-2d-plot {
     padding-top: 2px;
     padding-bottom: 2px;
-    margin: 5px 0px 5px 5px;
+    margin: 5px 0px 5px 10px;
 }
 
 /* Tooltip 2D Styles */

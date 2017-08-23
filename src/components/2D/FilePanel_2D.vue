@@ -13,7 +13,7 @@
 
               <!-- Get Files Panel  -->
               <div class="panel-group">
-                 <div class="panel panel-success">
+                 <div class="panel panel-info">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" href="#collapse-get-files-2d">Get Files</a>
                     </div>
@@ -30,8 +30,8 @@
                                 </select>
                               </div>
                               
-                                <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Descending'" @click="sortOrder='Ascending'">Date <span class="glyphicon glyphicon-sort-by-attributes-alt"></span></button>
-                                <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Ascending'" @click="sortOrder='Descending'">Date <span class="glyphicon glyphicon-sort-by-attributes"></span></button>
+                                <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Descending'" @click="sortOrder='Ascending'"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span> Date</button>
+                                <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Ascending'" @click="sortOrder='Descending'"><span class="glyphicon glyphicon-sort-by-attributes"></span> Date</button>
                               
                           </div>
                         </div>
@@ -62,7 +62,7 @@
                 </div> 
 
                 <!-- Uploaded Files Panel  -->
-                <div class="panel panel-success">
+                <div class="panel panel-info">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" href="#collapse-uploaded-files-2d">Uploaded Files</a>
                     </div>
@@ -89,7 +89,7 @@
                     </table>
                     </div>
                     <br>
-                        <button class="btn btn-danger btn-delete-all" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
+                        <button class="btn btn-danger btn-delete-all" @click="deleteAllUploaded" :disabled="!ISUPLOADED"><span class="glyphicon glyphicon-trash"></span> Delete All</button>
                         </div>
                     </div>
                 </div>
@@ -402,6 +402,8 @@ td {
 }
 
 #file-panel-collapse-2d {
+      background: #5091cd;
+      color: white;
       width: 100%;
       padding: 7px 15px;
   }

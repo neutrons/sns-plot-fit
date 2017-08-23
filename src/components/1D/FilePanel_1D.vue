@@ -5,7 +5,7 @@
 
     <div id="files-bg">
 
-      <div class="panel panel-default">
+      <div class="panel panel-primary">
         <div id="file-panel-collapse" class="panel-heading">Files <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
       </div>
 
@@ -30,8 +30,8 @@
                     </select>
                   </div>
                   
-                    <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Descending'" @click="sortOrder='Ascending'">Date <span class="glyphicon glyphicon-sort-by-attributes-alt"></span></button>
-                    <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Ascending'" @click="sortOrder='Descending'">Date <span class="glyphicon glyphicon-sort-by-attributes"></span></button>
+                    <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Descending'" @click="sortOrder='Ascending'"><span class="glyphicon glyphicon-sort-by-attributes-alt"></span> Date</button>
+                    <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortOrder === 'Ascending'" @click="sortOrder='Descending'"><span class="glyphicon glyphicon-sort-by-attributes"></span> Date</button>
                 </div>
               </div>
               <div class="panel-body">
@@ -62,7 +62,7 @@
                   </colgroup>
                     <tbody>
                       <tr v-for="file in filteredGroup" :class="isPlotted(file.filename)">
-                        <td><input class="oneFit" type="checkbox" :value="file.filename" v-model="fileFitChoice" :disabled=" (isPlotted(file.filename) == 'info' ? false : true)"
+                        <td><input class="oneFit" type="checkbox" :value="file.filename" v-model="fileFitChoice" :disabled=" (isPlotted(file.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
                         <td><input class="checks" type="checkbox" :id="file.filename + '-Get1D'" :value="file.filename" v-model="filesToPlot"></td>
                         <td class="over">{{ file.filename }}</td>
@@ -96,7 +96,7 @@
                   <table class="table table-condensed table-hover table-bordered">
                     <tbody>
                       <tr v-for="name in uploadedFilenames" :class="isPlotted(name)">
-                        <td><input class="oneFit" type="checkbox" :value="name" v-model="fileFitChoice" :disabled=" (isPlotted(name) == 'info' ? false : true)"
+                        <td><input class="oneFit" type="checkbox" :value="name" v-model="fileFitChoice" :disabled=" (isPlotted(name) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
                         <td><input class="checks" type="checkbox" :id="name + '-Upload1D'" :value="name" v-model="filesToPlot"></td>
                         <td class="over">{{ name }}</td>
@@ -106,13 +106,13 @@
                   </table>
                 </div>
                 <br>
-                <button class="btn btn-danger btn-delete-all" @click="deleteAllUploaded" :disabled="!ISUPLOADED">Delete All <span class="glyphicon glyphicon-trash"></span></button>
+                <button class="btn btn-danger btn-delete-all" @click="deleteAllUploaded" :disabled="!ISUPLOADED"><span class="glyphicon glyphicon-trash"></span> Delete All</button>
               </div>
             </div>
           </div>
           <div id="btn-selections" v-if="GETFILES.length > 0 || UPLOADEDFILES.length > 0">
-            <div class="col-md-6 btn-container"><button class="btn btn-default btn-select-all" @click="checkAll">Select All <span class="glyphicon glyphicon-plus-sign"></span></button></div>
-            <div class="col-md-6 btn-container"><button class="btn btn-default btn-unselect-all" @click="clearSelected" :disabled="!BUTTONDIS">Unselect All <span class="glyphicon glyphicon-minus-sign"></span></button></div>
+            <div class="col-md-6 btn-container"><button class="btn btn-default btn-select-all" @click="checkAll"><span class="glyphicon glyphicon-plus-sign"></span> Select All</button></div>
+            <div class="col-md-6 btn-container"><button class="btn btn-default btn-unselect-all" @click="clearSelected" :disabled="!BUTTONDIS"><span class="glyphicon glyphicon-minus-sign"></span> Unselect All</button></div>
           </div>
 
         </div>
@@ -160,7 +160,7 @@ export default {
     isPlotted: function(filename) {
       // This function dynamically styles the file lists blue for selected data
       if(this.filesToPlot.indexOf(filename) > -1){
-        return "info";
+        return "success";
       } else {
         return "default";
       }

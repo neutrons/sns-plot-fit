@@ -4,7 +4,7 @@
       <div id="control-panel">
 
         <div id="controls-bg">
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
                 <div id="control-panel-collapse" class="panel-heading"> Controls <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
             </div>
             <div id="control-panel-group">
@@ -12,7 +12,7 @@
                 <div class="panel-group">
 
                 <!-- Scales Panel -->
-                <div class="panel panel-info">
+                <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" href="#collapse-scales">Scales</a>
                     </div>
@@ -35,14 +35,14 @@
                                     </select>
                                 </div>
                                 
-                                <button class="btn btn-warning btn-sm btn-block" @click="resetScales">Reset Scales <span class="glyphicon glyphicon-refresh"></span></button>
+                                <button class="btn btn-warning btn-sm btn-block" @click="resetScales"><span class="glyphicon glyphicon-refresh"></span> Reset Scales</button>
                             </fieldset>
                         </div>
                     </div>
                 </div>
 
                 <!-- X and Y Transformation Panel -->
-                <div class="panel panel-info">
+                <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" href="#collapse-transformations">Transformations</a>
                     </div>
@@ -61,14 +61,14 @@
                                 
                                 <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
                                 <div id="transformation-error"></div>
-                                <button class="btn btn-warning btn-sm btn-block" @click="resetTransformation">Reset <span class="glyphicon glyphicon-refresh"></span></button>
+                                <button class="btn btn-warning btn-sm btn-block" @click="resetTransformation"><span class="glyphicon glyphicon-refresh"></span> Reset</button>
                             </fieldset>
                         </div>
                     </div>
                 </div>
 
                 <!-- Fitting Selections Panel -->
-                <div class="panel panel-info">
+                <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" href="#collapse-fit">Fit</a>
                     </div>
@@ -97,14 +97,14 @@
                                         <input type="text" class="form-control" :id="key + '-input'" :value="coef" @keyup.enter="enterCoefficients">
                                     </div>
                                 </div>
-                                <button class="btn btn-danger btn-sm btn-block" @click="resetFit">Remove Fit <span class="glyphicon glyphicon-remove-sign" ></span></button>
+                                <button class="btn btn-danger btn-sm btn-block" @click="resetFit"><span class="glyphicon glyphicon-remove-sign"></span> Remove Fit</button>
                             </fieldset>
                         </div>
                     </div>
                 </div>
 
                 <!-- Fit Settings Panel -->
-                <div class="panel panel-info">
+                <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" href="#collapse-fit-settings">Levenberg–Marquardt Parameters</a>
                     </div>
@@ -123,7 +123,7 @@
                                 <label>Error Tolerance: <span class="tolerance-output">{{ fitSettings.errorTolerance }}</span></label>
                                 <input type="range" v-model.number="fitSettings.errorTolerance" min="0.001" max="1" step="0.001" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
                                 <br>
-                                <button class="btn btn-warning btn-sm btn-block" @click="resetSettings">Default Settings <span class="glyphicon glyphicon-remove-sign" ></span></button>
+                                <button class="btn btn-warning btn-sm btn-block" @click="resetSettings"><span class="glyphicon glyphicon-refresh"></span> Default Settings</button>
                             </fieldset>
                         </div>
                     </div>

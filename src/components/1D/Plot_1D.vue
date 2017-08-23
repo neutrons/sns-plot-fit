@@ -3,9 +3,9 @@
           <div id="plot-panel">
           <div class="panel-group">
 
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
               <div class="panel-heading">
-                <button id="btn-reset-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="BUTTONDIS">Reset Plot</button>
+                <button id="btn-reset-plot" class="btn btn-success btn-sm pull-left" @click="resetPlot" v-if="BUTTONDIS">Reset Plot</button>
                 <div id="plot-panel-collapse">1D Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
               </div>
             </div>
@@ -252,7 +252,6 @@ export default {
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
                 console.log("Setting up some stuff...");
-
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
 
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
@@ -272,7 +271,7 @@ export default {
                 };
 
                 var height2 = 25;
-
+                
                 var xScale2 = d3.scaleLinear().range([0, width]);
                 xScale2.domain(xScale.domain());
 
@@ -320,7 +319,6 @@ export default {
                     .call(xAxis2);
 
             }
-
             /* END OF IS FIT SETUP*/
 
             // X Gridlines
