@@ -5,7 +5,7 @@
 
         <div class="files-bg">
 
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
                 <div id="file-panel-collapse-2d" class="panel-heading">Files <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
             </div>
 
@@ -402,8 +402,6 @@ td {
 }
 
 #file-panel-collapse-2d {
-      background: #5091cd;
-      color: white;
       width: 100%;
       padding: 7px 15px;
   }

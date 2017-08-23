@@ -1,8 +1,6 @@
 /* Styles for Plot Area */
 
 #plot-panel-collapse-2d {
-    background: #5091cd;
-    color: white;
     cursor: pointer;
     padding: 7px 15px;
 }

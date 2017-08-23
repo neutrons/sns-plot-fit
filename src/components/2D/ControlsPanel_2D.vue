@@ -4,7 +4,7 @@
     <div id="control-panel-2d">
 
         <div class="controls-bg">
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
                 <div id="control-panel-collapse-2d" class="panel-heading"> Controls <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
             </div>
             <div id="control-panel-group-2d">
@@ -111,8 +111,6 @@ export default {
 }
 
 #control-panel-collapse-2d {
-    background: #5091cd;
-    color: white;
     width: 100%;
     padding: 7px 15px;
 }

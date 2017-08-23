@@ -3,7 +3,7 @@
     <div id="plot-panel">
         <div class="panel-group">
 
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
                 <div class="panel-heading">
                     <button id="btn-reset-2d-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="BUTTONDIS">Reset Plot</button>
                     <div id="plot-panel-collapse-2d">2D Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>

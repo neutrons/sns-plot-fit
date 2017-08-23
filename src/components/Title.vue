@@ -24,8 +24,8 @@
               <label class="toggle-label">2D</label>
             </div>
           </li>
-          <li><button id="fetcher-btn" class="btn btn-primary btn-fetch" @click="fetchData"><span class="glyphicon glyphicon-download"></span> Fetch Data</button></li>
-          <li><label id="load-btn" class="btn btn-primary"><span class="glyphicon glyphicon-file"></span> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
+          <li><button class="btn btn-primary btn-fetch" @click="fetchData"><span class="glyphicon glyphicon-download"></span> Fetch Data</button></li>
+          <li><label class="btn btn-primary"><span class="glyphicon glyphicon-file"></span> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
         </ul>
       </div>
         <!-- <ul id="toggle-plots" class="nav navbar-nav navbar-right">
@@ -385,15 +385,6 @@ export default {
   },
   watch: {
     plotCheck: function() {
-      // swap fetch/load button classes
-      if(this.plotCheck) {
-        document.getElementById("fetcher-btn").classList.value = "btn btn-2d btn-fetch";
-        document.getElementById("load-btn").classList.value = "btn btn-2d";
-      } else {
-        document.getElementById("fetcher-btn").classList.value = "btn btn-primary btn-fetch";
-        document.getElementById("load-btn").classList.value = "btn btn-primary";
-      }
-
       eventBus.$emit('switch-plot-component', this.plotCheck ? '2D' : '1D');
     }
   }
@@ -416,23 +407,6 @@ export default {
 #menu li {
   margin-right: 20px;
   height: 100%;
-}
-
-/* Fetch/Load Button Styles  */
-.btn-2d {
-  background: #5091cd;
-  color: white;
-  -webkit-transition: all 1.5s;
-  transition: all 1.5s;
-}
-
-.btn-2d:hover {
-  background: #0961aa;
-}
-
-.btn-primary {
-  -webkit-transition: all 1.5s;
-  transition: all 1.5s;
 }
 
 /* Switch Styles  */
