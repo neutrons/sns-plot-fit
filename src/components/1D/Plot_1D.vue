@@ -189,8 +189,10 @@ export default {
             }));
 
             //Set Axes
-            var xAxis = d3.axisBottom(xScale).ticks(10).tickSize(-height),
-                yAxis = d3.axisLeft(yScale).ticks(10).tickSize(-width);
+            var xAxis = d3.axisBottom(xScale).ticks(10); //.tickSize(-height),
+            var yAxis = d3.axisLeft(yScale).ticks(10); //.tickSize(-width);
+            var xGridline = d3.axisBottom(xScale).ticks(10).tickSize(-height).tickFormat("");
+            var yGridline = d3.axisLeft(yScale).ticks(10).tickSize(-width).tickFormat("");
 
             //Add tool tip and hide it until invoked
             var tooltip = d3.select("#app-container").append("div")
@@ -320,6 +322,18 @@ export default {
             }
 
             /* END OF IS FIT SETUP*/
+
+            // X Gridlines
+            axis.append("g")
+                .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
+                .attr("class", "gridline gridline--x")
+                .call(xGridline);
+
+            // Y Gridlines
+            axis.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .attr("class", "gridline gridline--y")
+                .call(yGridline);
 
             //Add X Axis
             axis.append("g")
@@ -668,7 +682,7 @@ export default {
             }
 
             function zoomed() {
-                // re-scale axes during zoom
+                // re-scale axes and gridlines during zoom
                 axis.select(".axis--y").transition()
                     .duration(50)
                     .call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
@@ -676,6 +690,14 @@ export default {
                 axis.select(".axis--x").transition()
                     .duration(50)
                     .call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
+
+                axis.select(".gridline--y").transition()
+                    .duration(50)
+                    .call(yGridline.scale(d3.event.transform.rescaleY(yScale)));
+                
+                axis.select(".gridline--x").transition()
+                    .duration(50)
+                    .call(xGridline.scale(d3.event.transform.rescaleX(xScale)));
 
                 // re-draw scatter plot;
                 var new_yScale = d3.event.transform.rescaleY(yScale);

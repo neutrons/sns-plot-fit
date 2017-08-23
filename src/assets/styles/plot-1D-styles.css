@@ -62,7 +62,11 @@ div.plot {
   opacity: 1;
 }
 
-#axis-1D .tick line {
+.axis .tick line {
+  stroke: black;
+}
+
+.gridline .tick line {
   stroke: gainsboro;
 }
 
