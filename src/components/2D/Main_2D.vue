@@ -130,7 +130,7 @@ export default {
       },
       set2DData: function(data) {
 
-        console.log("Setting 2d data...", data);
+        // console.log("Setting 2d data...", data);
         this.selected2DData = data;
         // let isGetMatch = this.getFiles.find(el => el.fileName === filename);
         // let isUploadMatch = this.uploadedFiles.find(el => el.fileName === filename);
@@ -164,7 +164,7 @@ export default {
         }
       },
       setHexSettings: function(settings) {
-        console.log("Settings are:", settings);
+        // console.log("Settings are:", settings);
         this.hexSettings = settings;
       }
 

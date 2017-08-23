@@ -5,7 +5,7 @@
 
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <button id="btn-reset-2d-plot" class="btn btn-default btn-sm pull-left" @click="resetPlot" v-if="BUTTONDIS">Reset Plot</button>
+                    <button id="btn-reset-2d-plot" class="btn btn-success btn-sm pull-left" @click="resetPlot" v-if="BUTTONDIS">Reset Plot</button>
                     <div id="plot-panel-collapse-2d">2D Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
                 </div>
             </div>
@@ -50,11 +50,11 @@ export default {
             this.hexPlot();
         },
         setPlotParams: function(params) {
-            console.log("In the hex plot, here is the data", params);
+            // console.log("In the hex plot, here is the data", params);
             this.plotParams = _.cloneDeep(params);
         },
         hexPlot: function() {
-            console.log("Hex plotting...");
+            // console.log("Hex plotting...");
             // Remove any current 2D plots
             d3.select(".chart-2D").remove();
             d3.select(".tooltip-2D").remove();
@@ -63,13 +63,13 @@ export default {
             var binSize = _.cloneDeep(this.plotParams.binSize);
             var transformType = _.cloneDeep(this.plotParams.intensityTransformation);
             
-            console.log("These are the plot params", this.plotParams);
+            // console.log("These are the plot params", this.plotParams);
             var data = _.cloneDeep(this.plotParams.data);
             // filter invalid data points
             data = data.filter(el => Number.isFinite(el.qx) && Number.isFinite(el.qy) && Number.isFinite(el.intensity) && Number.isFinite(el.error));
             //console.log("data", data);
             if(transformType === "Log") {
-                console.log("Transforming Hex Data...");
+                // console.log("Transforming Hex Data...");
                 data = data.filter(el => el.intensity > 0);
                 data.forEach(function(el) {
                     el.intensity = Math.log(el.intensity);
@@ -152,7 +152,7 @@ export default {
             // console.log("Hex bins", hexbins);
             // console.log("x extent", d3.extent(data, function(d) { return d.Qx; }));
             // console.log("y extent", d3.extent(data, function(d) { return d.Qy; }));
-            console.log("intensity extent", d3.extent(hexbins, function(d) { return d.avgIntensity; }));
+            // console.log("intensity extent", d3.extent(hexbins, function(d) { return d.avgIntensity; }));
             // console.log("Bins extent", d3.extent(hexbins, function(d) { return d.length; }));
 
             // Create color scale generator using Viridis color set
@@ -196,7 +196,7 @@ export default {
             // Hex radius is tweaked to eliminate white spaces between hexagons
             // This needs to be further investigated.
             var hexRad = binSize + 0.4;
-            console.log("Hexrad:", hexRad);
+            // console.log("Hexrad:", hexRad);
 
             plot.append("g")
                 .attr("class", "hexagon")

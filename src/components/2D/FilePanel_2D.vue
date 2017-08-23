@@ -13,7 +13,7 @@
 
               <!-- Get Files Panel  -->
               <div class="panel-group">
-                 <div class="panel panel-info">
+                 <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" href="#collapse-get-files-2d">Get Files</a>
                     </div>
@@ -62,7 +62,7 @@
                 </div> 
 
                 <!-- Uploaded Files Panel  -->
-                <div class="panel panel-info">
+                <div class="panel panel-success">
                     <div class="panel-heading">
                         <a class="panel-title" data-toggle="collapse" href="#collapse-uploaded-files-2d">Uploaded Files</a>
                     </div>
@@ -129,7 +129,7 @@ export default {
     isPlotted: function(filename) {
       // This function dynamically styles the file lists blue for selected data
       if(this.fileToPlot === filename){
-        return "info";
+        return "success";
       } else {
         return "default";
       }
@@ -159,7 +159,7 @@ export default {
     isPlotted: function(filename) {
       // This function dynamically styles the file lists blue for selected data
       if(this.fileToPlot === filename){
-        return "info";
+        return "success";
       } else {
         return "default";
       }
@@ -209,14 +209,14 @@ export default {
     get2DData: function(file) {
         var vm = this;
         var inStored = Object.keys(vm.storedData).indexOf(file.filename) === -1;
-        console.log("stored data = ", vm.storedData);
+        // console.log("stored data = ", vm.storedData);
 
         if(!inStored) {
           // Send the stored data file to be plotted
-          console.log("Sending stored data");
+          // console.log("Sending stored data");
           eventBus.$emit('set-2D-data', {data: _.cloneDeep(vm.storedData[file.filename]), filename: file.filename});
         } else {
-          console.log("URL = ", file.url);
+          // console.log("URL = ", file.url);
           // If data is not stored, fetch it, store it, and send data to be plotted
           axios.get(file.url).then(response => {
 
@@ -232,11 +232,11 @@ export default {
           var vm = this;
 
           var inStored = Object.keys(vm.storedData).indexOf(file.filename) === -1;
-          console.log("stored data = ", vm.storedData);
+          // console.log("stored data = ", vm.storedData);
 
           if(!inStored) {
             // Send the stored data file to be plotted
-            console.log("Sending stored data");
+            // console.log("Sending stored data");
             eventBus.$emit('set-2D-data', {data: _.cloneDeep(vm.storedData[file.filename]), filename: file.filename});
           } else {
             var reader = new FileReader();
@@ -316,12 +316,8 @@ export default {
     fileToPlot: function() {
       var vm = this;
       // Watch if a file is selected to be fit if so, set it to the fileToFit
-      console.log("File to plot changed", this.fileToPlot);
-      // eventBus.$emit('disable-2D-buttons', true);
-      // eventBus.$emit("set-2D-data", this.fileToPlot);
+      // console.log("File to plot changed", this.fileToPlot);
 
-      // console.log("Url list", url1DList);
-      //Testing Fetching data
       // Create url list
       var file2D = null;
       
@@ -359,7 +355,7 @@ export default {
             }
           }
 
-          console.log("file2D", file2D);
+          // console.log("file2D", file2D);
           this.read2DData(file2D);
         } else {
           console.log("No file to select");

@@ -12,7 +12,7 @@
                 <div class="panel-group">
 
                     <!-- 2D Settings Panel -->
-                    <div class="panel panel-info">
+                    <div class="panel panel-success">
                         <div class="panel-heading">
                             <a class="panel-title" data-toggle="collapse" href="#collapse-settings-2d">Settings</a>
                         </div>

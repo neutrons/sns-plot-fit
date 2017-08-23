@@ -318,13 +318,13 @@ export default {
           return checkList.indexOf(item.filename) > -1;
         });
 
-        console.log("Delete list", toDelete);
+        // console.log("Delete list", toDelete);
         var addList = checkList.filter(el => toDelete.indexOf(el) < 0).map(function(fname) {
           let temp = chosenData.find(el => el.filename === fname);
           return {filename: fname, data: temp};
         });
 
-        console.log("Add list", addList);
+        // console.log("Add list", addList);
         for(let i = 0, len = addList.length; i < len; i++) {
           let temp = addList[i].data;
           if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {

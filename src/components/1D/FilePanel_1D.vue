@@ -186,7 +186,7 @@ export default {
       var vm = this;
       for(let i = 0, len = this.GETFILES.length; i < len; i++) {
         let content = this.GETFILES[i].files;
-        console.log("CONTENT", content);
+        // console.log("CONTENT", content);
         content.forEach(function(item) {
           if(vm.filesToPlot.indexOf(item.filename) === -1) {
             vm.filesToPlot.push(item.filename);
@@ -355,7 +355,7 @@ export default {
       handler: function () {
         var vm = this;
 
-        console.log("Files to plot changed...", this.filesToPlot);
+        // console.log("Files to plot changed...", this.filesToPlot);
 
         // If a file is unselected while it has a fit, unselect the fit
         if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
@@ -376,12 +376,12 @@ export default {
           }
         }).filter(item => item !== undefined);
 
-        console.log("URLs", filesToFetch);
-        console.log("Temp data", tempData);
+        // console.log("URLs", filesToFetch);
+        // console.log("Temp data", tempData);
         
         // Next fetch the file URLs
         var fileURLs = this.getURLs(filesToFetch);
-        console.log("File URLs", fileURLs);
+        // console.log("File URLs", fileURLs);
 
         // Next fetch unstored files
         /*****************************************
