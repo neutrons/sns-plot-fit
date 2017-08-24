@@ -109,7 +109,7 @@ export default {
                 self.isError = !self.isError;
 
                 let div = document.createElement("div");
-                div.innerHTML = '<div id="nodata-error" class="alert alert-danger alert-dismissable fade in">\
+                div.innerHTML = '<div id="nodata-error" class="alert alert-warning alert-dismissable fade in">\
                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
                     <strong>Warning!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.\
                 </div>';

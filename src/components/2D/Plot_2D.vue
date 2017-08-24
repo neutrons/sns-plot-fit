@@ -28,10 +28,10 @@ import { eventBus } from '../../assets/javascript/eventBus';
 
 import * as _ from 'lodash';
 import * as d3 from 'd3';
+import * as d3hex from 'd3-hexbin';
+
 //import * as d3_hex from 'd3-hex';
 import $ from 'jquery';
-
-var d3hex = require('d3-hexbin');
 
 export default {
     name: 'Plot-2d',
