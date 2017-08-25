@@ -3,6 +3,7 @@
     width: 85%;
     padding: 0 auto;
     margin: 0 auto;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #fit-results-table td {
@@ -135,4 +136,10 @@ ul {
 .handle {
   fill: gray;
   opacity: 0.75;
+}
+
+/* Override MathJax positioning for rendered elements */
+.MathJax_SVG {
+  position: static !important;
+  display: inline-block !important;
 }

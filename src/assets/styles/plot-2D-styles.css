@@ -69,3 +69,9 @@ iframe.width-changed-2D {
 .hexagon {
   cursor: all-scroll;
 }
+
+/* Override MathJax positioning for rendered elements */
+.MathJax_SVG {
+  position: static !important;
+  display: inline-block !important;
+}
