@@ -233,24 +233,21 @@ export default {
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis);
 
-                //Add Y Axis Label
-            svg.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -2.5)
-                .attr("x", 0 - (height / 2))
-                .attr("dy", "1em")
-                .style("text-anchor", "middle")
-                .style("font-weight", "bold")
-                .text("Qy");
+            // Add X Axis Label
+            svg.append("g").append("foreignObject")
+                .attr("height", 100)
+                .attr("width", 200)
+                .attr("transform", "translate(" + ((width+margin.left+margin.right)/2) + "," + (height+margin.top+margin.bottom/1.5) + ")")
+                .attr("id", "xLabel2D")
+                .html("`Qx`");
 
-            //Add X Axis Label
-            svg.append("text")
-                .attr("transform",
-                    "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
-                    (height + margin.top / 1.5 + margin.bottom) + ")")
-                .style("text-anchor", "middle")
-                .style("font-weight", "bold")
-                .text("Qx");
+            // Add Y Axis Label
+            svg.append("g").append("foreignObject")
+                .attr("height", 100)
+                .attr("width", 200)
+                .attr("transform", "translate(0," + (height/2) + ") rotate(-90)")
+                .attr("id", "yLabel2D")
+                .html("`Qy`");
 
             //Add Chart Title
             svg.append("text")
@@ -259,6 +256,9 @@ export default {
                     "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
                     (margin.top / 1.5) + ")")
                 .text("Intensity Plot (Hexbin Size = " + binSize + ")");
+
+            // Call MathJax to make plot axis labels look pretty
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel2D", "yLabel2D"]]);
 
             function zoomed() {
                 // re-scale axes during zoom

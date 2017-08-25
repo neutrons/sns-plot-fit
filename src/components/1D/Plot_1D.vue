@@ -16,7 +16,7 @@
               <div id="plot-area"></div>
               
               <!-- Fit Results Table to add fit results -->
-              <div id="fit-results-table" class="table-responsive" v-show="FILETOFIT && fitName !== 'None' && !isError">          
+              <div id="fit-results-table" class="table table-condensed table-responsive" v-show="FILETOFIT && fitName !== 'None' && !isError">          
                 <table class="table table-bordered">
                   <caption><h4>Fit Results:</h4></caption>
                 
@@ -146,8 +146,8 @@ export default {
                 var margin = {
                     top: 50,
                     right: 50,
-                    bottom: 120, // adjusts margin for slider
-                    left: 60
+                    bottom: 160, // adjusts margin for slider
+                    left: 80
                 };
                 
                 // View Height is calculated on a 16:9 aspect ratio
@@ -160,8 +160,8 @@ export default {
                 var margin = {
                     top: 50,
                     right: 50,
-                    bottom: 70,
-                    left: 60
+                    bottom: 80,
+                    left: 80
                 };
 
                 var viewHeight = containerWidth / (16/9);
@@ -267,7 +267,7 @@ export default {
                     top: 10,
                     right: 50,
                     bottom: 70,
-                    left: 60
+                    left: 80
                 };
 
                 var height2 = 25;
@@ -310,8 +310,6 @@ export default {
                     //brush.move allows you to set the current selection for the brush element
                     // this will dynamically update according to the last selection made.
                     // This is to allow for persistent selections upon the plot being re-drawn.
-
-                //console.log("Here is the xScale range", xScale.range());
                 
                 slider.append("g")
                     .attr("class", "axis axis--x")
@@ -344,34 +342,34 @@ export default {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                 .attr("class", "axis axis--y")
                 .call(yAxis);
+            
+            // Add Y Axis Label
+            svg.append("g").append("foreignObject")
+                .attr("height", 100)
+                .attr("width", 200)
+                .attr("transform", "translate(0," + (height/2) + ") rotate(-90)")
+                .attr("id", "yLabel")
+                .html("`" + yTitle + "`");
 
-            //Add Y Axis Label
-            svg.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 0)
-                .attr("x", 0 - (height / 2))
-                .attr("dy", "1em")
-                .style("text-anchor", "middle")
-                .style("font-weight", "bold")
-                .text(yTitle);
+            // Add X Axis Label
+            svg.append("g").append("foreignObject")
+                .attr("height", 100)
+                .attr("width", 200)
+                .attr("transform", "translate(" + ((width+margin.left+margin.right)/2) + "," + (height+margin.top+margin.bottom/2) + ")")
+                .attr("id", "xLabel")
+                .html("`" + xTitle + "`");
 
-            //Add X Axis Label
-            svg.append("text")
-                .attr("transform",
-                    "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
-                    (height + margin.top / 1.5 + margin.bottom) + ")")
-                .style("text-anchor", "middle")
-                .style("font-weight", "bold")
-                .text(xTitle);
 
             //Add Chart Title
-            svg.append("text")
-                .attr("class", "charttitle")
-                .attr("transform",
-                    "translate(" + ((width + margin.left + margin.left) / 2) + " ," +
-                    (margin.top / 1.5) + ")")
-                .text(yTitle + " vs " + xTitle);
+            svg.append("g").append("foreignObject")
+                .attr("height", 100)
+                .attr("width", 200)
+                .attr("transform", "translate(" + ((width+margin.left+margin.right)/2) + ",10)")
+                .attr("id", "plotTitle")
+                .html("`" + yTitle + "` vs `" + xTitle + "`");
 
+            // Call MathJax to make plot axis labels look pretty 
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub, ["xLabel", "yLabel", "plotTitle"]]);
             
             // Nest the entries by name
             var dataNest = d3.nest()
@@ -822,6 +820,7 @@ export default {
                 }
             }
 
+
             var chart1D = $(".chart-1D");
             var aspectRatio = chart1D.width() / chart1D.height()
             var container = chart1D.parent();
@@ -831,69 +830,70 @@ export default {
                 chart1D.attr("width", targetWidth);
                 chart1D.attr("height", Math.round(targetWidth / aspectRatio));
             });
+        },
+        resetPlot: function () {
+            this.plotData(this.plotParams);
+        },
+        redrawFit: function(c) {
+            console.log("Coefficients are:", c);
+            let temp = d3.select(".fitted-line").datum();
+            let tempX = [];
 
-    },
-    resetPlot: function () {
-        this.plotData(this.plotParams);
-    },
-    redrawFit: function(c) {
-        console.log("Coefficients are:", c);
-        let temp = d3.select(".fitted-line").datum();
-        let tempX = [];
-
-        temp.forEach(function(d) {
-            tempX.push(d.x);
-        });
-
-        let tempCoefficients = [];
-        for(let key in c) {
-            tempCoefficients.push(c[key]);
-        }
-
-        let newFitEq = this.fitEquation(tempCoefficients);
-
-        let y_fitted = tempX.map(function(el) {
-            return newFitEq(el);
-        });
-
-        // Return the fitted values
-        let fittedPoints = [];
-        
-        for(let i = 0; i < y_fitted.length; i++) {
-            fittedPoints.push({
-                x: tempX[i],
-                y: y_fitted[i]
+            temp.forEach(function(d) {
+                tempX.push(d.x);
             });
-        }
 
-        d3.select(".fitted-line").data([fittedPoints])
-            .attr("d", this.plotLine);
-
-        // Update coefficient values in results table
-        d3.select("td#fit-coefficients").html(function() {
-            let coeffString = "<ul>";
-            for( let key in c) {
-                coeffString += "<li>" + key + " = " + c[key].toFixed(6) + "</li>";
+            let tempCoefficients = [];
+            for(let key in c) {
+                tempCoefficients.push(c[key]);
             }
-            coeffString += "</ul>";
-            return coeffString;
-        });
+
+            let newFitEq = this.fitEquation(tempCoefficients);
+
+            let y_fitted = tempX.map(function(el) {
+                return newFitEq(el);
+            });
+
+            // Return the fitted values
+            let fittedPoints = [];
+            
+            for(let i = 0; i < y_fitted.length; i++) {
+                fittedPoints.push({
+                    x: tempX[i],
+                    y: y_fitted[i]
+                });
+            }
+
+            d3.select(".fitted-line").data([fittedPoints])
+                .attr("d", this.plotLine);
+
+            // Update coefficient values in results table
+            d3.select("td#fit-coefficients").html(function() {
+                let coeffString = "<ul>";
+                for( let key in c) {
+                    coeffString += "<li>" + key + " = " + c[key].toFixed(6) + "</li>";
+                }
+                coeffString += "</ul>";
+                return coeffString;
+            });
+        },
+        setParameters: function(parameters) {
+            // Check data is valid prior to plotting
+            this.plotParams = _.cloneDeep(parameters);
+        },
+        resetBrushSelection: function() {
+            this.brushSelection = null;
+        }
     },
-    setParameters: function(parameters) {
-        // Check data is valid prior to plotting
-        this.plotParams = _.cloneDeep(parameters);
-    },
-    resetBrushSelection: function() {
-        this.brushSelection = null;
-    }
-},
-created() {
+    created() {
         //Listen for cofficient changes
         eventBus.$on("coefficients-updated", this.redrawFit);
 
         // Listen for events form Main.vue
         eventBus.$on('set-parameters', this.setParameters);
         eventBus.$on('reset-brush-selection', this.resetBrushSelection);
+
+        console.log("Plot 1d created...");
     },
     watch: {
         plotParams: {
