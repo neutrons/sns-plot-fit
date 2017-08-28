@@ -122,8 +122,6 @@ export default {
             //Remove any elements previously plotted
             d3.select(".chart-1D").remove();
             d3.select(".tooltip-1D").remove();
-
-            console.log("Plotting data...");
             
             // Set isFit to check if a file is selected to fit
             var isFit = self.isFit;
@@ -134,7 +132,6 @@ export default {
             // was unselected from the list, the plot would re-assign
             // color values to the plots causing confusion at first glance
             // reference: https://stackoverflow.com/questions/20590396/d3-scale-category10-not-behaving-as-expected
-            
             var color = d3.scaleOrdinal(d3.schemeCategory20)
                 .domain(parameters.colorDomain);
 
@@ -168,15 +165,12 @@ export default {
                 var height = viewHeight - margin.top - margin.bottom;
             }
             
-            
             var width = containerWidth - margin.left - margin.right;
-
             var xScale = parameters.scales.xScale;
-            var xScaleType = parameters.scales.xScaleType;
-            xScale.range([0,width]); //scales according to fit type
+            xScale.range([0,width]);
             var yScale = parameters.scales.yScale;
             var yScaleType = parameters.scales.yScaleType;
-            yScale.range([height, 0]); //scales according to fit type
+            yScale.range([height, 0]);
             var xTitle = parameters.fitConfiguration.xTransformation; //xTitle according to label
             var yTitle = parameters.fitConfiguration.yTransformation; //yTitle according to label
 
@@ -188,18 +182,18 @@ export default {
                 return d.y;
             }));
 
-            //Set Axes
-            var xAxis = d3.axisBottom(xScale).ticks(10); //.tickSize(-height),
-            var yAxis = d3.axisLeft(yScale).ticks(10); //.tickSize(-width);
+            // Set Axes
+            var xAxis = d3.axisBottom(xScale).ticks(10);
+            var yAxis = d3.axisLeft(yScale).ticks(10);
             var xGridline = d3.axisBottom(xScale).ticks(10).tickSize(-height).tickFormat("");
             var yGridline = d3.axisLeft(yScale).ticks(10).tickSize(-width).tickFormat("");
 
-            //Add tool tip and hide it until invoked
+            // Add tool tip and hide it until invoked
             var tooltip = d3.select("#app-container").append("div")
                 .attr("class", "tooltip-1D")
                 .style("opacity", 0);
 
-            //Add main chart area
+            // Add main chart area
             var viewbox = "0 0 " + containerWidth + " " + viewHeight;
             var svg = d3.select("#plot-area").append("svg")
                 .attr("viewBox", viewbox)
@@ -208,24 +202,24 @@ export default {
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom);
             
-            //Add clip path so points/line do not exceed plot boundaries
+            // Add clip path so points/line do not exceed plot boundaries
             svg.append("defs").append("clipPath")
                 .attr("id", "clip")
                 .append("rect")
                 .attr("width", width)
                 .attr("height", height);
 
-            //Add plot area
+            // Add plot area
             svg.append("rect")
                 .attr("class", "plotbg")
                 .attr("width", width)
                 .attr("height", height)
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            //Add Axis and Gridline section
+            // Add Axis and Gridline section
             var axis = svg.append("g").attr("id", "axis-1D");
 
-            //Add zoom window
+            // Add zoom window
             svg.append('rect')
                 .attr('class', 'zoom')
                 .attr('width', width)
@@ -251,7 +245,6 @@ export default {
             
             /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
             if(isFit) {
-                console.log("Setting up some stuff...");
                 var dataToFit = data.filter( (d) => d.name === parameters.fileToFit);
 
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
@@ -298,7 +291,7 @@ export default {
                     .attr("x2", function(d) { return xScale2(d.x); })
                     .attr("y2", 0);
 
-                //set initial brushSelection
+                // set initial brushSelection
                 if(self.brushSelection === null) {
                     self.brushSelection = xScale.range(); // Default selection [0, max(x)]
                 }
@@ -307,7 +300,7 @@ export default {
                     .attr("class", "brush")
                     .call(brush)
                     .call(brush.move, self.brushSelection); 
-                    //brush.move allows you to set the current selection for the brush element
+                    // brush.move allows you to set the current selection for the brush element
                     // this will dynamically update according to the last selection made.
                     // This is to allow for persistent selections upon the plot being re-drawn.
                 
@@ -315,7 +308,6 @@ export default {
                     .attr("class", "axis axis--x")
                     .attr("transform", "translate(0," + height2 + ")")
                     .call(xAxis2);
-
             }
             /* END OF IS FIT SETUP*/
 
@@ -331,13 +323,13 @@ export default {
                 .attr("class", "gridline gridline--y")
                 .call(yGridline);
 
-            //Add X Axis
+            // Add X Axis
             axis.append("g")
                 .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
                 .attr("class", "axis axis--x")
                 .call(xAxis);
 
-            //Add Y Axis
+            // Add Y Axis
             axis.append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                 .attr("class", "axis axis--y")
@@ -360,7 +352,7 @@ export default {
                 .html("`" + xTitle + "`");
 
 
-            //Add Chart Title
+            // Add Chart Title
             svg.append("g").append("foreignObject")
                 .attr("height", 100)
                 .attr("width", 200)
@@ -381,7 +373,7 @@ export default {
             // Loop through each name / key
             dataNest.forEach(function (d, i) {
 
-                //Add line plot
+                // Add line plot
                 plot.append("path")
                     .attr("clip-path", "url(#clip)")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -393,7 +385,7 @@ export default {
                         return d.color = color(d.key);
                     });;
 
-                //Add error lines
+                // Add error lines
                 errorlines.append("g")
                     .selectAll(".error")
                     .data(d.values)
@@ -452,7 +444,7 @@ export default {
                         return d.color = color(d.key);
                     });
 
-                    //Add error tick bottom
+                    // Add error tick bottom
                     errorlines.append("g")
                     .selectAll(".error-tick-bottom")
                     .data(d.values)
@@ -483,7 +475,7 @@ export default {
                         return d.color = color(d.key);
                     });
 
-                    //Add Scatter plot
+                    // Add Scatter plot
                     plot.append("g")
                         .attr("clip-path", "url(#clip)")
                         .attr("class", "dot")
@@ -559,7 +551,7 @@ export default {
                 var minX = d3.min(dataToFit, function(d) { return d.x });
                 var maxX = d3.max(dataToFit, function(d) { return d.x });
 
-                //Add fitted lin
+                // Add fitted lin
                 plot.append("path")
                     .attr("clip-path", "url(#clip)")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -614,8 +606,7 @@ export default {
                                 return "slategray";
                             }
                         })
-
-                    
+              
                     fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation, parameters.fitSettings);
                     coefficients = fitResults.coefficients;
                     self.fitData = fitResults.fittedData;
@@ -639,11 +630,10 @@ export default {
                             document.getElementById("plot-area").appendChild(div);
                         }
                     }
-                    //Emit coefficients to controls panel
+                    // Emit coefficients to controls panel
                     eventBus.$emit('update-coefficients', coefficients);
 
-
-                    //Add line plot
+                    // Add line plot
                     plot.select(".fitted-line").data([self.fitData])
                         .attr("d", self.plotLine);
 
@@ -707,7 +697,7 @@ export default {
                         return new_xScale(d.x);
                     });
 
-                //re-draw line
+                // re-draw line
                 self.plotLine = d3.line()
                     .x(function (d) {
                         return new_xScale(d.x);
@@ -720,15 +710,12 @@ export default {
                     .attr("d", self.plotLine);
 
                 if(isFit) {
-                    // Update brush scales
-                    //brushPlotLine = new_plotLine;
-
                     // Re-draw fitted line
                     plot.select(".fitted-line")
                         .attr("d", self.plotLine);
                 }
 
-                //re-draw error
+                // Re-draw error
                 errorlines.selectAll('.error')
                     .attr('x1', function (d) {
                         return new_xScale(d.x);
@@ -748,7 +735,7 @@ export default {
                         }
                     });
                 
-                //re-draw error tick top
+                // re-draw error tick top
                 errorlines.selectAll(".error-tick-top")
                     .attr('x1', function (d) {
                         return new_xScale(d.x) - 4;
@@ -763,7 +750,7 @@ export default {
                         return new_yScale(d.y + d.e);
                     });
 
-                //re-draw error tick bottom
+                // re-draw error tick bottom
                 errorlines.selectAll(".error-tick-bottom")
                     .filter( function(d) {
                         if(yScaleType === "Log(Y)") {
@@ -820,7 +807,6 @@ export default {
                 }
             }
 
-
             var chart1D = $(".chart-1D");
             var aspectRatio = chart1D.width() / chart1D.height()
             var container = chart1D.parent();
@@ -835,7 +821,7 @@ export default {
             this.plotData(this.plotParams);
         },
         redrawFit: function(c) {
-            console.log("Coefficients are:", c);
+            // console.log("Coefficients are:", c);
             let temp = d3.select(".fitted-line").datum();
             let tempX = [];
 
@@ -886,14 +872,12 @@ export default {
         }
     },
     created() {
-        //Listen for cofficient changes
+        // Listen for cofficient changes
         eventBus.$on("coefficients-updated", this.redrawFit);
 
         // Listen for events form Main.vue
         eventBus.$on('set-parameters', this.setParameters);
         eventBus.$on('reset-brush-selection', this.resetBrushSelection);
-
-        console.log("Plot 1d created...");
     },
     watch: {
         plotParams: {

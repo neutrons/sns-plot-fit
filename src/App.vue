@@ -1,6 +1,8 @@
 <template>
   <div id="app-container" class="container-fluid">
-        <div id="error-container"></div>
+      
+      <div id="error-container"></div>
+
       <!-- File Drop Zone -->
       <div style="visibility:hidden; opacity:0" id="dropzone">
         <div id="textnode">Drop files to add data.</div>
@@ -21,6 +23,7 @@
 <script>
 
 import $ from 'jquery';
+
 import main1D from './components/1D/Main_1D.vue';
 import main2D from './components/2D/Main_2D.vue';
 import Title from './components/Title.vue';
@@ -95,13 +98,9 @@ export default {
       }
     },
     generateError: function(errorMSG) {
-      var self = this;
       document.getElementById("error_"+this.errorCount) === null ? this.errorCount = 0 : this.errorCount += 1;
       var newDiv = document.createElement("div");
       var timer = this.errorCount === 0 ? 5000 : 5000+(this.errorCount*1000);
-      
-      // console.log("Timer:", timer);
-      // console.log("Error count:", this.errorCount);
       
       newDiv.innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' + errorMSG;
       newDiv.classList.add("error", "alert", "alert-danger", "alert-dismissable", "fade", "in")
@@ -161,23 +160,6 @@ div#textnode {
     vertical-align: middle;
     transition: font-size 175ms;
 }
-
-/* Transition Effects for 1D and 2D plot components  */
-/* .fade-enter-active,
-.fade-leave-active {
-  transition: opacity 1.5s;
-}
-
-.fade-enter,
-.fade-leave-active {
-  opacity: 0
-}
-
-#main1D, #main2D {
-  position: absolute;
-  right: 0;
-  left: 0;
-} */
 
 /* Transition effects for Sliding  */
 .slide-enter-active,

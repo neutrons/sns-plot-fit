@@ -41,6 +41,7 @@
 import { eventBus } from '../assets/javascript/eventBus';
 
 // Use papa parse to parse csv/tsv files
+// Axios to handle HTTP requests
 import pp from 'papaparse';
 import axios from 'axios';
 
@@ -52,7 +53,7 @@ export default {
     }
   },
   created() {
-    // Listen for drag and drop files
+    // Listen for event from Title.vue to drag 'n drop files
     eventBus.$on('upload-files', this.uploadFile);
   },
   methods: {
@@ -72,22 +73,17 @@ export default {
             
             if( vm.dataType(item.url) === '1D') {
               // console.log("1D Item", {url: url, group: group, fileName: name});
-              // Push to 1D Get Files list
               temp1DFiles.push({  id: item.id, filename: item.filename, url: item.url});
-              // url1DList.push({url:url, filename: name});
 
             } else if ( vm.dataType(item.url) === '2D') {
               // console.log("2D Item", {url: url, group: group, fileName: name});
-              // Push to 1D Get Files list
               temp2DFiles.push({  id: item.id, filename: item.filename, url: item.url});
 
             } else {
-              // error, don't read for now
               let errorMsg = "<strong>Error! </strong>" + item.url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
               eventBus.$emit('error-message', errorMsg);
             }
           });
-
           
           if(temp1DFiles.length > 0) {
             temp1D.push({jobID: files[i].job_id,
@@ -124,13 +120,11 @@ export default {
 
           if( vm.dataType(url) === '1D') {
               // console.log("1D Item", {url: url, group: group, fileName: name});
-              // Push to 1D Get Files list
               let filename = url.substr(0, url.lastIndexOf('.txt')) || url;
               temp1D.push( {url: url, filename: filename, blob: blob});
 
             } else if ( vm.dataType(url) === '2D') {
               // console.log("2D Item", {url: url, group: group, fileName: name});
-              // Push to 1D Get Files list
               let filename = url.substr(0, url.lastIndexOf('.dat')) || url;
               temp2D.push( {url: url, filename: filename, blob: blob});
 

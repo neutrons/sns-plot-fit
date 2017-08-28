@@ -3,17 +3,17 @@
     <div id="plot-panel">
         <div class="panel-group">
 
+            <!-- Plot Panel Heading  -->
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <button id="btn-reset-2d-plot" class="btn btn-success btn-sm pull-left" @click="resetPlot" v-if="BUTTONDIS">Reset Plot</button>
                     <div id="plot-panel-collapse-2d">2D Plot <span class="glyphicon glyphicon-menu-up pull-right"></span></div>
                 </div>
             </div>
-
+            
+            <!-- Plot Area  -->
             <div id="plot-collapse-2d" class="panel-body">
-
                 <div id="plot-area-2d"></div>
-
             </div>
         </div>
     </div>
@@ -29,8 +29,6 @@ import { eventBus } from '../../assets/javascript/eventBus';
 import * as _ from 'lodash';
 import * as d3 from 'd3';
 import * as d3hex from 'd3-hexbin';
-
-//import * as d3_hex from 'd3-hex';
 import $ from 'jquery';
 
 export default {
@@ -65,9 +63,10 @@ export default {
             
             // console.log("These are the plot params", this.plotParams);
             var data = _.cloneDeep(this.plotParams.data);
-            // filter invalid data points
+            
+            // Filter invalid data points
             data = data.filter(el => Number.isFinite(el.qx) && Number.isFinite(el.qy) && Number.isFinite(el.intensity) && Number.isFinite(el.error));
-            //console.log("data", data);
+            
             if(transformType === "Log") {
                 // console.log("Transforming Hex Data...");
                 data = data.filter(el => el.intensity > 0);
@@ -113,7 +112,7 @@ export default {
                     .attr("width", width + margin.left + margin.right)
                     .attr("height", height + margin.top + margin.bottom);
             
-            //Add clip path so points/line do not exceed boundaries
+            //Add clip path so hexagons do not exceed boundaries
             svg.append("defs").append("clipPath")
                 .attr("id", "clip-2D")
                 .append("rect")
@@ -121,9 +120,15 @@ export default {
                 .attr("height", height);
 
             // Create plot elements (plot area, axes, and color legend)
-            var plot = svg.append("g").attr("class", "plot").attr("clip-path", "url(#clip-2D)").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-            var axes = svg.append("g").attr("id", "axis-2D").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-            var legend = svg.append("g").attr("class", "legend").attr("transform", "translate(" + (width+75) + "," + margin.top + ")");
+            var plot = svg.append("g").attr("class", "plot")
+                .attr("clip-path", "url(#clip-2D)")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var axes = svg.append("g").attr("id", "axis-2D")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            var legend = svg.append("g").attr("class", "legend")
+                .attr("transform", "translate(" + (width+75) + "," + margin.top + ")");
 
             // Add zoom window
             svg.call(d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", zoomed));
@@ -166,12 +171,17 @@ export default {
             var valRange = d3.extent(hexbins, function(d) { return d.avgIntensity; });
             //console.log("Val Range", valRange);
 
-            // Now we need an interval to "step" to each color value
-            // Since height and range change depending on the data and
-            // size of chart, we dynamically find the interval
-            // e.g.) The extent of the average intensity = [-1, 1]
-            //       The height = 400
-            //       The interval = (1 - (-1)) / 400
+            /********************************************************* 
+                An interval is calculated to represent each "slice" of the
+                legend's color values. Each "slice" will be stacked together
+                to display the legend's vertical bar.
+                
+                Since height and range change depending on the data and
+                size of chart, we dynamically find the interval
+                e.g.) The extent of the average intensity = [-1, 1]
+                       The height = 400
+                       The interval = (1 - (-1)) / 400 
+            **************************************************************/
             var interval = (valRange[1] - valRange[0]) / height;
             //console.log("Interval", interval);
 
@@ -194,9 +204,8 @@ export default {
                 .call(d3.axisRight(legendScale));
 
             // Hex radius is tweaked to eliminate white spaces between hexagons
-            // This needs to be further investigated.
+            // This needs to be further investigated because overlap isn't visible.
             var hexRad = binSize + 0.4;
-            // console.log("Hexrad:", hexRad);
 
             plot.append("g")
                 .attr("class", "hexagon")
@@ -209,7 +218,6 @@ export default {
                 .attr("stroke", "none")
                 .attr("class", "hexagons")
                 .on("mouseover", function(d) {
-                    //console.log("D", d);
                     tooltip.transition()
                         .duration(200)
                         .style("opacity", 1);

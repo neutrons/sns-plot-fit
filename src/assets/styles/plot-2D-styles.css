@@ -1,5 +1,11 @@
-/* Styles for Plot Area */
+/* Plot Panel Styles */
 
+.panel-heading {
+    text-align: center;
+    padding: 0px 5px;
+}
+
+/* Styles for Plot Area */
 #plot-panel-collapse-2d {
     cursor: pointer;
     padding: 7px 15px;

@@ -157,7 +157,7 @@ export default {
       eventBus.$emit('delete-file-2d', filename);
     },
     isPlotted: function(filename) {
-      // This function dynamically styles the file lists blue for selected data
+      //Dynamically style the file lists blue for plotted data
       if(this.fileToPlot === filename){
         return "success";
       } else {
@@ -191,7 +191,6 @@ export default {
           return rows.join("\r\n");
         }
 
-        // files endind in Iqxy.dat
         var config2D = {
           header : true,
           dynamicTyping : true, // parse string to int
@@ -284,16 +283,14 @@ export default {
             return new Date(a.dateModified) - new Date(b.dateModified);
           });
         }
-        
         // console.log("Temp Get Files", tempGetFiles);
         tempGetFiles.forEach(group => group.files.forEach(file => {
           temp.push({filename: file.filename, group: group.jobTitle});
         }));
       } else {
-        // console.log("Filter for: ", this.gSelect);
         let group = tempGetFiles.filter(group => group.jobTitle === vm.gSelect);
         //console.log("group", group);
-        //group[0].files.forEach(file => temp.push(file.filename));
+
         var gName = group[0].jobTitle;
         for(let i = 0, len = group[0].files.length; i < len; i++) {
           temp.push({group: gName, filename: group[0].files[i].filename});
@@ -315,8 +312,6 @@ export default {
   watch: {
     fileToPlot: function() {
       var vm = this;
-      // Watch if a file is selected to be fit if so, set it to the fileToFit
-      // console.log("File to plot changed", this.fileToPlot);
 
       // Create url list
       var file2D = null;
@@ -355,7 +350,6 @@ export default {
             }
           }
 
-          // console.log("file2D", file2D);
           this.read2DData(file2D);
         } else {
           console.log("No file to select");
@@ -367,6 +361,7 @@ export default {
 </script>
 
 <style scoped>
+/* File List Table Styles */
 .tabletop {
   margin: 0;
   padding: 0;
@@ -397,6 +392,7 @@ td {
   text-align: center;
 }
 
+/* File Panel Styles */
 #file-panel-collapse-2d {
       width: 100%;
       padding: 7px 15px;
@@ -412,10 +408,16 @@ td {
     padding: 10px 0px;
 }
 
+.panel-heading {
+    text-align: center;
+    padding: 7px 5px;
+}
+
 .files-bg {
     margin-bottom: 15px;
 }
 
+/* Button Styles */
 .btn-upload, .btn-fetch {
   width: 100%;
   margin-bottom: 10px;

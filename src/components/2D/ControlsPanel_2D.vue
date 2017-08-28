@@ -129,6 +129,11 @@ export default {
     padding: 10px 0px;
 }
 
+.panel-heading {
+    text-align: center;
+    padding: 7px 5px;
+}
+
 .iteration-output, .damping-output {
     color: steelblue;
 }

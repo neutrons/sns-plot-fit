@@ -111,16 +111,16 @@
                     <div id="collapse-fit-settings" class="panel-collapse collapse">
                         <div class="panel-body">
                             <fieldset :disabled="!FILETOFIT">
-                                <label>Damping: <span class="damping-output">{{ fitSettings.damping }}</span></label>
+                                <label>Damping: <span class="fit-settings">{{ fitSettings.damping }}</span></label>
                                 <input type="range" v-model.number="fitSettings.damping" min="0.001" max="10" step="0.001" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
 
-                                <label>Gradient Difference: <span class="iteration-output">{{ fitSettings.gradientDifference }}</span></label>
+                                <label>Gradient Difference: <span class="fit-settings">{{ fitSettings.gradientDifference }}</span></label>
                                 <input type="range" v-model.number="fitSettings.gradientDifference" min="0.01" max="1" step="0.01" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
                                 
-                                <label>Max Iterations: <span class="iteration-output">{{ fitSettings.maxIterations }}</span></label>
+                                <label>Max Iterations: <span class="fit-settings">{{ fitSettings.maxIterations }}</span></label>
                                 <input type="range" v-model.number="fitSettings.maxIterations" min="100" max="10000" step="100" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
                                 
-                                <label>Error Tolerance: <span class="tolerance-output">{{ fitSettings.errorTolerance }}</span></label>
+                                <label>Error Tolerance: <span class="fit-settings tolerance">{{ fitSettings.errorTolerance }}</span></label>
                                 <input type="range" v-model.number="fitSettings.errorTolerance" min="0.001" max="1" step="0.001" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
                                 <br>
                                 <button class="btn btn-warning btn-sm btn-block" @click="resetSettings"><span class="glyphicon glyphicon-refresh"></span> Default Settings</button>
@@ -187,7 +187,6 @@ export default {
       eventBus.$emit('set-scales', 'X', 'Y');
     },
     resetFit: function() {
-    //   this.fit = 'None';
         eventBus.$emit('reset-file-to-fit');
     },
     enterEquation: function() {
@@ -199,8 +198,8 @@ export default {
         let newXTrans = document.getElementById('x-transform').value;
         let newYTrans = document.getElementById('y-transform').value;
         if(fd.isSymbols([newXTrans, newYTrans])) {
-            console.log("Hey wrong!");
-
+            // console.log("Invalid entry!");
+            // Generate error message for invalid transformation
             document.getElementById('transformation-error').innerHTML = 
                 '<div class="alert alert-danger alert-dismissable">\
                 <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>\
@@ -213,14 +212,12 @@ export default {
                 </div>';
         } else {
             document.getElementById('transformation-error').innerHTML = "";
-            console.log("Changing transformations...");
-            console.log("New transformations X", newXTrans);
-            console.log("New transformation y", newYTrans);
+            // console.log("New transformations X", newXTrans);
+            // console.log("New transformation y", newYTrans);
             eventBus.$emit('set-transformations', newXTrans, newYTrans);
         }
     },
     enterCoefficients: function() {
-        console.log("Entering coefficients...");
         let c = {};
         for(let key in this.coefficients) {
             let val = document.getElementById(key+"-input").value;
@@ -242,7 +239,6 @@ export default {
         this.fit = 'Linear';
     },
     resetSettings: function() {
-        console.log("Reset values...");
         this.fitSettings.maxIterations = 100;
         this.fitSettings.damping = 0.001;
         this.fitSettings.errorTolerance = 0.001;
@@ -250,11 +246,9 @@ export default {
         eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
     },
     setFitSettings: function() {
-        console.log(this.fitSettings);
         eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
     },
     resetTransformation: function() {
-        console.log("Resetting transformations...");
         eventBus.$emit('reset-transformation');
     }
   },
@@ -268,6 +262,7 @@ export default {
 </script>
 
 <style scoped>
+/* Control Panel Global Styles */
 .form-control {
   text-align-last: center;
 }
@@ -283,11 +278,6 @@ export default {
   padding: 25px;
   background-color: gainsboro;
   border-right: 1px solid rgba(0,0,0,0.25);
-}
-
-.equation-title, .transformation-title {
-  color: gray;
-  text-align: center;
 }
 
 #control-panel-collapse {
@@ -309,16 +299,9 @@ export default {
     padding: 10px 0px;
 }
 
-.iteration-output, .damping-output {
-    color: steelblue;
-}
-
-.tolerance-output {
-    color: brown;
-}
-
-select, input {
-    margin-bottom: 5px;
+.panel-heading {
+    text-align: center;
+    padding: 7px 5px;
 }
 
 .input-group {
@@ -328,5 +311,24 @@ select, input {
 
 .input-group-addon {
     width: 35%;
+}
+
+/* Transformation Panel Styles */ 
+.equation-title, .transformation-title {
+  color: gray;
+  text-align: center;
+}
+
+/* Fit Setting Panel Styles */
+.fit-settings {
+    color: steelblue;
+}
+
+.fit-settings.tolerance {
+    color: brown;
+}
+
+select, input {
+    margin-bottom: 5px;
 }
 </style>

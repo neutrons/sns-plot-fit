@@ -144,7 +144,7 @@ export default {
     }
   },
   created() {
-    // Receive event emitter from Controls component
+    // Event Hook from Controls1D
     eventBus.$on('reset-file-to-fit', this.resetFileFitChoice);
   },
   methods: {
@@ -288,7 +288,6 @@ export default {
 
       // Filter out any negative values
       results1D = results1D.filter(row => row.y > 0 && row.x > 0);
-
       results1D.forEach(row => row.name = filename);
       
       return {filename: filename, data: results1D};
@@ -319,23 +318,19 @@ export default {
       } else {
         // console.log("Filter for: ", this.gSelect);
         let group = tempGetFiles.filter(group => group.jobTitle === vm.gSelect);
-        //console.log("group", group);
-        //group[0].files.forEach(file => temp.push(file.filename));
         var gName = group[0].jobTitle;
+
         for(let i = 0, len = group[0].files.length; i < len; i++) {
           temp.push({group: gName, filename: group[0].files[i].filename});
         }
       }
       
-      //console.log("Temp", temp);
       return temp;
     },
     groups: function() {
       var temp = [];
-
       this.GETFILES.forEach(group => temp.push(group.jobTitle));
       
-      // console.log("Temp", temp);
       return temp.sort();
     },
     uploadedFilenames: function() {
@@ -355,8 +350,6 @@ export default {
       handler: function () {
         var vm = this;
 
-        // console.log("Files to plot changed...", this.filesToPlot);
-
         // If a file is unselected while it has a fit, unselect the fit
         if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
           this.fileToFit = null;
@@ -375,9 +368,6 @@ export default {
             return vm.parse1D(temp, filename);
           }
         }).filter(item => item !== undefined);
-
-        // console.log("URLs", filesToFetch);
-        // console.log("Temp data", tempData);
         
         // Next fetch the file URLs
         var fileURLs = this.getURLs(filesToFetch);
@@ -402,7 +392,8 @@ export default {
             });        
           } else if(url.type === 'upload') {
 
-            //NEED TO TURN FILE READER INTO A PROMISE
+            // Turn file reader into a promise in order to
+            // wait on the async reading of files with Promise.all below
             return new Promise((resolve, reject) => {
               var reader = new FileReader();
 
@@ -419,7 +410,7 @@ export default {
               reader.readAsText(url.url, "UTF-8");
             });
           } else {
-            console.log("Sorry, uknown type.");
+            //console.log("Sorry, uknown type.");
           }
         });
 
@@ -444,7 +435,6 @@ export default {
       deep: true
     },
     fileToFit: function() {
-      // Watch if a file is selected to be fit if so, set it to the fileToFit
       eventBus.$emit('set-fit-file', this.fileToFit);
     }
   }
@@ -452,6 +442,7 @@ export default {
 </script>
 
 <style scoped>
+/* File List Table Styles */
 .tabletop {
   margin: 0;
   padding: 0;
@@ -482,6 +473,8 @@ td {
   text-align: center;
 }
 
+/* File panel styles */
+
 #file-panel-collapse {
       width: 100%;
       padding: 7px 15px;
@@ -497,10 +490,16 @@ td {
     padding: 10px 0px;
 }
 
+.panel-heading {
+    text-align: center;
+    padding: 7px 5px;
+}
+
 #files-bg {
     margin-bottom: 15px;
 }
 
+/* Button Styles */ 
 .btn-upload, .btn-fetch {
   width: 100%;
   margin-bottom: 10px;

@@ -3,8 +3,6 @@
     <div class="container-fluid">
 
       <div id="left-sidebar" class="col-lg-2">
-
-          <!--Pass variables to fileload component-->
             <app-files
             :BUTTONDIS="buttonDis"
             :GETFILES="getFiles"
@@ -12,7 +10,6 @@
             :ISUPLOADED="isUploaded"
             ></app-files>
 
-        <!--Pass variables to controls component-->
             <app-controls
             :BUTTONDIS="buttonDis"
             :FILETOFIT="fileToFit"
@@ -21,7 +18,6 @@
             :YTRANS="$data.currentConfiguration.yTransformation"
             :FITS="fitConfigurations"
             ></app-controls>
-
       </div>
           
       <app-plot 
@@ -34,10 +30,9 @@
 
 <script>
 import * as d3 from 'd3';
-import * as axios from 'axios'; // Axios package to handle HTTP requests
 import * as _ from 'lodash';
 import $ from 'jquery';
-import pp from 'papaparse';
+
 import Controls from './ControlsPanel_1D.vue';
 import Files from './FilePanel_1D.vue';
 import Plot from './Plot_1D.vue';
@@ -260,10 +255,8 @@ export default {
           }));
       },
       addUploadedData: function(data) {
-        // Add data to uploaded files list
         this.uploadedFiles = this.uploadedFiles.concat(_.cloneDeep(data));
 
-        // Add filename to color domain
         data.forEach(file => {
           if (this.colorDomain.indexOf(file.filename) === -1) {
             this.colorDomain.push(file.filename);
@@ -286,7 +279,6 @@ export default {
         this.buttonDis = bool;
       },
       setCurrentData: function (chosenData, checkList) {
-        // Function that adds selected data to be plotted
         var vm = this;
         if (checkList.length == 0) {
           // If no data is selected to be plotted, then
@@ -302,44 +294,38 @@ export default {
           this.selectedData = [];
           this.fileToFit = null;
         } else {
-          // console.log(this.selectedData);
-          // console.log("checkfiles", checkedfiles);
+          var toFilter = [];
+          
+          // Remove any instances where checked file isn't in selected
+          this.selectedData = this.selectedData.filter(function(item) { 
+            var match = checkList.indexOf(item.filename);
+            if(match > -1) {
+              toFilter.push(checkList[match]);
+            }
 
-        // Remove any instances where checked file isn't in selected
-        var toDelete = [];
-        
-        this.selectedData = this.selectedData.filter(function(item) { 
-          var match = checkList.indexOf(item.filename);
-          if(match > -1) {
-            toDelete.push(checkList[match]);
+            return checkList.indexOf(item.filename) > -1;
+          });
+
+          // Filter out data that doesn't need to be added
+          var addList = checkList.filter(el => toFilter.indexOf(el) < 0).map(function(fname) {
+            let temp = chosenData.find(el => el.filename === fname);
+            return {filename: fname, data: temp};
+          });
+
+          for(let i = 0, len = addList.length; i < len; i++) {
+            let temp = addList[i].data;
+            if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
+              temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
+              // console.log("Temp data:", temp);
+              this.selectedData.push(temp);
+            } else {
+              temp.dataTransformed = _.cloneDeep(temp.data);
+              this.selectedData.push(temp);
+            }
           }
-
-
-          return checkList.indexOf(item.filename) > -1;
-        });
-
-        // console.log("Delete list", toDelete);
-        var addList = checkList.filter(el => toDelete.indexOf(el) < 0).map(function(fname) {
-          let temp = chosenData.find(el => el.filename === fname);
-          return {filename: fname, data: temp};
-        });
-
-        // console.log("Add list", addList);
-        for(let i = 0, len = addList.length; i < len; i++) {
-          let temp = addList[i].data;
-          if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
-            temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
-            // console.log("Temp data:", temp);
-            this.selectedData.push(temp);
-          } else {
-            temp.dataTransformed = _.cloneDeep(temp.data);
-            this.selectedData.push(temp);
-          }
-        }
         }
       },
       deleteFile: function (filename) {
-        // Function to delete file from the uploaded list
         for (var i = 0; i < this.uploadedFiles.length; i++) {
           if (this.uploadedFiles[i].filename === filename) {
             // Splice will remove the object from array index i    
@@ -363,7 +349,6 @@ export default {
       },
       setFitFile: function (filename) {
         this.fileToFit = filename;
-        // console.log("Current File to Fit", this.fileToFit);
       },
       setScales: function (x, y) {
         this.scales.xScale = this.scaleConfigurations[x];
@@ -372,7 +357,7 @@ export default {
         this.scales.yScaleType = y;
       },
       setFit: function (fitname) {
-        //we deep clone because if you change the equation later, the original fit config's equation would be altered as well
+        // Deep clone because if you change the equation later, the original fit config's equation would be altered as well
         this.currentConfiguration = _.cloneDeep(this.fitConfigurations[fitname]);
       },
       prepData: function (sd) {
@@ -390,7 +375,6 @@ export default {
         return d3.merge(temp);
       },
       setParameters: function () {
-        // Function to wrap up all the parameters needed for plotting
         // console.log("Data", this.selectedData);
         if(this.selectedData.length > 0) {
           eventBus.$emit("set-parameters", {
@@ -402,7 +386,7 @@ export default {
             fitSettings: this.fitSettings
           });
         } else {
-          console.log("No data to plot...");
+          // console.log("No data to plot...");
           //reset brush selection
           eventBus.$emit("reset-brush-selection");
         }
@@ -411,7 +395,6 @@ export default {
         this.currentConfiguration.equation = eq;
       },
       setTransformations: function(x,y) {
-        //console.log("X: ", x);
         this.currentConfiguration.xTransformation = x;
         this.currentConfiguration.yTransformation = y;
       },
@@ -428,7 +411,6 @@ export default {
     watch: {
       scales: {
         handler: function() {
-          // Watch if scales change, if so re-set parameters
           this.setParameters();
         },
         deep: true
@@ -437,7 +419,6 @@ export default {
         // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
         // If fileToFit is set to Null, don't transform anything and reset the fit to none
         if(this.fileToFit === null) {
-          // Reset fit to Linear
           eventBus.$emit("set-fit-back");
           eventBus.$emit("set-fit-settings-back");
           this.setFit("Linear"); 
@@ -449,37 +430,25 @@ export default {
       },
       selectedData: {
         handler: function() {
-          // Watch if selectedData changes, if so 
-          // check if a fit is enabled and transform data if necessary
-          // then set new plot parameters
-          // console.log("Selected changed...", this.selectedData);
           this.setParameters();
         },
         deep: true
       },
       currentConfiguration: {
         handler: function() {
-          // Watch if 'currentConfiguration' gets changed, if so
-          // re-transform selected data according to 'xTransformation' and 'yTransformation'
-          // then re-fit the 'dataToFit' according to the config's equation
-          // console.log("Equation changed...", this.currentConfiguration.equation);
           if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
-            //When current data changes after selected
-            console.log("re-transforming...");
               this.selectedData.forEach( el => {
                 el.dataTransformed = fd.transformData(el, this.currentConfiguration);
               });
-            // this.transformedData = fd.transformData(this.selectedData, this.currentConfiguration);
           } else {
             this.selectedData.forEach( el => {
-              el.dataTransformed = _.cloneDeep(el.data); // reset since transformed data is 'None' or 'Linear'
+              el.dataTransformed = _.cloneDeep(el.data);
             });
           }
         },
         deep: true
       },
       uploadedFiles: function () {
-        // Watch if a file has been uploaded, if so enable delete file buttons
         if (this.uploadedFiles.length > 0) {
           this.isUploaded = true;
         } else {
@@ -497,5 +466,5 @@ export default {
 </script>
 
 <style scoped>
-@import '../../assets/styles/main-component-styles.css';
+
 </style>

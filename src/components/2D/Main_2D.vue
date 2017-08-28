@@ -3,18 +3,14 @@
     <div class="container-fluid">
 
       <div id="left-sidebar-2d" class="col-lg-2">
-
-          <!--Pass variables to fileload component-->
             <files-2d
             :BUTTONDIS="buttonDis"
             :ISUPLOADED="isUploaded"
             :GETFILES="getFiles"
             :UPLOADEDFILES="uploadedFiles"></files-2d>
 
-        <!--Pass variables to controls component-->
             <controls-2d
             :BUTTONDIS="buttonDis"></controls-2d>
-
       </div>
           
       <plot-2d
@@ -62,7 +58,6 @@ export default {
       // Event hooks for 'Title.vue'
       eventBus.$on('add-get-2D', this.addGetData);
       eventBus.$on('add-uploaded-2D', this.addUploadedData);
-      //eventBus.$on('check-duplicate', this.checkDuplicateFile);
 
       // Event hooks for 'FileLoad_2D.vue'
       eventBus.$on('remove-uploaded-files-2d', this.removeUploadedFiles);
@@ -95,8 +90,6 @@ export default {
         this.getFiles = _.cloneDeep(data);
       },
       addUploadedData: function(data) {
-        // Add data to uploaded files list
-        console.log("Adding data...", data);
         this.uploadedFiles = this.uploadedFiles.concat(_.cloneDeep(data));
       },
       checkDuplicateFile: function (filename) {
@@ -117,7 +110,6 @@ export default {
       setCurrentData: function (checkedfiles) {
       },
       deleteFile: function (filename) {
-        // Function to delete file from the uploaded list
         for (var i = 0; i < this.uploadedFiles.length; i++) {
           if (this.uploadedFiles[i].filename === filename) {
             // Splice will remove the object from array index i    
@@ -129,13 +121,9 @@ export default {
         this.uploadedFiles = [];
       },
       set2DData: function(data) {
-
-        // console.log("Setting 2d data...", data);
         this.selected2DData = data;
       },
       set2DParameters: function() {
-        // Function to wrap up all the parameters needed for plotting
-
         if(this.selected2DData !== null) {
           this.buttonDis = true;
           eventBus.$emit("set-2D-parameters", {
@@ -147,7 +135,7 @@ export default {
           this.buttonDis = false;
           d3.select(".chart-2D").remove();
           d3.select(".tooltip-2D").remove();
-          console.log("No 2D data to plot...");
+          // console.log("No 2D data to plot...");
         }
       },
       setHexSettings: function(settings) {
@@ -158,7 +146,6 @@ export default {
     },
     watch: {
       uploadedFiles: function () {
-        // Watch if a file has been uploaded, if so enable delete file buttons
         if (this.uploadedFiles.length > 0) {
           this.isUploaded = true;
         } else {
@@ -179,5 +166,5 @@ export default {
 </script>
 
 <style scoped>
-@import '../../assets/styles/main-component-styles.css';
+
 </style>
