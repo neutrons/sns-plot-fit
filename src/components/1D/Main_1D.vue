@@ -1,8 +1,8 @@
 <template>
-  <div id="main1D" class="col-md-12">
+  <div id="main1D" class="col-lg-12">
     <div class="container-fluid">
 
-      <div id="left-sidebar" class="col-md-2">
+      <div id="left-sidebar" class="col-lg-2">
 
           <!--Pass variables to fileload component-->
             <app-files

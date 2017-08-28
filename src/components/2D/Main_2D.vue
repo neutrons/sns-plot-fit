@@ -1,8 +1,8 @@
 <template>
-  <div id="main2D" class="col-md-12">
+  <div id="main2D" class="col-lg-12">
     <div class="container-fluid">
 
-      <div id="left-sidebar-2d" class="col-md-2">
+      <div id="left-sidebar-2d" class="col-lg-2">
 
           <!--Pass variables to fileload component-->
             <files-2d
@@ -132,19 +132,6 @@ export default {
 
         // console.log("Setting 2d data...", data);
         this.selected2DData = data;
-        // let isGetMatch = this.getFiles.find(el => el.fileName === filename);
-        // let isUploadMatch = this.uploadedFiles.find(el => el.fileName === filename);
-
-        // if(isGetMatch !== undefined) {
-        //   // Set data to get file
-        //   this.selected2DData = isGetMatch;
-        // } else if (isUploadMatch !== undefined) {
-        //   // Set data to upload file
-        //   this.selected2DData = isUploadMatch;
-        // } else {
-        //   // No match, so reset all parameters
-        //   this.selected2DData = null;
-        // }
       },
       set2DParameters: function() {
         // Function to wrap up all the parameters needed for plotting

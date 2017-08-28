@@ -1,5 +1,5 @@
 <template>
-  <div id="Plot1d" class="col-md-10">
+  <div id="Plot1d" class="col-lg-10">
           <div id="plot-panel">
           <div class="panel-group">
 

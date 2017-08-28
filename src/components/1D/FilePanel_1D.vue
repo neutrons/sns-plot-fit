@@ -36,7 +36,7 @@
               </div>
               <div class="panel-body">
                 <!-- Get List Table  -->
-                <table class="table table-condensed tabletop">
+                <table class="table table-condensed tabletop  ">
                   <colgroup>
                     <col class="col-md-1">
                     <col class="col-md-1">
@@ -515,6 +515,7 @@ td {
   width: 100%;
   padding: 2px;
   margin: 5px 0px;
+  white-space: normal;
 }
 
 .btn-container {
@@ -537,10 +538,6 @@ td.over:hover
     text-overflow: wrap;
     word-wrap: break-word;
     height:auto;
-}
-
-#filter-selection {
-  width: 50%;
 }
 
 .form-control {
