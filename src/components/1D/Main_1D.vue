@@ -143,7 +143,7 @@ export default {
             equation: "-Rg^2/3*x+I0",
             yTransformation: "log(y)",
             xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
+            eTransformation: "((1/y)*e)^2",
             yLabel: "Log(I(q))",
             xLabel: "q^2",
             note: ""
@@ -153,7 +153,7 @@ export default {
             equation: "-(L^2/12+R^2/2)/3*x+I0",
             yTransformation: "log(y)",
             xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
+            eTransformation: "((1/y)*e)^2",
             yLabel: "Log(I(q))",
             xLabel: "q^2",
             note: "Cylinder of length L and Radius R"
@@ -163,7 +163,7 @@ export default {
             equation: "-(R^2/2)/3*x+I0/x",
             yTransformation: "log(x*y)",
             xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
+            eTransformation: "((1/y)*e)^2",
             yLabel: "Log(q*I(q))",
             xLabel: "q^2",
             note: "Radius R"
@@ -173,7 +173,7 @@ export default {
             equation: "-(T^2/12)/3*x+I0/x^2",
             yTransformation: "log(x^2*y)",
             xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
+            eTransformation: "((1/y)*e)^2",
             yLabel: "Log(q^2*I(q))",
             xLabel: "q^2",
             note: "T is the thickness of a flat (lamella) object."
@@ -193,7 +193,7 @@ export default {
             equation: "1/I0+Cl^2/I0*x",
             yTransformation: "1/y",
             xTransformation: "x^2",
-            eTransformation: "((-1/x^2)*e)^2",
+            eTransformation: "((-1/y^2)*e)^2",
             yLabel: "1/I(q)",
             xLabel: "q^2",
             note: ""
@@ -213,7 +213,7 @@ export default {
             equation: "m*x+I0",
             yTransformation: "sqrt(y)",
             xTransformation: "x^2",
-            eTransformation: "(1/(2*sqrt(x))*e)^2",
+            eTransformation: "(1/(2*sqrt(y))*e)^2",
             yLabel: "sqrt(I)",
             xLabel: "Q^2",
             note: ""
