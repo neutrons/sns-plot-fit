@@ -114,6 +114,12 @@ export default {
                     <strong>Warning!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.\
                 </div>';
                 document.getElementById("plot-errors").appendChild(div);
+                 // add the newly created element and its content into the DOM 
+                setTimeout(function() {
+                    $("#nodata-error").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                    });
+                }, 5000);
                 return;
             } else {
                 self.isError = false;
@@ -628,6 +634,13 @@ export default {
                                 <strong>Warning!</strong> Fitted y-values < 0, thus no fit-line to display.\
                             </div>';
                             document.getElementById("plot-area").appendChild(div);
+                            
+                             // add the newly created element and its content into the DOM 
+                            setTimeout(function() {
+                                $("#selection-error").fadeTo(500, 0).slideUp(500, function(){
+                                $(this).remove(); 
+                                });
+                            }, 5000);
                         }
                     }
                     // Emit coefficients to controls panel
@@ -663,6 +676,12 @@ export default {
                             If plot is blank, no data is available for generating a fit line.\
                         </div>';
                         document.getElementById("plot-area").appendChild(div);
+                         // add the newly created element and its content into the DOM 
+                        setTimeout(function() {
+                            $("#selection-error").fadeTo(500, 0).slideUp(500, function(){
+                            $(this).remove(); 
+                            });
+                        }, 5000);
                     }
                 }
             }
