@@ -92,6 +92,7 @@ if (process.env.NODE_ENV === 'production') {
       jquery: 'jquery',
       'window.jQuery': 'jquery',
       jQuery: 'jquery',
+      d3: 'd3'
     })
   ])
 }
