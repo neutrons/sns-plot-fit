@@ -10,13 +10,17 @@
       
       <app-title></app-title>
 
-      <transition name="slide" mode="out-in">
-        <main1D v-show="!togglePlot"></main1D>
+      <!-- <transition name="slide" mode="out-in">
+        <app-1d v-show="toggleView === '1D'"></app-1d>
       </transition>
 
       <transition name="slide" mode="out-in">
-        <main2D v-show="togglePlot"></main2D>
-      </transition>
+        <app-2d v-show="toggleView === '2D'"></app-2d>
+      </transition>   -->
+
+       <transition name="slide" mode="out-in">
+        <app-stitch v-show="toggleView === 'Stitch'"></app-stitch>
+      </transition> 
   </div>
 </template>
 
@@ -26,6 +30,7 @@ import $ from 'jquery';
 
 import main1D from './components/1D/Main_1D.vue';
 import main2D from './components/2D/Main_2D.vue';
+import mainStitch from './components/Stitch/Main_Stitch.vue';
 import Title from './components/Title.vue';
 
 // The eventBus serves as the means to communicating between components.
@@ -36,13 +41,14 @@ import { eventBus } from './assets/javascript/eventBus';
 export default {
   name: 'app',
   components: {
-    main1D,
-    main2D,
+    'app-1d': main1D,
+    'app-2d': main2D,
+    'app-stitch': mainStitch,
     'app-title': Title
   },
   data: function () {
     return {
-      togglePlot: false,
+      toggleView: 'Stitch',
       errorCount: 0
     }
   },
@@ -91,11 +97,8 @@ export default {
   },
   methods: {
     switchPlotComponent: function(plotType) {
-      if(plotType === '1D') {
-        this.togglePlot = false;
-      } else {
-        this.togglePlot = true;
-      }
+      console.log("Changing plot type: ", plotType);
+      this.toggleView = plotType;
     },
     generateError: function(errorMSG) {
       document.getElementById("error_"+this.errorCount) === null ? this.errorCount = 0 : this.errorCount += 1;
@@ -167,7 +170,15 @@ div#textnode {
   transition: all 1.25s ease;
 }
 
-#main1D.slide-enter {
+.slide-enter {
+  transform: translateX(100vw);
+}
+
+.slide-leave {
+  transform: translateX(-100vw);
+}
+
+/* #main1D.slide-enter {
   transform: translateX(100vw);
 }
 #main1D.slide-leave-active {
@@ -179,9 +190,9 @@ div#textnode {
 }
 #main2D.slide-leave-active {
   transform: translateX(-100vw);
-}
+} */
 
-#main1D, #main2D {
+#main1D, #main2D, #mainStitch {
   position: absolute;
   right: 0;
   left: 0;

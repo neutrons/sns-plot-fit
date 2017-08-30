@@ -9,23 +9,19 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>                        
           </button>
-          <img src="../assets/ornl_logo.png">
+          <img src="../assets/ornl_logo.png" class="navbar-brand">
         </div>
 
       <div class="collapse navbar-collapse" id="navbarElements">
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-            <div id="toggle-switch">
-              <label class="toggle-label">1D</label>
-              <label class="switch">
-                <input type="checkbox" v-model="plotCheck">
-                <span class="slider round"></span>
-              </label>
-              <label class="toggle-label">2D</label>
-            </div>
-          </li>
-          <li><button class="btn btn-primary btn-fetch" @click="fetchData"><span class="glyphicon glyphicon-download"></span> Fetch Data</button></li>
-          <li><label class="btn btn-primary"><span class="glyphicon glyphicon-file"></span> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
+        <ul id="menu-buttons" class="nav navbar-nav navbar-right">
+          <li><button class="btn btn-primary navbar-btn" @click="fetchData"><span class="glyphicon glyphicon-download"></span> Fetch Data</button></li>
+          <li><label class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-file"></span> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
+        </ul>
+
+        <ul id="view-switches" class="nav navbar-nav navbar-right">
+          <li id="switch-1D"><a href="#1D" @click="switchView('1D')">1D</a></li>
+          <li id="switch-2D"><a href="#2D" @click="switchView('2D')">2D</a></li>
+          <li id="switch-Stitch" class="active"><a href="#Stitch" @click="switchView('Stitch')">Stitch</a></li>
         </ul>
       </div>
       </div>
@@ -152,6 +148,19 @@ export default {
         // File doesn't match for either 1D or 2D, throw error message
         return false;
       }
+    },
+    switchView: function(view) {
+      var views = document.getElementById("view-switches").children;
+      for(let i = 0, len = views.length; i < len; i++) {
+        if( views[i].id === "switch-"+view) {
+          views[i].classList.add('active');
+        } else {
+          views[i].classList.remove('active');
+        }
+      }
+
+      console.log("View switched to: ", view);
+      eventBus.$emit('switch-plot-component', view);
     }
   },
   watch: {
@@ -165,85 +174,30 @@ export default {
 <style scoped>
 #title {
   background: white;
-  height: auto;
   border: none;
   border-bottom: 1px solid gainsboro;
-  padding: 10px;
 }
 
-#menu ul {
-  margin: 10px auto;
+/* Link Styles for Switching Component Views */
+#view-switches li {
+  margin: 0px 10px;
+  text-align: center;
+}
+#view-switches a {
+  color: #00672c;
 }
 
-#menu li {
-  margin-right: 20px;
-  height: 100%;
+#view-switches a:hover {
+  background: #00672c;
+  color: white;
 }
 
-/* Switch Styles  */
-#toggle-switch {
-  display: flex;
-  vertical-align: center;
-  margin: 5px 25px;
+#view-switches li.active a{
+  color: white;
 }
 
-.toggle-label {
-  padding: 0px 5px;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 20px;
-}
-
-.switch input {display:none;}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: green;
-  -webkit-transition: all 1.5s;
-  transition: all 1.5s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 12px;
-  width: 12px;
-  left: 5px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: all 1.5s;
-  transition: all 1.5s;
-}
-
-input:checked + .slider {
-  background-color: #5091cd;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #5091cd;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(18px);
-  -ms-transform: translateX(18px);
-  transform: translateX(18px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
+#menu-buttons .btn {
+  border-radius: 0px;
+  margin-right: 10px;
 }
 </style>
