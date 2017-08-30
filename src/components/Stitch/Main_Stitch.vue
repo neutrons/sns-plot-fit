@@ -22,7 +22,7 @@
                     </app-plot>
                 </div>
         </stitch-main>
-      
+      <p>Content here: {{value}}</p>
     </div>
   </div>
 </template>
@@ -59,6 +59,11 @@ export default {
     data: function () {
       return {
       }
+    },
+    computed: {
+        value() {
+            return this.$store.state.name;
+        }
     }
   }
 </script>
