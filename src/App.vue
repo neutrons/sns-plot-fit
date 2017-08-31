@@ -30,7 +30,7 @@ import $ from 'jquery';
 
 import main1D from './components/1D/Main_1D.vue';
 import main2D from './components/2D/Main_2D.vue';
-import mainStitch from './components/Stitch/Main_Stitch.vue';
+import Stitch from './components/Stitch/Stitch.vue';
 import Title from './components/Title.vue';
 
 // The eventBus serves as the means to communicating between components.
@@ -43,7 +43,7 @@ export default {
   components: {
     'app-1d': main1D,
     'app-2d': main2D,
-    'app-stitch': mainStitch,
+    'app-stitch': Stitch,
     'app-title': Title
   },
   data: function () {

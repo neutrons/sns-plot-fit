@@ -12,7 +12,7 @@
                 <div class="panel-group">
 
                 <!-- Insert Plot Components Here  -->
-                <slot></slot>
+                <slot>Content of plot</slot>
 
                 </div>
             </div>
