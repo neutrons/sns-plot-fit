@@ -28,6 +28,7 @@ export default {
     props: {
         DISABLE: {
             type: Boolean,
+            default: false,
             required: true
         }
     },

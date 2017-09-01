@@ -2,37 +2,70 @@
   <div id="Stitch" class="col-lg-12">
     <div class="container-fluid">
         <!-- Left Sidebar for Controls and File List  -->
-        <div class="col-md-2">
-            <stitch-files MAINTITLE="Files">
-                <stitch-panel PANELTITLE="Get Files">
-                    <ul>
-                        <li v-for="f in files">{{f}}</li>
-                    </ul>
-                </stitch-panel>
-                <stitch-panel PANELTITLE="Uploaded Files"></stitch-panel>
-            </stitch-files>
+        <div class="col-lg-2">
+            <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
+                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
 
-            <stitch-controls MAINTITLE="Controls">
+                    <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']" v-show="files.length > 0">
+                        <template>
+                            <tr v-for="f in files">
+                                <template>
+                                    <td><input type="checkbox"></td>
+                                    <td><input type="checkbox"></td>
+                                    <td>{{f.filename}}</td>
+                                    <td>{{f.jobTitle}}</td>
+                                </template>
+                            </tr>
+                        </template>
+                    </v-table>
 
-                <stitch-panel PANELTITLE="Scales">
+                </v-panel>
+                <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success"></v-panel>
+            </v-panel-group>
+
+            <v-panel-group MAINTITLE="Controls" PANELTYPE="primary">
+
+                <v-panel PANELTITLE="Scales" PANELTYPE="success">
                     <!-- Add Items to a single panel  -->
-                    <stitch-scales :DISABLE="false"
-                        v-on:update-scales="setScales">
-                    </stitch-scales>
-                </stitch-panel>
+                    <v-scales 
+                        :DISABLE="false"
+                        @update-scales="setScales">
+                    </v-scales>
+                </v-panel>
 
-            </stitch-controls>
+            </v-panel-group>
         </div>
 
         <!-- Plot Panel for Main Charting Functionality  -->
-        <div class="col-md-10">
-            <stitch-plot MAINTITLE="Stitch"></stitch-plot>
+        <div class="col-lg-10">
+            <!-- <v-plot MAINTITLE="Stitch"></v-plot> -->
+            <v-panel PANELTITLE="Stitch Plot" PANELTYPE="primary">
+                Plot content will go here.
+            </v-panel>
         </div>
     </div>
     <div>
         <h1>Practice content:</h1>
         <button class="btn btn-primary" @click="fetchData">Fetch Data</button>
-        <input type="checkbox" v-model="test">
+        <div class="row">
+            <div class="col-lg-2">
+        <v-table :fieldNames="['Select', 'Filename', 'Group', 'Date']">
+            <template>
+                <tr v-for="f in files">
+                    <template>
+                        <td><input type="checkbox"></td>
+                        <td>{{f.filename}}</td>
+                        <td>{{f.jobTitle}}</td>
+                        <td>{{f.dateModified}}</td>
+                    </template>
+                </tr>
+            </template>
+        </v-table>
+            </div>
+            <div class="col-lg-10">
+                Some stuff
+            </div>
+        </div>
     </div>
   </div>
 </template>
@@ -42,18 +75,11 @@
 import * as d3 from 'd3';
 import _ from 'lodash';
 
-/* Import Control Elements */
-import Controls from '../BaseComponents/Controls/Controls.vue';
-
-/* Import File Elements */
-import Files from '../BaseComponents/Files/Files.vue';
-
-/* Import Plot Elements */
-import Plot from '../BaseComponents/Plot/Plot.vue';
-
-/* Import Panel Component */
-import Panel from '../BaseComponents/Panel.vue';
+/* Import Components */
+import Panel from '../BaseComponents/Panels/Panel.vue';
+import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Scales from '../BaseComponents/Scales.vue';
+import Table from '../BaseComponents/Table.vue';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
@@ -63,11 +89,10 @@ import { eventBus } from '../../assets/javascript/eventBus';
 export default {
     name: 'Stitch',
     components: {
-      'stitch-controls': Controls,
-      'stitch-plot': Plot,
-      'stitch-files': Files,
-      'stitch-panel': Panel,
-      'stitch-scales': Scales
+      'v-panel-group': PanelGroup,
+      'v-panel': Panel,
+      'v-scales': Scales,
+      'v-table': Table
     },
     data: function () {
       return {
@@ -101,39 +126,27 @@ export default {
         for (let i = 0, len = files.length; i < len; i++) {
             var temp1DFiles = [];
             var temp2DFiles = [];
+            var jobTitle = files[i].job_title;
+            var jobModified = files[i].date_modified;
 
             files[i].results.forEach(function(item) {
                 
                 if( vm.dataType(item.url) === '1D') {
                 // console.log("1D Item", {url: url, group: group, fileName: name});
-                temp1DFiles.push({  id: item.id, filename: item.filename, url: item.url});
+                temp1D.push({  id: item.id, filename: item.filename, url: item.url, jobTitle: jobTitle, dateModified: jobModified });
 
                 } else if ( vm.dataType(item.url) === '2D') {
                 // console.log("2D Item", {url: url, group: group, fileName: name});
-                temp2DFiles.push({  id: item.id, filename: item.filename, url: item.url});
+                temp2D.push({  id: item.id, filename: item.filename, url: item.url, jobTitle: jobTitle, dateModified: jobModified });
 
                 } else {
                 let errorMsg = "<strong>Error! </strong>" + item.url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
                 eventBus.$emit('error-message', errorMsg);
                 }
             });
-            
-            if(temp1DFiles.length > 0) {
-                temp1D.push({jobID: files[i].job_id,
-                        jobTitle: files[i].job_title,
-                        dateModified: files[i].date_modified,
-                        files: temp1DFiles});
-            }
-            
-            if(temp2DFiles.length > 0) {
-                temp2D.push({jobID: files[i].job_id,
-                            jobTitle: files[i].job_title,
-                            dateModified: files[i].date_modified,
-                            files: temp2DFiles});
-            }
         
         }
-
+        console.log("Files", temp1D, temp2D);
         // Add Fetched File List(s) to Global Store
         if(temp1D.length > 0) this.$store.commit('addFetched1DFiles', temp1D);
         if(temp2D.length > 0) this.$store.commit('addFetched2DFiles', temp2D);  
@@ -158,8 +171,7 @@ export default {
     watch: {
         scales: {
             handler: function() {
-            console.log("Scales:", this.scales);
-            console.log(this.$store.getters.getYScales);
+            
         },
         deep: true
         }
@@ -168,5 +180,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

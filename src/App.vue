@@ -123,6 +123,9 @@ export default {
 </script>
 
 <style>
+/* Set Font-Awesome Globally for all sub-components  */
+ @import '../node_modules/font-awesome/css/font-awesome.min.css'; 
+
 html,
 body {
    margin:0;

@@ -49,10 +49,7 @@ const store = new Vuex.Store({
       return state.yScales[id]
     },
     getFetched1D: state => {
-      let temp = [];
-      state.fetched1DFiles.forEach(el => el.files.forEach(file => temp.push(file.filename)));;
-      console.log("Temp:", temp);
-      return temp;
+      return state.fetched1DFiles
     },
     getFetched2D: state => {
 
@@ -65,21 +62,20 @@ const store = new Vuex.Store({
     }
   },
   mutations: {
-    addFetched1DFiles(state, d) {
-      state.fetched1DFiles = d
+    addFetched1DFiles(state, files) {
+      state.fetched1DFiles = files
     },
-    addFetched2DFiles(state, d) {
-      state.fetched2DFiles = d
+    addFetched2DFiles(state, files) {
+      state.fetched2DFiles = files
     },
-    addUploaded1DFiles(state, d) {
-      state.uploaded1DFiles = d
+    addUploaded1DFiles(state, files) {
+      state.uploaded1DFiles = files
     },
-    addUploaded2DFiles(state, d) {
-      state.uploaded2DFiles = d
+    addUploaded2DFiles(state, files) {
+      state.uploaded2DFiles = files
     }
   },
   actions: {
-
   }
 })
 
