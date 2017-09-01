@@ -5,27 +5,43 @@
         <div class="col-lg-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
                 <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
-                    <div>
-                        <v-filter 
-                            @filter-job="filterJob"
-                            @sort-by-date="sortByDate"
-                        ></v-filter>
+                    <div v-show="fetchFiles.length > 0">
+                        <div>
+                            <v-filter 
+                                @filter-job="filterJob"
+                                @sort-by-date="sortByDate"
+                            ></v-filter>
+                        </div>
+                        <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
+                            <template>
+                                <tr v-for="f in fetchFiles">
+                                    <template>
+                                        <td><input type="checkbox"></td>
+                                        <td><input type="checkbox"></td>
+                                        <td>{{f.filename}}</td>
+                                        <td>{{f.jobTitle}}</td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </v-table>
                     </div>
-                    <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']" v-show="files.length > 0">
-                        <template>
-                            <tr v-for="f in files">
-                                <template>
-                                    <td><input type="checkbox"></td>
-                                    <td><input type="checkbox"></td>
-                                    <td>{{f.filename}}</td>
-                                    <td>{{f.jobTitle}}</td>
-                                </template>
-                            </tr>
-                        </template>
-                    </v-table>
 
                 </v-panel>
-                <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success"></v-panel>
+                <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success">
+                    <div v-show="uploadFiles.length > 0">
+                     <v-table :fieldNames="['Fit', 'Plot', 'Filename']">
+                            <template>
+                                <tr v-for="f in uploadFiles">
+                                    <template>
+                                        <td><input type="checkbox"></td>
+                                        <td><input type="checkbox"></td>
+                                        <td>{{f.filename}}</td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </v-table>
+                    </div>
+                </v-panel>
             </v-panel-group>
 
             <v-panel-group MAINTITLE="Controls" PANELTYPE="primary">
@@ -52,6 +68,7 @@
     <div>
         <h1>Practice content:</h1>
         <button class="btn btn-primary" @click="fetchData">Fetch Data</button>
+        <li><label class="btn btn-primary navbar-btn"><i class="fa fa-file" aria-hidden="true"></i> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
         <div class="row">
             <div class="col-lg-2">
                 Side panel
@@ -107,10 +124,9 @@ export default {
       yScales() {
         return this.$store.getters.getYScales;
       },
-      files() {
+      fetchFiles() {
         
         var temp = this.$store.getters.getFetched1D;
-        console.log("Sorting by: " + this.sortBy);
         if(this.sortBy === 'ascending') {
             if(this.filterBy === 'All') {
                 return temp.sort(function(a,b) { return new Date(a.dateModified) - new Date(b.dateModified); });
@@ -126,6 +142,10 @@ export default {
                     .sort(function(a,b) { return new Date(b.dateModified) - new Date(a.dateModified); });
             }
         }
+      },
+      uploadFiles() {
+          console.log(this.$store.getters.getUploaded1D);
+          return this.$store.getters.getUploaded1D;
       }
     },
     methods: {
@@ -166,10 +186,46 @@ export default {
             });
         
         }
-        console.log("Files", temp1D, temp2D);
+        
         // Add Fetched File List(s) to Global Store
         if(temp1D.length > 0) this.$store.commit('addFetched1DFiles', temp1D);
         if(temp2D.length > 0) this.$store.commit('addFetched2DFiles', temp2D);  
+    },
+    uploadFile: function(files) {
+
+      // CODE TO UPLOAD DATA FILES //
+        var vm = this;
+
+        var temp1D = [];
+        var temp2D = [];
+
+        for (var i = 0, len = files.length; i < len; i++) {         
+          // loadFiles(files[i]);
+          let url = files[i].name;
+          let blob = files[i];
+
+          if( vm.dataType(url) === '1D') {
+              // console.log("1D Item", {url: url, group: group, fileName: name});
+              let filename = url.substr(0, url.lastIndexOf('.txt')) || url;
+              temp1D.push( {url: url, filename: filename, blob: blob});
+
+            } else if ( vm.dataType(url) === '2D') {
+              // console.log("2D Item", {url: url, group: group, fileName: name});
+              let filename = url.substr(0, url.lastIndexOf('.dat')) || url;
+              temp2D.push( {url: url, filename: filename, blob: blob});
+
+            } else {
+              // error, don't read for now
+              let errorMsg = "<strong>Error! </strong>" + url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
+              eventBus.$emit('error-message', errorMsg);
+            }
+        }
+
+        if(temp1D.length > 0) this.$store.commit('addUploaded1DFiles', temp1D); //eventBus.$emit('add-uploaded-1D', temp1D);
+        if(temp2D.length > 0) this.$store.commit('addUploaded2DFiles', temp2D); //eventBus.$emit('add-uploaded-2D', temp2D);
+
+        document.getElementById("file-upload").value = '';
+        // END OF CODE TO UPLOAD FILES //
     },
     dataType(fname) {
       if (/.*Iq.txt$/.exec(fname)) {
@@ -194,11 +250,6 @@ export default {
             
         },
         deep: true
-        },
-        filterBy: function() {
-            console.log("Filter changed: " + this.filterBy);
-        },
-        sortBy: function() {
         }
     }
   }

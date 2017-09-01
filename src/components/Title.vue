@@ -14,8 +14,8 @@
 
       <div class="collapse navbar-collapse" id="navbarElements">
         <ul id="menu-buttons" class="nav navbar-nav navbar-right">
-          <li><button class="btn btn-primary navbar-btn" @click="fetchData"><span class="glyphicon glyphicon-download"></span> Fetch Data</button></li>
-          <li><label class="btn btn-primary navbar-btn"><span class="glyphicon glyphicon-file"></span> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
+          <li><button class="btn btn-primary navbar-btn" @click="fetchData"><i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i> Fetch Data</button></li>
+          <li><label class="btn btn-primary navbar-btn"><i class="fa fa-file" aria-hidden="true"></i> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
         </ul>
 
         <ul id="view-switches" class="nav navbar-nav navbar-right">

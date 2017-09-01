@@ -52,13 +52,13 @@ const store = new Vuex.Store({
       return state.fetched1DFiles
     },
     getFetched2D: state => {
-
+      return state.fetched2DFiles
     },
     getUploaded1D: state => {
-
+      return state.uploaded1DFiles
     },
     getUploaded2D: state => {
-
+      return state.uploaded2DFiles
     },
     getGroups: state => (type) => {
       
@@ -78,10 +78,10 @@ const store = new Vuex.Store({
       state.fetched2DFiles = files
     },
     addUploaded1DFiles(state, files) {
-      state.uploaded1DFiles = files
+      state.uploaded1DFiles = state.uploaded1DFiles.concat(files)
     },
     addUploaded2DFiles(state, files) {
-      state.uploaded2DFiles = files
+      state.uploaded1DFiles = state.uploaded2DFiles.concat(files)
     }
   },
   actions: {
