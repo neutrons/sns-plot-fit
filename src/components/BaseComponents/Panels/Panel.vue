@@ -5,14 +5,14 @@
     <div :class="'panel panel-' + PANELTYPE">
         <div class="panel-heading">
             <div class="panel-title">
-                <a data-toggle="collapse" :href="'#collapse-'+titleFormatted" @click="isCollapsed = !isCollapsed">{{PANELTITLE}} 
-                    <span class="pull-right" v-if="isCollapsed"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                <span class="collapser" @click="isCollapsed = !isCollapsed">{{PANELTITLE}} 
+                    <span class="pull-right collapser-icon" v-if="isCollapsed"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <span class="pull-right" v-else><i class="fa fa-minus-square" aria-hidden="true"></i></span>
-                </a>
+                </span>
             </div>
         </div>
 
-        <div :id="'collapse-'+titleFormatted" class="panel-collapse collapse in">
+        <div class="panel-collapse collapse in">
             <div class="panel-body">
                 <slot>
                     <p>Panel body content goes here.</p>
@@ -20,12 +20,16 @@
             </div>
         </div>
     </div>
+
+    
     
 
 </div>
 </template>
 
 <script>
+import $ from 'jquery'
+
 export default {
   name: 'panel',
   props: {
@@ -47,6 +51,12 @@ export default {
     titleFormatted() {
         return this.PANELTITLE.replace(" ", "-");
     }
+  },
+  mounted() {   
+      $('.collapser').click(function() {
+          
+          $(this).parent().parent().next().collapse('toggle');
+      })
   }
 }
 </script>
@@ -57,9 +67,10 @@ export default {
     padding: 0px;
 }
 
-a {
+.collapser {
     padding: 10px;
     display: block;
+    cursor: pointer;
 }
 
 .panel {

@@ -5,7 +5,9 @@
         <div class="col-lg-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
                 <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
-
+                    <div class="panel-body">
+                        <v-filter @filter-job="filterJob"></v-filter>
+                    </div>
                     <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']" v-show="files.length > 0">
                         <template>
                             <tr v-for="f in files">
@@ -49,18 +51,7 @@
         <button class="btn btn-primary" @click="fetchData">Fetch Data</button>
         <div class="row">
             <div class="col-lg-2">
-        <v-table :fieldNames="['Select', 'Filename', 'Group', 'Date']">
-            <template>
-                <tr v-for="f in files">
-                    <template>
-                        <td><input type="checkbox"></td>
-                        <td>{{f.filename}}</td>
-                        <td>{{f.jobTitle}}</td>
-                        <td>{{f.dateModified}}</td>
-                    </template>
-                </tr>
-            </template>
-        </v-table>
+                Side panel
             </div>
             <div class="col-lg-10">
                 Some stuff
@@ -80,6 +71,7 @@ import Panel from '../BaseComponents/Panels/Panel.vue';
 import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Scales from '../BaseComponents/Scales.vue';
 import Table from '../BaseComponents/Table.vue';
+import TableFilter from '../BaseComponents/TableFilter.vue';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
@@ -92,15 +84,16 @@ export default {
       'v-panel-group': PanelGroup,
       'v-panel': Panel,
       'v-scales': Scales,
-      'v-table': Table
+      'v-table': Table,
+      'v-filter': TableFilter
     },
     data: function () {
       return {
           scales: {
               xScale: d3.scaleLinear(),
-              yScale: d3.scaleLinear()
+              yScale: d3.scaleLinear(),
           },
-          test: []
+          filterBy: 'All'
       }
     },
     computed: {
@@ -111,10 +104,19 @@ export default {
         return this.$store.getters.getYScales;
       },
       files() {
-        return this.$store.getters.getFetched1D;
+        if(this.filterBy === 'All') {
+            return this.$store.getters.getFetched1D;
+        } else {
+            var temp = this.$store.getters.getFetched1D;
+            return temp.filter(el => el.jobTitle === this.filterBy);
+        }
       }
     },
     methods: {
+        filterJob(filter) {
+            console.log("Making a change to filter:", filter);
+            this.filterBy = filter;
+        },
       fetchData() {
         var url = document.getElementById("urlid").getAttribute("data-urlid");
         var files = JSON.parse(url);
@@ -174,10 +176,18 @@ export default {
             
         },
         deep: true
+        },
+        filterBy: function() {
+            console.log("Filter changed: " + this.filterBy);
         }
     }
   }
 </script>
 
 <style scoped>
+#Stitch {
+  position: absolute;
+  left: 0;
+  right: 0;  
+}
 </style>

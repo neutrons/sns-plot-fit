@@ -8,15 +8,15 @@
             <div :class="'panel panel-' + PANELTYPE">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        <a data-toggle="collapse" :href="'#'+titleFormatted" @click="isCollapsed = !isCollapsed">{{MAINTITLE}} 
+                        <span class="collapser" @click="isCollapsed = !isCollapsed">{{MAINTITLE}} 
                             <span class="pull-right" v-if="isCollapsed"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                             <span class="pull-right" v-else><i class="fa fa-minus-square" aria-hidden="true"></i></span>
-                        </a>
+                        </span>
                     </div>
                 </div>
                 <!-- End Collasible panel -->
 
-                <div :id="MAINTITLE" class="panel-collapse collapse in">
+                <div class="panel-collapse collapse in">
                     <div class="group-body">
 
                         <!-- Insert Panel Components Here  -->
@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import $ from 'jquery'
+
 export default {
   props: {
       MAINTITLE: {
@@ -52,6 +54,12 @@ export default {
     titleFormatted() {
         return this.MAINTITLE.replace(" ", "-");
     }
+  },
+  mounted() {   
+      $('.collapser').click(function() {
+          
+          $(this).parent().parent().next().collapse('toggle');
+      })
   }
 }
 </script>
@@ -66,9 +74,10 @@ export default {
     padding-top: 10px;
 }
 
-a {
-padding: 10px;
-display: block;
+.collapser {
+    padding: 10px;
+    display: block;
+    cursor: pointer;
 }
 
 .panel-group-bg {

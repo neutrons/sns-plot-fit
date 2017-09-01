@@ -18,7 +18,11 @@
         <app-2d v-show="toggleView === '2D'"></app-2d>
       </transition>   -->
 
-       <transition name="slide" mode="out-in">
+       <!-- <transition name="slide" mode="out-in">
+        <app-new-1D v-show="toggleView === '1D'"></app-new-1D>
+      </transition>  -->
+
+      <transition name="slide" mode="out-in">
         <app-stitch v-show="toggleView === 'Stitch'"></app-stitch>
       </transition> 
   </div>
@@ -30,6 +34,7 @@ import $ from 'jquery';
 
 import main1D from './components/1D/Main_1D.vue';
 import main2D from './components/2D/Main_2D.vue';
+import New1D from './components/New1D.vue';
 import Stitch from './components/Stitch/Stitch.vue';
 import Title from './components/Title.vue';
 
@@ -44,7 +49,8 @@ export default {
     'app-1d': main1D,
     'app-2d': main2D,
     'app-stitch': Stitch,
-    'app-title': Title
+    'app-title': Title,
+    'app-new-1D': New1D
   },
   data: function () {
     return {
@@ -173,12 +179,8 @@ div#textnode {
   transition: all 1.25s ease;
 }
 
-.slide-enter {
+.slide-enter-to, .slide-leave-to {
   transform: translateX(100vw);
-}
-
-.slide-leave {
-  transform: translateX(-100vw);
 }
 
 /* #main1D.slide-enter {
@@ -195,11 +197,11 @@ div#textnode {
   transform: translateX(-100vw);
 } */
 
-#main1D, #main2D, #mainStitch {
+/* #main1D, #main2D, #Stitch, #New1D {
   position: absolute;
   right: 0;
   left: 0;
-}
+} */
 
 /* Error Message Styles  */
 #error-container {

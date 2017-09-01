@@ -59,6 +59,15 @@ const store = new Vuex.Store({
     },
     getUploaded2D: state => {
 
+    },
+    getGroups: state => (type) => {
+      
+      if(type === '1D') {
+        return state.fetched1DFiles.map(el => el.jobTitle)
+      } else {
+        return state.fetched2DFiles.map(el => el.jobTitle)
+      }
+
     }
   },
   mutations: {
