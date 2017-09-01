@@ -5,8 +5,11 @@
         <div class="col-lg-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
                 <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
-                    <div class="panel-body">
-                        <v-filter @filter-job="filterJob"></v-filter>
+                    <div>
+                        <v-filter 
+                            @filter-job="filterJob"
+                            @sort-by-date="sortByDate"
+                        ></v-filter>
                     </div>
                     <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']" v-show="files.length > 0">
                         <template>
@@ -93,7 +96,8 @@ export default {
               xScale: d3.scaleLinear(),
               yScale: d3.scaleLinear(),
           },
-          filterBy: 'All'
+          filterBy: 'All',
+          sortBy: 'ascending'
       }
     },
     computed: {
@@ -104,18 +108,32 @@ export default {
         return this.$store.getters.getYScales;
       },
       files() {
-        if(this.filterBy === 'All') {
-            return this.$store.getters.getFetched1D;
+        
+        var temp = this.$store.getters.getFetched1D;
+        console.log("Sorting by: " + this.sortBy);
+        if(this.sortBy === 'ascending') {
+            if(this.filterBy === 'All') {
+                return temp.sort(function(a,b) { return new Date(a.dateModified) - new Date(b.dateModified); });
+            } else {
+                return temp.filter(el => el.jobTitle === this.filterBy)
+                    .sort(function(a,b) { return new Date(a.dateModified) - new Date(b.dateModified); });
+            }
         } else {
-            var temp = this.$store.getters.getFetched1D;
-            return temp.filter(el => el.jobTitle === this.filterBy);
+            if(this.filterBy === 'All') {
+                return temp.sort(function(a,b) { return new Date(b.dateModified) - new Date(a.dateModified); });
+            } else {
+                return temp.filter(el => el.jobTitle === this.filterBy)
+                    .sort(function(a,b) { return new Date(b.dateModified) - new Date(a.dateModified); });
+            }
         }
       }
     },
     methods: {
         filterJob(filter) {
-            console.log("Making a change to filter:", filter);
             this.filterBy = filter;
+        },
+        sortByDate(direction) {
+            this.sortBy = direction;
         },
       fetchData() {
         var url = document.getElementById("urlid").getAttribute("data-urlid");
@@ -179,6 +197,8 @@ export default {
         },
         filterBy: function() {
             console.log("Filter changed: " + this.filterBy);
+        },
+        sortBy: function() {
         }
     }
   }
