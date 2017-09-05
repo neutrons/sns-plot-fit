@@ -17,11 +17,9 @@
 export default {
     props: {
         fieldNames: {
-        type: Array,
-        default() {
-            return ['Field 1', 'Field 2', 'Field 3']
+            type: Array,
+            default: ['Field 1', 'Field 2', 'Field 3']
         }
-    }
     },
     data: function () {
       return {

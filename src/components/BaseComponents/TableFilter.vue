@@ -1,15 +1,15 @@
 <template>
 <div class="form-inline">
-    <div id="filter-selection" class="input-group">
-        <span id="select-tag" class="input-group-addon"><i class="fa fa-filter" aria-hidden="true"></i> Filter:</span>
-        <select id="group-selection" class="form-control input-sm" v-model="filterChoice">
+    <div class="filter-selection input-group">
+        <span class="select-tag input-group-addon"><i class="fa fa-filter" aria-hidden="true"></i> Filter:</span>
+        <select class="group-selection form-control input-sm" v-model="filterChoice">
                                 <option>All</option>
                                 <option v-for="job in jobs">{{ job }}</option>
                                 </select>
     </div>
 
-    <button id="btn-sort" class="btn btn-sm btn-default" v-if="sortToggle" @click="sortByDate('descending')"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> Date Modified</button>
-    <button id="btn-sort" class="btn btn-sm btn-default" v-else @click="sortByDate('ascending')"><i class="fa fa-sort-amount-desc" aria-hidden="true"></i> Date Modified</button>
+    <button class="btn-sort btn btn-sm btn-default" v-if="sortToggle" @click="sortByDate('descending')"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> Date Modified</button>
+    <button class="btn-sort btn btn-sm btn-default" v-else @click="sortByDate('ascending')"><i class="fa fa-sort-amount-desc" aria-hidden="true"></i> Date Modified</button>
 </div>
 </template>
 

@@ -18,11 +18,15 @@
         <app-2d v-show="toggleView === '2D'"></app-2d>
       </transition>   -->
 
-       <!-- <transition name="slide" mode="out-in">
+      <transition name="slide" appear>
         <app-new-1D v-show="toggleView === '1D'"></app-new-1D>
-      </transition>  -->
+      </transition>  
 
-      <transition name="slide" mode="out-in">
+       <transition name="slide" appear>
+        <app-new-2D v-show="toggleView === '2D'"></app-new-2D>
+      </transition> 
+
+      <transition name="slide" appear>
         <app-stitch v-show="toggleView === 'Stitch'"></app-stitch>
       </transition> 
   </div>
@@ -35,6 +39,7 @@ import $ from 'jquery';
 import main1D from './components/1D/Main_1D.vue';
 import main2D from './components/2D/Main_2D.vue';
 import New1D from './components/New1D.vue';
+import New2D from './components/New2D.vue';
 import Stitch from './components/Stitch/Stitch.vue';
 import Title from './components/Title.vue';
 
@@ -50,11 +55,12 @@ export default {
     'app-2d': main2D,
     'app-stitch': Stitch,
     'app-title': Title,
-    'app-new-1D': New1D
+    'app-new-1D': New1D,
+    'app-new-2D': New2D
   },
   data: function () {
     return {
-      toggleView: 'Stitch',
+      toggleView: '2D',
       errorCount: 0
     }
   },
@@ -103,7 +109,6 @@ export default {
   },
   methods: {
     switchPlotComponent: function(plotType) {
-      console.log("Changing plot type: ", plotType);
       this.toggleView = plotType;
     },
     generateError: function(errorMSG) {
@@ -132,6 +137,7 @@ export default {
 /* Set Font-Awesome Globally for all sub-components  */
  @import '../node_modules/font-awesome/css/font-awesome.min.css'; 
 
+/* Global Styles  */
 html,
 body {
    margin:0;
@@ -173,35 +179,27 @@ div#textnode {
     transition: font-size 175ms;
 }
 
+.form-control {
+  text-align-last: center;
+}
+
 /* Transition effects for Sliding  */
-.slide-enter-active,
+
+.slide-enter-active {
+  transition: all 1.0s ease;
+}
 .slide-leave-active {
-  transition: all 1.25s ease;
+  transition: all 1.0s ease;
+}
+.slide-enter
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 
-.slide-enter-to, .slide-leave-to {
-  transform: translateX(100vw);
+.slide-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
-
-/* #main1D.slide-enter {
-  transform: translateX(100vw);
-}
-#main1D.slide-leave-active {
-  transform: translateX(100vw);
-}
-
-#main2D.slide-enter {
-  transform: translateX(-100vw);
-}
-#main2D.slide-leave-active {
-  transform: translateX(-100vw);
-} */
-
-/* #main1D, #main2D, #Stitch, #New1D {
-  position: absolute;
-  right: 0;
-  left: 0;
-} */
 
 /* Error Message Styles  */
 #error-container {

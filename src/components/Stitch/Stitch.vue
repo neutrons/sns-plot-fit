@@ -25,17 +25,18 @@
                             </template>
                         </v-table>
                     </div>
-
                 </v-panel>
+
                 <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success">
                     <div v-show="uploadFiles.length > 0">
-                     <v-table :fieldNames="['Fit', 'Plot', 'Filename']">
+                     <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
                             <template>
                                 <tr v-for="f in uploadFiles">
                                     <template>
                                         <td><input type="checkbox"></td>
                                         <td><input type="checkbox"></td>
                                         <td>{{f.filename}}</td>
+                                        <td><button class="btn btn-danger btn-xs"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -65,7 +66,7 @@
             </v-panel>
         </div>
     </div>
-    <div>
+    <!-- <div>
         <h1>Practice content:</h1>
         <button class="btn btn-primary" @click="fetchData">Fetch Data</button>
         <li><label class="btn btn-primary navbar-btn"><i class="fa fa-file" aria-hidden="true"></i> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
@@ -77,7 +78,7 @@
                 Some stuff
             </div>
         </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -126,26 +127,24 @@ export default {
       },
       fetchFiles() {
         
-        var temp = this.$store.getters.getFetched1D;
+        var temp = _.cloneDeep(this.$store.getters.getFetched1D);
         if(this.sortBy === 'ascending') {
             if(this.filterBy === 'All') {
                 return temp.sort(function(a,b) { return new Date(a.dateModified) - new Date(b.dateModified); });
             } else {
-                return temp.filter(el => el.jobTitle === this.filterBy)
-                    .sort(function(a,b) { return new Date(a.dateModified) - new Date(b.dateModified); });
+                return temp.filter(el => el.jobTitle === this.filterBy);
             }
         } else {
             if(this.filterBy === 'All') {
                 return temp.sort(function(a,b) { return new Date(b.dateModified) - new Date(a.dateModified); });
             } else {
-                return temp.filter(el => el.jobTitle === this.filterBy)
-                    .sort(function(a,b) { return new Date(b.dateModified) - new Date(a.dateModified); });
+                return temp.filter(el => el.jobTitle === this.filterBy);
             }
         }
       },
       uploadFiles() {
-          console.log(this.$store.getters.getUploaded1D);
-          return this.$store.getters.getUploaded1D;
+        //   console.log("Store 1D", this.$store.getters.getUploaded1D);
+          return _.cloneDeep(this.$store.getters.getUploaded1D);
       }
     },
     methods: {
@@ -155,95 +154,11 @@ export default {
         sortByDate(direction) {
             this.sortBy = direction;
         },
-      fetchData() {
-        var url = document.getElementById("urlid").getAttribute("data-urlid");
-        var files = JSON.parse(url);
-
-        var temp1D = [];
-        var temp2D = [];
-        var vm = this;
-
-        for (let i = 0, len = files.length; i < len; i++) {
-            var temp1DFiles = [];
-            var temp2DFiles = [];
-            var jobTitle = files[i].job_title;
-            var jobModified = files[i].date_modified;
-
-            files[i].results.forEach(function(item) {
-                
-                if( vm.dataType(item.url) === '1D') {
-                // console.log("1D Item", {url: url, group: group, fileName: name});
-                temp1D.push({  id: item.id, filename: item.filename, url: item.url, jobTitle: jobTitle, dateModified: jobModified });
-
-                } else if ( vm.dataType(item.url) === '2D') {
-                // console.log("2D Item", {url: url, group: group, fileName: name});
-                temp2D.push({  id: item.id, filename: item.filename, url: item.url, jobTitle: jobTitle, dateModified: jobModified });
-
-                } else {
-                let errorMsg = "<strong>Error! </strong>" + item.url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
-                eventBus.$emit('error-message', errorMsg);
-                }
-            });
-        
+        setScales(xscale, yscale) {
+            this.scales.xScale = this.$store.getters.getXScaleByID(xscale);
+            this.scales.yScale = this.$store.getters.getYScaleByID(yscale);
         }
-        
-        // Add Fetched File List(s) to Global Store
-        if(temp1D.length > 0) this.$store.commit('addFetched1DFiles', temp1D);
-        if(temp2D.length > 0) this.$store.commit('addFetched2DFiles', temp2D);  
-    },
-    uploadFile: function(files) {
-
-      // CODE TO UPLOAD DATA FILES //
-        var vm = this;
-
-        var temp1D = [];
-        var temp2D = [];
-
-        for (var i = 0, len = files.length; i < len; i++) {         
-          // loadFiles(files[i]);
-          let url = files[i].name;
-          let blob = files[i];
-
-          if( vm.dataType(url) === '1D') {
-              // console.log("1D Item", {url: url, group: group, fileName: name});
-              let filename = url.substr(0, url.lastIndexOf('.txt')) || url;
-              temp1D.push( {url: url, filename: filename, blob: blob});
-
-            } else if ( vm.dataType(url) === '2D') {
-              // console.log("2D Item", {url: url, group: group, fileName: name});
-              let filename = url.substr(0, url.lastIndexOf('.dat')) || url;
-              temp2D.push( {url: url, filename: filename, blob: blob});
-
-            } else {
-              // error, don't read for now
-              let errorMsg = "<strong>Error! </strong>" + url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
-              eventBus.$emit('error-message', errorMsg);
-            }
-        }
-
-        if(temp1D.length > 0) this.$store.commit('addUploaded1DFiles', temp1D); //eventBus.$emit('add-uploaded-1D', temp1D);
-        if(temp2D.length > 0) this.$store.commit('addUploaded2DFiles', temp2D); //eventBus.$emit('add-uploaded-2D', temp2D);
-
-        document.getElementById("file-upload").value = '';
-        // END OF CODE TO UPLOAD FILES //
-    },
-    dataType(fname) {
-      if (/.*Iq.txt$/.exec(fname)) {
-        // File matches 1D data
-        return '1D';
-      } else if (/.*.dat$/.exec(fname)) {
-        // File matches for 2D data
-        return '2D';
-      } else {
-        // File doesn't match for either 1D or 2D, throw error message
-        return false;
-      }
-    },
-      setScales(xscale, yscale) {
-          this.scales.xScale = this.$store.getters.getXScaleByID(xscale);
-          this.scales.yScale = this.$store.getters.getYScaleByID(yscale);
-      }
-    },
+        },
     watch: {
         scales: {
             handler: function() {

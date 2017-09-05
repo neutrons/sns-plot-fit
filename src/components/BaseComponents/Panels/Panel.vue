@@ -20,10 +20,6 @@
             </div>
         </div>
     </div>
-
-    
-    
-
 </div>
 </template>
 
@@ -45,11 +41,6 @@ export default {
   data: function() {
     return {
         isCollapsed: false
-    }
-  },
-  computed: {
-    titleFormatted() {
-        return this.PANELTITLE.replace(" ", "-");
     }
   },
   mounted() {   
