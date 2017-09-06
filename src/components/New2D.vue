@@ -78,6 +78,10 @@
 
       <div class="col-lg-10">
         <v-panel PANELTITLE="2D Plot" PANELTYPE="primary">
+            <!-- Plot reset button inserted into panel heading  -->
+            <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
+            <v-button :onClick="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</v-button>
+            
             <div id="plot-2D"></div>
         </v-panel>
       </div>
@@ -95,6 +99,7 @@ import Panel from './BaseComponents/Panels/Panel.vue';
 import PanelGroup from './BaseComponents/Panels/PanelGroup.vue';
 import Table from './BaseComponents/Table.vue';
 import Filter from './BaseComponents/TableFilter.vue';
+import Button from './BaseComponents/ResetButton.vue';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
@@ -112,7 +117,8 @@ export default {
       'v-panel-group': PanelGroup,
       'v-panel': Panel,
       'v-table': Table,
-      'v-filter': Filter
+      'v-filter': Filter,
+      'v-button': Button
     },
     data: function () {
         return {
@@ -202,6 +208,9 @@ export default {
             d3.select(".tooltip-2D").remove();
 
             this.$store.commit('remove2DFile', filename);
+        },
+        resetPlot() {
+            this.hexPlot(this.currentData, this.hexSettings);
         }
     },
     watch: {
@@ -317,7 +326,6 @@ export default {
 
 <style scoped>
 @import '../assets/styles/plot-2D-styles.css';
-
 #New2D {
   position: absolute;
   left: 0;

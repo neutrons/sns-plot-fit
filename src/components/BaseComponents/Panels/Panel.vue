@@ -5,10 +5,12 @@
     <div :class="'panel panel-' + PANELTYPE">
         <div class="panel-heading">
             <div class="panel-title">
-                <span class="collapser" @click="isCollapsed = !isCollapsed">{{PANELTITLE}} 
+                <slot name="header-content"></slot>
+                <div class="collapser" @click="isCollapsed = !isCollapsed">
+                    <span>{{PANELTITLE}} </span>
                     <span class="pull-right collapser-icon" v-if="isCollapsed"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <span class="pull-right" v-else><i class="fa fa-minus-square" aria-hidden="true"></i></span>
-                </span>
+                </div>
             </div>
         </div>
 
@@ -66,5 +68,11 @@ export default {
 
 .panel {
     margin: 0px;
+}
+
+.header-content {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 </style>
