@@ -45,9 +45,8 @@ export default {
         isCollapsed: false
     }
   },
-  mounted() {   
-      $('.collapser').click(function() {
-          
+  mounted() {
+      $('.collapser').click(function() {          
           $(this).parent().parent().next().collapse('toggle');
       })
   }
