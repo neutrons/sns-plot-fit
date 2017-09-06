@@ -14,7 +14,7 @@
                         </div>
                         <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles">
+                                <tr v-for="f in fetchFiles('1D', sortBy, filterBy)">
                                     <template>
                                         <td><input type="checkbox"></td>
                                         <td><input type="checkbox"></td>
@@ -99,6 +99,9 @@ import TableFilter from '../BaseComponents/TableFilter.vue';
 //       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../../assets/javascript/eventBus';
 
+/* Import Mixins */
+import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
+
 export default {
     name: 'Stitch',
     components: {
@@ -118,29 +121,13 @@ export default {
           sortBy: 'ascending'
       }
     },
+    mixins: [fetchFiles],
     computed: {
       xScales() {
         return this.$store.getters.getXScales;
       },
       yScales() {
         return this.$store.getters.getYScales;
-      },
-      fetchFiles() {
-        
-        var temp = _.cloneDeep(this.$store.getters.getFetched1D);
-        if(this.sortBy === 'ascending') {
-            if(this.filterBy === 'All') {
-                return temp.sort(function(a,b) { return new Date(a.dateModified) - new Date(b.dateModified); });
-            } else {
-                return temp.filter(el => el.jobTitle === this.filterBy);
-            }
-        } else {
-            if(this.filterBy === 'All') {
-                return temp.sort(function(a,b) { return new Date(b.dateModified) - new Date(a.dateModified); });
-            } else {
-                return temp.filter(el => el.jobTitle === this.filterBy);
-            }
-        }
       },
       uploadFiles() {
         //   console.log("Store 1D", this.$store.getters.getUploaded1D);

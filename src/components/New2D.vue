@@ -14,7 +14,7 @@
                         </div>
                         <v-table :fieldNames="['Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles" :class="isPlotted(f.filename)">
+                                <tr v-for="f in fetchFiles('2D', sortBy, filterBy)" :class="isPlotted(f.filename)">
                                     <template>
                                         <td><input type="checkbox" :value="f.filename" v-model="filePlotChoices" @change="setFileToPlot"></td>
                                         <td>{{f.filename}}</td>
@@ -109,10 +109,11 @@ import { eventBus } from '../assets/javascript/eventBus';
 /* Import Mixins */
 import { parse2D, read2DData, get2DData } from '../assets/javascript/mixins/readData.js';
 import { hexPlot } from '../assets/javascript/mixins/hexPlot.js';
+import { fetchFiles } from '../assets/javascript/mixins/fetchFiles.js';
 
 export default {
     name: 'New2D',
-    mixins: [parse2D, read2DData, get2DData, hexPlot],
+    mixins: [parse2D, read2DData, get2DData, hexPlot, fetchFiles],
     components: {
       'v-panel-group': PanelGroup,
       'v-panel': Panel,
@@ -136,25 +137,6 @@ export default {
         }
     },
     computed: {
-      fetchFiles() {
-        
-        var temp = _.cloneDeep(this.$store.getters.getFetched2D);
-        if(this.sortBy === 'ascending') {
-            if(this.filterBy === 'All') {
-                return temp.sort(function(a,b) { return new Date(a.dateModified) - new Date(b.dateModified); });
-            } else {
-                return temp.filter(el => el.jobTitle === this.filterBy)
-                    .sort(function(a,b) { return new Date(a.dateModified) - new Date(b.dateModified); });
-            }
-        } else {
-            if(this.filterBy === 'All') {
-                return temp.sort(function(a,b) { return new Date(b.dateModified) - new Date(a.dateModified); });
-            } else {
-                return temp.filter(el => el.jobTitle === this.filterBy)
-                    .sort(function(a,b) { return new Date(b.dateModified) - new Date(a.dateModified); });
-            }
-        }
-      },
       uploadFiles() {
         //   console.log("Store 1D", this.$store.getters.getUploaded1D);
           return _.cloneDeep(this.$store.getters.getUploaded2D);
@@ -261,64 +243,6 @@ export default {
                 d3.select(".chart-2D").remove();
                 d3.select(".tooltip-2D").remove();
             }
-
-            // Once found, retrieve file's url/blob
-            
-            // Once url/blob retrieved call store to read & parse data
-
-            // Then store data for future use
-
-            // Then call plot function on the data and current hexsettings.
-            
-
-            // Create url list
-            // var file2D = null;
-            
-            // if(this.fileToPlot === null) {
-            //     this.filePlotChoices = [];
-            //     console.log("File to plot is null");
-            //     //eventBus.$emit("set-2D-data", null);
-            // } else {
-            //     console.log("There is a file to plot:", this.fileToPlot);
-            //     var temp = this.$store.getters.getSaved2D(this.fileToPlot);
-            //     if(temp === undefined)
-            //         console.log("No saved 2D: ", this.fileToPlot);
-            //     else
-            //         console.log("Saved 2D: " , temp);
-                // var inGet = document.getElementById(this.fileToPlot + '-Get');
-                // var inUpload = document.getElementById(this.fileToPlot + '-Upload');
-
-                // // If in GET List fetch data
-                // if(inGet) {
-                // for(let i = 0, len=this.GETFILES.length; i < len; i++) {
-                //     var found = false;
-                //     for(let j = 0, len=this.GETFILES[i].files.length; j < len; j++) {
-                //     var item = this.GETFILES[i].files[j];
-                //     if(item.filename === this.fileToPlot) {
-                //         file2D = {url: item.url, filename: item.filename};
-                //         found = true;
-                //         break;
-                //     }
-                //     }
-
-                //     if(found) break;
-                // }
-
-                // this.get2DData(file2D);
-
-                // } else if(inUpload) {
-                // for(let i = 0, len=this.UPLOADEDFILES.length; i < len; i++) {
-                //     var item = this.UPLOADEDFILES[i];
-                //     if(item.filename === this.fileToPlot) {
-                //     file2D = item;
-                //     break;
-                //     }
-                // }
-
-                // this.read2DData(file2D);
-                // } else {
-                // console.log("No file to select");
-                // }
         }
     }
   }

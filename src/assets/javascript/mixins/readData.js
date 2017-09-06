@@ -11,11 +11,88 @@ export const read1DData = {
     }
 }
 
+export const pull1DData = {
+    methods: {
+        pull1DData(fileURLs, tempData) {
+            // Next fetch unstored files
+                /*****************************************
+                 When a user selects data to be plotted,
+                it first must be fetched, either from
+                an HTTP request or FileReader. In order
+                to handle pulling multiple files
+                asynchronously, JavaScript promises are used.
+                That way we can "wait" for all data
+                to be loaded asynchronously before moving on
+                to plotting the data.
+                *****************************************/
+                var vm = this;
+
+                var promises = fileURLs.map(function(url) {
+
+                    if(url.type === 'fetch') {
+                        return axios.get(url.url).then(function(response) {
+                            console.log("axios response data", response);
+
+                            let data = vm.parse1D(response.data, url.filename);
+                            
+                            console.log("cleaned up axios data", data);
+                            vm.$store.commit('store1DData', { filename: url.filename, data: data});
+                            //vm.storedData[url.filename] = response.data;
+                            return {filename: url.filename, data: data};
+                        });        
+                    } else if(url.type === 'upload') {
+
+                        // Turn file reader into a promise in order to
+                        // wait on the async reading of files with Promise.all below
+                        return new Promise((resolve, reject) => {
+                            var reader = new FileReader();
+
+                            reader.onload = function (e) {  
+                                // Get file content
+                                var content = e.target.result;
+
+                                // Code to read Upload 2D file
+                                let data = vm.parse1D(url.filename, content);
+                                vm.$store.commit('store1DData', { filename: url.filename, data: data});
+                                // vm.storedData[url.filename] = content;
+                                
+                                resolve({filename: url.filename, data: data});    
+                            }
+                            
+                            reader.readAsText(url.url, "UTF-8");
+                        });
+                    } else {
+                        //console.log("Sorry, uknown type.");
+                    }
+                });
+
+                if(promises.length === 0) {
+                    // eventBus.$emit('disable-buttons', true);
+                    // eventBus.$emit('set-current-data', tempData, this.filesToPlot);
+                    console.log("No data to plot!");
+                } else {
+                    Promise.all(promises).then(results => {
+                        let plotData = _.concat(tempData, results);
+                        console.log("Data is ready to be plotted!", plotData);
+                        // var data = results.cocnat(tempData);
+                        // console.log("Results", results);
+                        // console.log("tempData", tempData);
+                        // var fetchData = results.map(function(result) {
+                        //     return vm.parse1D(result.data, result.filename);
+                        // });
+
+                        // var data = fetchData.concat(tempData);
+                        
+                        // eventBus.$emit('disable-buttons', true);
+                        // eventBus.$emit('set-current-data', data, this.filesToPlot);
+                    }).catch(reason => { console.log(reason) });
+                }
+        }
+    }
+}
+
 /* Function to Parse 1D Data Files */
 export const parse1D =  {
-    mounted() {
-        console.log("From parse 1d");
-    },
     methods: {
         parse1D(data, filename) {
             function beforeFirstChunk1D(chunk) {
@@ -70,7 +147,6 @@ export const get2DData = {
         get2DData(file) {
             var vm = this;
             
-            // console.log("URL = ", file.url);
             // If data is not stored, fetch it, store it, and send data to be plotted
             axios.get(file.url).then(response => {
 
@@ -78,9 +154,7 @@ export const get2DData = {
                 vm.$store.commit('store2DData', { filename: file.filename, data: results.data });
                 vm.currentData = results.data;
 
-                // Push to 2D Get Files list
-                //eventBus.$emit('set-2D-data', {data: results.data, filename: file.filename});
-                //console.log("You've got the data, now plot it!", results);
+                // Call plotting function
                 vm.hexPlot(results.data, vm.hexSettings);
             });
             
@@ -106,13 +180,9 @@ export const read2DData = {
                 // Push to 2D Get Files list
                 vm.$store.commit('store2DData', {filename: file.filename, data: results.data });
                 vm.currentData = results.data;
-                
-                vm.hexPlot(results.data, vm.hexSettings);
-                // vm.storedData[file.filename] = results.data;
 
-                // Push to 2D Get Files list
-                // eventBus.$emit('set-2D-data', {data: results.data, filename: file.filename});
-                //eventBus.$emit('add-uploaded-2D', {data: results.data, fileName: fileName });          
+                // Call plotting function
+                vm.hexPlot(results.data, vm.hexSettings);        
             }
             reader.readAsText(file.blob, "UTF-8");
         }
@@ -122,9 +192,6 @@ export const read2DData = {
 
 /* Function to Parse 2D Data Files */
 export const parse2D = {
-    mounted() {
-        // console.log("From parse 2d");
-    },
     methods: {
         parse2D(data) {
         function beforeFirstChunk2D(chunk) {

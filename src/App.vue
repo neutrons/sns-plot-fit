@@ -60,7 +60,7 @@ export default {
   },
   data: function () {
     return {
-      toggleView: '2D',
+      toggleView: '1D',
       errorCount: 0
     }
   },

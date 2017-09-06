@@ -14,7 +14,7 @@
             </div>
         </div>
 
-        <div class="panel-collapse collapse in">
+        <div :class="'panel-collapse collapse' + collapsed">
             <div class="panel-body">
                 <slot>
                     <p>Panel body content goes here.</p>
@@ -38,12 +38,24 @@ export default {
       PANELTYPE: {
           type: String,
           default: 'default'
+      },
+      COLLAPSE: {
+          type: Boolean,
+          default: false
       }
   },
   data: function() {
     return {
-        isCollapsed: false
+        isCollapsed: this.COLLAPSE ? true : false
     }
+  },
+  computed: {
+      collapsed() {
+        if(this.COLLAPSE === false)
+            return " in";
+        else
+            return "";
+      }
   },
   mounted() {
       $('.collapser').click(function() {          

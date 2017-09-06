@@ -17,7 +17,7 @@
             </select>
         </div>
         <br>
-        <button class="btn btn-warning btn-sm btn-block" @click="resetScales"><span class="glyphicon glyphicon-refresh"></span> Reset Scales</button>
+        <button class="btn btn-warning btn-sm btn-block" @click="resetScales"><i class="fa fa-refresh" aria-hidden="true"></i> Reset Scales</button>
     </fieldset>
 </div>
 </template>
@@ -67,7 +67,5 @@ export default {
 </script>
 
 <style scoped>
-.form-control {
-    text-align-last: center;
-}
+
 </style>
