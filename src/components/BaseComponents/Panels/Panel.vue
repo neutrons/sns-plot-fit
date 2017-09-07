@@ -8,8 +8,8 @@
                 <slot name="header-content"></slot>
                 <div class="collapser" @click="isCollapsed = !isCollapsed">
                     <span>{{PANELTITLE}} </span>
-                    <span class="pull-right collapser-icon" v-if="isCollapsed"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
-                    <span class="pull-right" v-else><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <span class="collapser-icon" v-if="isCollapsed"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
+                    <span class="collapser-icon" v-else><i class="fa fa-minus-square" aria-hidden="true"></i></span>
                 </div>
             </div>
         </div>
@@ -69,9 +69,11 @@ export default {
 .panel-heading {
     text-align: center;
     padding: 0px;
+    border-radius: 0px !important;
 }
 
 .collapser {
+    position: relative;
     padding: 10px;
     display: block;
     cursor: pointer;
@@ -85,5 +87,14 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.collapser-icon {
+    position: absolute;
+    right: 10px;
+}
+
+.panel {
+    border-radius: 0px !important;
 }
 </style>

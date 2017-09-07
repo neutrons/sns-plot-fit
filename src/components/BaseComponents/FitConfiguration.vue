@@ -11,7 +11,7 @@
     <!-- Equation Input/Editer-->
     <div class="input-group">
         <span class="input-group-addon">Equation</span>
-        <input type="text" class="form-control" id="fit-equation" :value="equation" @keyup.enter="enterEquation" :disabled="DISABLE || fit === 'None'" @focus="isFocus = !isFocus" @blur="isFocus = !isFocus">
+        <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="DISABLE || fit === 'None'" @focus="isFocus = !isFocus" @blur="isFocus = !isFocus">
     </div>
 
     <p class="equation-title" v-if="isFocus">Press <strong>[enter]</strong> to change equation</p>
@@ -26,35 +26,43 @@
             </div>
         </div>
 
-        <button class="btn btn-danger btn-sm btn-block" @click="resetFit"><i class="fa fa-minus-circle" aria-hidden="true"></i> Remove Fit</button>
+        <button class="btn btn-danger btn-sm btn-block" @click="resetFit"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Fit</button>
     </fieldset>
 
 </div>
 </template>
 
 <script>
+import { eventBus } from '../../assets/javascript/eventBus.js';
+
 export default {
     name: 'FitConfig',
     props: {
         DISABLE: {
             type: Boolean,
             default: false
+        },
+        EQUATION: {
+            type: String,
+            required: true
         }
     },
     data: function () {
       return {
         isFocus: false,
-        coefficients: {
-            'm': 1.23,
-            'b': 3000
-        },
-        fit: 'Linear',
-        equation: 'mx + b'
+        coefficients: {},
+        fit: 'Linear'
       }
+    },
+    created() {
+        eventBus.$on('reset-scales', this.resetScales);
+        eventBus.$on('set-fit-back', this.setFitBack);
+
+        // Listen to emit from plotCurrentData.js
+        eventBus.$on('update-coefficients', this.updateCoefficients);
     },
     computed: {
         fits() {
-            // console.log(this.$store.getters.getFitConfigs);
             return this.$store.getters.getFitConfigs;
         },
         isCoefficients() {
@@ -64,27 +72,36 @@ export default {
     },
     methods: {
         resetFit() {
-            this.setFitSettings();
-            // eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
+            this.coefficients = {};
+            this.$emit('reset-file-fit-choice');
         },
         setFitSettings() {
-            //eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
+            this.$emit('set-fit-settings', _.cloneDeep(this.fitSettings));
         },
         enterEquation() {
-            //let newEq = document.getElementById('fit-equation').value;
-            // eventBus.$emit('set-equation', newEq);
+            let newEq = document.getElementById('fit-equation').value;
+            this.$emit('set-equation', newEq);
         },
         enterCoefficients() {
-            // let c = {};
-            // for(let key in this.coefficients) {
-            //     let val = document.getElementById(key+"-input").value;
-            //     c[key] = +val;
-            // }
+            let c = {};
+            for(let key in this.coefficients) {
+                let val = document.getElementById(key+"-input").value;
+                c[key] = +val;
+            }
 
-            // eventBus.$emit("coefficients-updated", _.cloneDeep(c));
+            eventBus.$emit("coefficients-updated", _.cloneDeep(c));
         },
         updateCoefficients(coeff) {
             this.coefficients = coeff;
+        },
+        setFitBack() {
+            this.fit = 'Linear';
+        }
+    },
+    watch: {
+        fit: function() {
+            if(this.fit === 'None') this.coefficients = {};
+            this.$emit('set-fit', this.fit);
         }
     }
   }

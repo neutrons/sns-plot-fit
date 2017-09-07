@@ -38,9 +38,6 @@ export default {
         }
       }
     },
-    computed: {
-
-    },
     methods: {
         resetSettings() {
             this.fitSettings.damping = 0.001;
@@ -49,10 +46,9 @@ export default {
             this.fitSettings.errorTolerance = 0.001;
             
             this.setFitSettings();
-            // eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
         },
         setFitSettings() {
-            //eventBus.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
+            this.$emit('set-fit-settings', _.cloneDeep(this.fitSettings)); // clone object or it passes fitSettings by reference not value
         }
     }
   }

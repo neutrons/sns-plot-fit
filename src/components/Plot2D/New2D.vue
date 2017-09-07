@@ -1,7 +1,7 @@
 <template>
-  <div id="New2D" class="col-lg-12">
+  <div id="New2D" class="col-md-12">
       <div class="container-fluid">
-      <div class="col-lg-2">
+      <div class="col-md-2">
         <!-- Files Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
                 <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
@@ -76,11 +76,11 @@
         </v-panel-group>
       </div>
 
-      <div class="col-lg-10">
+      <div class="col-md-10">
         <v-panel PANELTITLE="2D Plot" PANELTYPE="primary">
             <!-- Plot reset button inserted into panel heading  -->
             <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
-            <v-button :onClick="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</v-button>
+            <v-reset-button :onClick="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</v-reset-button>
             
             <div id="plot-2D"></div>
         </v-panel>
@@ -95,21 +95,21 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 
 /* Import Components */
-import Panel from './BaseComponents/Panels/Panel.vue';
-import PanelGroup from './BaseComponents/Panels/PanelGroup.vue';
-import Table from './BaseComponents/Table.vue';
-import Filter from './BaseComponents/TableFilter.vue';
-import Button from './BaseComponents/ResetButton.vue';
+import Panel from '../BaseComponents/Panels/Panel.vue';
+import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
+import Table from '../BaseComponents/Table.vue';
+import Filter from '../BaseComponents/TableFilter.vue';
+import ResetButton from '../BaseComponents/ResetButton.vue';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
-import { eventBus } from '../assets/javascript/eventBus';
+import { eventBus } from '../../assets/javascript/eventBus';
 
 /* Import Mixins */
-import { parse2D, read2DData, get2DData } from '../assets/javascript/mixins/readData.js';
-import { hexPlot } from '../assets/javascript/mixins/hexPlot.js';
-import { fetchFiles } from '../assets/javascript/mixins/fetchFiles.js';
+import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/readData.js';
+import { hexPlot } from '../../assets/javascript/mixins/hexPlot.js';
+import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 
 export default {
     name: 'New2D',
@@ -119,7 +119,7 @@ export default {
       'v-panel': Panel,
       'v-table': Table,
       'v-filter': Filter,
-      'v-button': Button
+      'v-button': ResetButton
     },
     data: function () {
         return {
@@ -249,7 +249,7 @@ export default {
 </script>
 
 <style scoped>
-@import '../assets/styles/plot-2D-styles.css';
+@import '../../assets/styles/plot-2D-styles.css';
 #New2D {
   position: absolute;
   left: 0;

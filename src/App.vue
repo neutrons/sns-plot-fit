@@ -38,8 +38,8 @@ import $ from 'jquery';
 
 import main1D from './components/1D/Main_1D.vue';
 import main2D from './components/2D/Main_2D.vue';
-import New1D from './components/New1D.vue';
-import New2D from './components/New2D.vue';
+import New1D from './components/Plot1D/New1D.vue';
+import New2D from './components/Plot2D/New2D.vue';
 import Stitch from './components/Stitch/Stitch.vue';
 import Title from './components/Title.vue';
 

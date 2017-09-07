@@ -14,8 +14,8 @@
 
       <div class="collapse navbar-collapse" id="navbarElements">
         <ul id="menu-buttons" class="nav navbar-nav navbar-right">
-          <li><button class="btn btn-primary navbar-btn" @click="fetchData">Fetch Data</button></li>
-          <li><label class="btn btn-primary navbar-btn"><i class="fa fa-file" aria-hidden="true"></i> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
+          <li><button class="btn btn-success navbar-btn" @click="fetchData">Fetch Data</button></li>
+          <li><label class="btn btn-success navbar-btn"><i class="fa fa-file" aria-hidden="true"></i> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label></li>
         </ul>
 
         <ul id="view-switches" class="nav navbar-nav navbar-right">
@@ -78,8 +78,8 @@ fetchData() {
                     temp2D.push({  id: item.id, filename: item.filename, url: item.url, jobTitle: jobTitle, dateModified: jobModified });
 
                     } else {
-                    let errorMsg = "<strong>Error! </strong>" + item.url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
-                    eventBus.$emit('error-message', errorMsg);
+                      let errorMsg = "<strong>Error! </strong>" + item.url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
+                      eventBus.$emit('error-message', errorMsg);
                     }
                 });
             
@@ -165,15 +165,16 @@ fetchData() {
 #title {
   background: white;
   border: none;
-  border-bottom: 1px solid gainsboro;
+  box-shadow: 0px 1px 10px gainsboro;
 }
 
 /* Link Styles for Switching Component Views */
 #view-switches li {
-  margin: 0px 10px;
+  margin: 0px;
   text-align: center;
 }
 #view-switches a {
+  transition: all 0.5s ease;
   color: #00672c;
 }
 
@@ -188,6 +189,9 @@ fetchData() {
 
 #menu-buttons {
   text-align: center;
+  background-color: rgb(220, 220, 220);
+  padding: 0px 0px 0px 10px;
+  border-left: 3px solid #cccccc;
 }
 
 #menu-buttons .btn {

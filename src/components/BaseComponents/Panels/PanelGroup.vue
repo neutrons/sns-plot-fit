@@ -65,9 +65,14 @@ export default {
 </script>
 
 <style scoped>
+.panel {
+    border-radius: 0px !important;
+}
+
 .panel-heading {
     text-align: center;
     padding: 0px;
+    border-radius: 0px !important;
 }
 
 .group-body {

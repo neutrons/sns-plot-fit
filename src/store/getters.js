@@ -118,6 +118,23 @@ export const getFitConfigs = state => {
     return state.fitConfigurations
 }
 
+export const getFitConfigsByID = state => (id) => {
+    return state.fitConfigurations[id]
+}
+
+export const getFitConfigsXTrans = state => (id) => {
+    return state.fitConfigurations[id].xTransformation
+}
+
+export const getFitConfigsYTrans = state => (id) => {
+    return state.fitConfigurations[id].yTransformation
+}
+
+export const getFitSettings = state => {
+    return state.fitSettings
+}
+
+
 export const get1DURL = state => (type, files) => {
     var temp = []
 

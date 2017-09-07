@@ -31,14 +31,14 @@ export const pull1DData = {
 
                     if(url.type === 'fetch') {
                         return axios.get(url.url).then(function(response) {
-                            console.log("axios response data", response);
+                            // console.log("axios response data", response);
 
                             let data = vm.parse1D(response.data, url.filename);
                             
-                            console.log("cleaned up axios data", data);
+                            // console.log("cleaned up axios data", data);
                             vm.$store.commit('store1DData', { filename: url.filename, data: data});
                             //vm.storedData[url.filename] = response.data;
-                            return {filename: url.filename, data: data};
+                            return data;
                         });        
                     } else if(url.type === 'upload') {
 
@@ -56,7 +56,7 @@ export const pull1DData = {
                                 vm.$store.commit('store1DData', { filename: url.filename, data: data});
                                 // vm.storedData[url.filename] = content;
                                 
-                                resolve({filename: url.filename, data: data});    
+                                resolve(data);    
                             }
                             
                             reader.readAsText(url.url, "UTF-8");
@@ -69,11 +69,11 @@ export const pull1DData = {
                 if(promises.length === 0) {
                     // eventBus.$emit('disable-buttons', true);
                     // eventBus.$emit('set-current-data', tempData, this.filesToPlot);
-                    console.log("No data to plot!");
+                    // console.log("No data to plot!");
                 } else {
                     Promise.all(promises).then(results => {
                         let plotData = _.concat(tempData, results);
-                        console.log("Data is ready to be plotted!", plotData);
+                        // console.log("Data is ready to be plotted!", plotData);
                         // var data = results.cocnat(tempData);
                         // console.log("Results", results);
                         // console.log("tempData", tempData);
@@ -81,6 +81,7 @@ export const pull1DData = {
                         //     return vm.parse1D(result.data, result.filename);
                         // });
 
+                        vm.setCurrentData(plotData, this.filesToPlot);
                         // var data = fetchData.concat(tempData);
                         
                         // eventBus.$emit('disable-buttons', true);
