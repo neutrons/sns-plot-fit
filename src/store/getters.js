@@ -152,7 +152,7 @@ export const get1DURL = state => (type, files) => {
             let t = state.uploaded1DFiles[i];
 
             if(files.indexOf(t.filename) > -1) {
-                temp.push({type: 'upload', url: t.url, filename: t.filename});
+                temp.push({type: 'upload', url: t.blob, filename: t.filename});
             }
         }
     }

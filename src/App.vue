@@ -203,7 +203,7 @@ div#textnode {
 
 /* Error Message Styles  */
 #error-container {
-  position: absolute;
+  position: fixed;
   z-index: 9999;
   top: 25px;
   left: 25px;

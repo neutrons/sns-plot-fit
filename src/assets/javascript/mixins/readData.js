@@ -46,13 +46,13 @@ export const pull1DData = {
                         // wait on the async reading of files with Promise.all below
                         return new Promise((resolve, reject) => {
                             var reader = new FileReader();
-
+                            
                             reader.onload = function (e) {  
                                 // Get file content
                                 var content = e.target.result;
 
                                 // Code to read Upload 2D file
-                                let data = vm.parse1D(url.filename, content);
+                                let data = vm.parse1D(content, url.filename);
                                 vm.$store.commit('store1DData', { filename: url.filename, data: data});
                                 // vm.storedData[url.filename] = content;
                                 

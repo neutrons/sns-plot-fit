@@ -119,7 +119,7 @@ export default {
       'v-panel': Panel,
       'v-table': Table,
       'v-filter': Filter,
-      'v-button': ResetButton
+      'v-reset-button': ResetButton
     },
     data: function () {
         return {

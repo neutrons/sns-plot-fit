@@ -89,7 +89,6 @@ export default {
             fitData: null,
             brushSelection: null,
             isError: false,
-            checkError: true
         }
     },
     computed: {
@@ -98,6 +97,10 @@ export default {
         }
     },
     methods: {
+        checkError() {
+            let len = document.getElementById("error-container").children.length;
+            return len > 0 ? false : true;
+        },
         plotData: function (parameters) {
             
             //Setting 'this' as global when calling vue data variables inside nested functions
@@ -115,13 +118,11 @@ export default {
                 d3.select(".tooltip-1D").remove();
                 self.isError = !self.isError;
                 
-                if(self.checkError) {
-                    self.checkError = false;
+                if(self.checkError()) {
                     let errorMsg = "<strong>Warning!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.";
                     eventBus.$emit('error-message', errorMsg);
-                } else {
-                    setTimeout(function() { self.checkError = true; }, 1000);
                 }
+
                 return;
             } else {
                 self.isError = false;
@@ -628,12 +629,9 @@ export default {
                     self.fitData = self.fitData.filter( el => el.y > 0);
 
                     if(self.fitData.length <= 0) {
-                        if(self.checkError) {
-                            self.checkError = false;
+                        if(self.checkError()) {
                             let errorMsg = "<strong>Warning!</strong> Fitted y-values < 0, thus no fit-line to display.";
                             eventBus.$emit('error-message', errorMsg);
-                        } else {
-                            setTimeout(function() { self.checkError = true; }, 1000);
                         }
                     }
                     // Emit coefficients to controls panel
@@ -660,12 +658,9 @@ export default {
                     });
                 } else {
                     // Notify user that more data needs to be selected for the fit
-                    if(self.checkError) {
-                        self.checkError = false;
+                    if(self.checkError()) {
                         let errorMsg = "<strong>Warning!</strong> Not enough data selected, please select 2 or more points. If plot is blank, no data is available for generating a fit line.";
                         eventBus.$emit('error-message', errorMsg);
-                    } else {
-                        setTimeout(function() { self.checkError = true; }, 1000);
                     }
                 }
             }
