@@ -79,7 +79,6 @@
       <div class="col-md-10">
         <v-panel PANELTITLE="2D Plot" PANELTYPE="primary">
             <!-- Plot reset button inserted into panel heading  -->
-            <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
             <v-reset-button :onClick="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</v-reset-button>
             
             <div id="plot-2D"></div>
@@ -138,7 +137,6 @@ export default {
     },
     computed: {
       uploadFiles() {
-        //   console.log("Store 1D", this.$store.getters.getUploaded1D);
           return _.cloneDeep(this.$store.getters.getUploaded2D);
       }
     },
@@ -178,8 +176,6 @@ export default {
             this.fileToPlot = this.filePlotChoices[0] ? this.filePlotChoices[0] : null;
         },
         removeFile(filename) {
-            // console.log("Removing file: ", filename);
-
             // If file is in fileToPlot or filePlotChoices, remove it
             // and remove plot elements
             if(this.fileToPlot === filename) {
@@ -205,36 +201,29 @@ export default {
         },
         fileToPlot: function() {
             // Check if file is in the stored 2d list
-            // a value of '999' means not data is stored
+            // a value of '999' means no data is stored
             if(this.fileToPlot !== null) {
                 var data2D = this.$store.getters.getSaved2D(this.fileToPlot);
 
                 // If not, Check if the file is in the Fetched list or Uploaded
                 if(data2D === '999') {
-                    // console.log("Not in stored list");
                     var inUpload2D = this.$store.getters.inUploaded2D(this.fileToPlot);
 
                     if(inUpload2D) {
                         // It's an uploaded file so read the data from blob
-                        // console.log("In uploaded list", inUpload2D);
                         this.read2DData(inUpload2D)
-
-                        // Then store data in stored list
 
                     } else {
                         // It's a fetched file so get file then get the data url
                         var file = this.$store.getters.get2DFile(this.fileToPlot);
-                        // console.log("In fetched list", file);
                         this.get2DData(file);
 
                         // Then store data in stored list
                     }
                 } else {
                     // File is in saved, so let's plot it
-                    // console.log("In stored list");
                     this.currentData = data2D;
                     this.hexPlot(data2D, this.hexSettings);
-                    // this.plotData(data, this.hexSettings);
                 }
             } else {
                 // console.log("No files select.");
