@@ -21,6 +21,7 @@ export default {
     position: relative;
     top: 10px;
     left: 10px;
+    z-index: 999;
 }
 
 .btn-reset:active, .btn-reset:target, .btn-reset:focus {

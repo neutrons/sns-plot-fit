@@ -83,12 +83,6 @@ export default {
     margin: 0px;
 }
 
-.header-content {
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
 .collapser-icon {
     position: absolute;
     right: 10px;
