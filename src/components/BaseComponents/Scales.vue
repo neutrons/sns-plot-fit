@@ -4,7 +4,7 @@
         <!-- X Scale Selection -->
         <div class="input-group">
             <span class="input-group-addon">X Scale</span>
-            <select class="form-control" v-model="xScale" @change="setScales">
+            <select ref='x_select' class="form-control" @change="$emit('update-scales', 'X', $event.target.value)">
                 <option v-for="scale in xScales">{{scale}}</option>
             </select>
         </div>
@@ -12,12 +12,12 @@
         <!-- Y Scale Selection -->
         <div class="input-group">
             <span class="input-group-addon">Y Scale</span>
-            <select class="form-control" v-model="yScale" @change="setScales">
+            <select ref='y_select' class="form-control" @change="$emit('update-scales', 'Y', $event.target.value)">
                 <option v-for="scale in yScales">{{scale}}</option>
             </select>
         </div>
         <br>
-        <button class="btn btn-warning btn-sm btn-block" @click="resetScales"><i class="fa fa-refresh" aria-hidden="true"></i> Reset Scales</button>
+        <button class="btn btn-warning btn-sm btn-block" @click="resetScale"><i class="fa fa-refresh" aria-hidden="true"></i> Reset Scales</button>
     </fieldset>
 </div>
 </template>
@@ -34,8 +34,7 @@ export default {
     },
     data: function () {
       return {
-          xScale: 'X',
-          yScale: 'Y'
+
       }
     },
     computed: {
@@ -53,14 +52,8 @@ export default {
       }
     },
     methods: {
-        resetScales() {
-            this.xScale = 'X';
-            this.yScale = 'Y';
-            this.$emit('update-scales', this.xScale, this.yScale);
-        },
-        setScales() {
-            //this.$emit('update-scales', this.xScale, this.yScale)
-            this.$emit('update-scales', this.xScale, this.yScale);
+        resetScale() {
+            this.$emit('reset-scales', 'X', 'Y')
         }
     }
   }

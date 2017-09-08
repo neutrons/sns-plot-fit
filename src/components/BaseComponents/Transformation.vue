@@ -15,7 +15,7 @@
             
             <p class="transformation-title" v-if="isTransFocus">Press <strong>[enter]</strong> to change transformations</p>
             <div id="transformation-error"></div>
-            <button class="btn btn-warning btn-sm btn-block" @click="resetTransformation"><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
+            <button class="btn btn-warning btn-sm btn-block" @click="resetTransformations"><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
         </fieldset>
 
     </div>
@@ -70,8 +70,8 @@ export default {
                 this.$emit('set-transformations', newXTrans, newYTrans);
             }
         },
-        resetTransformation() {
-            this.$emit('reset-transformation');
+        resetTransformations() {
+            this.$emit('reset-transformations');
         }
     }
   }

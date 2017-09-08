@@ -63,7 +63,9 @@
 
                 <v-scales 
                     :DISABLE="disable"
-                    @update-scales="setScales">
+                    @update-scales="setScales"
+                    @reset-scales="resetScales"
+                    ref="scales">
                 </v-scales>
 
             </v-panel>
@@ -74,7 +76,7 @@
                     :XTRANS="$data.currentConfiguration.xTransformation"
                     :YTRANS="$data.currentConfiguration.yTransformation"
                     @set-transformations="setTransformations"
-                    @reset-transformation="resetTransformation"
+                    @reset-transformations="resetTransformations"
                     :DISABLE="disable"
                 ></v-transformation>
             </v-panel>
@@ -88,6 +90,7 @@
                     @set-fit-setting="setFitSettings"
                     @set-equation="setEquation"
                     @reset-file-fit-choice="resetFileFitChoice"
+                    ref="fit_configurations"
                 ></v-fit-config>
             </v-panel>
 
@@ -96,6 +99,7 @@
                 <v-levenberg
                     :DISABLE="this.fileToFit === null"
                     @set-fit-settings="setFitSettings"
+                    ref="fit_settings"
                 ></v-levenberg>
             </v-panel>
 
@@ -176,10 +180,6 @@ export default {
             yLabel: "I",
             xLabel: "Q",
             note: ""
-        },
-        scales: {
-            xScale: d3.scaleLinear(),
-            yScale: d3.scaleLinear(),
         },
         filterBy: 'All',
         sortBy: 'ascending',
@@ -395,11 +395,26 @@ export default {
         setFitFile(filename) {
              this.fileToFit = filename;
         },
-        setScales(x, y) {
-            this.scales.xScale = this.$store.getters.getXScaleByID(x);
-            this.scales.xScaleType = x;
-            this.scales.yScale = this.$store.getters.getYScaleByID(y);
-            this.scales.yScaleType = y;
+        setScales(type, value) {
+
+            if(type === 'X') {
+                this.scales.xScaleType = value;
+                this.scales.xScale = this.$store.getters.getXScaleByID(value);
+            } else {
+                this.scales.yScaleType = value;
+                this.scales.yScale = this.$store.getters.getYScaleByID(value);
+            }
+        },
+        resetScales() {
+            
+            // Reset the selected options to default scales
+            this.$refs.scales.$refs.y_select.value = 'Y';
+            this.$refs.scales.$refs.x_select.value = 'X';
+
+            this.scales.xScaleType = 'X';
+            this.scales.xScale = this.$store.getters.getXScaleByID('X');
+            this.scales.yScaleType = 'Y';
+            this.scales.yScale = this.$store.getters.getYScaleByID('Y');
         },
         setFit(fitname) {
             // console.log("Setting new fit configuration:", fitname);
@@ -422,21 +437,25 @@ export default {
             return _.flatten(temp);
         },
         setParameters() {
-            if(this.selectedData.length > 0) {
-                // console.log("Setting parameters", this.selectedData);
-                eventBus.$emit("set-parameters", {
-                    data: this.prepData(this.selectedData),
-                    colorDomain: this.$store.getters.getColorDomain,
-                    scales: this.scales,
-                    fileToFit: this.fileToFit,
-                    fitConfiguration: this.currentConfiguration,
-                    fitSettings: this.fitSettings
-                });
-            } else {
-                console.log("No data to plot...");
-                //reset brush selection
-                eventBus.$emit("reset-brush-selection");
-            }
+            // Next tick is used to wait for all parameter changes to be updated
+            // This is a to prevent the 'De-selecting' of all plotted data at once.
+            this.$nextTick(function() {
+                if(this.selectedData.length > 0) {
+                    // console.log("Setting parameters", this.selectedData);
+                    eventBus.$emit("set-parameters", {
+                        data: this.prepData(this.selectedData),
+                        colorDomain: this.$store.getters.getColorDomain,
+                        scales: this.scales,
+                        fileToFit: this.fileToFit,
+                        fitConfiguration: this.currentConfiguration,
+                        fitSettings: this.fitSettings
+                    });
+                } else {
+                    // Remove any elements previously plotted
+                    d3.select(".chart-1D").remove();
+                    d3.select(".tooltip-1D").remove();
+                }
+            })
         },
         setEquation(eq) {
             this.currentConfiguration.equation = eq;
@@ -449,7 +468,7 @@ export default {
         setFitSettings(options) {
             this.fitSettings = options;
         },
-        resetTransformation() {
+        resetTransformations() {
             let xt = this.$store.getters.getFitConfigsXTrans(this.currentConfiguration.fit);
             let yt = this.$store.getters.getFitConfigsYTrans(this.currentConfiguration.fit);
 
@@ -472,7 +491,7 @@ export default {
                 eventBus.$emit("set-fit-back");
                 //eventBus.$emit("set-fit-settings-back");
                 this.setFitSettings(this.$store.getters.getFitSettings);
-                this.setFit("Linear"); 
+                this.setFit("Linear");
             } else {
                 this.selectedData.forEach( el => {
                     el.dataTransformed = fd.transformData(el.data, this.currentConfiguration);
@@ -517,6 +536,7 @@ export default {
             // Watch if a file is selected, if so enable buttons and append selected data to a list
             handler: function () {
                 var vm = this;
+
                 // If a file is unselected while it has a fit, unselect the fit
                 if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
                     this.fileToFit = null;
@@ -524,14 +544,35 @@ export default {
                 }
                 
                 if(this.filesToPlot.length === 0) {
-                    //Remove any elements previously plotted
+                    // There should be nothing to plot or fit,
+                    // so reset everything to defaults.
+                    // Remove any elements previously plotted
                     d3.select(".chart-1D").remove();
                     d3.select(".tooltip-1D").remove();
+
+                    // Reset disable to default 'true'
                     this.disable = true;
+                    
+                    // Reset X & Y Scales back to default
+                    this.resetScales();
+
+                    // Reset X & Y Transformations back to default
+                    this.resetTransformations();
+
+                    // Reset Levenberg Settings to default
+                    this.$refs.fit_settings.resetSettings();
+                    
+                    // Reset coefficients to an empty object
+                    this.$refs.fit_configurations.$data.coefficients = {};
+                    
+                    // Reset selected data to an empty array
+                    this.selectedData = [];
+
+                    // Reset brush selection
+                    eventBus.$emit("reset-brush-selection");
+                    
                     console.log("No files to plot");
 
-                    this.selectedData = [];
-                    
                 } else {
                     this.disable = false;
                     var filesToFetch = [];
