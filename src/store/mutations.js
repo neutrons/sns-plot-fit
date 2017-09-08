@@ -34,6 +34,23 @@ export const store2DData = (state, data) => {
     state.saved2DData[tempName] = tempData
 }
 export const remove1DFile = (state, filename) => {
+    let index = null;
+
+    for (let i = 0, len = state.uploaded1DFiles.length; i < len; i++) {
+
+        let temp = state.uploaded1DFiles[i];
+        if (filename === temp.filename) {
+            index = i
+
+            break
+        }
+    }
+
+    // Remove from 2D Uploads list
+    state.uploaded1DFiles.splice(index, 1);
+
+    // Delete from stored list if present
+    delete state.saved1DData[filename];
 
 }
 export const remove2DFile = (state, filename) => {

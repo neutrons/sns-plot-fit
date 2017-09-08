@@ -42,13 +42,18 @@
                             @change="setFileToFit"></td>
                                         <td><input :id="f.filename + '-Upload1D'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
                                         <td>{{f.filename}}</td>
-                                        <td><button class="btn btn-danger btn-xs"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
                         </v-table>
                     </div>
                 </v-panel>
+
+                <div id="btn-selections" v-if="isFiles" class="row">
+                    <div class="col-md-6"><button class="btn btn-default btn-select-all" @click="checkAll"><i class="fa fa-plus-circle" aria-hidden="true"></i> Select All</button></div>
+                    <div class="col-md-6"><button class="btn btn-default btn-unselect-all" @click="clearSelected" :disabled="disable"><i class="fa fa-minus-circle" aria-hidden="true"></i> Unselect All</button></div>
+                </div>
             </v-panel-group>
 
         <!-- Controls Main Panel  -->
@@ -204,9 +209,58 @@ export default {
       uploadFiles() {
         //   console.log("Store 1D", this.$store.getters.getUploaded1D);
           return _.cloneDeep(this.$store.getters.getUploaded1D);
+      },
+      isFiles() {
+          let fetchLength = this.$store.getters.getFetched1D.length;
+          let uploadLength = this.$store.getters.getUploaded1D.length;
+          
+          return fetchLength > 0 || uploadLength > 0 ? true : false;
       }
     },
     methods: {
+        clearSelected() {
+            this.fileFitChoice = [];
+            this.filesToPlot = [];
+            this.fileToFit = null;
+        },
+        checkAll() {
+            
+            let fetched = this.$store.getters.getFetched1D;
+            let uploaded = this.$store.getters.getUploaded1D;
+
+            for(let i = 0, len = fetched.length; i < len; i++) {
+                let fname = fetched[i].filename;
+
+                if(this.filesToPlot.indexOf(fname) === -1) {
+                    this.filesToPlot.push(fname);
+                }
+            }
+            
+            for(let i = 0, len = uploaded.length; i < len; i++) {
+                let fname = uploaded[i].filename;
+
+                if(this.filesToPlot.indexOf(fname) === -1) {
+                    this.filesToPlot.push(fname);
+                }
+            }
+        },
+        removeFile(filename) {
+            console.log("Removing file: ", filename);
+
+            // If file is in fileToPlot or filePlotChoices, remove it
+            // and remove plot elements
+            let index = this.filesToPlot.indexOf(filename);
+            if(this.filesToPlot.indexOf(filename) > -1) {
+                
+                if(this.fileToFit === filename) {
+                    this.fileToFit = null;
+                }
+
+                this.filesToPlot.splice(index,1);
+            }
+
+            this.$store.commit('remove1DFile', filename);
+        },
         filterJob(filter) {
             this.filterBy = filter;
         },
@@ -259,11 +313,6 @@ export default {
             this.fileFitChoice = [];
             this.fileToFit = null;
         },
-        clearSelected () {
-            this.fileFitChoice = [];
-            this.filesToPlot = [];
-            this.fileToFit = null;
-        },
         uncheckFile(filename) {
             if(this.filesToPlot.indexOf(filename) > -1) {
                 this.filesToPlot.splice(this.filesToPlot.indexOf(filename),1);
@@ -280,25 +329,6 @@ export default {
                 }
             }
             eventBus.$emit('remove-uploaded-files');
-        },
-        checkAll() {
-            var vm = this;
-            for(let i = 0, len = this.GETFILES.length; i < len; i++) {
-                let content = this.GETFILES[i].files;
-                // console.log("CONTENT", content);
-                content.forEach(function(item) {
-                if(vm.filesToPlot.indexOf(item.filename) === -1) {
-                    vm.filesToPlot.push(item.filename);
-                }
-                });
-            }
-            
-            for(let i = 0, len = this.UPLOADEDFILES.length; i < len; i++) {
-                let fname = this.UPLOADEDFILES[i].filename;
-                if(this.filesToPlot.indexOf(fname) === -1) {
-                this.filesToPlot.push(fname);
-                }
-            }
         },
         deleteFile(filename) {
             // Remove file from stored list
@@ -542,5 +572,11 @@ export default {
   position: absolute;
   left: 0;
   right: 0;
+}
+
+.btn-select-all, .btn-unselect-all {
+  width: 100%;
+  margin-top: 10px;
+  white-space: normal;
 }
 </style>
