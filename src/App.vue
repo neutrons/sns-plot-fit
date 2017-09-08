@@ -10,14 +10,6 @@
       
       <app-title></app-title>
 
-      <!-- <transition name="slide" mode="out-in">
-        <app-1d v-show="toggleView === '1D'"></app-1d>
-      </transition>
-
-      <transition name="slide" mode="out-in">
-        <app-2d v-show="toggleView === '2D'"></app-2d>
-      </transition>   -->
-
       <transition name="slide" appear>
         <app-new-1D v-show="toggleView === '1D'"></app-new-1D>
       </transition>  
@@ -60,7 +52,7 @@ export default {
   },
   data: function () {
     return {
-      toggleView: '1D',
+      toggleView: 'Stitch',
       errorCount: 0
     }
   },
