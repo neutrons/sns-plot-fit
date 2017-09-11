@@ -605,6 +605,10 @@ export default {
                     return e[0] <= d.x && d.x <= e[1];
                 })
 
+                /* If GUINER do e[1] = xmax * rG
+                    
+                */
+
                 if (self.brushSelection !== null && selectedData.length > 1) {
 
                     slider.selectAll(".dotslider")
