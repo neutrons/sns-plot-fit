@@ -60,8 +60,7 @@ export default {
         plotData(parameters) {
             //Setting 'this' as global when calling vue data variables inside nested functions
             var vm = this;
-
-            console.log("File count: ", parameters.fileCount);
+            
             var data = parameters.data; //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
             data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x) && d.y > 0);

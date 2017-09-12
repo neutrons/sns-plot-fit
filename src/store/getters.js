@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const get1DFiles = state => {
 
 }
@@ -72,7 +74,7 @@ export const getSaved1D = state => (file) => {
     if (temp === undefined) {
         return '999'
     } else {
-        return temp;
+        return _.cloneDeep(temp)
     }
 }
 
@@ -82,7 +84,7 @@ export const getSaved2D = state => (file) => {
     if (temp === undefined) {
         return '999'
     } else {
-        return temp;
+        return _.cloneDeep(temp)
     }
 }
 
@@ -115,23 +117,23 @@ export const inUploaded2D = state => (fname) => {
 }
 
 export const getFitConfigs = state => {
-    return state.fitConfigurations
+    return _.cloneDeep(state.fitConfigurations)
 }
 
 export const getFitConfigsByID = state => (id) => {
-    return state.fitConfigurations[id]
+    return _.cloneDeep(state.fitConfigurations[id])
 }
 
 export const getFitConfigsXTrans = state => (id) => {
-    return state.fitConfigurations[id].xTransformation
+    return _.cloneDeep(state.fitConfigurations[id].xTransformation)
 }
 
 export const getFitConfigsYTrans = state => (id) => {
-    return state.fitConfigurations[id].yTransformation
+    return _.cloneDeep(state.fitConfigurations[id].yTransformation)
 }
 
 export const getFitSettings = state => {
-    return state.fitSettings
+    return _.cloneDeep(state.fitSettings)
 }
 
 

@@ -16,7 +16,7 @@
                             <template>
                                 <tr v-for="f in fetchFiles('1D', sortBy, filterBy)">
                                     <template>
-                                        <td><input :id="f.filename + '-Fetch1D'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
+                                        <td><input :id="f.filename + '-FetchStitch'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
                                         <td>{{f.filename}}</td>
                                         <td>{{f.jobTitle}}</td>
                                     </template>
@@ -168,7 +168,7 @@ export default {
             var tempURLs = [], fetchList = [], uploadList = [];
 
             for(let i = 0, len = files.length; i < len; i++) {
-                var inFetch = document.getElementById(files[i] + "-Fetch1D");
+                var inFetch = document.getElementById(files[i] + "-FetchStitch");
 
                 if(inFetch) {
                     // console.log("In fetch:", inFetch);
@@ -195,8 +195,7 @@ export default {
         },
         setCurrentData(chosenData, checkList) {
 
-            console.log("setting current data:", chosenData, checkList);
-            // console.log("selected data should be empty:", this.selectedData);
+            // console.log("setting current data:", chosenData, checkList);
             
             var vm = this;
             if (checkList.length == 0) {

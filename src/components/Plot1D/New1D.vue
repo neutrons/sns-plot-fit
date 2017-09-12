@@ -487,6 +487,7 @@ export default {
         fileToFit: function () {
             // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
             // If fileToFit is set to Null, don't transform anything and reset the fit to none
+            console.log("File is being fit:", this.fileToFit);
             if(this.fileToFit === null) {
                 eventBus.$emit("set-fit-back");
                 //eventBus.$emit("set-fit-settings-back");

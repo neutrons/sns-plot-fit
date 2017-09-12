@@ -104,7 +104,7 @@ export default {
         plotData: function (parameters) {
             
             //Setting 'this' as global when calling vue data variables inside nested functions
-            var self = this;
+            var vm = this;
 
             var data = parameters.data; //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
@@ -116,16 +116,16 @@ export default {
                 //Remove any elements previously plotted
                 d3.select(".chart-1D").remove();
                 d3.select(".tooltip-1D").remove();
-                self.isError = !self.isError;
+                vm.isError = !vm.isError;
                 
-                if(self.checkError()) {
+                if(vm.checkError()) {
                     let errorMsg = "<strong>Warning!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.";
                     eventBus.$emit('error-message', errorMsg);
                 }
 
                 return;
             } else {
-                self.isError = false;
+                vm.isError = false;
             }
 
             //Remove any elements previously plotted
@@ -133,7 +133,7 @@ export default {
             d3.select(".tooltip-1D").remove();
             
             // Set isFit to check if a file is selected to fit
-            var isFit = self.isFit;
+            var isFit = vm.isFit;
 
             // Set Color Scale
             // color domain is set in order for filenames to have
@@ -244,7 +244,7 @@ export default {
                 .attr("class", "chart");
 
             //Add a Line Plot Function
-            self.plotLine = d3.line()
+            vm.plotLine = d3.line()
                 .x(function (d) {
                     return xScale(d.x);
                 })
@@ -259,7 +259,7 @@ export default {
                 // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
                 var fitResults = fd.fitData(dataToFit, parameters.fitConfiguration.equation, parameters.fitSettings);
                 var coefficients = fitResults.coefficients;
-                self.fitData = fitResults.fittedData;
+                vm.fitData = fitResults.fittedData;
                 var fitError = fitResults.error;
                 
                 // Assign new fit equation to property data
@@ -301,14 +301,14 @@ export default {
                     .attr("y2", 0);
 
                 // set initial brushSelection
-                if(self.brushSelection === null) {
-                    self.brushSelection = xScale.range(); // Default selection [0, max(x)]
+                if(vm.brushSelection === null) {
+                    vm.brushSelection = xScale.range(); // Default selection [0, max(x)]
                 }
 
                 slider.append("g")
                     .attr("class", "brush")
                     .call(brush)
-                    .call(brush.move, self.brushSelection); 
+                    .call(brush.move, vm.brushSelection); 
                     // brush.move allows you to set the current selection for the brush element
                     // this will dynamically update according to the last selection made.
                     // This is to allow for persistent selections upon the plot being re-drawn.
@@ -388,7 +388,7 @@ export default {
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                     .datum(d.values)
                     .attr("class", "pointlines")
-                    .attr("d", self.plotLine)
+                    .attr("d", vm.plotLine)
                     .style("fill", "none")
                     .style("stroke", function () {
                         return d.color = color(d.key);
@@ -564,22 +564,39 @@ export default {
                 plot.append("path")
                     .attr("clip-path", "url(#clip)")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    .datum(self.fitData)
+                    .datum(vm.fitData)
                     .attr("class", "fitted-line")
-                    .attr("d", self.plotLine)
+                    .attr("d", vm.plotLine)
                     .style("fill", "none")
                     .style("stroke", color(parameters.fileToFit));
 
                 // Add fit results below chart
-                d3.select("td#fit-file").html("<b>File: </b>" + parameters.fileToFit);
+                d3.select("td#fit-file").html("<b>File tessssst: </b>" + parameters.fileToFit);
                 d3.select("td#fit-type").html("<b>Fit Type:</b> " + parameters.fitConfiguration.fit);
                 d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
-                d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toFixed(3) + ", " + maxX.toFixed(3) + ")");
-                d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toFixed(3));
+                d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toExponential(5) + ", " + maxX.toExponential(5) + ")");
+                d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
                 
                 d3.select("td#fit-coefficients").html(function() {
                     let coeffString = "<ul>";
                     for( let key in coefficients) {
+                        
+                        if(parameters.fitConfiguration.fit === 'Guinier') {
+
+                            if(key === 'I0') {
+                                let I0 = Math.exp(coefficients[key]);
+                            
+                                coeffString += "<li>Real " + key + " = " + I0 + "</li>";
+                                continue;
+                            }
+
+                            if(key === 'Rg') {
+                                let RgX = coefficients[key] * xScale.invert(vm.brushSelection[1]);
+                                coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX + "</li>";
+                                continue;
+                            }
+                        }
+
                         coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
                     }
                     coeffString += "</ul>";
@@ -597,7 +614,7 @@ export default {
             // Create brush function redraw scatterplot with selection
             function brushed() {
                 // console.log("Calling brush...");
-                self.brushSelection = d3.event.selection;
+                vm.brushSelection = d3.event.selection;
                 
                 var e = d3.event.selection.map(xScale2.invert, xScale2);
                 
@@ -606,10 +623,10 @@ export default {
                 })
 
                 /* If GUINER do e[1] = xmax * rG
-                    
+
                 */
 
-                if (self.brushSelection !== null && selectedData.length > 1) {
+                if (vm.brushSelection !== null && selectedData.length > 1) {
 
                     slider.selectAll(".dotslider")
                         .style("stroke", function (d) {
@@ -622,18 +639,18 @@ export default {
               
                     fitResults = fd.fitData(selectedData, parameters.fitConfiguration.equation, parameters.fitSettings);
                     coefficients = fitResults.coefficients;
-                    self.fitData = fitResults.fittedData;
+                    vm.fitData = fitResults.fittedData;
                     fitError = fitResults.error;
 
                     // Re-assign updated fit equation and fitline function
-                    self.fitEquation = fitResults.fitEquation;
-                    //self.fitLineFunction = brushPlotLine;
+                    vm.fitEquation = fitResults.fitEquation;
+                    //vm.fitLineFunction = brushPlotLine;
 
                     // Filter out fitted y's <=0, this is to prevent Y-scale: log(y <= 0) and Y values cannot be negative.
-                    self.fitData = self.fitData.filter( el => el.y > 0);
+                    vm.fitData = vm.fitData.filter( el => el.y > 0);
 
-                    if(self.fitData.length <= 0) {
-                        if(self.checkError()) {
+                    if(vm.fitData.length <= 0) {
+                        if(vm.checkError()) {
                             let errorMsg = "<strong>Warning!</strong> Fitted y-values < 0, thus no fit-line to display.";
                             eventBus.$emit('error-message', errorMsg);
                         }
@@ -642,19 +659,36 @@ export default {
                     eventBus.$emit('update-coefficients', coefficients);
 
                     // Add line plot
-                    plot.select(".fitted-line").data([self.fitData])
-                        .attr("d", self.plotLine);
+                    plot.select(".fitted-line").data([vm.fitData])
+                        .attr("d", vm.plotLine);
 
                     // Revise fit results below chart
-                    d3.select("td#fit-file").html("<b>File: </b>" + parameters.fileToFit);
+                    d3.select("td#fit-file").html("<b>File tesssst: </b>" + parameters.fileToFit);
                     d3.select("td#fit-type").html("<b>Fit Type:</b> " + parameters.fitConfiguration.fit);
                     d3.select("td#fit-points").html("<b>No. Points:</b> " + selectedData.length);
-                    d3.select("td#fit-range").html("<b>Fit Range:</b> (" + e[0].toFixed(3) + ", " + e[1].toFixed(3) + ")");
-                    d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toFixed(3));
+                    d3.select("td#fit-range").html("<b>Fit Range:</b> (" + e[0].toExponential(5) + ", " + e[1].toExponential(5) + ")");
+                    d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
                     
                     d3.select("td#fit-coefficients").html(function() {
                         let coeffString = "<ul>";
                         for( let key in coefficients) {
+                            
+                            if(parameters.fitConfiguration.fit === 'Guinier') {
+
+                                if(key === 'I0') {
+                                    let I0 = Math.exp(coefficients[key]);
+                                
+                                    coeffString += "<li>Real " + key + " = " + I0 + "</li>";
+                                    continue;
+                                }
+
+                                if(key === 'Rg') {
+                                    let RgX = coefficients[key] * xScale.invert(vm.brushSelection[1]);
+                                    coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX + "</li>";
+                                    continue;
+                                }
+                            }
+
                             coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
                         }
                         coeffString += "</ul>";
@@ -662,7 +696,7 @@ export default {
                     });
                 } else {
                     // Notify user that more data needs to be selected for the fit
-                    if(self.checkError()) {
+                    if(vm.checkError()) {
                         let errorMsg = "<strong>Warning!</strong> Not enough data selected, please select 2 or more points. If plot is blank, no data is available for generating a fit line.";
                         eventBus.$emit('error-message', errorMsg);
                     }
@@ -700,7 +734,7 @@ export default {
                     });
 
                 // re-draw line
-                self.plotLine = d3.line()
+                vm.plotLine = d3.line()
                     .x(function (d) {
                         return new_xScale(d.x);
                     })
@@ -709,12 +743,12 @@ export default {
                     });
 
                 plot.selectAll(".pointlines")
-                    .attr("d", self.plotLine);
+                    .attr("d", vm.plotLine);
 
                 if(isFit) {
                     // Re-draw fitted line
                     plot.select(".fitted-line")
-                        .attr("d", self.plotLine);
+                        .attr("d", vm.plotLine);
                 }
 
                 // Re-draw error
