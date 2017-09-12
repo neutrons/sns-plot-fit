@@ -60,7 +60,7 @@ export default {
         plotData(parameters) {
             //Setting 'this' as global when calling vue data variables inside nested functions
             var vm = this;
-            
+
             var data = parameters.data; //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
             data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x) && d.y > 0);
@@ -463,6 +463,9 @@ export default {
             function zoomed() {
                 // Update brushScale to reflect zoomed scale
                 vm.brushXScale = d3.event.transform.rescaleX(xScale);
+
+                // var t = d3.event.transform;
+                // brushContainer.call(brush.move, xScale.range().map(t.invertX, t));
                 
                 // re-scale axes and gridlines during zoom
                 axis.select(".axis--y").transition()

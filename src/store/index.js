@@ -60,7 +60,7 @@ export default new Vuex.Store({
           },
           'Low-Q Guinier': {
             fit: 'Low-Q Guinier',
-            equation: "-(L^2/12+R^2/2)/3*x+I0",
+            equation: "-(L^2/12+Rg^2/2)/3*x+I0",
             yTransformation: "log(y)",
             xTransformation: "x^2",
             eTransformation: "((1/x)*e)^2",
@@ -70,7 +70,7 @@ export default new Vuex.Store({
           },
           'Intermediate-Q Guinier': {
             fit: 'Intermediate-Q Guinier',
-            equation: "-(R^2/2)/3*x+I0/x",
+            equation: "-(Rg^2/2)/3*x+I0/x",
             yTransformation: "log(x*y)",
             xTransformation: "x^2",
             eTransformation: "((1/x)*e)^2",

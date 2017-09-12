@@ -108,7 +108,7 @@ export default {
 
             var data = parameters.data; //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
-            data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x) && d.y > 0);
+            data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
            
             //Catch any empty data and throw an error
             if(data.length < 1) {
@@ -581,7 +581,7 @@ export default {
                     let coeffString = "<ul>";
                     for( let key in coefficients) {
                         
-                        if(parameters.fitConfiguration.fit === 'Guinier') {
+                        if(parameters.fitConfiguration.fit.toLowerCase().includes('guinier')) {
 
                             if(key === 'I0') {
                                 let I0 = Math.exp(coefficients[key]);
@@ -592,7 +592,7 @@ export default {
 
                             if(key === 'Rg') {
                                 let RgX = coefficients[key] * xScale.invert(vm.brushSelection[1]);
-                                coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX + "</li>";
+                                coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
                                 continue;
                             }
                         }
@@ -647,7 +647,7 @@ export default {
                     //vm.fitLineFunction = brushPlotLine;
 
                     // Filter out fitted y's <=0, this is to prevent Y-scale: log(y <= 0) and Y values cannot be negative.
-                    vm.fitData = vm.fitData.filter( el => el.y > 0);
+                    vm.fitData = vm.fitData; //.filter( el => el.y > 0);
 
                     if(vm.fitData.length <= 0) {
                         if(vm.checkError()) {
@@ -673,7 +673,7 @@ export default {
                         let coeffString = "<ul>";
                         for( let key in coefficients) {
                             
-                            if(parameters.fitConfiguration.fit === 'Guinier') {
+                            if(parameters.fitConfiguration.fit.toLowerCase().includes('guinier')) {
 
                                 if(key === 'I0') {
                                     let I0 = Math.exp(coefficients[key]);
@@ -684,7 +684,7 @@ export default {
 
                                 if(key === 'Rg') {
                                     let RgX = coefficients[key] * xScale.invert(vm.brushSelection[1]);
-                                    coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX + "</li>";
+                                    coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
                                     continue;
                                 }
                             }
