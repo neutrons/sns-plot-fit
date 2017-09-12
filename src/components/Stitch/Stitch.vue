@@ -60,7 +60,7 @@
 
                     <button class="btn btn-default zoomToggle" :disabled="disable"><i class="fa fa-search-plus" aria-hidden="true"></i> Toggle zoom</button>
                     <button class="btn btn-default brushToggle" :disabled="disable"><i class="fa fa-square-o" aria-hidden="true"></i> Toggle brush</button>
-
+                    <p id="brush-values"></p>
                 </v-panel>
 
             </v-panel-group>

@@ -38,7 +38,9 @@ export default {
             isError: false,
             zoomEnabled: false,
             brushEnabled: false,
-            brushXScale: null
+            brushXScale: null,
+            brushExtent: null,
+            brushSelection: null
         }
     },
     props: {
@@ -417,8 +419,10 @@ export default {
                 .on('brush', brushed);
                 
             function brushed() {
+                vm.brushSelection = d3.event.selection;
                 var e = d3.event.selection.map(vm.brushXScale.invert, vm.brushXScale);
-                // console.log("Min = " + e[0] + " | Max = " + e[1]);
+                vm.brushExtent = e;
+                console.log("Min = " + e[0] + " | Max = " + e[1]);
             }
 
             var brushToggle = d3.select('.brushToggle').on('click', toggleBrush);
@@ -463,9 +467,11 @@ export default {
             function zoomed() {
                 // Update brushScale to reflect zoomed scale
                 vm.brushXScale = d3.event.transform.rescaleX(xScale);
-
+                vm.brushExtent = vm.brushSelection.map(vm.brushXScale.invert, vm.brushXScale);
+                // console.log("Brush extent: ", vm.brushExtent.map(vm.brushXScale.invert, vm.brushXScale));
                 // var t = d3.event.transform;
-                // brushContainer.call(brush.move, xScale.range().map(t.invertX, t));
+                // d3.select('.brush-container').call(brush.move, vm.brushXScale.range().map(t.invertX, t));
+                // brushContainer.call(brush.move, vm.brushExtent.map(vm.brushXScale.invert, vm.brushXScale));
                 
                 // re-scale axes and gridlines during zoom
                 axis.select(".axis--y").transition()
