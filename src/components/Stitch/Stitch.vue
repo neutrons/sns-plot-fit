@@ -61,6 +61,13 @@
                     <button class="btn btn-default zoomToggle" :disabled="disable"><i class="fa fa-search-plus" aria-hidden="true"></i> Toggle zoom</button>
                     <button class="btn btn-default brushToggle" :disabled="disable"><i class="fa fa-square-o" aria-hidden="true"></i> Toggle brush</button>
                     <p id="brush-values"></p>
+
+                    <!-- <v-switch
+                        @toggle-pick="toggleEditTool"
+                    >
+                        <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
+                        <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
+                    </v-switch> -->
                 </v-panel>
 
             </v-panel-group>
@@ -86,7 +93,8 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Scales from '../BaseComponents/Scales.vue';
 import Table from '../BaseComponents/Table.vue';
 import TableFilter from '../BaseComponents/TableFilter.vue';
-import Stitch from './PlotStitch.vue';
+import PlotStitch from './PlotStitch.vue';
+import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
@@ -105,7 +113,8 @@ export default {
       'v-scales': Scales,
       'v-table': Table,
       'v-filter': TableFilter,
-      'v-stitch-plot': Stitch
+      'v-stitch-plot': PlotStitch,
+      'v-switch': ToggleSwitch
     },
     data: function () {
       return {
@@ -136,6 +145,15 @@ export default {
       }
     },
     methods: {
+        toggleEditTool(pick) {
+            if(pick === 'left') {
+                // toggle to zoom
+                console.log('left');
+            } else {
+                // toggle to brush
+                console.log('right');
+            }
+        },
         filterJob(filter) {
             this.filterBy = filter;
         },

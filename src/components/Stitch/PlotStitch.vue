@@ -39,7 +39,7 @@ export default {
             zoomEnabled: false,
             brushEnabled: false,
             brushXScale: null,
-            brushExtent: null,
+            brushExtent: [],
             brushSelection: null
         }
     },
@@ -447,7 +447,7 @@ export default {
             var zoom = d3.zoom().on('zoom', zoomed);
             
             var zoomToggle = d3.select('.zoomToggle').on('click', toggleZoom);
-
+            toggleZoom();
             function toggleZoom(){
                 vm.zoomEnabled = !vm.zoomEnabled;
                 if (vm.zoomEnabled) {
@@ -467,7 +467,7 @@ export default {
             function zoomed() {
                 // Update brushScale to reflect zoomed scale
                 vm.brushXScale = d3.event.transform.rescaleX(xScale);
-                vm.brushExtent = vm.brushSelection.map(vm.brushXScale.invert, vm.brushXScale);
+                if(vm.brushExtent.length > 0) vm.brushExtent = vm.brushSelection.map(vm.brushXScale.invert, vm.brushXScale);
                 // console.log("Brush extent: ", vm.brushExtent.map(vm.brushXScale.invert, vm.brushXScale));
                 // var t = d3.event.transform;
                 // d3.select('.brush-container').call(brush.move, vm.brushXScale.range().map(t.invertX, t));

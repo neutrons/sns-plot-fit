@@ -23,7 +23,7 @@ export default {
   },
   watch: {
     picked() {
-      console.log(this.picked);
+      this.$emit('toggle-pick', this.picked);
     }
   }
 }
@@ -34,7 +34,7 @@ export default {
   position: relative;
   margin: 20px auto;
   height: 26px;
-  width: 120px;
+  width: 100%;
   background: gainsboro;
   border-radius: 0;
 }
@@ -43,7 +43,7 @@ export default {
   position: relative;
   z-index: 2;
   float: left;
-  width: 58px;
+  width: 50%;
   line-height: 26px;
   font-size: 11px;
   color: rgba(0,0,0, 0.5);
@@ -64,7 +64,7 @@ export default {
 }
 
 .switch-input:checked + .switch-label-on ~ .switch-block {
-  left: 60px;
+  left: 50%;
 }
 
 .switch-block {
@@ -73,7 +73,7 @@ export default {
   z-index: 1;
   top: 2px;
   left: 2px;
-  width: 58px;
+  width: 50%;
   height: 22px;
   background: green;
   border-radius: 0;
