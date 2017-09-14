@@ -1,35 +1,52 @@
 <template>
+<fieldset :disabled="DISABLE" :class="DISABLE ? 'disable' : ''">
 <div class="switch">
-    <input type="radio" class="switch-input" id="left" value="left" checked v-model="picked">
-    <label for="left" class="switch-label switch-label-off">
+    <input type="radio" class="switch-input" :id="leftID" :value="leftID" name="edit" :checked="picked" @click="picked = true">
+    <label :for="leftID" class="switch-label switch-label-off">
       <slot name="left-label">Left</slot>
     </label>
 
-    <input type="radio" class="switch-input" id="right" value="right" v-model="picked">
-    <label for="right" class="switch-label switch-label-on">
+    <input type="radio" class="switch-input" :id="rightID" name="edit" :value="rightID" :checked="!picked" @click="picked = false">
+    <label :for="rightID" class="switch-label switch-label-on">
       <slot name="right-label">Right</slot>
     </label>
     <span class="switch-block"></span>
 </div>
+</fieldset>
 </template>
 
 <script>
 export default {
     name: 'toggle-switch',
+    props: {
+        rightID: {
+            type: String,
+            default: 'right',
+            required: true
+        },
+        leftID: {
+            type: String,
+            default: 'left',
+            required: true
+        },
+        DISABLE: {
+            type: Boolean,
+            default: false
+        }
+    },
     data() {
-    return {
-      picked: 'left'
+        return {
+            picked: true
+        }
     }
-  },
-  watch: {
-    picked() {
-      this.$emit('toggle-pick', this.picked);
-    }
-  }
 }
 </script>
 
 <style scoped>
+.disable *{
+    opacity: 0.75;
+    cursor: not-allowed !important;
+}
 .switch {
   position: relative;
   margin: 20px auto;

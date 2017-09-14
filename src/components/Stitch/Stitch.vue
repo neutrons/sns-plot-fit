@@ -57,17 +57,10 @@
                 </v-panel>
 
                 <v-panel PANELTITLE="Edit Tools" PANELTYPE="info">
-
-                    <button class="btn btn-default zoomToggle" :disabled="disable"><i class="fa fa-search-plus" aria-hidden="true"></i> Toggle zoom</button>
-                    <button class="btn btn-default brushToggle" :disabled="disable"><i class="fa fa-square-o" aria-hidden="true"></i> Toggle brush</button>
-                    <p id="brush-values"></p>
-
-                    <!-- <v-switch
-                        @toggle-pick="toggleEditTool"
-                    >
+                     <v-switch leftID="zoom" rightID="brush" :DISABLE="disable">
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
                         <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
-                    </v-switch> -->
+                    </v-switch> 
                 </v-panel>
 
             </v-panel-group>
@@ -252,24 +245,19 @@ export default {
             }
         },
         prepData(sd) {
-            // This function is to prepare the data before calling 'plotCurrentData' function
-            // The initial array has multiple arrays with objects inside,
-            // The for loop strips out the object for just the arrays of data
-            // Then D3.merge will do that, merge the arrays of data to one large array of data
-            // This is simply to ease the process of plotting (see the nested loop function in 'plotCurrentData.js')
             let temp = [];
-            // console.log("Data to push to temp:", sd);
+           
             for (let i = 0; i < sd.length; i++) {
-            // If a fit is set push transformed data, else push normal data
                 temp.push(sd[i].data);
             }
-            // console.log("Merging data:", _.flatten(temp));
+            
+            // Flatten out any nested arrays
             return _.flatten(temp);
         },
         setParameters() {
             this.$nextTick(function() {
                 if(this.selectedData.length > 0) {
-                    this.$refs.stitchPlot.plotData({
+                    this.$refs.stitchPlot.plotStitch({
                         data: this.prepData(this.selectedData),
                         scales: this.scales,
                         colorDomain: this.$store.getters.getColorDomain,
@@ -280,14 +268,6 @@ export default {
                     console.log("No data to plot...");
                     d3.select(".stitch-chart").remove();
                     this.$refs.stitchPlot.resetDefaults();
-
-                    // Reset edit buttons to default classes
-                    document.querySelector('button.brushToggle').className = 'btn btn-default brushToggle';
-                    document.querySelector('button.brushToggle').innerHTML = '<i class="fa fa-square-o" aria-hidden="true"></i> Toggle brush';
-
-                    document.querySelector('button.zoomToggle').className = 'btn btn-default zoomToggle';
-                    document.querySelector('button.zoomToggle').innerHTML = '<i class="fa fa-search-plus" aria-hidden="true"></i> Toggle Zoom';
-                    // d3.select("tooltip.stitch").remove();
                 }
             })
         }
@@ -308,7 +288,6 @@ export default {
                     // so reset everything to defaults.
                     // Remove any elements previously plotted
                     d3.select(".stitch-chart").remove();
-                    // d3.select(".tooltip-stitch").remove();
 
                     // Reset disable to default 'true'
                     this.disable = true;
