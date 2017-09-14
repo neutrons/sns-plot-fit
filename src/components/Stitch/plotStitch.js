@@ -2,10 +2,10 @@ import * as d3 from 'd3';
 import $ from 'jquery';
 
 export default function(parameters) {
-    //Setting 'this' as global when calling vue data variables inside nested functions
-            var vm = this;
+    //Setting 'this' as global when calling vue data letiables inside nested functions
+            let vm = this;
 
-            var data = parameters.data; //regular data to plot
+            let data = parameters.data; //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
             data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x) && d.y > 0);
            
@@ -31,46 +31,56 @@ export default function(parameters) {
             d3.select(".stitch-chart").remove();
             // d3.select(".tooltip-stitch").remove();
 
+            // Object to store brush selections and scatter data
+            let mySelections = {};
+            let scatter = {}
+
+            // Keep a default 3 of max brushes allowed
+            let brushCount = parameters.brushCount - 1;
+
+            // Keep the actual d3-brush functions and their IDs in a list:
+            let brushes = [];
+
             // Set Color Scale
-            var color = d3.scaleOrdinal(d3.schemeCategory20)
+            let color = d3.scaleOrdinal(d3.schemeCategory20)
                 .domain(parameters.colorDomain);
 
             // Pull plot's parent container width, this will be used to scale the plot responsively
-            var containerWidth = document.getElementById("stitch-plot").offsetWidth;
+            let containerWidth = document.getElementById("stitch-plot").offsetWidth;
 
             // Set chart dimensions
-            var margin = { top: 80, right: 80, bottom: 80, left: 80 };
-            var viewHeight = containerWidth / (16/9);
-            var height = viewHeight - margin.top - margin.bottom;
-            var width = containerWidth - margin.left - margin.right;
+            let margin = { top: 80, right: 80, bottom: 80, left: 80 };
+            let viewHeight = containerWidth / (16/9);
+            let height = viewHeight - margin.top - margin.bottom;
+            let width = containerWidth - margin.left - margin.right;
 
             // Set Scales
-            var xScale = parameters.scales.xScale;
+            let xScale = parameters.scales.xScale;
             xScale.range([0,width]);
             xScale.domain(d3.extent(data, function (d) {
                 return d.x;
             }));
 
-            var yScale = parameters.scales.yScale;
-            var yScaleType = parameters.scales.yScaleType;
+            let yScale = parameters.scales.yScale;
+            let yScaleType = parameters.scales.yScaleType;
             yScale.range([height, 0]);
             yScale.domain(d3.extent(data, function(d) {
                 return d.y;
             }));
 
             // Set Axis Labels
-            var xTitle = parameters.scales.xScaleType;
-            var yTitle = parameters.scales.yScaleType;
+            let xTitle = parameters.scales.xScaleType;
+            let yTitle = parameters.scales.yScaleType;
 
             // Set Axes
-            var xAxis = d3.axisBottom(xScale).ticks(10);
-            var yAxis = d3.axisLeft(yScale).ticks(10);
-            var xGridline = d3.axisBottom(xScale).ticks(10).tickSize(-height).tickFormat("");
-            var yGridline = d3.axisLeft(yScale).ticks(10).tickSize(-width).tickFormat("");
+            let xAxis = d3.axisBottom(xScale).ticks(10);
+            let yAxis = d3.axisLeft(yScale).ticks(10);
+            let xGridline = d3.axisBottom(xScale).ticks(10).tickSize(-height).tickFormat("");
+            let yGridline = d3.axisLeft(yScale).ticks(10).tickSize(-width).tickFormat("");
 
             // Add main chart area
-            var viewbox = "0 0 " + containerWidth + " " + viewHeight;
-            var svg = d3.select("#stitch-plot").append("svg")
+            let viewbox = "0 0 " + containerWidth + " " + viewHeight;
+            let svg = d3.select("#stitch-plot").append("svg")
                 .attr("viewBox", viewbox)
                 .attr("perserveAspectRatio","xMidYMid meet")
                 .attr("class", "stitch-chart")
@@ -92,28 +102,46 @@ export default function(parameters) {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             // Add Axis and Gridline section
-            var axis = svg.append("g").attr("id", "axis-stitch");
+            let axis = svg.append("g").attr("id", "axis-stitch");
 
-            // Add a brush section
-            var brushContainer = svg.append("g")
-                    .attr("class", "brush-container")
-                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
             //Add Error-bars Section
-            var errorlines = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+            let errorlines = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
             
             //Add Group to Plot Line/Points
-            var plot = svg.append("g")
+            let plot = svg.append("g")
                 .attr("class", "chart");
 
+            // Add a brush section
+            // let brushContainer = svg.append("g")
+            //         .attr("class", "brush-container")
+            //         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+            // Generate a SVG group to keep brushes
+            var gBrushes = svg.append('g')
+                .attr("height", height)
+                .attr("width", width)
+                .attr("fill", "none")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .attr("class", "brushes");
+
+            // Only allow brushes when 2+ lines are plotted
+            if(brushCount >= 1) {
+                newBrush();
+                drawBrushes();
+            }
+
             //Add a Line Plot Function
-            var plotLine = d3.line()
+            let plotLine = d3.line()
                 .x(function (d) {
                     return xScale(d.x);
                 })
                 .y(function (d) {
                     return yScale(d.y);
                 });
+
+            // Create Zoom function
+            let zoom = d3.zoom().on('zoom', zoomed);
 
             // X Gridlines
             axis.append("g")
@@ -168,7 +196,7 @@ export default function(parameters) {
             MathJax.Hub.Queue(["Typeset",MathJax.Hub, ["xLabelStitch", "yLabelStitch", "plotTitleStitch"]]);
             
             // Nest the entries by name
-            var dataNest = d3.nest()
+            let dataNest = d3.nest()
                 .key(function (d) {
                     return d.name;
                 })
@@ -307,7 +335,7 @@ export default function(parameters) {
                         });
 
                     // Add the Legend
-                    var legend = plot.append("g");
+                    let legend = plot.append("g");
 
                     legend.append("rect")
                         .attr("x", width - margin.right - margin.right)
@@ -332,45 +360,142 @@ export default function(parameters) {
 
             });
 
+            // Now everything is added, call zoom
+            svg.call(zoom);
+            
+            /******* Store Scatter Data Points for Later Use  **********/
+                (function() {
+                        var i = 0;
+                        let id = 'scatter-' + i;
+                        let sel = d3.select('#' + id);
+
+                        while(!sel.empty()) {
+                            // Add scatter plot data to object
+                            scatter[id] = { node: sel.selectAll('.dot'), data: sel.selectAll('.dot').data()};
+
+                            // Increment values
+                            i++;
+                            id = 'scatter-' + i;
+                            sel = d3.select('#' + id);
+                        }
+                    })();
+            /******* End Storing Scatter Data  **********/
+
+            /******* Brush features *******/
+            function newBrush() {
+                // console.log("new brush");
+                var brush = d3.brushX()
+                    .extent([[0, 0], [width, height]])
+                    .on("start", brushstart)
+                    .on("brush", brushed)
+                    .on("end", brushend);
+
+                    brushes.push({id: brushes.length, brush: brush});
+
+                    function brushstart() {
+                        // Brush start here
+                    };
+
+                function brushed() {
+                    let selection = d3.event.selection.map(i => xScale.invert(i));
+                    mySelections[this.id] = {start: selection[0], end: selection[1]};
+                    // console.log("Selections are: ", mySelections);
+
+                    // Maintain the converted and non-converted brush selections for zoom
+                    vm.brushSelection = d3.event.selection;
+                    let e = d3.event.selection.map(vm.brushXScale.invert, vm.brushXScale);
+                    vm.brushExtent = e;
+                    // console.log("Min = " + e[0] + " | Max = " + e[1]);
+                }
+
+                function brushend() {
+                    // Figure out if our latest brush has a selection
+                    var lastBrushID = brushes[brushes.length - 1].id;
+                    var lastBrush = document.getElementById('brush-' + lastBrushID);
+                    var selection = d3.brushSelection(lastBrush);
+
+                    // If it does, that means we need another one
+                    if (brushes.length < brushCount && selection && selection[0] !== selection[1]) {
+                        newBrush();
+                    }
+
+                    // Always draw brushes
+                    drawBrushes();
+                }
+            }
+
+            function drawBrushes() {
+
+                var brushSelection = gBrushes
+                    .selectAll('.brush')
+                    .data(brushes, function (d){return d.id});
+
+                    // Set up new brushes
+                brushSelection.enter()
+                    .insert("g", '.brush')
+                    .attr('class', 'brush')
+                    .attr('id', function(brush){ return "brush-" + brush.id; })
+                    .each(function(brushObject) {
+                        // call the brush
+                        brushObject.brush(d3.select(this));
+                    });
+
+                brushSelection
+                    .each(function (brushObject){
+                    d3.select(this)
+                        .attr('class', 'brush')
+                        .selectAll('.overlay')
+                        .style('pointer-events', function() {
+                        var brush = brushObject.brush;
+                        if (brushObject.id === brushes.length-1 && brush !== undefined) {
+                            return 'all';
+                        } else {
+                            return 'none';
+                        }
+                        });
+                    })
+
+                brushSelection.exit()
+                    .remove();
+            }
+            /******* End of brush features *******/
+
             /* Add Event Listeners  for Toggling Zoom and Brush */
 
             // Initially set brushXScale to xScale, it will be update when zoom is activated below
             vm.brushXScale = xScale;
 
-            var brush = d3.brushX()
-                .extent([[0, 0], [width, height]])
-                .on('brush', brushed);
-                
-            function brushed() {
-                vm.brushSelection = d3.event.selection;
-                var e = d3.event.selection.map(vm.brushXScale.invert, vm.brushXScale);
-                vm.brushExtent = e;
-                console.log("Min = " + e[0] + " | Max = " + e[1]);
-            }
-            
-            var zoom = d3.zoom().on('zoom', zoomed);
+            let toggleEdit = function(choice) {
 
-            var toggleEdit = function(choice) {
-                choice = choice || this.value;
-  
-                if(choice === 'zoom') {
-                    brushContainer.on('.brush', null);
+                // console.log(this.value);
+                vm.toggleChoice = choice || this.value;
+                
+                if(vm.toggleChoice === 'zoom') {
+                    // Toggle off all brushes
+                    for(let i = 0, len = brushes.length; i < len; i++) {
+                        d3.select('#brush-'+i).on('.brush', null);
+                    }
+
                     svg.call(zoom);
-                } else if (choice === 'brush') {
+                } else if (vm.toggleChoice === 'brush') {
                     svg.on('.zoom', null);
-                    brushContainer.call(brush);
+                    
+                    // Toggle on all brushes
+                    for(let i = 0, len = brushes.length; i < len; i++) {
+                        brushes[i].brush(d3.select('#brush-'+i));
+                    }
                 }
             }
 
             d3.selectAll('input[name=edit]').on('click', toggleEdit);
-            toggleEdit('zoom');
+            toggleEdit(vm.toggleChoice);
 
             function zoomed() {
                 // Update brushScale to reflect zoomed scale
                 vm.brushXScale = d3.event.transform.rescaleX(xScale);
                 if(vm.brushExtent.length > 0) vm.brushExtent = vm.brushSelection.map(vm.brushXScale.invert, vm.brushXScale);
                 // console.log("Brush extent: ", vm.brushExtent.map(vm.brushXScale.invert, vm.brushXScale));
-                // var t = d3.event.transform;
+                // let t = d3.event.transform;
                 // d3.select('.brush-container').call(brush.move, vm.brushXScale.range().map(t.invertX, t));
                 // brushContainer.call(brush.move, vm.brushExtent.map(vm.brushXScale.invert, vm.brushXScale));
                 
@@ -392,8 +517,8 @@ export default function(parameters) {
                     .call(xGridline.scale(d3.event.transform.rescaleX(xScale)));
 
                 // re-draw scatter plot;
-                var new_yScale = d3.event.transform.rescaleY(yScale);
-                var new_xScale = d3.event.transform.rescaleX(xScale);
+                let new_yScale = d3.event.transform.rescaleY(yScale);
+                let new_xScale = d3.event.transform.rescaleX(xScale);
 
                 plot.selectAll("circle")
                     .attr("cy", function (d) {
@@ -472,6 +597,19 @@ export default function(parameters) {
                     });
             }
 
+            /************ Event and function for removing brushes *************/
+            document.getElementById('remove-brushes-btn').addEventListener('click', () => {removeBrushes();});
+
+            var removeBrushes = function() {
+                gBrushes.selectAll('.brush').remove();
+
+                brushes = [];
+                mySelections = {};
+                newBrush();
+                drawBrushes();
+            }
+            /************ End of removing brushes *************/
+
             /* End of Event listeners */
 
             // Add responsive elements
@@ -485,22 +623,22 @@ export default function(parameters) {
                     $(this).children('iframe.width-changed').remove();
                 },
                 add: function () {
-                    var elm = $(this);
-                    var iframe = elm.children('iframe.width-changed');
+                    let elm = $(this);
+                    let iframe = elm.children('iframe.width-changed');
                     if (!iframe.length) {
                         iframe = $('<iframe/>').addClass('width-changed').prependTo(this);
                     }
-                    var oldWidth = elm.width();
+                    let oldWidth = elm.width();
                     function elmResized() {
-                        var width = elm.width();
+                        let width = elm.width();
                         if (oldWidth != width) {
                             elm.trigger('widthChanged', [width, oldWidth]);
                             oldWidth = width;
                         }
                     }
 
-                    var timer = 0;
-                    var ielm = iframe[0];
+                    let timer = 0;
+                    let ielm = iframe[0];
                     (ielm.contentWindow || ielm).onresize = function() {
                         clearTimeout(timer);
                         timer = setTimeout(elmResized, 20);
@@ -508,12 +646,12 @@ export default function(parameters) {
                 }
             }
 
-            var chartStitch = $(".stitch-chart");
-            var aspectRatio = chartStitch.width() / chartStitch.height()
-            var container = chartStitch.parent();
+            let chartStitch = $(".stitch-chart");
+            let aspectRatio = chartStitch.width() / chartStitch.height()
+            let container = chartStitch.parent();
 
             $("#stitch-plot").on("widthChanged", function() {
-                var targetWidth = container.width();
+                let targetWidth = container.width();
                 chartStitch.attr("width", targetWidth);
                 chartStitch.attr("height", Math.round(targetWidth / aspectRatio));
             });

@@ -61,6 +61,8 @@
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
                         <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
                     </v-switch> 
+
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" :disabled="disable"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
                 </v-panel>
 
             </v-panel-group>
@@ -225,7 +227,6 @@ export default {
                 // Remove any instances where checked file isn't in selected
                 this.selectedData = this.selectedData.filter(function(item) { 
                     var match = checkList.indexOf(item.filename);
-                    console.log("Match:", match);
 
                     if(match > -1) {
                         toFilter.push(checkList[match]);
@@ -236,7 +237,7 @@ export default {
 
                 // Filter out data that doesn't need to be added and keep the rest
                 checkList.filter(el => toFilter.indexOf(el) < 0).map(function(fname) {
-                    console.log("Filename: ", fname);
+
                     let temp = chosenData.find(el => el.filename === fname);
                     
                     vm.selectedData.push(temp);
@@ -261,7 +262,7 @@ export default {
                         data: this.prepData(this.selectedData),
                         scales: this.scales,
                         colorDomain: this.$store.getters.getColorDomain,
-                        fileCount: this.filesToPlot.length
+                        brushCount: this.filesToPlot.length
                     })
 
                 } else {

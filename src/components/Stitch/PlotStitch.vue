@@ -39,7 +39,8 @@ export default {
             brushEnabled: false,
             brushXScale: null,
             brushExtent: [],
-            brushSelection: null
+            brushSelection: null,
+            toggleChoice: 'zoom'
         }
     },
     props: {
@@ -58,6 +59,7 @@ export default {
             this.brushXScale = null;
             this.zoomEnabled = false;
             this.brushEnabled = false;
+            this.toggleChoice = 'zoom';
         }
     }
 }

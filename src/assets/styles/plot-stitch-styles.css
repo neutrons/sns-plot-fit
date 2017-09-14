@@ -3,9 +3,13 @@
     fill: none;
 }
 
-.brush-container .selection {
+.brushes .selection {
   fill: green;
   stroke: black;
   stroke-width: 1px;
   stroke-dasharray: 3px 3px;
+}
+
+.brushes .handle {
+  fill: none;
 }
