@@ -57,7 +57,7 @@
                 </v-panel>
 
                 <v-panel PANELTITLE="Edit Tools" PANELTYPE="info">
-                     <v-switch leftID="zoom" rightID="brush" :DISABLE="disable">
+                     <v-switch leftID="zoom" rightID="brush" :DISABLE="disable" ref="toggle">
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
                         <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
                     </v-switch> 
@@ -268,6 +268,7 @@ export default {
                     console.log("No data to plot...");
                     d3.select(".stitch-chart").remove();
                     this.$refs.stitchPlot.resetDefaults();
+                    this.$refs.toggle.picked = true;
                 }
             })
         }
