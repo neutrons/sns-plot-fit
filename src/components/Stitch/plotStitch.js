@@ -475,6 +475,11 @@ export default function(parameters) {
                     for(let i = 0, len = brushes.length; i < len; i++) {
                         d3.select('#brush-'+i).on('.brush', null);
                     }
+                    
+                    // Remove Brush Cursor Styles
+                    d3.select('.stitch-chart').style('cursor', 'move');
+                    d3.select('.brushes').selectAll('.selection').style("cursor", "initial");
+                    d3.select('.brushes').selectAll('.overlay').style("cursor", "move");
 
                     svg.call(zoom);
                 } else if (vm.toggleChoice === 'brush') {
@@ -484,6 +489,10 @@ export default function(parameters) {
                     for(let i = 0, len = brushes.length; i < len; i++) {
                         brushes[i].brush(d3.select('#brush-'+i));
                     }
+
+                    // Re-instate Brush Cursor Styles
+                    d3.select('.brushes').selectAll('.selection').style("cursor", "move");
+                    d3.select('.brushes').selectAll('.overlay').style("cursor", "crosshair");
                 }
             }
 
@@ -607,6 +616,7 @@ export default function(parameters) {
                 mySelections = {};
                 newBrush();
                 drawBrushes();
+                toggleEdit(vm.toggleChoice);
             }
             /************ End of removing brushes *************/
 
