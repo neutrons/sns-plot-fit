@@ -50,10 +50,10 @@ export default {
 .switch {
   position: relative;
   margin: 20px auto;
-  height: 26px;
+  height: 32px;
   width: 100%;
   background: gainsboro;
-  border-radius: 0;
+  border-radius: 3px;
 }
 
 .switch-label {
@@ -61,7 +61,7 @@ export default {
   z-index: 2;
   float: left;
   width: 50%;
-  line-height: 26px;
+  line-height: 32px;
   font-size: 11px;
   color: rgba(0,0,0, 0.5);
   text-align: center;
@@ -91,9 +91,9 @@ export default {
   top: 2px;
   left: 2px;
   width: 50%;
-  height: 22px;
-  background: green;
-  border-radius: 0;
+  height: 28px;
+  background: #449d44;
+  border-radius: 3px;
  
   -webkit-transition: left 0.15s ease-out;
   -moz-transition: left 0.15s ease-out;

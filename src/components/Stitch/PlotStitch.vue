@@ -18,13 +18,13 @@
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../../assets/javascript/eventBus';
-
+import * as d3 from 'd3';
 /* Import Components */
 import Panel from '../BaseComponents/Panels/Panel.vue';
 import ResetButton from '../BaseComponents/ResetButton.vue';
 
 /* Import Plot function */
-import plotStitch from './plotStitch.js';
+import {plotStitch, zoomed, removeBrushes, matchLine, toggleEdit, drawBrushes, newBrush, resetToggleChoice } from './plotStitch.js';
 
 export default {
     name: 'StitchPlot',
@@ -50,7 +50,14 @@ export default {
         }    
     },
     methods: {
-        plotStitch: plotStitch,
+        plotStitch,
+        zoomed,
+        removeBrushes,
+        matchLine,
+        toggleEdit,
+        drawBrushes,
+        newBrush,
+        resetToggleChoice,
         checkError() {
             let len = document.getElementById("error-container").children.length;
             return len > 0 ? false : true;
@@ -59,8 +66,19 @@ export default {
             this.brushXScale = null;
             this.zoomEnabled = false;
             this.brushEnabled = false;
-            this.toggleChoice = 'zoom';
+            this.resetToggleChoice();
         }
+    },
+    mounted() {
+        let vm = this;
+
+        // Attach event listeners after elements have been created
+        d3.selectAll('input[name=edit]').on('click', function() {
+            vm.toggleEdit(this.value);
+        });
+        
+        d3.select('#remove-brushes-btn').on('click', () => { vm.removeBrushes();});
+        d3.select("#stitch-btn").on('click', () => { vm.matchLine();});
     }
 }
 </script>

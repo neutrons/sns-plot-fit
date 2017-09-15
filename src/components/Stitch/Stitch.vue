@@ -61,7 +61,7 @@
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
                         <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
                     </v-switch> 
-
+                    <button id="stitch-btn" class="btn btn-success btn-sm btn-block" :disabled="disable"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
                     <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" :disabled="disable"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
                 </v-panel>
 
