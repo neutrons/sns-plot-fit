@@ -34,7 +34,7 @@
                                     <template>
                                         <td><input type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
                                         <td>{{f.filename}}</td>
-                                        <td><button class="btn btn-danger btn-xs"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -175,6 +175,17 @@ export default {
             this.scales.xScale = this.$store.getters.getXScaleByID('X');
             this.scales.yScaleType = 'Y';
             this.scales.yScale = this.$store.getters.getYScaleByID('Y');
+        },
+        removeFile(filename) {
+  
+            let index = this.filesToPlot.indexOf(filename);
+            if(this.filesToPlot.indexOf(filename) > -1) {
+
+                this.filesToPlot.splice(index,1);
+            }
+
+            this.$store.commit('remove1DFile', filename);
+            this.$store.commit('removeColor', filename);
         },
         getURLs(files) {
 

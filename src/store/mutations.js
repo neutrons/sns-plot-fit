@@ -34,16 +34,13 @@ export const store2DData = (state, data) => {
     state.saved2DData[tempName] = tempData
 }
 export const remove1DFile = (state, filename) => {
-    let index = null;
+    let index = 0;
 
-    for (let i = 0, len = state.uploaded1DFiles.length; i < len; i++) {
+    for (let len = state.uploaded1DFiles.length; index < len; index++) {
 
-        let temp = state.uploaded1DFiles[i];
-        if (filename === temp.filename) {
-            index = i
+        let temp = state.uploaded1DFiles[index];
 
-            break
-        }
+        if (filename === temp.filename) break;
     }
 
     // Remove from 2D Uploads list
@@ -54,16 +51,13 @@ export const remove1DFile = (state, filename) => {
 
 }
 export const remove2DFile = (state, filename) => {
-    let index = null;
+    let index = 0;
 
-    for (let i = 0, len = state.uploaded2DFiles.length; i < len; i++) {
+    for (let len = state.uploaded2DFiles.length; index < len; index++) {
 
-        let temp = state.uploaded2DFiles[i];
-        if (filename === temp.filename) {
-            index = i
+        let temp = state.uploaded2DFiles[index];
 
-            break
-        }
+        if (filename === temp.filename) break;
     }
 
     // Remove from 2D Uploads list
@@ -71,4 +65,15 @@ export const remove2DFile = (state, filename) => {
 
     // Delete from stored list if present
     delete state.saved2DData[filename];
+}
+
+export const removeColor = (state,filename) => {
+    let index = 0;
+    for(let len = state.colorDomain.length; index < len; index++) {
+        let temp = state.colorDomain[index];
+
+        if(filename === temp) break;
+    }
+
+    state.colorDomain.splice(index, 1);
 }

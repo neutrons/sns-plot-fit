@@ -245,10 +245,7 @@ export default {
             }
         },
         removeFile(filename) {
-            console.log("Removing file: ", filename);
 
-            // If file is in fileToPlot or filePlotChoices, remove it
-            // and remove plot elements
             let index = this.filesToPlot.indexOf(filename);
             if(this.filesToPlot.indexOf(filename) > -1) {
                 
@@ -260,6 +257,7 @@ export default {
             }
 
             this.$store.commit('remove1DFile', filename);
+            this.$store.commit('removeColor', filename);
         },
         filterJob(filter) {
             this.filterBy = filter;
