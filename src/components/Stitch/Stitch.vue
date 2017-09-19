@@ -269,7 +269,7 @@ export default {
         setParameters() {
             this.$nextTick(function() {
                 if(this.selectedData.length > 0) {
-                    this.$refs.stitchPlot.plotStitch({
+                    this.$refs.stitchPlot.plot({
                         data: this.prepData(this.selectedData),
                         scales: this.scales,
                         colorDomain: this.$store.getters.getColorDomain,

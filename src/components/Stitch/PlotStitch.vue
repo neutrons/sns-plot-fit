@@ -23,8 +23,8 @@ import * as d3 from 'd3';
 import Panel from '../BaseComponents/Panels/Panel.vue';
 import ResetButton from '../BaseComponents/ResetButton.vue';
 
-/* Import Plot function */
-import {plotStitch, zoomed, removeBrushes, matchLine, toggleEdit, drawBrushes, newBrush, resetToggleChoice } from './plotStitch.js';
+/* Import Stitch Module */
+import stitch from './moduleStitch.js';
 
 export default {
     name: 'StitchPlot',
@@ -50,14 +50,15 @@ export default {
         }    
     },
     methods: {
-        plotStitch,
-        zoomed,
-        removeBrushes,
-        matchLine,
-        toggleEdit,
-        drawBrushes,
-        newBrush,
-        resetToggleChoice,
+        plot: stitch.plot,
+        zoomed: stitch.zoomed,
+        removeBrushes: stitch.removeBrushes,
+        matchLine: stitch.matchLine,
+        toggleEdit: stitch.toggleEdit,
+        drawBrushes: stitch.drawBrushes,
+        newBrush: stitch.newBrush,
+        resetToggle: stitch.resetToggle,
+        selectData: stitch.selectData,
         checkError() {
             let len = document.getElementById("error-container").children.length;
             return len > 0 ? false : true;
@@ -66,7 +67,7 @@ export default {
             this.brushXScale = null;
             this.zoomEnabled = false;
             this.brushEnabled = false;
-            this.resetToggleChoice();
+            this.resetToggle();
         }
     },
     mounted() {
