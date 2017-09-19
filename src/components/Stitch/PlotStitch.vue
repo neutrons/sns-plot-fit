@@ -1,5 +1,5 @@
 <template>
-  <div id="StitchPlot" class="col-md-10">
+  <div id="StitchPlot" class="col-lg-10">
 
             <!-- Plot Panel  -->
             <v-panel PANELTITLE="Stitch Plot" PANELTYPE="primary">
