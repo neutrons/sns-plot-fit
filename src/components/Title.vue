@@ -48,10 +48,6 @@ export default {
        
     }
   },
-  created() {
-    // Listen for event from App.vue to drag 'n drop files
-    eventBus.$on('upload-files', this.uploadFile);
-  },
   methods: {
     fetchData() {
         var url = document.getElementById("urlid").getAttribute("data-urlid");
@@ -139,8 +135,8 @@ export default {
           }
         }
 
-        if (temp1D.length > 0) this.$store.commit('addUploaded1DFiles', temp1D); //eventBus.$emit('add-uploaded-1D', temp1D);
-        if (temp2D.length > 0) this.$store.commit('addUploaded2DFiles', temp2D); //eventBus.$emit('add-uploaded-2D', temp2D);
+        if (temp1D.length > 0) this.$store.commit('addUploaded1DFiles', temp1D);
+        if (temp2D.length > 0) this.$store.commit('addUploaded2DFiles', temp2D);
 
         document.getElementById("file-upload").value = '';
         // END OF CODE TO UPLOAD FILES //
@@ -170,7 +166,7 @@ export default {
       }
 
       // console.log("View switched to: ", view);
-      eventBus.$emit('switch-plot-component', view);
+      this.$emit('switch-plot-component', view);
     }
   }
 }

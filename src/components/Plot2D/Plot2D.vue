@@ -89,7 +89,7 @@
 </template>
 
 <script>
-/* Import Packages */
+/* Import Libraries */
 import * as d3 from 'd3';
 import _ from 'lodash';
 
@@ -99,11 +99,6 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import ResetButton from '../BaseComponents/ResetButton.vue';
-
-// The eventBus serves as the means to communicating between components.
-// e.g., If scales are reset in 'Controls.vue', an event is emitted
-//       and the event is then 'caught' in 'Main.vue'
-import { eventBus } from '../../assets/javascript/eventBus';
 
 /* Import Mixins */
 import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/readData.js';

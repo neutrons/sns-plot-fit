@@ -55,9 +55,6 @@ export default {
       }
     },
     created() {
-        eventBus.$on('reset-scales', this.resetScales);
-        eventBus.$on('set-fit-back', this.setFitBack);
-
         // Listen to emit from plotCurrentData.js
         eventBus.$on('update-coefficients', this.updateCoefficients);
     },

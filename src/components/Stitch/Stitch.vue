@@ -91,11 +91,6 @@ import TableFilter from '../BaseComponents/TableFilter.vue';
 import PlotStitch from './PlotStitch.vue';
 import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
 
-// The eventBus serves as the means to communicating between components.
-// e.g., If scales are reset in 'Controls.vue', an event is emitted
-//       and the event is then 'caught' in 'Main.vue'
-import { eventBus } from '../../assets/javascript/eventBus';
-
 /* Import Mixins */
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
@@ -174,9 +169,7 @@ export default {
                 // and reset to default values
                 console.log("Removing plot elements...");
                 d3.select(".stitch-chart").remove();
-                // d3.select(".tooltip-stitch").remove();
 
-                // eventBus.$emit('reset-scales');
                 this.selectedData = [];
             } else {
                 var toFilter = [];

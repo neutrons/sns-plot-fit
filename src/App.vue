@@ -8,7 +8,7 @@
         <div id="textnode">Drop files to add data.</div>
       </div>
       
-      <app-title></app-title>
+      <app-title @switch-plot-component="switchPlotComponent" ref="title"></app-title>
 
       <transition name="slide" appear>
         <app-main-1D v-show="toggleView === '1D'"></app-main-1D>
@@ -53,10 +53,6 @@ export default {
     }
   },
   mounted() {
-
-      // Listen for events from Title
-      eventBus.$on('switch-plot-component', this.switchPlotComponent);
-
       // Event listeners are added for monitoring drag 'n drop of data files.
       window.addEventListener("dragenter", function (e) {
               document.querySelector("#dropzone").style.visibility = "";
@@ -86,9 +82,10 @@ export default {
           document.querySelector("#dropzone").style.opacity = 0;
           document.querySelector("#textnode").style.fontSize = "42px";
           
-      var files = e.dataTransfer.files;
-        // console.log("Drop files:", files);
-        eventBus.$emit("upload-files", files);
+          var files = e.dataTransfer.files;
+          
+          // console.log("Drop files:", files);
+          this.$refs.title.uploadFile(files);
       });
   },
   created() {

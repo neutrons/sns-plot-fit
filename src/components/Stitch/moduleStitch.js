@@ -111,14 +111,14 @@ var stitch = (function(d3, _, $) {
             
             let data = parameters.data; //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
-            data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x) && d.y > 0);
+            data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
            
             //Catch any empty data and throw an error
             if(data.length < 1) {
                 console.log("No data! Error!");
                 //Remove any elements previously plotted
                 d3.select(".stitch-chart").remove();
-                // d3.select(".tooltip-stitch").remove();
+                
                 vm.isError = !vm.isError;
                 
                 if(vm.checkError()) {

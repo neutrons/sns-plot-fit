@@ -51,8 +51,8 @@
 
 <script>
 // The eventBus serves as the means to communicating between components.
-// e.g., If scales are reset in 'Controls.vue', an event is emitted
-//       and the event is then 'caught' in 'Main.vue'
+// Here it is being used to communicate with components in Main1D.vue and
+// sending errors to App.vue
 import { eventBus } from '../../assets/javascript/eventBus';
 
 /* Import Components */
@@ -925,10 +925,6 @@ export default {
     created() {
         // Listen for cofficient changes
         eventBus.$on("coefficients-updated", this.redrawFit);
-
-        // Listen for events form Main.vue
-        eventBus.$on('set-parameters', this.setParameters);
-        eventBus.$on('reset-brush-selection', this.resetBrushSelection);
     },
     watch: {
         plotParams: {

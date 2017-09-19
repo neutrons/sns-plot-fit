@@ -110,6 +110,7 @@
         <v-plot-1D
             :DISABLE="disable"
             :SHOWTABLE="fileToFit !== null"
+            ref="plot_1D"
         ></v-plot-1D>
 </div>
   </div>
@@ -131,18 +132,12 @@ import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
 import Transformation from '../BaseComponents/Transformation.vue';
 import Plot1D from './Plot1D.vue';
 
-// The eventBus serves as the means to communicating between components.
-// e.g., If scales are reset in 'Controls.vue', an event is emitted
-//       and the event is then 'caught' in 'Main.vue'
-import { eventBus } from '../../assets/javascript/eventBus';
-
 /* Import Mixins */
 import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
-
 import fd from '../../assets/javascript/fitData.js';
 
 export default {
@@ -273,30 +268,6 @@ export default {
             this.fileFitChoice = [];
             this.fileToFit = null;
         },
-        uncheckFile(filename) {
-            if(this.filesToPlot.indexOf(filename) > -1) {
-                this.filesToPlot.splice(this.filesToPlot.indexOf(filename),1);
-            }
-        },
-        deleteAllUploaded() {
-            for(var i = 0, len = this.UPLOADEDFILES.length; i < len; i++) {
-                let match = this.filesToPlot.indexOf(this.UPLOADEDFILES[i].filename);
-                if(match > -1) {
-                this.filesToPlot.splice(match,1);
-
-                // Remove the file from the stored list
-                delete this.storedData[this.UPLOADEDFILES[i].filename];
-                }
-            }
-            eventBus.$emit('remove-uploaded-files');
-        },
-        deleteFile(filename) {
-            // Remove file from stored list
-            delete this.storedData[filename];
-
-            // Remove filename from uploads list
-            eventBus.$emit('delete-file', filename);
-        },
         setCurrentData(chosenData, checkList) {
 
             // console.log("setting current data:", chosenData, checkList);
@@ -311,10 +282,8 @@ export default {
                 d3.select(".chart-1D").remove();
                 d3.select(".tooltip-1D").remove();
 
-                eventBus.$emit('reset-scales');
-                // eventBus.$emit('reset-fit');
+                this.resetScales();
                 this.resetFileFitChoice();
-
                 this.disableButtons(false);
                 this.selectedData = [];
                 this.fileToFit = null;
@@ -381,7 +350,7 @@ export default {
             this.$nextTick(function() {
                 if(this.selectedData.length > 0) {
                     // console.log("Setting parameters", this.selectedData);
-                    eventBus.$emit("set-parameters", {
+                    this.$refs.plot_1D.setParameters({
                         data: this.prepData(this.selectedData),
                         colorDomain: this.$store.getters.getColorDomain,
                         scales: this.scales,
@@ -428,8 +397,8 @@ export default {
             // If fileToFit is set to Null, don't transform anything and reset the fit to none
             console.log("File is being fit:", this.fileToFit);
             if(this.fileToFit === null) {
-                eventBus.$emit("set-fit-back");
-                //eventBus.$emit("set-fit-settings-back");
+                
+                this.$refs.fit_configurations.setFitBack();
                 this.setFitSettings(this.$store.getters.getFitSettings);
                 this.setFit("Linear");
             } else {
@@ -509,7 +478,7 @@ export default {
                     this.selectedData = [];
 
                     // Reset brush selection
-                    eventBus.$emit("reset-brush-selection");
+                    this.$refs.plot_1D.resetBrushSelection();
                     
                     console.log("No files to plot");
 

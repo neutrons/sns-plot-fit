@@ -15,10 +15,12 @@
 
 <script>
 // The eventBus serves as the means to communicating between components.
-// e.g., If scales are reset in 'Controls.vue', an event is emitted
-//       and the event is then 'caught' in 'Main.vue'
+// Here it's being used in moduleStitch to communicate to App.vue for error messages
 import { eventBus } from '../../assets/javascript/eventBus';
+
+/* Import libraries */
 import * as d3 from 'd3';
+
 /* Import Components */
 import Panel from '../BaseComponents/Panels/Panel.vue';
 import ResetButton from '../BaseComponents/ResetButton.vue';
