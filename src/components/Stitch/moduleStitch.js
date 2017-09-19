@@ -58,7 +58,7 @@ var stitch = (function(d3, _, $) {
 
         // Object for scatter data points
         var dataNest = undefined;
-        var scatter = {};
+        // var scatter = {};
 
     /******* End of Global for Stitch Module **************/
 
@@ -171,10 +171,6 @@ var stitch = (function(d3, _, $) {
             brushObj.brushes = [];
             brushObj.brushSelections = {};
 
-            // Set Axis Labels
-            let xTitle = parameters.scales.xScaleType;
-            let yTitle = parameters.scales.yScaleType;
-
             // Set Axes & Gridlines generators
             axesObj.xAxis = d3.axisBottom(scale.xScale).ticks(10);
             axesObj.yAxis = d3.axisLeft(scale.yScale).ticks(10);
@@ -264,32 +260,29 @@ var stitch = (function(d3, _, $) {
                 .call(axesObj.yAxis);
             
             // Add Y Axis Label
-            elements.svg.append("g").append("foreignObject")
+            elements.svg.append("g").append("text")
                 .attr("height", 100)
                 .attr("width", 200)
-                .attr("transform", "translate(15," + (height/2) + ") rotate(-90)")
+                .attr("transform", "translate(25," + (height/2) + ") rotate(-90)")
                 .attr("id", "yLabelStitch")
-                .html("`" + yTitle + "`");
+                .text("Y");
 
             // Add X Axis Label
-            elements.svg.append("g").append("foreignObject")
+            elements.svg.append("g").append("text")
                 .attr("height", 100)
                 .attr("width", 200)
                 .attr("transform", "translate(" + ((width+margin.left+margin.right)/2) + "," + (height+margin.top+margin.bottom/2) + ")")
                 .attr("id", "xLabelStitch")
-                .html("`" + xTitle + "`");
+                .text("X");
 
 
             // Add Chart Title
-            elements.svg.append("g").append("foreignObject")
+            elements.svg.append("g").append("text")
                 .attr("height", 100)
                 .attr("width", 200)
-                .attr("transform", "translate(" + ((width+margin.left+margin.right)/2) + ",25)")
+                .attr("transform", "translate(" + ((width+margin.left+margin.right)/2) + ",35)")
                 .attr("id", "plotTitleStitch")
-                .html("`" + yTitle + "` vs `" + xTitle + "`");
-
-            // Call MathJax to make plot axis labels look pretty 
-            MathJax.Hub.Queue(["Typeset",MathJax.Hub, ["xLabelStitch", "yLabelStitch", "plotTitleStitch"]]);
+                .text("Y vs X");
                 
             // Loop through each name / key
             dataNest.forEach(function (d, i) {
@@ -454,27 +447,27 @@ var stitch = (function(d3, _, $) {
             elements.svg.call(zoomObj.zoom);
             
             /******* Store Scatter Data Points for Later Use  **********/
-                (function() {
-                        var i = 0;
-                        let id = 'scatter-' + i;
-                        let sel = d3.select('#' + id);
+                // (function() {
+                //         var i = 0;
+                //         let id = 'scatter-' + i;
+                //         let sel = d3.select('#' + id);
 
-                        while(!sel.empty()) {
-                            // Add scatter plot data to object
-                            scatter[id] = { node: sel.selectAll('.dot'), data: sel.selectAll('.dot').data()};
+                //         while(!sel.empty()) {
+                //             // Add scatter plot data to object
+                //             scatter[id] = { node: sel.selectAll('.dot'), data: sel.selectAll('.dot').data()};
 
-                            // Increment values
-                            i++;
-                            id = 'scatter-' + i;
-                            sel = d3.select('#' + id);
-                        }
+                //             // Increment values
+                //             i++;
+                //             id = 'scatter-' + i;
+                //             sel = d3.select('#' + id);
+                //         }
 
-                        console.log("Scatter:", scatter);
-                    })();
+                //         // console.log("Scatter:", scatter);
+                //     })();
             /******* End Storing Scatter Data  **********/
 
             // Add responsive elements
-            // Essentially when the plot-1D gets resized it will look to the
+            // Essentially when the plot gets resized it will look to the
             // width and scale the plot according to newly updated width.
             // The css file has min- and max-width's incase the resizing gets too small,
             // the plot will not scale below these dimensions.
@@ -613,8 +606,12 @@ var stitch = (function(d3, _, $) {
 
     // ZOOM FEATURES
     my.zoomed = function () {
+        // Update Scales
+        let new_yScale = d3.event.transform.rescaleY(scale.yScale);
+        let new_xScale = d3.event.transform.rescaleX(scale.xScale);
+
         // Update brushScale to reflect new zoomed scale
-        scale.brushXScale = d3.event.transform.rescaleX(scale.xScale);
+        scale.brushXScale = new_xScale;
 
         // If there are brushes, re-adjust selections according to new scale
         if(!my.isMySelection()) {
@@ -630,24 +627,21 @@ var stitch = (function(d3, _, $) {
         // re-scale axes and gridlines during zoom
         elements.axes.select(".axis--y").transition()
             .duration(50)
-            .call(axesObj.yAxis.scale(d3.event.transform.rescaleY(scale.yScale)));
+            .call(axesObj.yAxis.scale(new_yScale));
 
         elements.axes.select(".axis--x").transition()
             .duration(50)
-            .call(axesObj.xAxis.scale(d3.event.transform.rescaleX(scale.xScale)));
+            .call(axesObj.xAxis.scale(new_xScale));
 
         elements.axes.select(".gridline--y").transition()
             .duration(50)
-            .call(axesObj.yGridline.scale(d3.event.transform.rescaleY(scale.yScale)));
+            .call(axesObj.yGridline.scale(new_yScale));
         
         elements.axes.select(".gridline--x").transition()
             .duration(50)
-            .call(axesObj.xGridline.scale(d3.event.transform.rescaleX(scale.xScale)));
-
+            .call(axesObj.xGridline.scale(new_xScale));
+        
         // re-draw scatter plot;
-        let new_yScale = d3.event.transform.rescaleY(scale.yScale);
-        let new_xScale = d3.event.transform.rescaleX(scale.xScale);
-
         elements.plot.selectAll("circle")
             .attr("cy", function (d) {
                 return new_yScale(d.y);

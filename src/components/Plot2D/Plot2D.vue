@@ -108,13 +108,14 @@ import { eventBus } from '../../assets/javascript/eventBus';
 /* Import Mixins */
 import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/readData.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
+import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 
 /* Import Plot Function */
 import { hexPlot } from './hexPlot.js';
 
 export default {
     name: 'Plot2D',
-    mixins: [parse2D, read2DData, get2DData, hexPlot, fetchFiles],
+    mixins: [parse2D, read2DData, get2DData, hexPlot, fetchFiles, filterJobs],
     components: {
       'v-panel-group': PanelGroup,
       'v-panel': Panel,
@@ -143,12 +144,6 @@ export default {
       }
     },
     methods: {
-        filterJob(filter) {
-            this.filterBy = filter;
-        },
-        sortByDate(direction) {
-            this.sortBy = direction;
-        },
         resetSettings() {
             this.tempBinSize = 15;
             this.tempTransform = 'Log';
@@ -242,7 +237,7 @@ export default {
 <style scoped>
 @import '../../assets/styles/plot-2D-styles.css';
 
-#New2D {
+#Plot2D {
   position: absolute;
   left: 0;
   right: 0;  

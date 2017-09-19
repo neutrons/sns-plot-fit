@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import * as d3 from 'd3';
 
 export const get1DFiles = state => {
 
@@ -35,11 +36,11 @@ export const getYScales = state => {
 }
 
 export const getXScaleByID = state => (id) => {
-    return state.xScales[id]
+    return state.xScales[id].copy() // copy is used to prevent scales being changed from another plot
 }
 
 export const getYScaleByID = state => (id) => {
-    return state.yScales[id]
+    return state.yScales[id].copy() // copy is used to prevent scales being changed from another plot
 }
 
 export const getFetched1D = state => {

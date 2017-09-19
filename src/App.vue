@@ -11,7 +11,7 @@
       <app-title></app-title>
 
       <transition name="slide" appear>
-        <app-new-1D v-show="toggleView === '1D'"></app-new-1D>
+        <app-main-1D v-show="toggleView === '1D'"></app-main-1D>
       </transition>  
 
        <transition name="slide" appear>
@@ -28,7 +28,7 @@
 
 import $ from 'jquery';
 
-import New1D from './components/Plot1D/New1D.vue';
+import Main1D from './components/Plot1D/Main1D.vue';
 import Plot2D from './components/Plot2D/Plot2D.vue';
 import Stitch from './components/Stitch/Stitch.vue';
 import Title from './components/Title.vue';
@@ -43,7 +43,7 @@ export default {
   components: {
     'app-title': Title,
     'app-stitch': Stitch,
-    'app-new-1D': New1D,
+    'app-main-1D': Main1D,
     'app-plot-2D': Plot2D
   },
   data: function () {

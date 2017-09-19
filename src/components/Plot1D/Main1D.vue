@@ -1,5 +1,5 @@
 <template>
-  <div id="New1D" class="col-md-12">
+  <div id="Main1D" class="col-md-12">
       <div class="container-fluid">
       <div class="col-md-2">
         
@@ -111,11 +111,6 @@
             :DISABLE="disable"
             :SHOWTABLE="fileToFit !== null"
         ></v-plot-1D>
-      <!-- <div class="col-lg-10">
-        <v-panel PANELTITLE="1D Plot" PANELTYPE="primary">
-            <div id="plot-1D"></div>
-        </v-panel>
-      </div> -->
 </div>
   </div>
 </template>
@@ -134,7 +129,7 @@ import Scales from '../BaseComponents/Scales.vue';
 import Levenberg from '../BaseComponents/Levenberg.vue';
 import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
 import Transformation from '../BaseComponents/Transformation.vue';
-import Plot1D from './Plot_1D.vue';
+import Plot1D from './Plot1D.vue';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
@@ -143,12 +138,15 @@ import { eventBus } from '../../assets/javascript/eventBus';
 
 /* Import Mixins */
 import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
+import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
+import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
+import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
 
 import fd from '../../assets/javascript/fitData.js';
 
 export default {
-    name: 'New1D',
+    name: 'Main1D',
     components: {
       'v-panel-group': PanelGroup,
       'v-panel': Panel,
@@ -204,7 +202,7 @@ export default {
 
       }
     },
-    mixins: [parse1D, pull1DData, fetchFiles],
+    mixins: [parse1D, pull1DData, fetchFiles, setScales, filterJobs, getURLs],
     computed: {
       uploadFiles() {
         //   console.log("Store 1D", this.$store.getters.getUploaded1D);
@@ -259,12 +257,6 @@ export default {
             this.$store.commit('remove1DFile', filename);
             this.$store.commit('removeColor', filename);
         },
-        filterJob(filter) {
-            this.filterBy = filter;
-        },
-        sortByDate(direction) {
-            this.sortBy = direction;
-        },
         isPlotted(filename) {
             //Dynamically style the file lists blue for plotted data
             if(this.filesToPlot.indexOf(filename) > -1) {
@@ -276,36 +268,6 @@ export default {
         setFileToFit() {
             if(this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
             this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
-        },
-        getURLs(files) {
-
-            var tempURLs = [], fetchList = [], uploadList = [];
-
-            for(let i = 0, len = files.length; i < len; i++) {
-                var inFetch = document.getElementById(files[i] + "-Fetch1D");
-
-                if(inFetch) {
-                    // console.log("In fetch:", inFetch);
-                    fetchList.push(files[i]);
-                } else {
-                    // console.log("No in fetch:", inFetch);
-                    uploadList.push(files[i]);
-                }
-            }
-
-            // console.log("Here is the FetchList", fetchList);
-            if(fetchList.length > 0)
-                tempURLs.push(this.$store.getters.get1DURL('fetch', fetchList))
-
-            // console.log("Here is the UploadList", uploadList);
-            if(uploadList.length > 0)
-                tempURLs.push(this.$store.getters.get1DURL('upload', uploadList))
-            
-            // Flatten out array so it isn't nested
-            tempURLs = _.flatten(tempURLs);
-
-            // console.log("Here are the tempURLs", tempURLs);
-            return tempURLs;
         },
         resetFileFitChoice() {
             this.fileFitChoice = [];
@@ -393,27 +355,6 @@ export default {
         setFitFile(filename) {
              this.fileToFit = filename;
         },
-        setScales(type, value) {
-
-            if(type === 'X') {
-                this.scales.xScaleType = value;
-                this.scales.xScale = this.$store.getters.getXScaleByID(value);
-            } else {
-                this.scales.yScaleType = value;
-                this.scales.yScale = this.$store.getters.getYScaleByID(value);
-            }
-        },
-        resetScales() {
-            
-            // Reset the selected options to default scales
-            this.$refs.scales.$refs.y_select.value = 'Y';
-            this.$refs.scales.$refs.x_select.value = 'X';
-
-            this.scales.xScaleType = 'X';
-            this.scales.xScale = this.$store.getters.getXScaleByID('X');
-            this.scales.yScaleType = 'Y';
-            this.scales.yScale = this.$store.getters.getYScaleByID('Y');
-        },
         setFit(fitname) {
             // console.log("Setting new fit configuration:", fitname);
             // Deep clone because if you change the equation later, the original fit config's equation would be altered as well
@@ -423,7 +364,7 @@ export default {
             // This function is to prepare the data before calling 'plotCurrentData' function
             // The initial array has multiple arrays with objects inside,
             // The for loop strips out the object for just the arrays of data
-            // Then D3.merge will do that, merge the arrays of data to one large array of data
+            // Then _.flatten is used to make it a single, non-nested array
             // This is simply to ease the process of plotting (see the nested loop function in 'plotCurrentData.js')
             let temp = [];
             // console.log("Data to push to temp:", sd);
@@ -591,7 +532,7 @@ export default {
                     }).filter(item => item !== undefined);
                     
                     // Next fetch the file URLs
-                    var fileURLs = this.getURLs(filesToFetch);
+                    var fileURLs = this.getURLs(filesToFetch, "-Fetch1D");
 
                     // console.log("Got dem fileURLs", fileURLs);
                     if(fileURLs.length > 0) {
@@ -608,7 +549,7 @@ export default {
 </script>
 
 <style scoped>
-#New1D {
+#Main1D {
   position: absolute;
   left: 0;
   right: 0;

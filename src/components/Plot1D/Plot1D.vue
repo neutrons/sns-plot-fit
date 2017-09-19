@@ -245,6 +245,13 @@ export default {
 
             //Add a Line Plot Function
             vm.plotLine = d3.line()
+                .defined(function(d) { 
+                    if(yScaleType === 'Log(Y)') {
+                        return d.y > 0;
+                    } else {
+                        return d;
+                    }
+                })
                 .x(function (d) {
                     return xScale(d.x);
                 })
@@ -704,27 +711,28 @@ export default {
             }
 
             function zoomed() {
-                // re-scale axes and gridlines during zoom
-                axis.select(".axis--y").transition()
-                    .duration(50)
-                    .call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
-
-                axis.select(".axis--x").transition()
-                    .duration(50)
-                    .call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
-
-                axis.select(".gridline--y").transition()
-                    .duration(50)
-                    .call(yGridline.scale(d3.event.transform.rescaleY(yScale)));
-                
-                axis.select(".gridline--x").transition()
-                    .duration(50)
-                    .call(xGridline.scale(d3.event.transform.rescaleX(xScale)));
-
-                // re-draw scatter plot;
+                // Update scales
                 var new_yScale = d3.event.transform.rescaleY(yScale);
                 var new_xScale = d3.event.transform.rescaleX(xScale);
 
+                // re-scale axes and gridlines during zoom
+                axis.select(".axis--y").transition()
+                    .duration(50)
+                    .call(yAxis.scale(new_yScale));
+
+                axis.select(".axis--x").transition()
+                    .duration(50)
+                    .call(xAxis.scale(new_xScale));
+
+                axis.select(".gridline--y").transition()
+                    .duration(50)
+                    .call(yGridline.scale(new_yScale));
+                
+                axis.select(".gridline--x").transition()
+                    .duration(50)
+                    .call(xGridline.scale(new_xScale));
+
+                // re-draw scatter plot;
                 plot.selectAll("circle")
                     .attr("cy", function (d) {
                         return new_yScale(d.y);
@@ -735,6 +743,13 @@ export default {
 
                 // re-draw line
                 vm.plotLine = d3.line()
+                    .defined(function(d) { 
+                        if(yScaleType === 'Log(Y)') {
+                            return d.y > 0;
+                        } else {
+                            return d;
+                        }
+                    })
                     .x(function (d) {
                         return new_xScale(d.x);
                     })

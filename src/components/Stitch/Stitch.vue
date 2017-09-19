@@ -97,8 +97,11 @@ import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
 import { eventBus } from '../../assets/javascript/eventBus';
 
 /* Import Mixins */
+import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
+import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
+import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
 
 export default {
     name: 'Stitch',
@@ -126,7 +129,7 @@ export default {
           selectedData: []
       }
     },
-    mixins: [fetchFiles, parse1D, pull1DData],
+    mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs],
     computed: {
       xScales() {
         return this.$store.getters.getXScales;
@@ -149,33 +152,6 @@ export default {
                 console.log('right');
             }
         },
-        filterJob(filter) {
-            this.filterBy = filter;
-        },
-        sortByDate(direction) {
-            this.sortBy = direction;
-        },
-        setScales(type, value) {
-
-            if(type === 'X') {
-                this.scales.xScaleType = value;
-                this.scales.xScale = this.$store.getters.getXScaleByID(value);
-            } else {
-                this.scales.yScaleType = value;
-                this.scales.yScale = this.$store.getters.getYScaleByID(value);
-            }
-        },
-        resetScales() {
-            
-            // Reset the selected options to default scales
-            this.$refs.scales.$refs.y_select.value = 'Y';
-            this.$refs.scales.$refs.x_select.value = 'X';
-
-            this.scales.xScaleType = 'X';
-            this.scales.xScale = this.$store.getters.getXScaleByID('X');
-            this.scales.yScaleType = 'Y';
-            this.scales.yScale = this.$store.getters.getYScaleByID('Y');
-        },
         removeFile(filename) {
   
             let index = this.filesToPlot.indexOf(filename);
@@ -186,36 +162,6 @@ export default {
 
             this.$store.commit('remove1DFile', filename);
             this.$store.commit('removeColor', filename);
-        },
-        getURLs(files) {
-
-            var tempURLs = [], fetchList = [], uploadList = [];
-
-            for(let i = 0, len = files.length; i < len; i++) {
-                var inFetch = document.getElementById(files[i] + "-FetchStitch");
-
-                if(inFetch) {
-                    // console.log("In fetch:", inFetch);
-                    fetchList.push(files[i]);
-                } else {
-                    // console.log("No in fetch:", inFetch);
-                    uploadList.push(files[i]);
-                }
-            }
-
-            // console.log("Here is the FetchList", fetchList);
-            if(fetchList.length > 0)
-                tempURLs.push(this.$store.getters.get1DURL('fetch', fetchList))
-
-            // console.log("Here is the UploadList", uploadList);
-            if(uploadList.length > 0)
-                tempURLs.push(this.$store.getters.get1DURL('upload', uploadList))
-            
-            // Flatten out array so it isn't nested
-            tempURLs = _.flatten(tempURLs);
-
-            // console.log("Here are the tempURLs", tempURLs);
-            return tempURLs;
         },
         setCurrentData(chosenData, checkList) {
 
@@ -288,9 +234,9 @@ export default {
     watch: {
         scales: {
             handler() {
-            this.setParameters();
-        },
-        deep: true
+                this.setParameters();
+            },
+            deep: true
         },
         filesToPlot: {
             handler() {
@@ -332,7 +278,7 @@ export default {
                     }).filter(item => item !== undefined);
                     
                     // Next fetch the file URLs
-                    var fileURLs = this.getURLs(filesToFetch);
+                    var fileURLs = this.getURLs(filesToFetch, "-FetchStitch");
 
                     // console.log("Got dem fileURLs", fileURLs);
                     if(fileURLs.length > 0) {
