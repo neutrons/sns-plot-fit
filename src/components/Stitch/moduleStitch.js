@@ -731,7 +731,7 @@ var stitch = (function(d3, _, $) {
             // console.log(Object.keys(brushObj.brushSelections));
             
             if(Object.keys(brushObj.brushSelections).length === 0) {
-                console.log("No brushes to select/match data.");
+                // console.log("No brushes to select/match data.");
                 return true;
             } else {
                 return false;
@@ -769,7 +769,7 @@ var stitch = (function(d3, _, $) {
             
             for( let i = 0, len = tempData.length; i < len; i++) {
                 //console.log("X = ", tempData[i].x, "Converted X = ", scale.xScale(tempData[i].x));
-                let convertedX = scale.xScale(tempData[i].x);
+                let convertedX = scale.brushXScale(tempData[i].x);
 
                 // Iterate through brush selections
                 _.forIn(brushObj.brushSelections, (value, key) => {
