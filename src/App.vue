@@ -10,13 +10,17 @@
       
       <app-title></app-title>
 
-      <transition name="slide" mode="out-in">
-        <main1D v-show="!togglePlot"></main1D>
-      </transition>
+      <transition name="slide" appear>
+        <app-new-1D v-show="toggleView === '1D'"></app-new-1D>
+      </transition>  
 
-      <transition name="slide" mode="out-in">
-        <main2D v-show="togglePlot"></main2D>
-      </transition>
+       <transition name="slide" appear>
+        <app-new-2D v-show="toggleView === '2D'"></app-new-2D>
+      </transition> 
+
+      <transition name="slide" appear>
+        <app-stitch v-show="toggleView === 'Stitch'"></app-stitch>
+      </transition> 
   </div>
 </template>
 
@@ -26,6 +30,9 @@ import $ from 'jquery';
 
 import main1D from './components/1D/Main_1D.vue';
 import main2D from './components/2D/Main_2D.vue';
+import New1D from './components/Plot1D/New1D.vue';
+import New2D from './components/Plot2D/New2D.vue';
+import Stitch from './components/Stitch/Stitch.vue';
 import Title from './components/Title.vue';
 
 // The eventBus serves as the means to communicating between components.
@@ -36,13 +43,16 @@ import { eventBus } from './assets/javascript/eventBus';
 export default {
   name: 'app',
   components: {
-    main1D,
-    main2D,
-    'app-title': Title
+    'app-1d': main1D,
+    'app-2d': main2D,
+    'app-stitch': Stitch,
+    'app-title': Title,
+    'app-new-1D': New1D,
+    'app-new-2D': New2D
   },
   data: function () {
     return {
-      togglePlot: false,
+      toggleView: 'Stitch',
       errorCount: 0
     }
   },
@@ -91,11 +101,7 @@ export default {
   },
   methods: {
     switchPlotComponent: function(plotType) {
-      if(plotType === '1D') {
-        this.togglePlot = false;
-      } else {
-        this.togglePlot = true;
-      }
+      this.toggleView = plotType;
     },
     generateError: function(errorMSG) {
       document.getElementById("error_"+this.errorCount) === null ? this.errorCount = 0 : this.errorCount += 1;
@@ -120,6 +126,10 @@ export default {
 </script>
 
 <style>
+/* Set Font-Awesome Globally for all sub-components  */
+ @import '../node_modules/font-awesome/css/font-awesome.min.css'; 
+
+/* Global Styles  */
 html,
 body {
    margin:0;
@@ -161,35 +171,31 @@ div#textnode {
     transition: font-size 175ms;
 }
 
+.form-control {
+  text-align-last: center;
+}
+
 /* Transition effects for Sliding  */
-.slide-enter-active,
+
+.slide-enter-active {
+  transition: all 1.0s ease;
+}
 .slide-leave-active {
-  transition: all 1.25s ease;
+  transition: all 1.0s ease;
+}
+.slide-enter
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 
-#main1D.slide-enter {
-  transform: translateX(100vw);
-}
-#main1D.slide-leave-active {
-  transform: translateX(100vw);
-}
-
-#main2D.slide-enter {
-  transform: translateX(-100vw);
-}
-#main2D.slide-leave-active {
-  transform: translateX(-100vw);
-}
-
-#main1D, #main2D {
-  position: absolute;
-  right: 0;
-  left: 0;
+.slide-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 
 /* Error Message Styles  */
 #error-container {
-  position: absolute;
+  position: fixed;
   z-index: 9999;
   top: 25px;
   left: 25px;

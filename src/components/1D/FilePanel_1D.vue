@@ -36,7 +36,7 @@
               </div>
               <div class="panel-body">
                 <!-- Get List Table  -->
-                <table class="table table-condensed tabletop  ">
+                <table class="table table-condensed tabletop">
                   <colgroup>
                     <col class="col-md-1">
                     <col class="col-md-1">
@@ -85,10 +85,10 @@
                 <table class="table table-condensed tabletop">
                   <thead>
                     <tr>
-                      <th class="col-md-1">Fit</th>
-                      <th class="col-md-1">Plot</th>
-                      <th class="col-md-6">File Name</th>
-                      <th class="col-md-4">Delete</th>
+                      <th class="col-md-2">Fit</th>
+                      <th class="col-md-2">Plot</th>
+                      <th class="col-md-5">File Name</th>
+                      <th class="col-md-3">Delete</th>
                     </tr>
                   </thead>
                 </table>
