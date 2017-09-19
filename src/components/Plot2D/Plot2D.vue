@@ -1,5 +1,5 @@
 <template>
-  <div id="New2D" class="col-md-12">
+  <div id="Plot2D" class="col-md-12">
       <div class="container-fluid">
       <div class="col-md-2">
         <!-- Files Panel  -->
@@ -107,11 +107,13 @@ import { eventBus } from '../../assets/javascript/eventBus';
 
 /* Import Mixins */
 import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/readData.js';
-import { hexPlot } from '../../assets/javascript/mixins/hexPlot.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 
+/* Import Plot Function */
+import { hexPlot } from './hexPlot.js';
+
 export default {
-    name: 'New2D',
+    name: 'Plot2D',
     mixins: [parse2D, read2DData, get2DData, hexPlot, fetchFiles],
     components: {
       'v-panel-group': PanelGroup,
@@ -239,6 +241,7 @@ export default {
 
 <style scoped>
 @import '../../assets/styles/plot-2D-styles.css';
+
 #New2D {
   position: absolute;
   left: 0;

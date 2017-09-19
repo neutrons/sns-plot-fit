@@ -15,7 +15,7 @@
       </transition>  
 
        <transition name="slide" appear>
-        <app-new-2D v-show="toggleView === '2D'"></app-new-2D>
+        <app-plot-2D v-show="toggleView === '2D'"></app-plot-2D>
       </transition> 
 
       <transition name="slide" appear>
@@ -28,10 +28,8 @@
 
 import $ from 'jquery';
 
-import main1D from './components/1D/Main_1D.vue';
-import main2D from './components/2D/Main_2D.vue';
 import New1D from './components/Plot1D/New1D.vue';
-import New2D from './components/Plot2D/New2D.vue';
+import Plot2D from './components/Plot2D/Plot2D.vue';
 import Stitch from './components/Stitch/Stitch.vue';
 import Title from './components/Title.vue';
 
@@ -43,12 +41,10 @@ import { eventBus } from './assets/javascript/eventBus';
 export default {
   name: 'app',
   components: {
-    'app-1d': main1D,
-    'app-2d': main2D,
-    'app-stitch': Stitch,
     'app-title': Title,
+    'app-stitch': Stitch,
     'app-new-1D': New1D,
-    'app-new-2D': New2D
+    'app-plot-2D': Plot2D
   },
   data: function () {
     return {
