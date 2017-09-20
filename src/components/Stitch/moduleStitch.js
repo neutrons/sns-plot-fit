@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import _ from 'lodash';
 import $ from 'jquery';
+import interpolate from './interpolateLine.js';
 
 var stitch = (function(d3, _, $) {
     /******* Private Global Variables for Stitch Module **************/
@@ -445,26 +446,6 @@ var stitch = (function(d3, _, $) {
 
             // Now everything is added, call zoom
             elements.svg.call(zoomObj.zoom);
-            
-            /******* Store Scatter Data Points for Later Use  **********/
-                // (function() {
-                //         var i = 0;
-                //         let id = 'scatter-' + i;
-                //         let sel = d3.select('#' + id);
-
-                //         while(!sel.empty()) {
-                //             // Add scatter plot data to object
-                //             scatter[id] = { node: sel.selectAll('.dot'), data: sel.selectAll('.dot').data()};
-
-                //             // Increment values
-                //             i++;
-                //             id = 'scatter-' + i;
-                //             sel = d3.select('#' + id);
-                //         }
-
-                //         // console.log("Scatter:", scatter);
-                //     })();
-            /******* End Storing Scatter Data  **********/
 
             // Add responsive elements
             // Essentially when the plot gets resized it will look to the
@@ -614,7 +595,7 @@ var stitch = (function(d3, _, $) {
         scale.brushXScale = new_xScale;
 
         // If there are brushes, re-adjust selections according to new scale
-        if(!my.isMySelection()) {
+        if(Object.keys(brushObj.brushSelections).length > 0) {
             
             brushObj.brushSelections = _.mapValues(brushObj.brushSelections, function(el) {
                 return {
@@ -719,115 +700,223 @@ var stitch = (function(d3, _, $) {
             });
     }
 
+    /* Brush Validation Rules:
+        1) Must have drawn brushes, so no stitching with no brushes...obviously. validateBrushes handles this.
+        2) Must have n-1 brushes (so 3 lines needs 2 brushes) - validateBrushes handles this
+        2) Must have 2 lines per brush (no selecting 3 lines or one) - validateSelections handles this
+        3) Brushes cannot exclude a curve - validateSelections handles this,
+            e.g. If three curves {Line1, Line2, Line3} then:
+
+            GOOD: Brush1 {Line1, Line2} & Brush2 {Line2, Line3}
+            NOT: Brush1 {Line1, Line2} & Brush2 {Line1, Line2}
+            Not: Brush1 {Line1, Line2} & Brush2 {Line1} - this violates rule 2 anyways.
+    */
+
     // Function to check if there are selections available
-    my.isMySelection = function() {
+    var validateBrushes = function() {
             // console.log(brushObj.brushSelections);
             // console.log(Object.keys(brushObj.brushSelections));
-            
-            if(Object.keys(brushObj.brushSelections).length === 0) {
-                // console.log("No brushes to select/match data.");
+            let totalBrushes = Object.keys(brushObj.brushSelections).length;
+
+            if(totalBrushes === 0) {
+                console.log("No brushes to select data.");
+                return true;
+            } else if (totalBrushes !== brushObj.brushCount) {
+                console.log("There are " + (brushObj.brushCount + 1) + " lines. You must have (n-1) = " + brushObj.brushCount + " number of brushes.");
                 return true;
             } else {
                 return false;
             }
-            
     }
 
-    var checkBrushCount = function(obj) {
-        let result = false;
+    var getLineNames = function() {
+        let tempNames = [];
 
-        for( let key in obj ) {
-            let count = Object.keys(obj[key]).length;
-            console.log("Keys", Object.keys(obj[key]));
-            console.log("Count:", count);
+        for(let i = 0, len = dataNest.length; i < len; i++) {
+            tempNames.push( dataNest[i].key );
+        }
+
+        return tempNames;
+    }
+
+    var validateSelections = function(selected) {
+
+        let lineNames = getLineNames();
+        let keys = [];
+
+        for( let i = 0, len = selected.length; i < len; i++ ) {
+            let tempKeys = Object.keys(selected[i]);
+            let count = tempKeys.length;
+            
+            keys.push(tempKeys);
 
             if(count !== 2) {
-                result = true;
-                break;
+                console.log("Make sure a brush selects 2 and only 2 lines.")
+                return true;
             }
         }
 
-        return result;
+        // Reduce keys to a non-nested array
+        keys = _.flatten(keys);
+
+        // If none of the items in keys matches to lineNames,
+        // set to true because not all lines have been selected in brushes
+        for(let i = 0, len = lineNames.length; i < len; i++) {
+            if(keys.indexOf(lineNames[i]) === -1) {
+                console.log(lineNames[i] + " was not selected. Make sure each line is selected.");
+                return true;
+            }
+        }
+
+        return false;
     }
+
+    var sortBrushes = function() {
+        // The object will be turned to an order array,
+        // because objects do not promise an exact order like arrays.
+
+        var sorted = _.toPairs(_.cloneDeep(brushObj.brushSelections));
+
+        sorted.sort(function(a,b) {
+            return a[1].raw[0] - b[1].raw[0];
+        })
+
+        return sorted;
+    }
+
     // Function to identify how many lines are within a brush selection
-    my.matchLine = function() {
+    var selectData = function() {
     
         // If there are no brush selections, don't bother matching the data
-        if (my.isMySelection()) return;
+        if (validateBrushes()) return [];
 
-        let matches = {};
-        
-        for (let index = 0, len = dataNest.length; index < len; index++) {
-            let tempData = dataNest[index].values; // pull data for line plot
-            let tempName = dataNest[index].key; // pull file name for line plot
-            
-            for( let i = 0, len = tempData.length; i < len; i++) {
-                //console.log("X = ", tempData[i].x, "Converted X = ", scale.xScale(tempData[i].x));
-                let convertedX = scale.brushXScale(tempData[i].x);
+        let matches = [];
 
-                // Iterate through brush selections
-                _.forIn(brushObj.brushSelections, (value, key) => {
-                    let start = value.raw[0];
-                    let end = value.raw[1];
-                    
+        // First sort brushes so that selections are made left to right
+        let sortedBrushes = sortBrushes(); // an array of sorted brush selections
+        console.log("Sorted Brushes:", sortedBrushes);
 
-                    if( start <= convertedX && convertedX <= end) {
-                        matches[key] = matches[key] || {};
-                        matches[key][tempName] = matches[key][tempName] || [];
-                        // Add data to matches object
-                        matches[key][tempName].push(tempData[i]);
+        for (let i = 0, len = sortedBrushes.length; i < len; i++) {
+            let start = sortedBrushes[i][1].raw[0];
+            let end = sortedBrushes[i][1].raw[1];
+
+            let tempSelection = {};
+
+            // Iterate through data to find brush selections
+            for (let j = 0, len = dataNest.length; j < len; j++) {
+                let tempData = dataNest[j].values;
+                let tempName = dataNest[j].key;
+                
+                // Iterate through tempData
+                // But only iterate if the first value in tempData is  is within selection
+                // tempData[0].x >= start
+                let firstValue = scale.brushXScale(tempData[0].x);
+                let lastValue = scale.brushXScale(tempData[ tempData.length - 1].x);
+                
+                // console.log("Check: " + tempName, firstValue <= end && lastValue >= start);
+
+                if ( firstValue <= end && lastValue >= start) {
+                    for (let z = 0, len = tempData.length; z < len; z++) {
+                        
+                        let convertedX = scale.brushXScale(tempData[z].x);
+
+                        if ( start <= convertedX && convertedX <= end ) {
+                            tempSelection[tempName] = tempSelection[tempName] || [];
+                            tempSelection[tempName].push(tempData[z]);
+                        }
                     }
-                })
+                }
             }
+
+            // console.log("Temp selection", tempSelection);
+            matches.push(tempSelection);
         }
 
-        if(checkBrushCount(matches)) console.log("Too few/many lines select...");
-
-        console.log("Selected Data: ", matches);
-        console.log("Brush Selections:", brushObj.brushSelections);
-        // console.log("Nest:", dataNest);
-        // console.log("Scatter:", scatter);
-
-        //return counts;
+        return matches;
     }
 
-    // Function to select data points within brush
-    my.selectData = function() {
-    
-        // If there are no brush selections, don't bother finding the data
-        if(my.isMySelection()) return;
+    var findBase = function(names) {
+        // Finds the curve with the MIN value of X
+        // This will be the base.
+        let tempData = {};
 
-        let counts = my.matchLine();
-        return;
+        for(let i = 0, len = dataNest.length; i < len; i++) {
+            let tempName = dataNest[i].key;
 
-        console.log("Selecting data...", counts);
-
-        let selectedData = {};
-
-        for (let index = 0, len = dataNest.length; index < len; index++) {
-
-            let tempData = dataNest[index].values;
-            let selData = [];
-
-            for (let id in brushObj.brushSelections) {
-
-                let start = brushObj.brushSelections[id].converted[0];
-                let end = brushObj.brushSelections[id].converted[1];
-
-                console.log("Start = " + start + " | End = " + end);
-
-                selData.push( 
-                    tempData.filter(el => {
-                        return start <= el.x && el.x <= end;
-                    })
-                );
+            if( names.indexOf(tempName) > -1) {
+                tempData[tempName] = dataNest[i].values;
             }
-
-            selectedData[key] = _.uniq(_.flattenDeep(selData)); // take out duplicate selections
         }
 
-        // console.log("Scatter:", scatter);
-        console.log("Selected Data:", selectedData);
+        tempData = formatData([tempData]); // re-format temp data so x values are in one array
+        
+        let keys = Object.keys(tempData[0]);
+
+        let firstX = tempData[0][keys[0]].x;
+        let secondX = tempData[0][keys[1]].x;
+
+        let firstMin = _.min(firstX);
+        let secondMin = _.min(secondX);
+
+        return firstMin <= secondMin ? keys[0] : keys[1];
+    }
+
+    // re-format selected data array for interpolate function
+    var formatData = function(selectedData) {
+        let formatted = [];
+
+        for (let i = 0, len = selectedData.length; i < len; i++) {
+            let temp = selectedData[i];
+            let tempObj = {};
+
+            for (let key in temp) {
+
+                var x = [], y = [], e = [];
+                
+                temp[key].forEach( el => {
+                    x.push(el.x);
+                    y.push(el.y);
+                    e.push(el.e);
+                });
+
+                tempObj[key] = {
+                    x: x,
+                    y: y,
+                    e: e
+                }
+
+            }
+
+            formatted.push(tempObj);
+        }
+
+        return formatted;
+    }
+
+    my.stitchData = function() {
+        let selectedData = selectData();
+
+        //Run tests to check if appropriate brush selections are made
+        if( selectedData.length === 0 ) {
+            console.log("Re-draw brushes.");            
+        } else if (validateSelections(selectedData)) {
+            console.log("Re-draw brushes.");
+        } else {
+            console.log("Selected Data: ", selectedData);
+            // console.log("Brush Selections:", brushObj.brushSelections);
+            
+            // Now that validation is done, reformat data for interpolation
+            let formattedData = formatData(selectedData);
+            console.log("Formatted data:", formattedData);
+            
+            // Then find base curve
+            let base = findBase(Object.keys( formattedData[0] ));
+            console.log("Base: " + base);
+
+            // Now interpolate data
+            let line = interpolate.regression(formattedData, base);
+        }
+
     }
 
     // Return Module object for public use

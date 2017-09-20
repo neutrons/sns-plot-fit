@@ -55,12 +55,11 @@ export default {
         plot: stitch.plot,
         zoomed: stitch.zoomed,
         removeBrushes: stitch.removeBrushes,
-        matchLine: stitch.matchLine,
+        stitchData: stitch.stitchData,
         toggleEdit: stitch.toggleEdit,
         drawBrushes: stitch.drawBrushes,
         newBrush: stitch.newBrush,
         resetToggle: stitch.resetToggle,
-        selectData: stitch.selectData,
         checkError() {
             let len = document.getElementById("error-container").children.length;
             return len > 0 ? false : true;
@@ -81,7 +80,7 @@ export default {
         });
         
         d3.select('#remove-brushes-btn').on('click', () => { vm.removeBrushes();});
-        d3.select("#stitch-btn").on('click', () => { vm.matchLine();});
+        d3.select("#stitch-btn").on('click', () => { vm.stitchData();});
     }
 }
 </script>
