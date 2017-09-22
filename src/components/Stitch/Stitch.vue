@@ -133,7 +133,6 @@ export default {
         return this.$store.getters.getYScales;
       },
       uploadFiles() {
-        //   console.log("Store 1D", this.$store.getters.getUploaded1D);
           return _.cloneDeep(this.$store.getters.getUploaded1D);
       }
     },
@@ -159,8 +158,6 @@ export default {
             this.$store.commit('removeColor', filename);
         },
         setCurrentData(chosenData, checkList) {
-
-            // console.log("setting current data:", chosenData, checkList);
             
             var vm = this;
             if (checkList.length == 0) {

@@ -14,10 +14,6 @@
 </template>
 
 <script>
-// The eventBus serves as the means to communicating between components.
-// Here it's being used in moduleStitch to communicate to App.vue for error messages
-import { eventBus } from '../../assets/javascript/eventBus';
-
 /* Import libraries */
 import * as d3 from 'd3';
 

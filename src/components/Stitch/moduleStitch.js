@@ -3,7 +3,11 @@ import _ from 'lodash';
 import $ from 'jquery';
 import interpolate from './interpolateLine.js';
 
-var stitch = (function(d3, _, $) {
+// The eventBus serves as the means to communicating between components.
+// Here it's being used in moduleStitch to communicate to App.vue for error messages
+import { eventBus } from '../../assets/javascript/eventBus';
+
+var stitch = (function(d3, _, $, eventBus) {
     /******* Private Global Variables for Stitch Module **************/
         
         // Object for plot elements
@@ -12,7 +16,8 @@ var stitch = (function(d3, _, $) {
             plot: undefined,
             axes: undefined,
             legend: undefined,
-            errorLines: undefined
+            errorLines: undefined,
+            stitchy: undefined
         };
 
         // Object for plot scale functions
@@ -59,7 +64,6 @@ var stitch = (function(d3, _, $) {
 
         // Object for scatter data points
         var dataNest = undefined;
-        // var scatter = {};
 
     /******* End of Global for Stitch Module **************/
 
@@ -720,9 +724,19 @@ var stitch = (function(d3, _, $) {
 
             if(totalBrushes === 0) {
                 console.log("No brushes to select data.");
+
+                // Emit error message pop-up
+                let errorMsg = "<strong>Warning!</strong> No brushes to select data. Draw brushes.";
+                eventBus.$emit('error-message', errorMsg);
+
                 return true;
             } else if (totalBrushes !== brushObj.brushCount) {
                 console.log("There are " + (brushObj.brushCount + 1) + " lines. You must have (n-1) = " + brushObj.brushCount + " number of brushes.");
+
+                // Emit error message pop-up
+                let errorMsg = "<strong>Warning!</strong>" + " There are " + (brushObj.brushCount + 1) + " lines. You must have (n-1) = " + brushObj.brushCount + " number of brushes. Redraw brushes.";
+                eventBus.$emit('error-message', errorMsg);
+
                 return true;
             } else {
                 return false;
@@ -742,28 +756,53 @@ var stitch = (function(d3, _, $) {
     var validateSelections = function(selected) {
 
         let lineNames = getLineNames();
-        let keys = [];
 
+        // First make sure only 2 lines and only 2 lines are selected per brush
         for( let i = 0, len = selected.length; i < len; i++ ) {
-            let tempKeys = Object.keys(selected[i]);
-            let count = tempKeys.length;
-            
-            keys.push(tempKeys);
-
-            if(count !== 2) {
+            let tempBrush = selected[i];
+            if(tempBrush.length - 1 !== 2) {
                 console.log("Make sure a brush selects 2 and only 2 lines.")
+
+                // Emit error message pop-up
+                let errorMsg = "<strong>Warning!</strong> Make sure a brush selects 2 and only 2 lines. Redraw brushes.";
+                eventBus.$emit('error-message', errorMsg);
+
                 return true;
             }
         }
 
         // Reduce keys to a non-nested array
-        keys = _.flatten(keys);
+        let keys = [];
+        
+        for ( let i = 0, len = selected.length; i < len; i++) {
+            for ( let j = 0, len = selected[i].length - 1; j < len; j++) {
+                
+                // Check that each brush selects more than one point per curve
+                // Leverberg Marquardt cannot fit arrays of length = 1
+                if(selected[i][j][2].x.length < 2) {
+                    console.log("Select more than 1 data point per curve.");
+                    
+                    // Emit error message pop-up
+                    let errorMsg = "<strong>Warning!</strong> Select more than 1 data point per curve. Redraw brushes.";
+                    eventBus.$emit('error-message', errorMsg);
+                    
+                    return true;
+                }
+
+                keys.push(selected[i][j][0]);
+            }
+        }
 
         // If none of the items in keys matches to lineNames,
         // set to true because not all lines have been selected in brushes
         for(let i = 0, len = lineNames.length; i < len; i++) {
             if(keys.indexOf(lineNames[i]) === -1) {
                 console.log(lineNames[i] + " was not selected. Make sure each line is selected.");
+
+                // Emit error message pop-up
+                let errorMsg = "<strong>Warning!</strong> " + lineNames[i] + " was not selected. Make sure each line is selected. Redraw brushes.";
+                eventBus.$emit('error-message', errorMsg);
+
                 return true;
             }
         }
@@ -784,6 +823,37 @@ var stitch = (function(d3, _, $) {
         return sorted;
     }
 
+    // re-format selected data array for interpolate function
+    var formatData = function(data) {
+        let formatted = [];
+
+        for(let i = 0, len = data.length; i < len; i++) {
+            let tempData = data[i].values;
+            let tempName = data[i].key;
+
+            let x = [], y = [], e = [];
+
+            tempData.forEach(el => { 
+                x.push(el.x);
+                y.push(el.y);
+                e.push(el.e);
+            })
+
+            formatted.push( [ tempName, {x:x, y:y, e:e}]);
+        }
+
+        // Sort curves form least to greatest
+
+        formatted.sort(function(a,b) {
+            let minA = _.min(a[1].x);
+            let minB = _.min(b[1].x);
+
+            return minA - minB;
+        })
+
+        return formatted;
+    }
+
     // Function to identify how many lines are within a brush selection
     var selectData = function() {
     
@@ -791,110 +861,109 @@ var stitch = (function(d3, _, $) {
         if (validateBrushes()) return [];
 
         let matches = [];
+        let allData = formatData(dataNest); // An array of all data sorted left to right by x axis values
+        // console.log("All data:", allData);
 
         // First sort brushes so that selections are made left to right
         let sortedBrushes = sortBrushes(); // an array of sorted brush selections
-        console.log("Sorted Brushes:", sortedBrushes);
+        // console.log("Sorted Brushes:", sortedBrushes);
 
-        for (let i = 0, len = sortedBrushes.length; i < len; i++) {
-            let start = sortedBrushes[i][1].raw[0];
-            let end = sortedBrushes[i][1].raw[1];
+        for ( let i = 0, len = sortedBrushes.length; i < len; i++) {
+            let start = sortedBrushes[i][1].converted[0];
+            let end = sortedBrushes[i][1].converted[1];
 
-            let tempSelection = {};
+            let tempSelection = [];
+            // let tempLeft = {};
+            // let tempRight = {};
 
-            // Iterate through data to find brush selections
-            for (let j = 0, len = dataNest.length; j < len; j++) {
-                let tempData = dataNest[j].values;
-                let tempName = dataNest[j].key;
+            for (let j = 0, len = allData.length; j < len; j++) {
                 
-                // Iterate through tempData
-                // But only iterate if the first value in tempData is  is within selection
-                // tempData[0].x >= start
-                let firstValue = scale.brushXScale(tempData[0].x);
-                let lastValue = scale.brushXScale(tempData[ tempData.length - 1].x);
-                
+                // Temp data is cloned so original array is not referenced
+                // If not cloned, the stitching function will not work properly because
+                // each brush selection reference the same curve...hence the same data will
+                // get altered when shifting during the interpolation process.
+                let tempData = _.cloneDeep(allData[j][1]);
+                let tempName = allData[j][0];
+
+                let firstValue = tempData.x[0];
+                let lastValue = tempData.x[tempData.x.length - 1];
+
                 // console.log("Check: " + tempName, firstValue <= end && lastValue >= start);
+                if ( firstValue <= end && lastValue >= start ) {
+                    let tempSelCurve = [tempName];
+                    let tempSel = {x:[], y:[], e:[]};
 
-                if ( firstValue <= end && lastValue >= start) {
-                    for (let z = 0, len = tempData.length; z < len; z++) {
-                        
-                        let convertedX = scale.brushXScale(tempData[z].x);
+                    for( let z = 0, len = tempData.x.length; z < len; z++ ) {
+                        //let convertedX = scale.brushXScale(tempData.x[z]);
+                        let convertedX = tempData.x[z];
 
                         if ( start <= convertedX && convertedX <= end ) {
-                            tempSelection[tempName] = tempSelection[tempName] || [];
-                            tempSelection[tempName].push(tempData[z]);
+                            //tempSelection[tempName] = tempSelection[tempName] || [];
+
+                            // Add the x,y,e values to selection object
+                            tempSel.x.push(tempData.x[z]);
+                            tempSel.y.push(tempData.y[z]);
+                            tempSel.e.push(tempData.e[z]);
                         }
                     }
+
+                    tempSelCurve.push(tempData); // Add all data
+                    tempSelCurve.push(tempSel); // Add selected data
+                    
+                    tempSelection.push(tempSelCurve);
                 }
             }
 
-            // console.log("Temp selection", tempSelection);
+            tempSelection.push([start,end]); // Add Brush selections
+            
+            // Push Temp brush selection to match array
             matches.push(tempSelection);
+
         }
 
         return matches;
+
     }
 
-    var findBase = function(names) {
-        // Finds the curve with the MIN value of X
-        // This will be the base.
-        let tempData = {};
+    var addStitch = function(line) {
 
-        for(let i = 0, len = dataNest.length; i < len; i++) {
-            let tempName = dataNest[i].key;
+        // First repackage data to an array of objects per points for d3 to work with
+        let newData = [];
 
-            if( names.indexOf(tempName) > -1) {
-                tempData[tempName] = dataNest[i].values;
-            }
+        for(let i = 0, len = line.x.length; i < len; i++) {
+            
+            newData.push({
+                x: line.x[i],
+                y: line.y[i],
+                e: line.e[i]
+            });
         }
 
-        tempData = formatData([tempData]); // re-format temp data so x values are in one array
-        
-        let keys = Object.keys(tempData[0]);
+        if(d3.select("#stitch-line").empty()) {
+            
+            elements.stitchy = elements.plot.append("g")
+                .attr("id", "stitch-line")    
+                .append('path')
+                    .attr("clip-path", "url(#clipStitch)")
+                    .attr("transform", "translate(" + 80 + "," + 80 + ")")
+                    .datum(newData)
+                    .attr("class", "pointlines")
+                    .attr("d", plotLine)
+                        .style("fill", "none")
+                        .style("stroke", "red")
+                        .style("stroke-width", "2px")
+                        .style("stroke-dasharray", "4,4");
+        } else {
 
-        let firstX = tempData[0][keys[0]].x;
-        let secondX = tempData[0][keys[1]].x;
-
-        let firstMin = _.min(firstX);
-        let secondMin = _.min(secondX);
-
-        return firstMin <= secondMin ? keys[0] : keys[1];
-    }
-
-    // re-format selected data array for interpolate function
-    var formatData = function(selectedData) {
-        let formatted = [];
-
-        for (let i = 0, len = selectedData.length; i < len; i++) {
-            let temp = selectedData[i];
-            let tempObj = {};
-
-            for (let key in temp) {
-
-                var x = [], y = [], e = [];
-                
-                temp[key].forEach( el => {
-                    x.push(el.x);
-                    y.push(el.y);
-                    e.push(el.e);
-                });
-
-                tempObj[key] = {
-                    x: x,
-                    y: y,
-                    e: e
-                }
-
-            }
-
-            formatted.push(tempObj);
+            elements.stitchy.datum(newData)
+                .transition().duration(1500)
+                .attr("d", plotLine);
         }
-
-        return formatted;
     }
 
     my.stitchData = function() {
         let selectedData = selectData();
+        // console.log("Selected:", selectedData);
 
         //Run tests to check if appropriate brush selections are made
         if( selectedData.length === 0 ) {
@@ -903,25 +972,19 @@ var stitch = (function(d3, _, $) {
             console.log("Re-draw brushes.");
         } else {
             console.log("Selected Data: ", selectedData);
-            // console.log("Brush Selections:", brushObj.brushSelections);
             
-            // Now that validation is done, reformat data for interpolation
-            let formattedData = formatData(selectedData);
-            console.log("Formatted data:", formattedData);
-            
-            // Then find base curve
-            let base = findBase(Object.keys( formattedData[0] ));
-            console.log("Base: " + base);
-
             // Now interpolate data
-            let line = interpolate.regression(formattedData, base);
+            let line = interpolate.linear(selectedData);
+
+            // Put the line onto the plot
+            addStitch(line);
         }
 
     }
 
     // Return Module object for public use
     return my;
-}(d3, _, $));
+}(d3, _, $, eventBus));
 
 // Export stitch module for use in PlotStitch.vue
 export default stitch;
