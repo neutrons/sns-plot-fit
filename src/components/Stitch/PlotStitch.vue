@@ -5,7 +5,7 @@
             <v-panel PANELTITLE="Stitch Plot" PANELTYPE="primary">
                 <!-- Plot reset button inserted into panel heading  -->
                 <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
-                <!-- <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button> -->
+                <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
                 
                 <!-- <button class="btn btn-primary" @click="removeBrushes">Remove Brushes</button> -->
                 <div id="stitch-plot"></div>
@@ -56,6 +56,7 @@ export default {
         drawBrushes: stitch.drawBrushes,
         newBrush: stitch.newBrush,
         resetToggle: stitch.resetToggle,
+        resetPlot: stitch.resetPlot,
         checkError() {
             let len = document.getElementById("error-container").children.length;
             return len > 0 ? false : true;

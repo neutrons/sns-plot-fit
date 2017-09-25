@@ -704,6 +704,13 @@ var stitch = (function(d3, _, $, eventBus) {
             });
     }
 
+    my.resetPlot = function() {
+
+          elements.svg.transition()
+              .duration(750)
+            .call(zoomObj.zoom.transform, d3.zoomIdentity);
+    }
+
     /* Brush Validation Rules:
         1) Must have drawn brushes, so no stitching with no brushes...obviously. validateBrushes handles this.
         2) Must have n-1 brushes (so 3 lines needs 2 brushes) - validateBrushes handles this
