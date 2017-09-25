@@ -939,6 +939,7 @@ var stitch = (function(d3, _, $, eventBus) {
             });
         }
 
+        // If first time plotting stitch line, draw path with animation from start to end
         if(d3.select("#stitch-line").empty()) {
             
             elements.stitchy = elements.plot.append("g")
@@ -949,12 +950,26 @@ var stitch = (function(d3, _, $, eventBus) {
                     .datum(newData)
                     .attr("class", "pointlines")
                     .attr("d", plotLine)
-                        .style("fill", "none")
-                        .style("stroke", "red")
-                        .style("stroke-width", "2px")
-                        .style("stroke-dasharray", "4,4");
-        } else {
+                    .style("fill", "none")
+                    .style("stroke", "red")
+                    .style("stroke-width", "2px");
 
+            var totalLength = elements.stitchy.node().getTotalLength();
+            
+            elements.stitchy.attr("stroke-dasharray", totalLength + " " + totalLength)
+                    .attr("stroke-dashoffset", totalLength)
+                    .transition()
+                        .duration(5000)
+                        .ease(d3.easePolyInOut)
+                        .attr("stroke-dashoffset", 0)
+                        .on('end', changeStyle); // Change to dash line one finished drawing path
+                        
+            function changeStyle() {
+                elements.stitchy.attr("stroke-dasharray", "4,4");
+            }
+
+        } else {
+            // if updating current stitched line, simply transition to new path, no animate start to end
             elements.stitchy.datum(newData)
                 .transition().duration(1500)
                 .attr("d", plotLine);
