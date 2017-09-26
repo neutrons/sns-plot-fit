@@ -224,7 +224,9 @@ export default {
     watch: {
         scales: {
             handler() {
-                this.setParameters();
+                //this.setParameters();
+
+                this.$refs.stitchPlot.changeScales(this.scales);
             },
             deep: true
         },

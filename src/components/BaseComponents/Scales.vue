@@ -1,5 +1,5 @@
 <template>
-  <div id="Scales">
+  <div class="Scales">
     <fieldset :disabled="DISABLE">
         <!-- X Scale Selection -->
         <div class="input-group">

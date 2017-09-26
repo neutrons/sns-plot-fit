@@ -57,6 +57,7 @@ export default {
         newBrush: stitch.newBrush,
         resetToggle: stitch.resetToggle,
         resetPlot: stitch.resetPlot,
+        changeScales: stitch.changeScales,
         checkError() {
             let len = document.getElementById("error-container").children.length;
             return len > 0 ? false : true;

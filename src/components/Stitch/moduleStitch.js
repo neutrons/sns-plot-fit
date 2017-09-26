@@ -64,6 +64,7 @@ var stitch = (function(d3, _, $, eventBus) {
 
         // Object for scatter data points
         var dataNest = undefined;
+        var plotData = undefined;
 
     /******* End of Global for Stitch Module **************/
 
@@ -117,6 +118,7 @@ var stitch = (function(d3, _, $, eventBus) {
             let data = parameters.data; //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
             data = data.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
+            plotData = data;
            
             //Catch any empty data and throw an error
             if(data.length < 1) {
@@ -709,6 +711,150 @@ var stitch = (function(d3, _, $, eventBus) {
           elements.svg.transition()
               .duration(750)
             .call(zoomObj.zoom.transform, d3.zoomIdentity);
+    }
+
+    my.changeScales = function(value) {
+        console.log("Changing scales:", value);
+        
+        scale.yScale = value.yScale;
+        scale.xScale = value.xScale;
+      
+        // Change to log scale  
+        scale.yScale.range([dim.height, 0])
+            .domain(d3.extent(plotData, function(d) {
+                return d.y;
+            })).nice();
+        
+        scale.xScale.range([0, dim.width])
+            .domain(d3.extent(plotData, function(d) {
+                return d.x;
+            })).nice();
+
+        let t = d3.zoomTransform( elements.svg.node());
+        let new_yScale = t.rescaleY(scale.yScale); 
+        let new_xScale = t.rescaleX(scale.xScale);
+
+        // Update brushScale to reflect new zoomed scale
+        scale.brushXScale = new_xScale;
+
+        // If there are brushes, re-adjust selections according to new scale
+        if(Object.keys(brushObj.brushSelections).length > 0) {
+            
+            brushObj.brushSelections = _.mapValues(brushObj.brushSelections, function(el) {
+                return {
+                    raw: el.raw,
+                    converted: el.raw.map(i => scale.brushXScale.invert(i))
+                }
+            });
+        }
+        
+       plotLine = d3.line()
+            .x(function (d) {
+                return new_xScale(d.x);
+            })
+            .y(function (d) {
+                return new_yScale(d.y);
+            });
+      
+        // re-scale axes and gridlines during zoom
+        elements.axes.select(".axis--y").transition()
+            .duration(1000)
+            .call(axesObj.yAxis.scale(new_yScale));
+
+        elements.axes.select(".axis--x").transition()
+            .duration(1000)
+            .call(axesObj.xAxis.scale(new_xScale));
+
+        elements.axes.select(".gridline--y").transition()
+            .duration(1000)
+            .call(axesObj.yGridline.scale(new_yScale));
+        
+        elements.axes.select(".gridline--x").transition()
+            .duration(1000)
+            .call(axesObj.xGridline.scale(new_xScale));
+        
+        // re-draw scatter plot;
+        elements.plot.selectAll("circle").transition().duration(1000)
+            .attr("cy", function (d) {
+                return new_yScale(d.y);
+            })
+            .attr("cx", function (d) {
+                return new_xScale(d.x);
+            });
+
+        // re-draw line
+        plotLine = d3.line()
+            .x(function (d) {
+                return new_xScale(d.x);
+            })
+            .y(function (d) {
+                return new_yScale(d.y);
+            });
+
+        elements.plot.selectAll(".pointlines").transition().duration(1000)
+            .attr("d", plotLine);
+
+        // Re-draw error
+        elements.errorlines.selectAll('.error').transition().duration(1000)
+            .attr('x1', function (d) {
+                return new_xScale(d.x);
+            })
+            .attr('x2', function (d) {
+                return new_xScale(d.x);
+            })
+            .attr('y1', function (d) {
+                return new_yScale(d.y + d.e);
+            })
+            .attr('y2', function (d) {
+                if(d.y - d.e < 0 && scale.yScaleType === "Log(Y)") {
+                    return new_yScale(d.y)
+                } else {
+                    return new_yScale(d.y - d.e);
+                }
+            });
+        
+        // re-draw error tick top
+        elements.errorlines.selectAll(".error-tick-top").transition().duration(1000)
+            .attr('x1', function (d) {
+                return new_xScale(d.x) - 4;
+            })
+            .attr('x2', function (d) {
+                return new_xScale(d.x) + 4;
+            })
+            .attr('y1', function (d) {
+                return new_yScale(d.y + d.e);
+            })
+            .attr('y2', function (d) {
+                return new_yScale(d.y + d.e);
+            });
+
+        // re-draw error tick bottom
+        elements.errorlines.selectAll(".error-tick-bottom").transition().duration(1000)
+            .filter( function(d) {
+                if(scale.yScaleType === "Log(Y)") {
+                    return d.y - d.e > 0;
+                } else {
+                    return true;
+                }
+            })
+            .attr('x1', function (d) {
+                return new_xScale(d.x) - 4;
+            })
+            .attr('x2', function (d) {
+                return new_xScale(d.x) + 4;
+            })
+            .attr('y1', function (d) {
+                return new_yScale(d.y - d.e);
+            })
+            .attr('y2', function (d) {
+                return new_yScale(d.y - d.e);
+            });
+      
+        axesObj.yAxis.scale(new_yScale);
+        axesObj.xAxis.scale(new_yScale);
+      
+        elements.svg.transition().duration(1000).select('.y.axis').call(axesObj.yAxis);
+        elements.svg.transition().duration(1000).select('.x.axis').call(axesObj.xAxis);
     }
 
     /* Brush Validation Rules:
