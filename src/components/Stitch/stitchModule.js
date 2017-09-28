@@ -2,12 +2,13 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import $ from 'jquery';
 import interpolate from './interpolateLine.js';
+import store from '../../store/index.js';
 
 // The eventBus serves as the means to communicating between components.
 // Here it's being used in moduleStitch to communicate to App.vue for error messages
 import { eventBus } from '../../assets/javascript/eventBus';
 
-var stitch = (function(d3, _, $, eventBus) {
+var stitch = (function(d3, _, $, eventBus, store) {
     /******* Private Global Variables for Stitch Module **************/
         
         // Object for plot elements
@@ -319,22 +320,22 @@ var stitch = (function(d3, _, $, eventBus) {
                 $(this).children('iframe.width-changed').remove();
             },
             add: function () {
-                let elm = $(this);
-                let iframe = elm.children('iframe.width-changed');
+                var elm = $(this);
+                var iframe = elm.children('iframe.width-changed');
                 if (!iframe.length) {
                     iframe = $('<iframe/>').addClass('width-changed').prependTo(this);
                 }
-                let oldWidth = elm.width();
+                var oldWidth = elm.width();
                 function elmResized() {
-                    let width = elm.width();
-                    if (oldWidth != dim.width) {
-                        elm.trigger('widthChanged', [dim.width, oldWidth]);
-                        oldWidth = dim.width;
+                    var width = elm.width();
+                    if (oldWidth != width) {
+                        elm.trigger('widthChanged', [width, oldWidth]);
+                        oldWidth = width;
                     }
                 }
 
-                let timer = 0;
-                let ielm = iframe[0];
+                var timer = 0;
+                var ielm = iframe[0];
                 (ielm.contentWindow || ielm).onresize = function() {
                     clearTimeout(timer);
                     timer = setTimeout(elmResized, 20);
@@ -342,12 +343,12 @@ var stitch = (function(d3, _, $, eventBus) {
             }
         }
 
-        let chartStitch = $(".stitch-chart");
-        let aspectRatio = chartStitch.width() / chartStitch.height()
-        let container = chartStitch.parent();
+        var chartStitch = $(".stitch-chart");
+        var aspectRatio = chartStitch.width() / chartStitch.height()
+        var container = chartStitch.parent();
 
         $("#stitch-plot").on("widthChanged", function() {
-            let targetWidth = container.width();
+            var targetWidth = container.width();
             chartStitch.attr("width", targetWidth);
             chartStitch.attr("height", Math.round(targetWidth / aspectRatio));
         });
@@ -360,7 +361,7 @@ var stitch = (function(d3, _, $, eventBus) {
         // Edit toggle to default zoom
         my.toggleEdit(toggleChoice);
 
-        return;
+        //return;
     }
 
     /**************** Update Function *******************************/
@@ -575,6 +576,9 @@ var stitch = (function(d3, _, $, eventBus) {
                         .style("opacity", 1)
                         .style("fill", function () {
                             return d.color = color(d.key);
+                        })
+                        .on("click", function(d,i) {
+                            removePoint(i, d.name);
                         });
                 
                 // Add Legend
@@ -772,6 +776,9 @@ var stitch = (function(d3, _, $, eventBus) {
                     .attr("stroke-width", "2px")
                     .style("fill", function() {
                         return d.color = color(d.key);
+                    })
+                    .on("click", function(d,i) {
+                        removePoint(i, d.name);
                     });
 
                 // Remove old
@@ -812,7 +819,51 @@ var stitch = (function(d3, _, $, eventBus) {
         // Update previous keys with current keys
         prevKeys = _.clone(newKeys);
 
-    }    
+    }
+    
+    /********** Functions to Remove Points ********************************/
+    function modalConfirm(callback){
+        $("#myModal").modal('show')
+        
+        $("#btn-yes-delete").on("click", function(){
+            callback(true);
+            $("#myModal").modal('hide');
+        });
+
+        $("#btn-no-delete").on("click", function(){
+            callback(false);
+            $("#myModal").modal('hide');
+        });
+    };
+
+    function removePoint(index, name) {
+
+        modalConfirm( function(confirm){
+            if (confirm){
+                $("#btn-no-delete").off();
+                $("#btn-yes-delete").off();
+
+                console.log("Removing point at: " + name + ": values[" + index + "]")
+                
+                // Remove point from current data
+                plotData.splice(index, 1);
+
+                // Remove point from stored dataset
+                store.commit('removePoint', {name: name, index: index});
+
+                my.update(plotData);
+                return;
+            } else {
+                $("#btn-no-delete").off();
+                $("#btn-yes-delete").off();
+                console.log("NOT DELETING");
+                return;
+            }
+        });
+        
+        return;
+        //update();
+    }
 
     /********* Function to Add New Brushes  *******************************/
     my.newBrush = function () {
@@ -1338,7 +1389,7 @@ var stitch = (function(d3, _, $, eventBus) {
 
     // Return Module object for public use
     return my;
-}(d3, _, $, eventBus));
+}(d3, _, $, eventBus, store));
     
 // Export stitch module for use in PlotStitch.vue
 export default stitch;
