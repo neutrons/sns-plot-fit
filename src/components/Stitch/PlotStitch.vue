@@ -22,7 +22,7 @@ import Panel from '../BaseComponents/Panels/Panel.vue';
 import ResetButton from '../BaseComponents/ResetButton.vue';
 
 /* Import Stitch Module */
-import stitch from './moduleStitch.js';
+import stitch from './stitchModule.js';
 
 export default {
     name: 'StitchPlot',

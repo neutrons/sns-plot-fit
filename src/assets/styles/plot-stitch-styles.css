@@ -13,3 +13,7 @@
 .brushes .handle {
   fill: none;
 }
+
+circle {
+  cursor: pointer;
+}
