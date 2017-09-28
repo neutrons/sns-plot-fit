@@ -32,7 +32,14 @@ var stitch = (function(d3, _, $, eventBus) {
         var dim = {
             width: undefined,
             height: undefined
-        }
+        };
+
+        var margin = {
+            top: 80,
+            bottom: 80,
+            left: 80,
+            right: 80
+        };
 
         // Object for axis generators
         var axesObj = {
@@ -151,24 +158,22 @@ var stitch = (function(d3, _, $, eventBus) {
 
             // Set plot dimensions
             let containerWidth = document.getElementById("stitch-plot").offsetWidth; // Pull plot's parent container width, this will be used to scale the plot responsively
-            let margin = { top: 80, right: 80, bottom: 80, left: 80 };
+            //let margin = { top: 80, right: 80, bottom: 80, left: 80 };
             let viewHeight = containerWidth / (16/9); // 16/9 is the aspect ratio
-            let height = viewHeight - margin.top - margin.bottom;
-            let width = containerWidth - margin.left - margin.right;
+            dim.height = viewHeight - margin.top - margin.bottom;
+            dim.width = containerWidth - margin.left - margin.right;
             let viewbox = "0 0 " + containerWidth + " " + viewHeight;
-            dim.width = width;
-            dim.height = height;
             
             // Set Scales
             scale.xScale = parameters.scales.xScale;
-            scale.xScale.range([0,width]);
+            scale.xScale.range([0,dim.width]);
             scale.xScale.domain(d3.extent(data, function (d) {
                 return d.x;
             }));
 
             scale.yScale = parameters.scales.yScale;
             scale.yScaleType = parameters.scales.yScaleType;
-            scale.yScale.range([height, 0]);
+            scale.yScale.range([dim.height, 0]);
             scale.yScale.domain(d3.extent(data, function(d) {
                 return d.y;
             }));
@@ -181,29 +186,29 @@ var stitch = (function(d3, _, $, eventBus) {
             // Set Axes & Gridlines generators
             axesObj.xAxis = d3.axisBottom(scale.xScale).ticks(10);
             axesObj.yAxis = d3.axisLeft(scale.yScale).ticks(10);
-            axesObj.xGridline = d3.axisBottom(scale.xScale).ticks(10).tickSize(-height).tickFormat("");
-            axesObj.yGridline = d3.axisLeft(scale.yScale).ticks(10).tickSize(-width).tickFormat("");
+            axesObj.xGridline = d3.axisBottom(scale.xScale).ticks(10).tickSize(-dim.height).tickFormat("");
+            axesObj.yGridline = d3.axisLeft(scale.yScale).ticks(10).tickSize(-dim.width).tickFormat("");
 
             // Add main chart area
             elements.svg = d3.select("#stitch-plot").append("svg")
                 .attr("viewBox", viewbox)
                 .attr("perserveAspectRatio","xMidYMid meet")
                 .attr("class", "stitch-chart")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom);
+                .attr("width", dim.width + margin.left + margin.right)
+                .attr("height", dim.height + margin.top + margin.bottom);
             
             // Add clip path so points/line do not exceed plot boundaries
             elements.svg.append("defs").append("clipPath")
                 .attr("id", "clipStitch")
                 .append("rect")
-                .attr("width", width)
-                .attr("height", height);
+                .attr("width", dim.width)
+                .attr("height", dim.height);
 
             // Add plot area
             elements.svg.append("rect")
                 .attr("class", "plotbg")
-                .attr("width", width)
-                .attr("height", height)
+                .attr("width", dim.width)
+                .attr("height", dim.height)
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             // Add Axis and Gridline section
@@ -218,8 +223,8 @@ var stitch = (function(d3, _, $, eventBus) {
 
             // Generate a SVG group to keep brushes
             brushObj.brushGroup = elements.svg.append('g')
-                .attr("height", height)
-                .attr("width", width)
+                .attr("height", dim.height)
+                .attr("width", dim.width)
                 .attr("fill", "none")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                 .attr("class", "brushes");
@@ -244,7 +249,7 @@ var stitch = (function(d3, _, $, eventBus) {
 
             // Add X Gridlines
             elements.axes.append("g")
-                .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
+                .attr("transform", "translate(" + margin.left + "," + (dim.height + margin.top) + ")")
                 .attr("class", "gridline gridline--x")
                 .call(axesObj.xGridline);
 
@@ -256,7 +261,7 @@ var stitch = (function(d3, _, $, eventBus) {
 
             // Add X Axis
             elements.axes.append("g")
-                .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
+                .attr("transform", "translate(" + margin.left + "," + (dim.height + margin.top) + ")")
                 .attr("class", "axis axis--x")
                 .call(axesObj.xAxis);
 
@@ -270,7 +275,7 @@ var stitch = (function(d3, _, $, eventBus) {
             elements.svg.append("g").append("text")
                 .attr("height", 100)
                 .attr("width", 200)
-                .attr("transform", "translate(25," + (height/2) + ") rotate(-90)")
+                .attr("transform", "translate(25," + (dim.height/2) + ") rotate(-90)")
                 .attr("id", "yLabelStitch")
                 .text("Y");
 
@@ -278,7 +283,7 @@ var stitch = (function(d3, _, $, eventBus) {
             elements.svg.append("g").append("text")
                 .attr("height", 100)
                 .attr("width", 200)
-                .attr("transform", "translate(" + ((width+margin.left+margin.right)/2) + "," + (height+margin.top+margin.bottom/2) + ")")
+                .attr("transform", "translate(" + ((dim.width+margin.left+margin.right)/2) + "," + (dim.height+margin.top+margin.bottom/2) + ")")
                 .attr("id", "xLabelStitch")
                 .text("X");
 
@@ -287,7 +292,7 @@ var stitch = (function(d3, _, $, eventBus) {
             elements.svg.append("g").append("text")
                 .attr("height", 100)
                 .attr("width", 200)
-                .attr("transform", "translate(" + ((width+margin.left+margin.right)/2) + ",35)")
+                .attr("transform", "translate(" + ((dim.width+margin.left+margin.right)/2) + ",35)")
                 .attr("id", "plotTitleStitch")
                 .text("Y vs X");
                 
@@ -428,7 +433,7 @@ var stitch = (function(d3, _, $, eventBus) {
                     elements.legend = elements.plot.append("g");
 
                     elements.legend.append("rect")
-                        .attr("x", width - margin.right - margin.right)
+                        .attr("x", dim.width - margin.right - margin.right)
                         .attr("y", (margin.top + 20) + i * 25)
                         .attr("class", "legend")
                         .style("fill", function () {
@@ -438,7 +443,7 @@ var stitch = (function(d3, _, $, eventBus) {
                         .attr("width", "8px");
 
                     elements.legend.append("text")
-                        .attr("x", width - margin.right - margin.right + 15)
+                        .attr("x", dim.width - margin.right - margin.right + 15)
                         .attr("y", (margin.top + 28) + i * 25)
                         .attr("class", "legend")
                         .style("fill", function () {
@@ -472,9 +477,9 @@ var stitch = (function(d3, _, $, eventBus) {
                     let oldWidth = elm.width();
                     function elmResized() {
                         let width = elm.width();
-                        if (oldWidth != width) {
-                            elm.trigger('widthChanged', [width, oldWidth]);
-                            oldWidth = width;
+                        if (oldWidth != dim.width) {
+                            elm.trigger('widthChanged', [dim.width, oldWidth]);
+                            oldWidth = dim.width;
                         }
                     }
 
