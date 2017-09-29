@@ -18,7 +18,8 @@ var stitch = (function(d3, _, $, eventBus, store) {
             axes: undefined,
             legend: undefined,
             errorLines: undefined,
-            stitchy: undefined
+            stitchy: undefined,
+            tooltip: undefined
         };
 
         // Object for plot scale functions
@@ -136,31 +137,10 @@ var stitch = (function(d3, _, $, eventBus, store) {
             return;
         }
 
-        //Setting 'this' as global when calling vue data letiables inside nested functions
-        let vm = this;
-
         plotData = parameters.data; //regular data to plot
 
         // Filter any infinity values, null, or NaN before plotting
         plotData = plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
-
-        //Catch any empty data and throw an error
-        if(plotData.length < 1) {
-            console.log("No data! Error!");
-            //Remove any elements previously plotted
-            d3.select(".stitch-chart").remove();
-            
-            vm.isError = !vm.isError;
-            
-            if(vm.checkError()) {
-                let errorMsg = "<strong>Warning!</strong> No data to plot.";
-                eventBus.$emit('error-message', errorMsg);
-            }
-
-            return;
-        } else {
-            vm.isError = false;
-        }
 
         // Set Color Scale
         color.domain(parameters.colorDomain);
@@ -216,6 +196,13 @@ var stitch = (function(d3, _, $, eventBus, store) {
         axesObj.xGridline = d3.axisBottom(scale.xScale).ticks(10).tickSize(-dim.height).tickFormat("");
         axesObj.yGridline = d3.axisLeft(scale.yScale).ticks(10).tickSize(-dim.width).tickFormat("");
         
+
+        // Add tool tip and hide it until invoked
+        elements.tooltip = d3.select("#app-container").append("div")
+            .attr("id", "tooltip-stitch")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
         // Add main chart area
         elements.svg = d3.select("#stitch-plot").append("svg")
             .attr("viewBox", viewbox)
@@ -366,31 +353,9 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
     my.update = function(newData) {
 
-        //Setting 'this' as global when calling vue data letiables inside nested functions
-        let vm = this;
-
         // Update Plot Data
         plotData = newData;
         plotData = plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
-
-        //Catch any empty data and throw an error
-        if(plotData.length < 1) {
-            console.log("No data! Error!");
-            //Remove any elements previously plotted
-            d3.select(".stitch-chart").remove();
-            
-            vm.isError = !vm.isError;
-            
-            if(vm.checkError()) {
-                let errorMsg = "<strong>Warning!</strong> No data to plot.";
-                eventBus.$emit('error-message', errorMsg);
-            }
-
-            return;
-        } else {
-            vm.isError = false;
-        }
-
 
         // Nest the entries by name
         dataNest = d3.nest()
@@ -398,7 +363,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
             return d.name;
         })
         .entries(plotData);
-
         
         // Add keys
         let newKeys = [];
@@ -574,6 +538,22 @@ var stitch = (function(d3, _, $, eventBus, store) {
                         .style("opacity", 1)
                         .style("fill", function () {
                             return d.color = color(d.key);
+                        })
+                        .on("mouseover", function (d) {
+                            
+                            elements.tooltip.transition()
+                                .duration(200)
+                                .style("opacity", 1);
+
+                            elements.tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6) + "<br/><br/><b>Note:</b> Click point to <em>delete</em> it.")
+                                .style("top", (d3.event.pageY - 40) + "px")
+                                .style("left", (d3.event.pageX + 20) + "px");
+                        })
+                        .on("mouseout", function (d) {
+
+                            elements.tooltip.transition()
+                                .duration(500)
+                                .style("opacity", 0);
                         })
                         .on("click", function(d,i) {
                             removePoint(i, d.name);
@@ -775,6 +755,22 @@ var stitch = (function(d3, _, $, eventBus, store) {
                     .style("fill", function() {
                         return d.color = color(d.key);
                     })
+                    .on("mouseover", function (d) {
+                        
+                        elements.tooltip.transition()
+                            .duration(200)
+                            .style("opacity", 1);
+
+                        elements.tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6) + "<br/><br/><b>Note:</b> Click point to <em>delete</em> it.")
+                            .style("top", (d3.event.pageY - 40) + "px")
+                            .style("left", (d3.event.pageX + 20) + "px");
+                    })
+                    .on("mouseout", function (d) {
+
+                        elements.tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0);
+                    })
                     .on("click", function(d,i) {
                         removePoint(i, d.name);
                     });
@@ -840,8 +836,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
             if (confirm){
                 $("#btn-no-delete").off();
                 $("#btn-yes-delete").off();
-
-                console.log("Removing point at: " + name + ": values[" + index + "]")
                 
                 // Remove point from current data
                 plotData.splice(index, 1);
@@ -854,7 +848,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
             } else {
                 $("#btn-no-delete").off();
                 $("#btn-yes-delete").off();
-                console.log("NOT DELETING");
+                
                 return;
             }
         });
@@ -1426,7 +1420,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
                 // Code to format data and save as a .txt file
 
-                
+
                 return;
             } else {
                 $("#cancel-save-btn").off();

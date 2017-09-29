@@ -115,7 +115,7 @@ export default {
                 console.log("No data! Error!");
                 //Remove any elements previously plotted
                 d3.select(".chart-1D").remove();
-                d3.select(".tooltip-1D").remove();
+                d3.select("#tooltip-1D").remove();
                 vm.isError = !vm.isError;
                 
                 if(vm.checkError()) {
@@ -130,7 +130,7 @@ export default {
 
             //Remove any elements previously plotted
             d3.select(".chart-1D").remove();
-            d3.select(".tooltip-1D").remove();
+            d3.select("#tooltip-1D").remove();
             
             // Set isFit to check if a file is selected to fit
             var isFit = vm.isFit;
@@ -199,7 +199,8 @@ export default {
 
             // Add tool tip and hide it until invoked
             var tooltip = d3.select("#app-container").append("div")
-                .attr("class", "tooltip-1D")
+                .attr("id", "tooltip-1D")
+                .attr("class", "tooltip")
                 .style("opacity", 0);
 
             // Add main chart area
@@ -519,8 +520,6 @@ export default {
                         })
                         .on("mouseover", function (d) {
 
-                            d3.select(this).attr("r", 6);
-
                             tooltip.transition()
                                 .duration(200)
                                 .style("opacity", 1);
@@ -529,7 +528,6 @@ export default {
                                 .style("left", (d3.event.pageX + 20) + "px");
                         })
                         .on("mouseout", function (d) {
-                            d3.select(this).attr("r", 4);
 
                             tooltip.transition()
                                 .duration(500)

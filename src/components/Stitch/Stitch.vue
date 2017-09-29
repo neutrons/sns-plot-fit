@@ -207,6 +207,7 @@ export default {
                 // and reset to default values
                 console.log("Removing plot elements...");
                 d3.select(".stitch-chart").remove();
+                d3.select("#tooltip-stitch").remove();
 
                 this.selectedData = [];
             } else {
@@ -256,6 +257,7 @@ export default {
                 } else {
                     console.log("No data to plot...");
                     d3.select(".stitch-chart").remove();
+                    d3.select("#tooltip-stitch").remove();
                     this.$refs.stitchPlot.resetDefaults();
                     this.$refs.toggle.picked = true;
                     this.isStitched = false;
@@ -300,6 +302,7 @@ export default {
                     // so reset everything to defaults.
                     // Remove any elements previously plotted
                     d3.select(".stitch-chart").remove();
+                    d3.select("#tooltip-stitch").remove();
 
                     // Reset disable to default 'true'
                     this.disable = true;
