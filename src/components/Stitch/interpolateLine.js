@@ -120,7 +120,7 @@ var interpolate = (function(everpolate, LM, _) {
             If no negative values, proceed as normal 
         */
         stitchedLine = fixNegatives(stitchedLine);
-        console.log("Stitched Line:", stitchedLine);
+        //console.log("Stitched Line:", stitchedLine);
 
         return stitchedLine;     
         

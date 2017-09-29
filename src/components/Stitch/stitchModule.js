@@ -59,6 +59,11 @@ var stitch = (function(d3, _, $, eventBus, store) {
             brushGroup: undefined
         };
 
+        // Once a stitch line is saved, store the brush selections
+        var storedBrushes = {
+
+        }
+
         // Object for Zoom behaviors
         var zoomObj = {
             zoom: undefined,
@@ -71,10 +76,13 @@ var stitch = (function(d3, _, $, eventBus, store) {
         // Toggle Value when switching between Zoom and Brush behaviors
         var toggleChoice = 'zoom';
 
-        // Object for scatter data points
+        // Object to store relevant plot data
         var plotData = undefined;
         var dataNest = undefined;
         var prevKeys = [];
+
+        // Array to store a stitched line's data
+        var stitchLineData = [];
 
         // Generator for color
         var color = d3.scaleOrdinal(d3.schemeCategory20);
@@ -1142,7 +1150,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
         for( let i = 0, len = selected.length; i < len; i++ ) {
             let tempBrush = selected[i];
 
-            console.log("Temp brush", tempBrush);
+            // console.log("Temp brush", tempBrush);
             if(tempBrush.length - 1 !== 2) {
                 console.log("Make sure a brush selects 2 and only 2 lines.")
 
@@ -1226,7 +1234,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
         }
 
         // Sort curves form least to greatest
-
         formatted.sort(function(a,b) {
             let minA = _.min(a[1].x);
             let minB = _.min(b[1].x);
@@ -1322,6 +1329,8 @@ var stitch = (function(d3, _, $, eventBus, store) {
             });
         }
 
+        stitchLineData = _.cloneDeep(newData);
+
         // If first time plotting stitch line, draw path with animation from start to end
         if(d3.select("#stitch-line").empty()) {
             
@@ -1376,7 +1385,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
             console.log("Re-draw brushes.");
             return false;
         } else {
-            console.log("Selected Data: ", selectedData);
+            // console.log("Selected Data: ", selectedData);
             
             // Now interpolate data
             let line = interpolate.linear(selectedData);
@@ -1416,10 +1425,10 @@ var stitch = (function(d3, _, $, eventBus, store) {
                 $("#file-name-input").val('');
 
                 // Code to store brush selections
-
+                console.log("Selections:", brushObj.brushSelections);
 
                 // Code to format data and save as a .txt file
-
+                console.log("Stitch Line Data:", stitchLineData);
 
                 return;
             } else {
