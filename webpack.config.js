@@ -61,9 +61,9 @@ module.exports = {
     compress: true,
     port: 8080,
     proxy: {
-    "/files": {
+    "/external": {
       target: "http://localhost:8000",
-      pathRewrite: {"^/files" : ""}
+      pathRewrite: {"^/external" : ""}
     }
   }
 },

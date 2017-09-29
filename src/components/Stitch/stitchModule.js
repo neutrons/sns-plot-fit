@@ -3,6 +3,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import interpolate from './interpolateLine.js';
 import store from '../../store/index.js';
+import axios from 'axios';
 
 // The eventBus serves as the means to communicating between components.
 // Here it's being used in moduleStitch to communicate to App.vue for error messages
@@ -1399,29 +1400,48 @@ var stitch = (function(d3, _, $, eventBus, store) {
     }
 
     /********** Functions to Save Stitch Line ********************************/
+    var isValidFilename= (function(){
+        var rg1=/^[^\\/:\*\?"<>\|  .]+$/; // forbidden characters \ / : * ? " < > |
+        var rg2=/^[0-9]/; // cannot start with a number ([0-9])
+        var rg3=/^(nul|prn|con|lpt[0-9]|com[0-9])(\.|$)/i; // forbidden file names
+        return function isValid(fname){
+          return rg1.test(fname)&&!rg2.test(fname)&&!rg3.test(fname);
+        }
+      })();
+      
     function saveConfirm(callback){
         $("#saveModal").modal('show')
         
         $("#save-btn").on("click", function(){
-            callback(true);
-            $("#saveModal").modal('hide');
+
+            let filename = $('#file-name-input').val();
+
+            if( !isValidFilename(filename) ) {
+                $("#save-error-msg").show();
+            } else {
+                callback(true);
+                $("#saveModal").modal('hide');
+                $("#save-error-msg").hide();
+            }
+
         });
 
         $("#cancel-save-btn").on("click", function(){
             callback(false);
             $("#saveModal").modal('hide');
+            $("#save-error-msg").hide();
         });
     };
 
     my.saveStitchLine = function() {
-
+        
         saveConfirm( function(confirm){
             if (confirm){
                 $("#cancel-save-btn").off();
                 $("#save-btn").off();
                 
-                let fname = $('#file-name-input').val();
-                console.log("Saving the file name: " + fname);
+                let filename = $('#file-name-input').val();
+                console.log("Saving the file name: " + filename + "_Iq.txt");
                 $("#file-name-input").val('');
 
                 // Code to store brush selections
@@ -1429,6 +1449,20 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
                 // Code to format data and save as a .txt file
                 console.log("Stitch Line Data:", stitchLineData);
+
+                console.log("Calling axios.post to save new data file");
+
+                axios.post('/external/save', {
+                    id: filename + '_Iq.txt',
+                    content: stitchLineData
+                  })
+                  .then(function (response) {
+                    console.log(response);
+                  })
+                  .catch(function (error) {
+                    console.log(error);
+                  });
+
 
                 return;
             } else {
@@ -1445,7 +1479,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
     // Return Module object for public use
     return my;
-}(d3, _, $, eventBus, store));
+}(d3, _, $, eventBus, store, axios));
     
 // Export stitch module for use in PlotStitch.vue
 export default stitch;

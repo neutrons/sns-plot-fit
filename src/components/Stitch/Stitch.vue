@@ -63,9 +63,9 @@
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
                         <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
                     </v-switch> 
-                    <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" :disabled="disable" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" v-if="isMultipleLines" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
                     <br>
-                    <button id="stitch-btn" class="btn btn-success btn-sm btn-block" :disabled="disable" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
+                    <button id="stitch-btn" class="btn btn-success btn-sm btn-block" v-if="isMultipleLines" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
                     <br>
                     <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" @click="removeStitch" v-if="isStitched"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Stitch Line</button>
                     <br>
@@ -103,6 +103,11 @@
                             </div>
 
                             <div class="clearfix"></div>
+                            
+                            <div id="save-error-msg" class="alert alert-danger">
+                                <p><strong>Warning!</strong> Filename should contain no special characters such as * . ” / \ [ ] : ; | = , &lt; ? &gt; &amps; $ # ! ‘ { } ( )</p>
+                                <p>Nor should a filename start with a number</p>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button id="cancel-save-btn" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -162,7 +167,8 @@ export default {
           disable: true,
           filesToPlot: [],
           selectedData: [],
-          isStitched: false
+          isStitched: false,
+          isMultipleLines: false
       }
     },
     mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs],
@@ -309,6 +315,8 @@ export default {
                     
                     // Reset X & Y Scales back to default
                     this.resetScales();
+
+                    this.isStitched = false;
                     
                     // Reset selected data to an empty array
                     this.selectedData = [];
@@ -317,6 +325,18 @@ export default {
 
                 } else {
                     this.disable = false;
+                    
+                    // If one file is being plotted, hide any buttons related to stitch line
+                    // Toggle back to zoom
+                    if(this.filesToPlot.length < 2) {
+                        this.isStitched = false;
+                        this.isMultipleLines = false;
+                        this.$refs.toggle.picked = true;
+                        // this.toggleEdit('zoom');
+                    } else {
+                        this.isMultipleLines = true;
+                    }
+
                     var filesToFetch = [];
 
                     // First check if files to plot are in stored data
@@ -361,5 +381,9 @@ export default {
   position: absolute;
   left: 0;
   right: 0;  
+}
+
+#save-error-msg {
+    display: none;
 }
 </style>
