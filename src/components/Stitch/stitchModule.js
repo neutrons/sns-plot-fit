@@ -132,7 +132,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
             my.removeBrushes();
 
-            console.log("Brush count:", brushObj.brushCount);
             my.update(parameters.data);
             return;
         }
@@ -197,7 +196,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
         zoomObj.zoom = d3.zoom().on('zoom', my.zoomed);
 
         // Only allow brushes when 2+ lines are plotted
-        console.log("brush count:", brushObj.brushCount);
         if(brushObj.brushCount >= 1) {
             my.newBrush();
             my.drawBrushes();
@@ -822,7 +820,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
     }
     
     /********** Functions to Remove Points ********************************/
-    function modalConfirm(callback){
+    function deleteConfirm(callback){
         $("#myModal").modal('show')
         
         $("#btn-yes-delete").on("click", function(){
@@ -838,7 +836,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
     function removePoint(index, name) {
 
-        modalConfirm( function(confirm){
+        deleteConfirm( function(confirm){
             if (confirm){
                 $("#btn-no-delete").off();
                 $("#btn-yes-delete").off();
@@ -1366,15 +1364,23 @@ var stitch = (function(d3, _, $, eventBus, store) {
         }
     }
 
+    my.removeStitchLine = function() {
+        d3.select("#stitch-line").remove();
+        
+        return false;
+    }
+
     my.stitchData = function() {
         let selectedData = selectData();
         // console.log("Selected:", selectedData);
 
         //Run tests to check if appropriate brush selections are made
         if( selectedData.length === 0 ) {
-            console.log("Re-draw brushes.");            
+            console.log("Re-draw brushes.");   
+            return false;         
         } else if (validateSelections(selectedData)) {
             console.log("Re-draw brushes.");
+            return false;
         } else {
             console.log("Selected Data: ", selectedData);
             
@@ -1383,8 +1389,55 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
             // Put the line onto the plot
             addStitch(line);
+
+            return true;
         }
 
+    }
+
+    /********** Functions to Save Stitch Line ********************************/
+    function saveConfirm(callback){
+        $("#saveModal").modal('show')
+        
+        $("#save-btn").on("click", function(){
+            callback(true);
+            $("#saveModal").modal('hide');
+        });
+
+        $("#cancel-save-btn").on("click", function(){
+            callback(false);
+            $("#saveModal").modal('hide');
+        });
+    };
+
+    my.saveStitchLine = function() {
+
+        saveConfirm( function(confirm){
+            if (confirm){
+                $("#cancel-save-btn").off();
+                $("#save-btn").off();
+                
+                let fname = $('#file-name-input').val();
+                console.log("Saving the file name: " + fname);
+                $("#file-name-input").val('');
+
+                // Code to store brush selections
+
+
+                // Code to format data and save as a .txt file
+
+                
+                return;
+            } else {
+                $("#cancel-save-btn").off();
+                $("#save-btn").off();
+                $('#file-name-input').val('');
+
+                console.log("Not saving the file.");
+                return;
+            }
+        });
+        
     }
 
     // Return Module object for public use
