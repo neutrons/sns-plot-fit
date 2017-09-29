@@ -57,12 +57,19 @@
                 </v-panel>
 
                 <v-panel PANELTITLE="Edit Tools" PANELTYPE="info">
-                     <v-switch leftID="zoom" rightID="brush" :DISABLE="disable" ref="toggle">
+                     <v-switch leftID="zoom" rightID="brush" :DISABLE="disable" ref="toggle"
+                     @switchChange="toggleEdit"
+                     >
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
                         <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
                     </v-switch> 
-                    <button id="stitch-btn" class="btn btn-success btn-sm btn-block" :disabled="disable"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
-                    <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" :disabled="disable"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" :disabled="disable" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
+                    <br>
+                    <button id="stitch-btn" class="btn btn-success btn-sm btn-block" :disabled="disable" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
+                    <br>
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" @click="removeStitch" v-if="isStitched"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Stitch Line</button>
+                    <br>
+                    <button id="save-stitch-btn" class="btn btn-primary btn-sm btn-block" v-if="isStitched" @click="saveStitchLine"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save Stitch Line</button>
                 </v-panel>
 
             </v-panel-group>
@@ -73,6 +80,39 @@
             :DISABLE="disable"
             ref="stitchPlot">
         </v-stitch-plot>
+
+        <!-- Modal for Saving a Line -->
+        <div class="modal fade" id="saveModal" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- <form id="role-form"> -->
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                            <h4 class="modal-title">Save Stitch Line</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="form-group col-md-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">File Name:</span>
+                                    <input id="file-name-input" placeholder="your_file_name" class="form-control" required oninvalid="this.setCustomValidity('Please enter a file name.')"
+                                        oninput="this.setCustomValidity('')" />
+                                    <span class="input-group-addon">.txt</span>
+                                </div>
+                            </div>
+
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="cancel-save-btn" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button id="save-btn" class="btn btn-success">Save</button>
+                        </div>
+                    <!-- </form> -->
+                </div>
+            </div>
+        </div>
+
     </div>
   </div>
 </template>
@@ -121,7 +161,8 @@ export default {
           sortBy: 'ascending',
           disable: true,
           filesToPlot: [],
-          selectedData: []
+          selectedData: [],
+          isStitched: false
       }
     },
     mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs],
@@ -166,6 +207,7 @@ export default {
                 // and reset to default values
                 console.log("Removing plot elements...");
                 d3.select(".stitch-chart").remove();
+                d3.select("#tooltip-stitch").remove();
 
                 this.selectedData = [];
             } else {
@@ -215,10 +257,31 @@ export default {
                 } else {
                     console.log("No data to plot...");
                     d3.select(".stitch-chart").remove();
+                    d3.select("#tooltip-stitch").remove();
                     this.$refs.stitchPlot.resetDefaults();
                     this.$refs.toggle.picked = true;
+                    this.isStitched = false;
                 }
             })
+        },
+        stitchData() {
+            let result = this.$refs.stitchPlot.stitchData();
+
+            this.isStitched = result;
+        },
+        removeBrushes() {
+            this.$refs.stitchPlot.removeBrushes();
+        },
+        removeStitch() {
+            let result = this.$refs.stitchPlot.removeStitchLine();
+
+            this.isStitched = result;
+        },
+        toggleEdit(choice) {
+            this.$refs.stitchPlot.toggleEdit(choice);
+        },
+        saveStitchLine() {
+            this.$refs.stitchPlot.saveStitchLine();
         }
     },
     watch: {
@@ -239,6 +302,7 @@ export default {
                     // so reset everything to defaults.
                     // Remove any elements previously plotted
                     d3.select(".stitch-chart").remove();
+                    d3.select("#tooltip-stitch").remove();
 
                     // Reset disable to default 'true'
                     this.disable = true;

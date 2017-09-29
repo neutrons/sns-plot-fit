@@ -280,7 +280,7 @@ export default {
                 // and reset to default values
                 console.log("Removing plot elements...");
                 d3.select(".chart-1D").remove();
-                d3.select(".tooltip-1D").remove();
+                d3.select("#tooltip-1D").remove();
 
                 this.resetScales();
                 this.resetFileFitChoice();
@@ -361,7 +361,7 @@ export default {
                 } else {
                     // Remove any elements previously plotted
                     d3.select(".chart-1D").remove();
-                    d3.select(".tooltip-1D").remove();
+                    d3.select("#tooltip-1D").remove();
                 }
             })
         },
@@ -457,7 +457,7 @@ export default {
                     // so reset everything to defaults.
                     // Remove any elements previously plotted
                     d3.select(".chart-1D").remove();
-                    d3.select(".tooltip-1D").remove();
+                    d3.select("#tooltip-1D").remove();
 
                     // Reset disable to default 'true'
                     this.disable = true;

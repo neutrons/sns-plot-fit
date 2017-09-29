@@ -22,7 +22,7 @@ import Panel from '../BaseComponents/Panels/Panel.vue';
 import ResetButton from '../BaseComponents/ResetButton.vue';
 
 /* Import Stitch Module */
-import stitch from './moduleStitch.js';
+import stitch from './stitchModule.js';
 
 export default {
     name: 'StitchPlot',
@@ -58,6 +58,8 @@ export default {
         resetToggle: stitch.resetToggle,
         resetPlot: stitch.resetPlot,
         changeScales: stitch.changeScales,
+        removeStitchLine: stitch.removeStitchLine,
+        saveStitchLine: stitch.saveStitchLine,
         checkError() {
             let len = document.getElementById("error-container").children.length;
             return len > 0 ? false : true;
@@ -68,17 +70,6 @@ export default {
             this.brushEnabled = false;
             this.resetToggle();
         }
-    },
-    mounted() {
-        let vm = this;
-
-        // Attach event listeners after elements have been created
-        d3.selectAll('input[name=edit]').on('click', function() {
-            vm.toggleEdit(this.value);
-        });
-        
-        d3.select('#remove-brushes-btn').on('click', () => { vm.removeBrushes();});
-        d3.select("#stitch-btn").on('click', () => { vm.stitchData();});
     }
 }
 </script>

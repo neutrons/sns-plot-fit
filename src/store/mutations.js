@@ -77,3 +77,10 @@ export const removeColor = (state,filename) => {
 
     state.colorDomain.splice(index, 1);
 }
+
+export const removePoint = (state, payload) => {
+    let name = payload.name;
+    let index = payload.index;
+
+    state.saved1DData[name].data.splice(index,1);
+}

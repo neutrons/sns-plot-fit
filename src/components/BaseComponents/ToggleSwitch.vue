@@ -1,12 +1,12 @@
 <template>
 <fieldset :disabled="DISABLE" :class="DISABLE ? 'disable' : ''">
 <div class="switch">
-    <input type="radio" class="switch-input" :id="leftID" :value="leftID" name="edit" :checked="picked" @click="picked = true">
+    <input type="radio" class="switch-input" :id="leftID" :value="leftID" name="edit" :checked="picked" @click="leftSwitch">
     <label :for="leftID" class="switch-label switch-label-off">
       <slot name="left-label">Left</slot>
     </label>
 
-    <input type="radio" class="switch-input" :id="rightID" name="edit" :value="rightID" :checked="!picked" @click="picked = false">
+    <input type="radio" class="switch-input" :id="rightID" name="edit" :value="rightID" :checked="!picked" @click="rightSwitch">
     <label :for="rightID" class="switch-label switch-label-on">
       <slot name="right-label">Right</slot>
     </label>
@@ -37,6 +37,16 @@ export default {
     data() {
         return {
             picked: true
+        }
+    },
+    methods: {
+        leftSwitch() {
+            this.picked = true;
+            this.$emit("switchChange", this.leftID);
+        },
+        rightSwitch() {
+            this.picked = false;
+            this.$emit("switchChange", this.rightID);
         }
     }
 }
