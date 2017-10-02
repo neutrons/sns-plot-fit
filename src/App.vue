@@ -120,13 +120,13 @@ export default {
     switchPlotComponent: function(plotType) {
       this.toggleView = plotType;
     },
-    generateError: function(errorMSG) {
+    generateError: function(errorMSG, type) {
       document.getElementById("error_"+this.errorCount) === null ? this.errorCount = 0 : this.errorCount += 1;
       var newDiv = document.createElement("div");
       var timer = this.errorCount === 0 ? 5000 : 5000+(this.errorCount*1000);
       
       newDiv.innerHTML = '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' + errorMSG;
-      newDiv.classList.add("error", "alert", "alert-danger", "alert-dismissable", "fade", "in")
+      newDiv.classList.add("error", "alert", ("alert-" + type), "alert-dismissable", "fade", "in")
       var tempID = "error_" + this.errorCount;
       newDiv.id = tempID;
       

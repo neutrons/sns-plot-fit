@@ -70,6 +70,8 @@
                     <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" @click="removeStitch" v-if="isStitched"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Stitch Line</button>
                     <br>
                     <button id="save-stitch-btn" class="btn btn-primary btn-sm btn-block" v-if="isStitched" @click="saveStitchLine"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save Stitch Line</button>
+                    <br>
+                    <button id="draw-brushes-btn" class="btn btn-primary btn-sm btn-block" v-if="isBrushesStored" @click="drawBrushes" :disabled="!isMultipleLines"><i class="fa fa-undo" aria-hidden="true"></i> Restore Brushes</button>
                 </v-panel>
 
             </v-panel-group>
@@ -143,6 +145,9 @@ import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js'
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
 
+// The eventBus serves as the means to communicating between components.
+import { eventBus } from '../../assets/javascript/eventBus';
+
 export default {
     name: 'Stitch',
     components: {
@@ -168,8 +173,13 @@ export default {
           filesToPlot: [],
           selectedData: [],
           isStitched: false,
-          isMultipleLines: false
+          isMultipleLines: false,
+          isBrushesStored: false
       }
+    },
+    mounted() {
+        // Listen for event that stitch has been saved
+        eventBus.$on('reset-stitch', this.resetStitch);
     },
     mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs],
     computed: {
@@ -288,6 +298,22 @@ export default {
         },
         saveStitchLine() {
             this.$refs.stitchPlot.saveStitchLine();
+        },
+        resetStitch() {
+            this.disable = true;
+            this.isStitched = false;
+            this.isMultipleLines = false;
+            this.filesToPlot = [];
+            this.selectedData = [];
+            this.isBrushesStored = true;
+            this.resetScales();
+
+            d3.select(".stitch-chart").remove();
+            d3.select("#tooltip-stitch").remove();
+
+        },
+        drawBrushes() {
+            this.$refs.stitchPlot.drawSavedBrushes();
         }
     },
     watch: {
@@ -317,6 +343,7 @@ export default {
                     this.resetScales();
 
                     this.isStitched = false;
+                    this.isMultipleLines = false;
                     
                     // Reset selected data to an empty array
                     this.selectedData = [];

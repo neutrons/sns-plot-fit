@@ -119,8 +119,8 @@ export default {
                 vm.isError = !vm.isError;
                 
                 if(vm.checkError()) {
-                    let errorMsg = "<strong>Warning!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.";
-                    eventBus.$emit('error-message', errorMsg);
+                    let errorMsg = "<strong>Error!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.";
+                    eventBus.$emit('error-message', errorMsg, 'danger');
                 }
 
                 return;
@@ -656,8 +656,8 @@ export default {
 
                     if(vm.fitData.length <= 0) {
                         if(vm.checkError()) {
-                            let errorMsg = "<strong>Warning!</strong> Fitted y-values < 0, thus no fit-line to display.";
-                            eventBus.$emit('error-message', errorMsg);
+                            let errorMsg = "<strong>Error!</strong> Fitted y-values < 0, thus no fit-line to display.";
+                            eventBus.$emit('error-message', errorMsg, 'danger');
                         }
                     }
                     // Emit coefficients to controls panel
@@ -702,8 +702,8 @@ export default {
                 } else {
                     // Notify user that more data needs to be selected for the fit
                     if(vm.checkError()) {
-                        let errorMsg = "<strong>Warning!</strong> Not enough data selected, please select 2 or more points. If plot is blank, no data is available for generating a fit line.";
-                        eventBus.$emit('error-message', errorMsg);
+                        let errorMsg = "<strong>Error!</strong> Not enough data selected, please select 2 or more points. If plot is blank, no data is available for generating a fit line.";
+                        eventBus.$emit('error-message', errorMsg, 'danger');
                     }
                 }
             }

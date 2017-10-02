@@ -88,6 +88,11 @@ var stitch = (function(d3, _, $, eventBus, store) {
         // Generator for color
         var color = d3.scaleOrdinal(d3.schemeCategory20);
 
+
+        // For storing selections and brushes for later use
+        var savedSelections = {};
+        var savedBrushes = [];
+
     /******* End of Global for Stitch Module **************/
 
     // Module object
@@ -875,7 +880,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
             .on("brush", brushed)
             .on("end", brushend);
 
-            brushObj.brushes.push({id: brushObj.brushes.length, brush: brush});
+            brushObj.brushes.push({id: brushObj.brushes.length, brush: brush, selection: undefined});
 
             function brushstart() {
                 // Brush start here
@@ -899,6 +904,11 @@ var stitch = (function(d3, _, $, eventBus, store) {
             var lastBrushID = brushObj.brushes[brushObj.brushes.length - 1].id;
             var lastBrush = document.getElementById('brush-' + lastBrushID);
             var selection = d3.brushSelection(lastBrush);
+
+            if (selection && selection[0] !== selection[1]) {
+                brushObj.brushes[brushObj.brushes.length-1].selection = [scale.xScale.invert(selection[0]), scale.xScale.invert(selection[1])];
+                // console.log("Brushes:", brushes);
+            }
 
             // If it does, that means we need another one
             if (brushObj.brushes.length < brushObj.brushCount && selection && selection[0] !== selection[1]) {
@@ -925,6 +935,10 @@ var stitch = (function(d3, _, $, eventBus, store) {
             .each(function(brushItem) {
                 // call the brush
                 brushItem.brush(d3.select(this));
+
+                if(brushItem.selection !== undefined){
+                    brushItem.brush.move(d3.select(this), brushItem.selection.map(scale.brushXScale));
+                }
             });
 
         brushSelection
@@ -1116,16 +1130,16 @@ var stitch = (function(d3, _, $, eventBus, store) {
             console.log("No brushes to select data.");
 
             // Emit error message pop-up
-            let errorMsg = "<strong>Warning!</strong> No brushes to select data. Draw brushes.";
-            eventBus.$emit('error-message', errorMsg);
+            let errorMsg = "<strong>Error!</strong> No brushes to select data. Draw brushes.";
+            eventBus.$emit('error-message', errorMsg, 'danger');
 
             return true;
         } else if (totalBrushes !== brushObj.brushCount) {
             console.log("There are " + (brushObj.brushCount + 1) + " lines. You must have (n-1) = " + brushObj.brushCount + " number of brushes.");
 
             // Emit error message pop-up
-            let errorMsg = "<strong>Warning!</strong>" + " There are " + (brushObj.brushCount + 1) + " lines. You must have (n-1) = " + brushObj.brushCount + " number of brushes. Redraw brushes.";
-            eventBus.$emit('error-message', errorMsg);
+            let errorMsg = "<strong>Error!</strong>" + " There are " + (brushObj.brushCount + 1) + " lines. You must have (n-1) = " + brushObj.brushCount + " number of brushes. Redraw brushes.";
+            eventBus.$emit('error-message', errorMsg, 'danger');
 
             return true;
         } else {
@@ -1156,8 +1170,8 @@ var stitch = (function(d3, _, $, eventBus, store) {
                 console.log("Make sure a brush selects 2 and only 2 lines.")
 
                 // Emit error message pop-up
-                let errorMsg = "<strong>Warning!</strong> Make sure a brush selects 2 and only 2 lines. Redraw brushes.";
-                eventBus.$emit('error-message', errorMsg);
+                let errorMsg = "<strong>Error!</strong> Make sure a brush selects 2 and only 2 lines. Redraw brushes.";
+                eventBus.$emit('error-message', errorMsg, 'danger');
 
                 return true;
             }
@@ -1175,8 +1189,8 @@ var stitch = (function(d3, _, $, eventBus, store) {
                     console.log("Select more than 1 data point per curve.");
                     
                     // Emit error message pop-up
-                    let errorMsg = "<strong>Warning!</strong> Select more than 1 data point per curve. Redraw brushes.";
-                    eventBus.$emit('error-message', errorMsg);
+                    let errorMsg = "<strong>Error!</strong> Select more than 1 data point per curve. Redraw brushes.";
+                    eventBus.$emit('error-message', errorMsg, 'danger');
                     
                     return true;
                 }
@@ -1192,8 +1206,8 @@ var stitch = (function(d3, _, $, eventBus, store) {
                 console.log(lineNames[i] + " was not selected. Make sure each line is selected.");
 
                 // Emit error message pop-up
-                let errorMsg = "<strong>Warning!</strong> " + lineNames[i] + " was not selected. Make sure each line is selected. Redraw brushes.";
-                eventBus.$emit('error-message', errorMsg);
+                let errorMsg = "<strong>Error!</strong> " + lineNames[i] + " was not selected. Make sure each line is selected. Redraw brushes.";
+                eventBus.$emit('error-message', errorMsg, 'danger');
 
                 return true;
             }
@@ -1443,25 +1457,42 @@ var stitch = (function(d3, _, $, eventBus, store) {
                 let filename = $('#file-name-input').val();
                 console.log("Saving the file name: " + filename + "_Iq.txt");
                 $("#file-name-input").val('');
-
-                // Code to store brush selections
-                console.log("Selections:", brushObj.brushSelections);
-
+                
                 // Code to format data and save as a .txt file
                 console.log("Stitch Line Data:", stitchLineData);
-
+                
                 console.log("Calling axios.post to save new data file");
-
+                
                 axios.post('/external/save', {
                     id: filename + '_Iq.txt',
                     content: stitchLineData
-                  })
-                  .then(function (response) {
+                })
+                .then(function (response) {
                     console.log(response);
-                  })
-                  .catch(function (error) {
+                    
+                    // If posting stitch line works, store brush selections
+                    savedSelections = _.cloneDeep(brushObj.brushSelections);
+                    savedBrushes = _.cloneDeep(_.reverse(brushObj.brushes));
+                
+                    console.log("Saved brushes:", savedBrushes);
+                    console.log("-----------------------------")
+
+                
+                    console.log("Here are your saved brush selections:")
+                    for(let key in savedSelections) {
+                        console.log("Key: " + key);
+                        console.log(savedSelections[key]);
+                        console.log("---------------------------");
+                    }
+
+                    // Then reset plot for next iteration of stitching
+                    eventBus.$emit("reset-stitch");
+                })
+                .catch(function (error) {
                     console.log(error);
-                  });
+                });
+                
+                
 
 
                 return;
@@ -1475,6 +1506,45 @@ var stitch = (function(d3, _, $, eventBus, store) {
             }
         });
         
+    }
+
+    my.drawSavedBrushes = function() {
+        console.log("Drawing saved brushes...", savedSelections);
+    
+        for(let key in savedSelections) {
+            let tempExtent = [savedSelections[key].converted[0], savedSelections[key].converted[1]];
+            console.log("Temp extent:", tempExtent);
+        }
+        
+        console.log("Saved brushes:", savedBrushes);
+        
+        brushObj.brushes = _.cloneDeep(savedBrushes);
+        brushObj.brushSelections = _.cloneDeep(savedSelections);
+    
+        d3.selectAll('.brush').remove();
+        
+        let selected = document.getElementsByClassName('selected');
+        
+        while(selected.length) {
+            selected[0].classList.remove('selected');
+        }
+    
+        if(brushObj.brushCount < brushObj.brushes.length) {
+            let errorMsg = "<strong>Warning!</strong> The brush settings were for 3 curves. There are only " + (brushObj.brushCount + 1) + " curves. Please re-draw brushes for curves.";
+
+            eventBus.$emit('error-message', errorMsg, 'warning');
+
+        } else if (Object.keys(savedSelections).length === 0) {
+            let errorMsg = "<strong>Warning!</strong> Unable to draw brushes. No brushes were stored.";
+            
+            eventBus.$emit('error-message', errorMsg, 'warning');
+
+            my.drawBrushes();
+            my.toggleEdit(toggleChoice);
+        } else {
+            my.drawBrushes();
+            my.toggleEdit(toggleChoice);
+        }
     }
 
     // Return Module object for public use

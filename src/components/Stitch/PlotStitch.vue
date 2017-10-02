@@ -60,6 +60,7 @@ export default {
         changeScales: stitch.changeScales,
         removeStitchLine: stitch.removeStitchLine,
         saveStitchLine: stitch.saveStitchLine,
+        drawSavedBrushes: stitch.drawSavedBrushes,
         checkError() {
             let len = document.getElementById("error-container").children.length;
             return len > 0 ? false : true;
