@@ -1518,8 +1518,8 @@ var stitch = (function(d3, _, $, eventBus, store) {
         
         console.log("Saved brushes:", savedBrushes);
         
-        brushObj.brushes = _.cloneDeep(savedBrushes);
-        brushObj.brushSelections = _.cloneDeep(savedSelections);
+        brushObj.brushes = [];
+        brushObj.brushSelections = {};
     
         d3.selectAll('.brush').remove();
         
@@ -1529,19 +1529,32 @@ var stitch = (function(d3, _, $, eventBus, store) {
             selected[0].classList.remove('selected');
         }
     
-        if(brushObj.brushCount < brushObj.brushes.length) {
-            let errorMsg = "<strong>Warning!</strong> The brush settings were for 3 curves. There are only " + (brushObj.brushCount + 1) + " curves. Please re-draw brushes for curves.";
+        if(brushObj.brushCount < savedBrushes.length) {
+            let errorMsg = "<strong>Warning!</strong> The brush settings were for 3 curves. There are only " + (brushObj.brushCount + 1) + " curves. Please plot 3 curves, or re-draw brushes for current curves.";
 
             eventBus.$emit('error-message', errorMsg, 'warning');
-
+            
+            my.newBrush();
+            my.drawBrushes();
+            my.toggleEdit(toggleChoice);
+            
         } else if (Object.keys(savedSelections).length === 0) {
             let errorMsg = "<strong>Warning!</strong> Unable to draw brushes. No brushes were stored.";
             
             eventBus.$emit('error-message', errorMsg, 'warning');
 
+            brushObj.brushes = _.cloneDeep(savedBrushes);
+            brushObj.brushSelections = _.cloneDeep(savedSelections);
+
+            my.newBrush();
             my.drawBrushes();
+            
             my.toggleEdit(toggleChoice);
         } else {
+
+            brushObj.brushes = _.cloneDeep(savedBrushes);
+            brushObj.brushSelections = _.cloneDeep(savedSelections);
+
             my.drawBrushes();
             my.toggleEdit(toggleChoice);
         }

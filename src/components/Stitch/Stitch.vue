@@ -359,7 +359,7 @@ export default {
                         this.isStitched = false;
                         this.isMultipleLines = false;
                         this.$refs.toggle.picked = true;
-                        // this.toggleEdit('zoom');
+                        this.$refs.stitchPlot.resetToggle();
                     } else {
                         this.isMultipleLines = true;
                     }
