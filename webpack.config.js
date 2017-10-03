@@ -1,5 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
+require('dotenv').load();
 
 module.exports = {
   entry: [
@@ -45,6 +46,10 @@ module.exports = {
             }, {
                 loader: "less-loader" // compiles Less to CSS
             }]
+      },
+      {
+        test: /\.css$/,
+        loader: 'css-loader'
       }
     ]
   },
@@ -57,9 +62,9 @@ module.exports = {
     compress: true,
     port: 8080,
     proxy: {
-    "/files": {
-      target: "http://localhost:8000",
-      pathRewrite: {"^/files" : ""}
+    "/external": {
+      target: process.env.SERVER_URL,
+      pathRewrite: {"^/external" : ""}
     }
   }
 },

@@ -9,7 +9,10 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
-    "vue": "^2.3.3"
+    "everpolate": "0.0.3",
+    "font-awesome": "^4.7.0",
+    "vue": "^2.3.3",
+    "vuex": "^2.4.0"
   },
   "devDependencies": {
     "axios": "^0.16.2",
@@ -22,6 +25,7 @@
     "css-loader": "^0.25.0",
     "d3": "^4.9.1",
     "d3-hexbin": "^0.2.2",
+    "dotenv": "^4.0.0",
     "exports-loader": "^0.6.4",
     "expose-loader": "^0.7.3",
     "extract-text-webpack-plugin": "^2.1.2",
