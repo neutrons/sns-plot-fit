@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, send_from_directory
 import json
-
+from pprint import pprint
 
 '''
 
@@ -96,7 +96,7 @@ def save():
     '''
     json_data = request.json
     print(80*"*")
-    print(json_data)
+    pprint(json_data)
     print(80*"*")
     return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 

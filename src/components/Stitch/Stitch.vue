@@ -100,7 +100,7 @@
                                     <span class="input-group-addon">File Name:</span>
                                     <input id="file-name-input" placeholder="your_file_name" class="form-control" required oninvalid="this.setCustomValidity('Please enter a file name.')"
                                         oninput="this.setCustomValidity('')" />
-                                    <span class="input-group-addon">.txt</span>
+                                    <span class="input-group-addon">_Iq.txt</span>
                                 </div>
                             </div>
 

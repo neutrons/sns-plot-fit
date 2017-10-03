@@ -1,5 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
+require('dotenv').load();
 
 module.exports = {
   entry: [
@@ -62,7 +63,7 @@ module.exports = {
     port: 8080,
     proxy: {
     "/external": {
-      target: "http://localhost:8000",
+      target: process.env.SERVER_URL,
       pathRewrite: {"^/external" : ""}
     }
   }
