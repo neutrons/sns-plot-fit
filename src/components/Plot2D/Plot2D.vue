@@ -105,12 +105,12 @@ import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/r
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 
-/* Import Plot Function */
-import { hexPlot } from './hexPlot.js';
+/* Import Hex Module */
+import hex from './hexModule.js';
 
 export default {
     name: 'Plot2D',
-    mixins: [parse2D, read2DData, get2DData, hexPlot, fetchFiles, filterJobs],
+    mixins: [parse2D, read2DData, get2DData, fetchFiles, filterJobs],
     components: {
       'v-panel-group': PanelGroup,
       'v-panel': Panel,
@@ -179,9 +179,9 @@ export default {
 
             this.$store.commit('remove2DFile', filename);
         },
-        resetPlot() {
-            this.hexPlot(this.currentData, this.hexSettings);
-        }
+        hexPlot: hex.hexPlot,
+        resetPlot: hex.resetPlot,
+        zoomed: hex.zoomed
     },
     watch: {
         hexSettings: {
