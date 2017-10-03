@@ -286,12 +286,6 @@ var hex = (function(d3, _, $, d3hex) {
             hexbins[i].avgIntensity = avgIntensity; // Assign new object value to hexbins
         }
 
-        // console.log("Hex bins", hexbins);
-        // console.log("x extent", d3.extent(data, function(d) { return d.Qx; }));
-        // console.log("y extent", d3.extent(data, function(d) { return d.Qy; }));
-        // console.log("intensity extent", d3.extent(hexbins, function(d) { return d.avgIntensity; }));
-        // console.log("Bins extent", d3.extent(hexbins, function(d) { return d.length; }));
-
         // Create color scale generator using Viridis color set
         var color = d3.scaleSequential(d3.interpolateViridis)
             .domain(d3.extent(hexbins, function(d) { return d.avgIntensity; }));
@@ -301,7 +295,6 @@ var hex = (function(d3, _, $, d3hex) {
 
         // Create a value range for the legend color scale
         var valRange = d3.extent(hexbins, function(d) { return d.avgIntensity; });
-        //console.log("Val Range", valRange);
 
         /********************************************************* 
             An interval is calculated to represent each "slice" of the
@@ -332,7 +325,6 @@ var hex = (function(d3, _, $, d3hex) {
                 .attr("height", 1)
                 .attr("width", dim.legendWidth)
                 .style("fill", function(d, i ) { 
-                    // console.log("D", d);
                     return color(d); 
                 });
 

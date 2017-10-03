@@ -186,7 +186,6 @@ export default {
     watch: {
         hexSettings: {
             handler: function() {
-                // console.log("Hex settings changed:", this.hexSettings);
                 this.hexPlot(this.currentData, this.hexSettings);
             },
             deep: true
@@ -209,8 +208,6 @@ export default {
                         // It's a fetched file so get file then get the data url
                         var file = this.$store.getters.get2DFile(this.fileToPlot);
                         this.get2DData(file);
-
-                        // Then store data in stored list
                     }
                 } else {
                     // File is in saved, so let's plot it
@@ -218,7 +215,7 @@ export default {
                     this.hexPlot(data2D, this.hexSettings);
                 }
             } else {
-                // console.log("No files select.");
+                
                 this.currentData = [];
                 // Remove any current 2D plots
                 d3.select(".chart-2D").remove();
