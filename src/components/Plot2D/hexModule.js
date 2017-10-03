@@ -49,8 +49,6 @@ var hex = (function(d3, _, $, d3hex) {
 
             // If plot is already present, simply update with the new set of data
             if(!d3.select(".chart-2D").empty()) {
-                console.log("Plot is not empty");
-
                 //Set Data
                 var binSize = _.cloneDeep(settings.binSize);
                 var transformType = _.cloneDeep(settings.intensityTransformation);
@@ -154,6 +152,12 @@ var hex = (function(d3, _, $, d3hex) {
 
             elements.legend = elements.svg.append("g").attr("class", "legend")
                 .attr("transform", "translate(" + (dim.width+75) + "," + margin.top + ")");
+            
+            elements.legend.append("g").attr("class", "leg-bars");
+
+            elements.legend.append("g")
+                .attr("transform", "translate(" + (dim.legendWidth) + ", 0)")
+                .attr("class", "legend-axis legend-axis-y");
 
             // Add X Axis Label
             elements.svg.append("g").append("foreignObject")
@@ -235,7 +239,7 @@ var hex = (function(d3, _, $, d3hex) {
     }
 
     my.update = function(newData, binSize, transformType) {
-        console.log("Updating chart...");
+        
         let plotData = _.cloneDeep(newData);
 
         // Adjust scale's domain whenver new data is added
@@ -248,8 +252,8 @@ var hex = (function(d3, _, $, d3hex) {
         let new_xScale = t.rescaleX(scales.xScale);
         
         // Adjust axis labels
-        axesObj.yAxis.scale(new_yScale);
-        axesObj.xAxis.scale(new_xScale);
+        axesObj.yAxis.scale(new_yScale.copy());
+        axesObj.xAxis.scale(new_xScale.copy());
         
         // Transition axis labels accordingly
         elements.axes.transition().duration(750).select('.axis--y').call(axesObj.yAxis);
@@ -265,8 +269,8 @@ var hex = (function(d3, _, $, d3hex) {
 
         plotData.forEach(function(el) { 
             points.push([
-                new_xScale(el.qx), 
-                new_yScale(el.qy), 
+                scales.xScale(el.qx), 
+                scales.yScale(el.qy), 
                 el.intensity
             ]) 
         });
@@ -314,14 +318,10 @@ var hex = (function(d3, _, $, d3hex) {
         //console.log("Interval", interval);
 
         // Re-draw Legend
-        let legendSelect = elements.legend.select(".legend").selectAll(".bars").data(d3.range(valRange[1],valRange[0], -interval), function(d) { return d; });
+        let legendSelect = elements.legend.select(".leg-bars").selectAll(".bars").data(d3.range(valRange[1],valRange[0], -interval), function(d) { return d; });
 
-        // Update current legend
-        legendSelect.transition().duration(750)
-            .attr("x", 0)
-            .attr("y", function(d, i) { return i; })
-            .attr("height", 1)
-            .attr("width", dim.legendWidth);
+        // Remove old legend bars
+        legendSelect.exit().remove();
 
         // Enter new legend bars
         legendSelect.enter()
@@ -336,26 +336,19 @@ var hex = (function(d3, _, $, d3hex) {
                     return color(d); 
                 });
 
-        legendSelect.transition().duration(750).select('.legend-axis-y').call(d3.axisRight(scales.legendScale))
-
-        // Remove old legend bars
-        legendSelect.exit().remove();
-
+        elements.legend.select('.legend-axis-y').transition().duration(750).call(d3.axisRight(scales.legendScale));
 
         // Hex radius is tweaked to eliminate white spaces between hexagons
         // This needs to be further investigated because overlap isn't visible.
         var hexRad = binSize + 0.4;
 
         // Re-draw Hex Plot
-        let hexSelect = elements.plot.select(".hexagon").selectAll('path').data(hexbins);
-
-        hexSelect.exit().remove();
-
-        // Enter new hexbins
-        hexSelect.enter().append("path")
+        elements.plot.select(".hexagon").selectAll('.hexagons').remove();
+        
+        elements.plot.select(".hexagon").selectAll('path').data(hexbins).enter()
+            .append("path")
             .attr("d", hexbin.hexagon(hexRad))
             .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-            .merge(hexSelect)
             .attr("fill", function(d) { return color(d.avgIntensity); })
             .attr("stroke", "none")
             .attr("class", "hexagons")
@@ -364,7 +357,7 @@ var hex = (function(d3, _, $, d3hex) {
                     .duration(200)
                     .style("opacity", 1);
 
-                elements.tooltip.html("Qx: " + new_xScale.invert(d.x).toFixed(4) + "<br/>" + "Qy: " + new_yScale.invert(d.y).toFixed(4) + "<br/> Avg. Intensity: " + d.avgIntensity.toFixed(4))
+                elements.tooltip.html("Qx: " + scales.xScale.invert(d.x).toFixed(4) + "<br/>" + "Qy: " + scales.yScale.invert(d.y).toFixed(4) + "<br/> Avg. Intensity: " + d.avgIntensity.toFixed(4))
                     .style("top", (d3.event.pageY - 40) + "px")
                     .style("left", (d3.event.pageX + 15) + "px");
             })
