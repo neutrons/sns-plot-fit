@@ -143,6 +143,10 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
             // Remove stitch line if present,
             d3.select("#stitch-line").remove();
+
+            // Hide Stitch related buttons
+            eventBus.$emit("reset-is-stitched");
+            
             brushObj.brushCount = parameters.brushCount - 1;
 
             my.removeBrushes();
@@ -359,8 +363,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
         
         // Edit toggle to default zoom
         my.toggleEdit(toggleChoice);
-
-        //return;
     }
 
     /**************** Update Function *******************************/
@@ -868,7 +870,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
         });
         
         return;
-        //update();
     }
 
     /********* Function to Add New Brushes  *******************************/
@@ -1278,8 +1279,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
             let end = sortedBrushes[i][1].converted[1];
 
             let tempSelection = [];
-            // let tempLeft = {};
-            // let tempRight = {};
 
             for (let j = 0, len = allData.length; j < len; j++) {
                 
@@ -1455,13 +1454,12 @@ var stitch = (function(d3, _, $, eventBus, store) {
                 $("#save-btn").off();
                 
                 let filename = $('#file-name-input').val();
-                console.log("Saving the file name: " + filename + "_Iq.txt");
+                // console.log("Saving the file name: " + filename + "_Iq.txt");
                 $("#file-name-input").val('');
                 
-                // Code to format data and save as a .txt file
-                console.log("Stitch Line Data:", stitchLineData);
                 
-                console.log("Calling axios.post to save new data file");
+                // console.log("Stitch Line Data:", stitchLineData);
+                // console.log("Calling axios.post to save new data file");
                 
                 axios.post('/external/save', {
                     id: filename + '_Iq.txt',
@@ -1474,26 +1472,25 @@ var stitch = (function(d3, _, $, eventBus, store) {
                     savedSelections = _.cloneDeep(brushObj.brushSelections);
                     savedBrushes = _.cloneDeep(_.reverse(brushObj.brushes));
                 
-                    console.log("Saved brushes:", savedBrushes);
-                    console.log("-----------------------------")
+                    // console.log("Saved brushes:", savedBrushes);
+                    // console.log("-----------------------------")
 
-                
-                    console.log("Here are your saved brush selections:")
-                    for(let key in savedSelections) {
-                        console.log("Key: " + key);
-                        console.log(savedSelections[key]);
-                        console.log("---------------------------");
-                    }
+                    // console.log("Here are your saved brush selections:")
+                    // for(let key in savedSelections) {
+                    //     console.log("Key: " + key);
+                    //     console.log(savedSelections[key]);
+                    //     console.log("---------------------------");
+                    // }
 
                     // Then reset plot for next iteration of stitching
                     eventBus.$emit("reset-stitch");
+
+                    // Then fetch data to include the saved stitch file
+                    eventBus.$emit("fetch-data");
                 })
                 .catch(function (error) {
                     console.log(error);
                 });
-                
-                
-
 
                 return;
             } else {
@@ -1501,7 +1498,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
                 $("#save-btn").off();
                 $('#file-name-input').val('');
 
-                console.log("Not saving the file.");
+                // console.log("Not saving the file.");
                 return;
             }
         });
@@ -1509,14 +1506,14 @@ var stitch = (function(d3, _, $, eventBus, store) {
     }
 
     my.drawSavedBrushes = function() {
-        console.log("Drawing saved brushes...", savedSelections);
+        // console.log("Drawing saved brushes...", savedSelections);
     
         for(let key in savedSelections) {
             let tempExtent = [savedSelections[key].converted[0], savedSelections[key].converted[1]];
-            console.log("Temp extent:", tempExtent);
+            // console.log("Temp extent:", tempExtent);
         }
         
-        console.log("Saved brushes:", savedBrushes);
+        // console.log("Saved brushes:", savedBrushes);
         
         brushObj.brushes = [];
         brushObj.brushSelections = {};

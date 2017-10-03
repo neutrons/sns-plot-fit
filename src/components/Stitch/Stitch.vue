@@ -179,7 +179,12 @@ export default {
     },
     mounted() {
         // Listen for event that stitch has been saved
+        let vm = this;
+
         eventBus.$on('reset-stitch', this.resetStitch);
+        eventBus.$on('reset-is-stitched', function() {
+            vm.isStitched = false;
+        })
     },
     mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs],
     computed: {
@@ -194,15 +199,6 @@ export default {
       }
     },
     methods: {
-        toggleEditTool(pick) {
-            if(pick === 'left') {
-                // toggle to zoom
-                console.log('left');
-            } else {
-                // toggle to brush
-                console.log('right');
-            }
-        },
         removeFile(filename) {
   
             let index = this.filesToPlot.indexOf(filename);
@@ -271,7 +267,7 @@ export default {
                     })
 
                 } else {
-                    console.log("No data to plot...");
+                    // console.log("No data to plot...");
                     d3.select(".stitch-chart").remove();
                     d3.select("#tooltip-stitch").remove();
                     this.$refs.stitchPlot.resetDefaults();
@@ -319,8 +315,6 @@ export default {
     watch: {
         scales: {
             handler() {
-                //this.setParameters();
-
                 this.$refs.stitchPlot.changeScales(this.scales);
             },
             deep: true
@@ -348,7 +342,7 @@ export default {
                     // Reset selected data to an empty array
                     this.selectedData = [];
                     
-                    console.log("No files to plot");
+                    // console.log("No files to plot");
 
                 } else {
                     this.disable = false;

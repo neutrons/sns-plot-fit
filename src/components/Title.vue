@@ -59,9 +59,12 @@ export default {
 
     }
   },
+  mounted() {
+    eventBus.$on('fetch-data', this.fetchData);
+  },
   methods: {
     fetchData() {
-
+      console.log("Fetching data...");
       // If data is not stored, fetch it, store it, and send data to be plotted
       axios.get('/external/fetch').then(response => {
 
