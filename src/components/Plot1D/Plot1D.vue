@@ -115,23 +115,6 @@ export default {
                 console.log("No data! Error!");
                 //Remove any elements previously plotted
                 d3.select(".chart-1D").remove();
-<<<<<<< HEAD:src/components/1D/Plot_1D.vue
-                d3.select(".tooltip-1D").remove();
-                self.isError = !self.isError;
-
-                let div = document.createElement("div");
-                div.innerHTML = '<div id="nodata-error" class="alert alert-warning alert-dismissable fade in">\
-                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
-                    <strong>Warning!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.\
-                </div>';
-                document.getElementById("plot-errors").appendChild(div);
-                 // add the newly created element and its content into the DOM 
-                setTimeout(function() {
-                    $("#nodata-error").fadeTo(500, 0).slideUp(500, function(){
-                    $(this).remove(); 
-                    });
-                }, 5000);
-=======
                 d3.select("#tooltip-1D").remove();
                 vm.isError = !vm.isError;
                 
@@ -140,7 +123,6 @@ export default {
                     eventBus.$emit('error-message', errorMsg, 'danger');
                 }
 
->>>>>>> develop:src/components/Plot1D/Plot1D.vue
                 return;
             } else {
                 vm.isError = false;
@@ -670,33 +652,12 @@ export default {
                     //vm.fitLineFunction = brushPlotLine;
 
                     // Filter out fitted y's <=0, this is to prevent Y-scale: log(y <= 0) and Y values cannot be negative.
-<<<<<<< HEAD:src/components/1D/Plot_1D.vue
-                    self.fitData = self.fitData.filter( el => el.y > 0);
-
-                    if(self.fitData.length <= 0) {
-                        let errorCheck = document.getElementById("selection-error");
-                        if(errorCheck === null) {
-                            let div = document.createElement("div");
-                            div.innerHTML = '<div id="selection-error" class="alert alert-danger alert-dismissable fade in">\
-                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
-                                <strong>Warning!</strong> Fitted y-values < 0, thus no fit-line to display.\
-                            </div>';
-                            document.getElementById("plot-area").appendChild(div);
-                            
-                             // add the newly created element and its content into the DOM 
-                            setTimeout(function() {
-                                $("#selection-error").fadeTo(500, 0).slideUp(500, function(){
-                                $(this).remove(); 
-                                });
-                            }, 5000);
-=======
                     vm.fitData = vm.fitData; //.filter( el => el.y > 0);
 
                     if(vm.fitData.length <= 0) {
                         if(vm.checkError()) {
                             let errorMsg = "<strong>Error!</strong> Fitted y-values < 0, thus no fit-line to display.";
                             eventBus.$emit('error-message', errorMsg, 'danger');
->>>>>>> develop:src/components/Plot1D/Plot1D.vue
                         }
                     }
                     // Emit coefficients to controls panel
@@ -740,27 +701,9 @@ export default {
                     });
                 } else {
                     // Notify user that more data needs to be selected for the fit
-<<<<<<< HEAD:src/components/1D/Plot_1D.vue
-                    var errorCheck = document.getElementById("selection-error");
-                    if(errorCheck === null) {
-                        var div = document.createElement("div");
-                        div.innerHTML = '<div id="selection-error" class="alert alert-danger alert-dismissable fade in">\
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
-                            <strong>Warning!</strong> Not enough data selected, please select 2 or more points...\
-                            If plot is blank, no data is available for generating a fit line.\
-                        </div>';
-                        document.getElementById("plot-area").appendChild(div);
-                         // add the newly created element and its content into the DOM 
-                        setTimeout(function() {
-                            $("#selection-error").fadeTo(500, 0).slideUp(500, function(){
-                            $(this).remove(); 
-                            });
-                        }, 5000);
-=======
                     if(vm.checkError()) {
                         let errorMsg = "<strong>Error!</strong> Not enough data selected, please select 2 or more points. If plot is blank, no data is available for generating a fit line.";
                         eventBus.$emit('error-message', errorMsg, 'danger');
->>>>>>> develop:src/components/Plot1D/Plot1D.vue
                     }
                 }
             }
