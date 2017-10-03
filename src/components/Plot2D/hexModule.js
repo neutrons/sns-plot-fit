@@ -4,7 +4,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 
 var hex = (function(d3, _, $, d3hex) {
-    /******* Private Global Variables for Stitch Module **************/
+    /******* Private Global Variables for Hex Module **************/
         // Object for plot elements
         var elements = {
             svg: undefined,
@@ -39,7 +39,7 @@ var hex = (function(d3, _, $, d3hex) {
         // HEX PLOT VARIABLES
         var zoom = undefined;
 
-    /******* End of Global for Stitch Module **************/
+    /******* End of Global for Hex Module **************/
 
     // Module object
     var my = {};
