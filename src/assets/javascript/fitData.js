@@ -35,17 +35,17 @@ fd.transformData = function (data, configuration) {
     // https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
     // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
     let t = _.cloneDeep(data);
+    
     var exp = [configuration.xTransformation, configuration.yTransformation, configuration.eTransformation];
 
-    // console.log("You're good!");
-    t.data.forEach((el) => {
+    t.forEach((el) => {
         // Re-assign the transformed data to x and y
         // math.eval returns an array of transformed [x,y] values
         // so d.x = math.eval()[0], d.y = math.eval()[1]
         [el.x, el.y, el.e] = math.eval(exp, el);
     });
 
-    return t.data; // returns transformed data array   
+    return t; // returns transformed data array   
 }
 
 fd.fitData = function (data, equation, fitsettings) {
@@ -105,13 +105,6 @@ fd.fitData = function (data, equation, fitsettings) {
 
     // Fitting   
     var fitted_params = LM(tempData, fit_function, options);
-    // console.log("---- Fitted Parameters ---")
-    // for (let i = 0; i < parameter_names_to_fit.length; i++) {
-    //     console.log(parameter_names_to_fit[i], "=", fitted_params.parameterValues[i])
-    // }
-    // console.log("Error =", fitted_params.parameterError)
-    // console.log("Iterations =", fitted_params.iterations)
-    // console.log("--------------------------")
 
     // Get's the fitted function from the fitted parameters
     // only coefficients are set! Remember it returns a function!)
