@@ -1,12 +1,52 @@
-import * as _ from 'lodash';
 import * as d3 from 'd3';
 import * as d3hex from 'd3-hexbin';
+import _ from 'lodash';
 import $ from 'jquery';
 
-export const hexPlot = {
-    methods: {
-        hexPlot(data, settings) {
-            // console.log("Hex plotting...");
+var hex = (function(d3, _, $, d3hex) {
+    /******* Private Global Variables for Stitch Module **************/
+        // Object for plot elements
+        var elements = {
+            svg: undefined,
+            plot: undefined,
+            axes: undefined,
+            tooltip: undefined
+        };
+
+        // Object for plot scale functions
+        var scales = {
+            xScale: undefined,
+            yScale: undefined,
+            legendScale: undefined
+        };
+
+        // Object for axis generators
+        var axesObj = {
+            xAxis: undefined,
+            yAxis: undefined
+        }
+
+        // Object for dimensions
+        var dim = {
+            width: undefined,
+            height: undefined,
+            legendWidth: undefined,
+            legendHeight: undefined
+        };
+
+        var margin = {top: 50, right: 65, bottom: 50, left: 65 };
+
+        // HEX PLOT VARIABLES
+        var zoom = undefined;
+
+    /******* End of Global for Stitch Module **************/
+
+    // Module object
+    var my = {};
+
+    /*********** Hex Plot Function ************************/
+    my.hexPlot = function(data, settings) {
+
             // Remove any current 2D plots
             d3.select(".chart-2D").remove();
             d3.select(".tooltip-2D").remove();
@@ -30,73 +70,77 @@ export const hexPlot = {
             }
 
             //Add tool tip and hide it until invoked
-            var tooltip = d3.select("#app-container").append("div")
+            elements.tooltip = d3.select("#app-container").append("div")
                 .attr("class", "tooltip-2D")
                 .style("opacity", 0);
 
             // Pull plot's parent container width, this will be used to scale the plot responsively
-            var margin = {top: 50, right: 65, bottom: 50, left: 65 };
+            
             var containerWidth = document.getElementById("plot-2D").offsetWidth;
             var viewHeight = containerWidth / (16/9);
-            var height = viewHeight - margin.top - margin.bottom;
-            var width = containerWidth - margin.left - margin.right;
+            dim.height = viewHeight - margin.top - margin.bottom;
+            dim.width = containerWidth - margin.left - margin.right;
 
             // Set legend dimensions
-            var legendWidth = 25;
-            var legendHeight = height;
+            dim.legendWidth = 25;
+            dim.legendHeight = dim.height;
 
             // Set plot scales
-            var xScale = d3.scaleLinear().range([0, width]);
-            var yScale = d3.scaleLinear().range([height, 0]);
+            scales.xScale = d3.scaleLinear().range([0, dim.width]);
+            scales.yScale = d3.scaleLinear().range([dim.height, 0]);
 
             // Set scale domains
-            xScale.domain(d3.extent(data, function(d) { return d.qx;}));
-            yScale.domain(d3.extent(data, function(d) { return d.qy;}));
+            scales.xScale.domain(d3.extent(data, function(d) { return d.qx;}));
+            scales.yScale.domain(d3.extent(data, function(d) { return d.qy;}));
 
             // Create axis generator
-            var xAxis = d3.axisBottom(xScale).ticks(10),
-            yAxis = d3.axisLeft(yScale).ticks(10);
+            axesObj.xAxis = d3.axisBottom(scales.xScale).ticks(10);
+            axesObj.yAxis = d3.axisLeft(scales.yScale).ticks(10);
 
             // Set plot area
             var viewbox = "0 0 " + containerWidth + " " + viewHeight;
-            var svg = d3.select("#plot-2D").append("svg")
+            elements.svg = d3.select("#plot-2D").append("svg")
                     .attr("viewBox", viewbox)
                     .attr("perserveAspectRatio","xMidYMid meet")
                     .attr('class', 'chart-2D')
-                    .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom);
+                    .attr("width", dim.width + margin.left + margin.right)
+                    .attr("height", dim.height + margin.top + margin.bottom);
             
             //Add clip path so hexagons do not exceed boundaries
-            svg.append("defs").append("clipPath")
+            elements.svg.append("defs").append("clipPath")
                 .attr("id", "clip-2D")
                 .append("rect")
-                .attr("width", width)
-                .attr("height", height);
+                .attr("width", dim.width)
+                .attr("height", dim.height);
 
             // Create plot elements (plot area, axes, and color legend)
-            var plot = svg.append("g").attr("class", "plot")
+            elements.plot = elements.svg.append("g").attr("class", "plot")
                 .attr("clip-path", "url(#clip-2D)")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            var axes = svg.append("g").attr("id", "axis-2D")
+            elements.axes = elements.svg.append("g").attr("id", "axis-2D")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            var legend = svg.append("g").attr("class", "legend")
-                .attr("transform", "translate(" + (width+75) + "," + margin.top + ")");
+            elements.legend = elements.svg.append("g").attr("class", "legend")
+                .attr("transform", "translate(" + (dim.width+75) + "," + margin.top + ")");
 
-            // Add zoom window
-            var zoom = d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", zoomed)
-            svg.call(zoom);
+            // Enable zoom
+            zoom = d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", my.zoomed);
+            elements.svg.call(zoom);
 
             // Create hexbin generator
             var hexbin = d3hex.hexbin()
                 .radius(binSize)
-                .extent([[0, 0], [width, height]]);
+                .extent([[0, 0], [dim.width, dim.height]]);
 
             // Create points, which are used to plot hexbins
             var points = [];
+
             data.forEach(function(el) { 
-                points.push([xScale(el.qx), yScale(el.qy), el.intensity]) 
+                points.push([
+                    scales.xScale(el.qx), 
+                    scales.yScale(el.qy), el.intensity
+                ]) 
             });
 
             var hexbins = hexbin(points);
@@ -120,7 +164,7 @@ export const hexPlot = {
                 .domain(d3.extent(hexbins, function(d) { return d.avgIntensity; }));
 
             // Create legend scale generator
-            var legendScale = d3.scaleLinear().domain(color.domain()).range([legendHeight,0]).nice();
+            scales.legendScale = d3.scaleLinear().domain(color.domain()).range([dim.legendHeight,0]).nice();
 
             // Create a value range for the legend color scale
             var valRange = d3.extent(hexbins, function(d) { return d.avgIntensity; });
@@ -137,32 +181,32 @@ export const hexPlot = {
                        The height = 400
                        The interval = (1 - (-1)) / 400 
             **************************************************************/
-            var interval = (valRange[1] - valRange[0]) / height;
+            var interval = (valRange[1] - valRange[0]) / dim.height;
             //console.log("Interval", interval);
 
-            legend.selectAll(".bars")
+            elements.legend.selectAll(".bars")
                 .data(d3.range(valRange[1],valRange[0], -interval), function(d) { return d; })
             .enter().append("rect")
                 .attr("class", "bars")
                 .attr("x", 0)
                 .attr("y", function(d, i) { return i; })
                 .attr("height", 1)
-                .attr("width", legendWidth)
+                .attr("width", dim.legendWidth)
                 .style("fill", function(d, i ) { 
                     // console.log("D", d);
                     return color(d); 
                 });
 
-            legend.append("g")
-                .attr("transform", "translate(" + (legendWidth) + ", 0)")
+            elements.legend.append("g")
+                .attr("transform", "translate(" + (dim.legendWidth) + ", 0)")
                 .attr("class", "legend-axis legend-axis-y")
-                .call(d3.axisRight(legendScale));
+                .call(d3.axisRight(scales.legendScale));
 
             // Hex radius is tweaked to eliminate white spaces between hexagons
             // This needs to be further investigated because overlap isn't visible.
             var hexRad = binSize + 0.4;
 
-            plot.append("g")
+            elements.plot.append("g")
                 .attr("class", "hexagon")
             .selectAll("path")
             .data(hexbins)
@@ -173,70 +217,55 @@ export const hexPlot = {
                 .attr("stroke", "none")
                 .attr("class", "hexagons")
                 .on("mouseover", function(d) {
-                    tooltip.transition()
+                    elements.tooltip.transition()
                         .duration(200)
                         .style("opacity", 1);
 
-                    tooltip.html("Qx: " + xScale.invert(d.x).toFixed(4) + "<br/>" + "Qy: " + yScale.invert(d.y).toFixed(4) + "<br/> Avg. Intensity: " + d.avgIntensity.toFixed(4))
+                    elements.tooltip.html("Qx: " + scales.xScale.invert(d.x).toFixed(4) + "<br/>" + "Qy: " + scales.yScale.invert(d.y).toFixed(4) + "<br/> Avg. Intensity: " + d.avgIntensity.toFixed(4))
                         .style("top", (d3.event.pageY - 40) + "px")
                         .style("left", (d3.event.pageX + 15) + "px");
                 })
                 .on("mouseout", function(d) {
-                    tooltip.transition()
+                    elements.tooltip.transition()
                         .duration(500)
                         .style("opacity", 0);
                 });
 
-            axes.append("g")
+            elements.axes.append("g")
                 .attr("class", "axis axis--y")
-                .call(yAxis);
+                .call(axesObj.yAxis);
 
-            axes.append("g")
+            elements.axes.append("g")
                 .attr("class", "axis axis--x")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
+                .attr("transform", "translate(0," + dim.height + ")")
+                .call(axesObj.xAxis);
 
             // Add X Axis Label
-            svg.append("g").append("foreignObject")
+            elements.svg.append("g").append("foreignObject")
                 .attr("height", 100)
                 .attr("width", 200)
-                .attr("transform", "translate(" + ((width+margin.left+margin.right)/2) + "," + (height+margin.top+margin.bottom/1.5) + ")")
+                .attr("transform", "translate(" + ((dim.width+margin.left+margin.right)/2) + "," + (dim.height+margin.top+margin.bottom/1.5) + ")")
                 .attr("id", "xLabel2D")
                 .html("`Qx`");
 
             // Add Y Axis Label
-            svg.append("g").append("foreignObject")
+            elements.svg.append("g").append("foreignObject")
                 .attr("height", 100)
                 .attr("width", 200)
-                .attr("transform", "translate(0," + (height/2) + ") rotate(-90)")
+                .attr("transform", "translate(0," + (dim.height/2) + ") rotate(-90)")
                 .attr("id", "yLabel2D")
                 .html("`Qy`");
 
             //Add Chart Title
-            svg.append("text")
+            elements.svg.append("text")
                 .attr("class", "charttitle")
                 .attr("transform",
-                    "translate(" + (width / 2) + " ," +
+                    "translate(" + (dim.width / 2) + " ," +
                     (margin.top / 1.5) + ")")
                 .text("Intensity Plot (Hexbin Size = " + binSize + ")");
 
             // Call MathJax to make plot axis labels look pretty
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel2D", "yLabel2D"]]);
-
-            function zoomed() {
-                // re-scale axes during zoom
-                axes.select(".axis--y").transition()
-                    .duration(50)
-                    .call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
-
-                axes.select(".axis--x").transition()
-                    .duration(50)
-                    .call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
-
-                // Transform hexagons depending on the zoom
-                plot.selectAll(".hexagon")
-                    .attr("transform", d3.event.transform);      
-            }
 
             // Add responsive elements
             // Essentially when the plot-area gets resized it will look to the
@@ -281,6 +310,33 @@ export const hexPlot = {
                 chart2D.attr("width", targetWidth);
                 chart2D.attr("height", Math.round(targetWidth / aspectRatio));
             });
-        }
     }
-}
+
+    /********** Zoom Function  ***********************************************/
+    my.zoomed = function() {
+        // re-scale axes during zoom
+        elements.axes.select(".axis--y").transition()
+            .duration(50)
+            .call(axesObj.yAxis.scale(d3.event.transform.rescaleY(scales.yScale)));
+
+        elements.axes.select(".axis--x").transition()
+            .duration(50)
+            .call(axesObj.xAxis.scale(d3.event.transform.rescaleX(scales.xScale)));
+
+        // Transform hexagons depending on the zoom
+        elements.plot.selectAll(".hexagon")
+            .attr("transform", d3.event.transform);      
+    }
+
+    /********** Plot Reset Function  *****************************************/
+    my.resetPlot = function() {
+        elements.svg.transition().duration(750)
+            .call(zoom.transform, d3.zoomIdentity);
+    }
+
+    // Return Module object for public use
+    return my;
+}(d3, _, $, d3hex));
+    
+// Export hex module for use in Plot2D.vue
+export default hex;
