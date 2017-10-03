@@ -70,7 +70,7 @@ export default {
   },
   data: function () {
     return {
-      toggleView: 'Stitch',
+      toggleView: '1D',
       errorCount: 0
     }
   },
