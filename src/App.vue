@@ -214,8 +214,8 @@ div#textnode {
 #error-container {
   position: fixed;
   z-index: 9999;
-  top: 25px;
-  left: 25px;
+  bottom: 25px;
+  right: 25px;
 }
 
 .error {
