@@ -94,10 +94,6 @@ export default {
         }
     },
     methods: {
-        checkError() {
-            let len = document.getElementById("error-container").children.length;
-            return len > 0 ? false : true;
-        },
         plotData: fit1D.plotData,
         resetPlot: fit1D.resetPlot,
         redrawFit: fit1D.redrawFit,
@@ -108,11 +104,16 @@ export default {
         },
         resetBrushSelection: function() {
             this.brushSelection = null;
+        },
+        setIsError(val) {
+            this.isError = val;
         }
     },
     created() {
         // Listen for cofficient changes
         eventBus.$on("coefficients-updated", this.redrawFit);
+
+        eventBus.$on('set-is-error', this.setIsError);
     },
     watch: {
         plotParams: {

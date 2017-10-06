@@ -70,6 +70,11 @@ var fit1D = (function(d3, _, $, eventBus) {
             brushSelection: null
         };
 
+        var selLimits = {
+            xMin: null,
+            xMax: null
+        }
+
         // Object for Zoom behaviors
         var zoomObj = {
             zoom: undefined,
@@ -181,12 +186,12 @@ var fit1D = (function(d3, _, $, eventBus) {
 
     my.initSlider = function() {
 
-        dataToFit = plotData.filter( (d) => d.name === plotParameters.fileToFit);
+        // dataToFit = plotData.filter( (d) => d.name === plotParameters.fileToFit);
 
-        fitResults = fd.fitData(dataToFit, plotParameters.fitConfiguration.equation, plotParameters.fitSettings);
-        coefficients = fitResults.coefficients;
-        fitData = fitResults.fittedData;
-        fitError = fitResults.error;
+        // fitResults = fd.fitData(dataToFit, plotParameters.fitConfiguration.equation, plotParameters.fitSettings);
+        // coefficients = fitResults.coefficients;
+        // fitData = fitResults.fittedData;
+        // fitError = fitResults.error;
         
         // Assign new fit equation to property data
         // fitEquation = fitResults.fitEquation;
@@ -200,9 +205,14 @@ var fit1D = (function(d3, _, $, eventBus) {
         };
 
         dim.height2 = 25;
-        
-        scales.xScale2 = d3.scaleLinear().range([0, dim.width]);
-        scales.xScale2.domain(scales.xScale.domain());
+
+        // Set scales
+        scales.xScale2 = plotParameters.scales.xScale;
+
+        scales.xScale2.range([0,dim.width]);
+        scales.xScale2.domain(d3.extent(plotData, function (d) {
+            return d.x;
+        }));
 
         axesObj.xAxis2 = d3.axisBottom(scales.xScale2);
 
@@ -214,59 +224,171 @@ var fit1D = (function(d3, _, $, eventBus) {
             .extent([
                 [0, 0],
                 [dim.width, dim.height2]
-            ])
-            .on("brush", my.brushed);
+            ]);
+            // .on("brush", my.brushed);
 
         // append scatter plot to brush chart area
-        elements.slider.append("g").selectAll("dotslider")
-            .data(dataToFit)
-            .enter().append("line")
-            .attr('class', 'dotslider')
-            .attr("x1", function(d) { return scales.xScale2(d.x); })
-            .attr("y1", dim.height2)
-            .attr("x2", function(d) { return scales.xScale2(d.x); })
-            .attr("y2", 0);
+        elements.slider.append("g").attr("id", "slider-lines")
+        // elements.slider.append("g").selectAll("dotslider")
+        //     .data(dataToFit)
+        //     .enter().append("line")
+        //     .attr('class', 'dotslider')
+        //     .attr("x1", function(d) { return scales.xScale(d.x); })
+        //     .attr("y1", dim.height2)
+        //     .attr("x2", function(d) { return scales.xScale(d.x); })
+        //     .attr("y2", 0);
 
         // set initial brushSelection
-        if(brushObj.brushSelection === null) {
-            brushObj.brushSelection = scales.xScale.range(); // Default selection [0, max(x)]
-        }
+        // if(brushObj.brushSelection === null) {
+        //     brushObj.brushSelection = scales.xScale.range(); // Default selection [0, max(x)]
+        // }
 
         elements.slider.append("g")
             .attr("class", "brush")
-            .call(brushObj.brush)
-            .call(brushObj.brush.move, brushObj.brushSelection); 
+            // .call(brushObj.brush)
+            // .call(brushObj.brush.move, brushObj.brushSelection); 
             // brush.move allows you to set the current selection for the brush element
             // this will dynamically update according to the last selection made.
             // This is to allow for persistent selections upon the plot being re-drawn.
         
         elements.slider.append("g")
             .attr("class", "axis axis--x")
-            .attr("transform", "translate(0," + dim.height2 + ")")
-            .call(axesObj.xAxis2);
+            .attr("transform", "translate(0," + dim.height2 + ")");
+            // .call(axesObj.xAxis);
     }
 
     my.updateSlider = function() {
+        console.log("UPDATING SLIDER");
+        dataToFit = plotData.filter( (d) => d.name === plotParameters.fileToFit);
 
+        fitResults = fd.fitData(dataToFit, plotParameters.fitConfiguration.equation, plotParameters.fitSettings);
+        coefficients = fitResults.coefficients;
+        fitData = fitResults.fittedData;
+        fitError = fitResults.error;
+
+        scales.xScale2.domain(d3.extent(plotData, function(d) { return d.x; })).nice();
+
+        let t = d3.zoomTransform( elements.svg.select('.zoom').node());
+        let new_xScale2 = t.rescaleX(scales.xScale2);
+
+        // update brush x scale axis
+        axesObj.xAxis2.scale(new_xScale2);
+        
+        // visually reflect the newly updated x axis
+        elements.slider.select('.axis--x').transition().duration(750).call(axesObj.xAxis2);
+
+        let selectSlider = elements.slider.select("#slider-lines").selectAll("line").data(dataToFit);
+
+        selectSlider.transition().duration(750)
+            .attr("x1", function(d) { return new_xScale2(d.x); })
+            .attr("y1", dim.height2)
+            .attr("x2", function(d) { return new_xScale2(d.x); })
+            .attr("y2", 0);
+        
+        // enter new brush lines
+        selectSlider.enter()
+            .append("line")
+            .attr('class', 'dotslider')
+            .attr("x1", function(d) { return new_xScale2(d.x); })
+            .attr("y1", dim.height2)
+            .attr("x2", function(d) { return new_xScale2(d.x); })
+            .attr("y2", 0)
+            .style("stroke", "slategray");
+
+        // remove any old brush lines
+        selectSlider.exit().remove();
+
+        // Call brush
+        brushObj.brush.on("brush", my.brushed);
+
+        // set initial brushSelection
+        if(brushObj.brushSelection === null) {
+            brushObj.brushSelection = scales.xScale2.range(); // Default selection [0, max(x)]
+        } else {
+            brushObj.brushSelection[0] = new_xScale2(selLimits.xMin);
+            brushObj.brushSelection[1] = new_xScale2(selLimits.xMax);
+            console.log("Brush selections:", brushObj.brushSelection)
+        }
+
+        elements.slider.select('.brush')
+            .call(brushObj.brush)
+            .call(brushObj.brush.move, brushObj.brushSelection); 
+        // brush.move allows you to set the current selection for the brush element
+        // this will dynamically update according to the last selection made.
+        // This is to allow for persistent selections upon the plot being re-drawn.
     }
 
-    my.addFitLine = function() {
-        var minX = d3.min(dataToFit, function(d) { return d.x });
-        var maxX = d3.max(dataToFit, function(d) { return d.x });
+    my.initFitLine = function() {
+        // var minX = d3.min(dataToFit, function(d) { return d.x });
+        // var maxX = d3.max(dataToFit, function(d) { return d.x });
 
         // Add fitted line
         elements.plot.append("g")
             .attr("id", "fit-line")
             .append("path")
             .attr("clip-path", "url(#clip)")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            .datum(fitData)
-            .attr("class", "fitted-line")
+            .attr("class", "fitted-line");
+            // .datum(fitData)
+            // .attr("d", plotLine)
+            // .style("fill", "none")
+            // .style("stroke", color(plotParameters.fileToFit));
+
+        // Add fit results below chart
+        // d3.select("td#fit-file").html("<b>File tessssst: </b>" + plotParameters.fileToFit);
+        // d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
+        // d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
+        // d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toExponential(5) + ", " + maxX.toExponential(5) + ")");
+        // d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
+        
+        // d3.select("td#fit-coefficients").html(function() {
+        //     let coeffString = "<ul>";
+        //     for( let key in coefficients) {
+                
+        //         if(plotParameters.fitConfiguration.fit.toLowerCase().includes('guinier')) {
+
+        //             if(key === 'I0') {
+        //                 let I0 = Math.exp(coefficients[key]);
+                    
+        //                 coeffString += "<li>Real " + key + " = " + I0 + "</li>";
+        //                 continue;
+        //             }
+
+        //             if(key === 'Rg') {
+        //                 let RgX = coefficients[key] * scales.xScale.invert(brushObj.brushSelection[1]);
+        //                 coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
+        //                 continue;
+        //             }
+        //         }
+
+        //         coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
+        //     }
+        //     coeffString += "</ul>";
+        //     return coeffString;
+        // });
+
+        // d3.select("li#fit-damping").html("<b>Damping: </b>" + plotParameters.fitSettings.damping);
+        // d3.select("li#fit-iterations").html("<b>No. Iterations: </b>" + plotParameters.fitSettings.maxIterations);
+        // d3.select("li#fit-tolerance").html("<b>Error Tolerance: </b>" + plotParameters.fitSettings.errorTolerance);
+        // d3.select("li#fit-gradient").html("<b>Gradient Difference: </b>" + plotParameters.fitSettings.gradientDifference);
+
+        // d3.select("#fit-note").html(plotParameters.fitConfiguration.note);
+    }
+
+    my.updateFitLine = function() {
+        
+        // update fitted line
+        // Re-draw plot lines with new data            
+        let selectFitLine = elements.plot.select("#fit-line").select("path").data([fitData]);
+
+        selectFitLine.transition().duration(750)
             .attr("d", plotLine)
             .style("fill", "none")
             .style("stroke", color(plotParameters.fileToFit));
 
-        // Add fit results below chart
+        // Update Fit Table
+        var minX = d3.min(dataToFit, function(d) { return d.x });
+        var maxX = d3.max(dataToFit, function(d) { return d.x });
+
         d3.select("td#fit-file").html("<b>File tessssst: </b>" + plotParameters.fileToFit);
         d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
         d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
@@ -307,10 +429,6 @@ var fit1D = (function(d3, _, $, eventBus) {
         d3.select("#fit-note").html(plotParameters.fitConfiguration.note);
     }
 
-    my.updateFitLine = function() {
-
-    }
-
     my.plotData = function(parameters, vm) {
         // Set isFit to check if a file is selected to fit
         plotParameters = _.cloneDeep(parameters);
@@ -318,13 +436,19 @@ var fit1D = (function(d3, _, $, eventBus) {
 
         // If plot is already present, simply update with the new set of data
         if(!d3.select(".chart-1D").empty() && isFit === prevFit) {
-            console.log("INSIDE HERE");
+            
+            // Update titles according to new transformations
+            axesObj.xTitle = plotParameters.fitConfiguration.xTransformation;
+            axesObj.yTitle = plotParameters.fitConfiguration.yTransformation;
+
             my.update(parameters.data);
 
             return;
         } else { // New fit is being selected so tear down plot and re-do everything from scratch
             d3.select(".chart-1D").remove();
             d3.select("#tooltip-1D").remove();
+            selLimits.xMin = null;
+            selLimits.yMin = null;
         }
 
         plotData = plotParameters.data; //regular data to plot
@@ -339,7 +463,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             d3.select("#tooltip-1D").remove();
             vm.isError = !vm.isError;
             
-            if(vm.checkError()) {
+            if(my.checkError()) {
                 let errorMsg = "<strong>Error!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.";
                 eventBus.$emit('error-message', errorMsg, 'danger');
             }
@@ -348,8 +472,6 @@ var fit1D = (function(d3, _, $, eventBus) {
         } else {
             vm.isError = false;
         }
-        
-        
 
         // Set chart dimensions
         my.initDimensions(isFit);
@@ -477,7 +599,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         elements.legend = elements.plot.append("g").attr("id", "legend-1D");
 
         // If fit is select add elements for fitted line
-        if(isFit)   my.addFitLine();
+        if(isFit)   my.initFitLine();
 
         // Set zoom on zoomWindow
         elements.svg.select(".zoom").call(zoomObj.zoom);
@@ -541,10 +663,10 @@ var fit1D = (function(d3, _, $, eventBus) {
     
             // Nest the entries by name
             dataNest = d3.nest()
-            .key(function (d) {
-                return d.name;
-            })
-            .entries(plotData);
+                .key(function (d) {
+                    return d.name;
+                })
+                .entries(plotData);
             
             // Add keys
             let newKeys = [];
@@ -561,7 +683,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             scales.yScale.domain(d3.extent(plotData, function(d) { return d.y; })).nice();
 
             // Adjust brush scale if a fit is selected
-            if( isFit )  scales.xScale2.domain(scales.xScale.domain());
+            if( isFit )  my.updateSlider();
     
             // Rescale to zoom's scale
             let t = d3.zoomTransform( elements.svg.select('.zoom').node());
@@ -570,12 +692,19 @@ var fit1D = (function(d3, _, $, eventBus) {
     
             // Adjust plotline generator
             plotLine = d3.line()
-            .x(function(d) {
-                return new_xScale(d.x);
-            })
-            .y(function(d) {
-                return new_yScale(d.y);
-            });
+                .defined(function(d) { 
+                    if(scales.yScaleType === 'Log(Y)') {
+                        return d.y > 0;
+                    } else {
+                        return d;
+                    }
+                })
+                .x(function(d) {
+                    return new_xScale(d.x);
+                })
+                .y(function(d) {
+                    return new_yScale(d.y);
+                });
             
             // Adjust axis and gridline labels
             axesObj.yAxis.scale(new_yScale);
@@ -965,6 +1094,18 @@ var fit1D = (function(d3, _, $, eventBus) {
                         
                 }
             });
+
+            // Updated axis according to any new transformations
+            // Add X Axis Label
+            elements.svg.select("#xLabel").html("`" + axesObj.xTitle + "`");
+            elements.svg.select("#yLabel").html("`" + axesObj.yTitle + "`");
+            elements.svg.select("#plotTitle").html("`" + axesObj.yTitle + "` vs `" + axesObj.xTitle + "`");
+
+            // Call MathJax to make plot axis labels look pretty 
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel", "yLabel", "plotTitle"]]);
+
+            // if a fit is selected add/update data
+            if (isFit)  my.updateFitLine();
     
             let delKeys = [];
     
@@ -1003,6 +1144,11 @@ var fit1D = (function(d3, _, $, eventBus) {
             return e[0] <= d.x && d.x <= e[1];
         })
 
+        // Update brush selections to the current selected data
+        // This will be used to dynamically adjust brush location when new data is added
+        selLimits.xMin = d3.min(selectedData, function(d) { return d.x; });
+        selLimits.xMax = d3.max(selectedData, function(d) { return d.x; });
+
         if (brushObj.brushSelection !== null && selectedData.length > 1) {
 
             elements.slider.selectAll(".dotslider")
@@ -1023,7 +1169,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             fitEquation = fitResults.fitEquation;
 
             if(fitData.length <= 0) {
-                if(vm.checkError()) {
+                if(my.checkError()) {
                     let errorMsg = "<strong>Error!</strong> Fitted y-values < 0, thus no fit-line to display.";
                     eventBus.$emit('error-message', errorMsg, 'danger');
                 }
@@ -1069,7 +1215,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             });
         } else {
             // Notify user that more data needs to be selected for the fit
-            if(vm.checkError()) {
+            if(my.checkError()) {
                 let errorMsg = "<strong>Error!</strong> Not enough data selected, please select 2 or more points. If plot is blank, no data is available for generating a fit line.";
                 eventBus.$emit('error-message', errorMsg, 'danger');
             }
@@ -1195,6 +1341,17 @@ var fit1D = (function(d3, _, $, eventBus) {
         
         scales.xScale = values.xScale.copy();
         scales.yScale = values.yScale.copy();
+
+        // update scale types
+        console.log("y scale type", values.yScaleType);
+
+        scales.yScaleType = values.yScaleType;
+
+        // if theres a fit, update brush scale
+        if(isFit) {
+            scales.xScale2 = values.xScale.copy();
+            scales.xScale2.range([0, dim.width]);
+        }
         
         scales.xScale.range([0, dim.width]);
         scales.yScale.range([dim.height, 0]);
@@ -1251,6 +1408,11 @@ var fit1D = (function(d3, _, $, eventBus) {
             coeffString += "</ul>";
             return coeffString;
         });
+    }
+
+    my.checkError = function() {
+        let len = document.getElementById("error-container").children.length;
+        return len > 0 ? false : true;
     }
 
     // Return Module object for public use
