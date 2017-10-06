@@ -53,7 +53,7 @@ export default new Vuex.Store({
             equation: "-Rg^2/3*x+I0",
             yTransformation: "log(y)",
             xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
+            eTransformation: "((1/y)*e)^2",
             yLabel: "Log(I(q))",
             xLabel: "q^2",
             note: ""
@@ -63,7 +63,7 @@ export default new Vuex.Store({
             equation: "-(L^2/12+Rg^2/2)/3*x+I0",
             yTransformation: "log(y)",
             xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
+            eTransformation: "((1/y)*e)^2",
             yLabel: "Log(I(q))",
             xLabel: "q^2",
             note: "Cylinder of length L and Radius R"
@@ -73,7 +73,7 @@ export default new Vuex.Store({
             equation: "-(Rg^2/2)/3*x+I0/x",
             yTransformation: "log(x*y)",
             xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
+            eTransformation: "((1/y)*e)^2",
             yLabel: "Log(q*I(q))",
             xLabel: "q^2",
             note: "Radius R"
@@ -83,7 +83,7 @@ export default new Vuex.Store({
             equation: "-(T^2/12)/3*x+I0/x^2",
             yTransformation: "log(x^2*y)",
             xTransformation: "x^2",
-            eTransformation: "((1/x)*e)^2",
+            eTransformation: "((1/y)*e)^2",
             yLabel: "Log(q^2*I(q))",
             xLabel: "q^2",
             note: "T is the thickness of a flat (lamella) object."
@@ -103,7 +103,7 @@ export default new Vuex.Store({
             equation: "1/I0+Cl^2/I0*x",
             yTransformation: "1/y",
             xTransformation: "x^2",
-            eTransformation: "((-1/x^2)*e)^2",
+            eTransformation: "((-1/y^2)*e)^2",
             yLabel: "1/I(q)",
             xLabel: "q^2",
             note: ""
@@ -113,7 +113,9 @@ export default new Vuex.Store({
             equation: "m*x+b",
             yTransformation: "x^2*log(y)",
             xTransformation: "x",
-            eTransformation: "(2*x*log(y))^2 + (x^2/y * e)^2",
+            // because there's no error for X I'm doing e(x) = 0.1
+            // e(x) = sqrt(x) is annoying for high x
+            eTransformation: "(x^2/y * e)^2 + (2*x*log(y) * 0.1)^2",
             yLabel: "q^2 \times log(I)",
             xLabel: "q",
             note: ""
@@ -123,7 +125,7 @@ export default new Vuex.Store({
             equation: "m*x+I0",
             yTransformation: "sqrt(y)",
             xTransformation: "x^2",
-            eTransformation: "(1/(2*sqrt(x))*e)^2",
+            eTransformation: "(1/(2*sqrt(y))*e)^2",
             yLabel: "sqrt(I)",
             xLabel: "Q^2",
             note: ""
