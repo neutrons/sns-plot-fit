@@ -386,9 +386,8 @@ export default {
     },
     watch: {
         scales: {
-            handler: function() {
-                // console.log("Scales changed:", this.scales);
-                this.setParameters();
+            handler() {
+                this.$refs.plot_1D.changeScales(this.scales);
             },
             deep: true
         },

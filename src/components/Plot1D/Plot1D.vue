@@ -101,6 +101,7 @@ export default {
         plotData: fit1D.plotData,
         resetPlot: fit1D.resetPlot,
         redrawFit: fit1D.redrawFit,
+        changeScales: fit1D.changeScales,
         setParameters: function(parameters) {
             // Check data is valid prior to plotting
             this.plotParams = _.cloneDeep(parameters);
