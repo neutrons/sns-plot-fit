@@ -559,6 +559,9 @@ var fit1D = (function(d3, _, $, eventBus) {
             // Adjust scale's domain whenver new data is added
             scales.xScale.domain(d3.extent(plotData, function(d) { return d.x; })).nice();
             scales.yScale.domain(d3.extent(plotData, function(d) { return d.y; })).nice();
+
+            // Adjust brush scale if a fit is selected
+            if( isFit )  scales.xScale2.domain(scales.xScale.domain());
     
             // Rescale to zoom's scale
             let t = d3.zoomTransform( elements.svg.select('.zoom').node());
@@ -993,6 +996,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         // console.log("Calling brush...");
         brushObj.brushSelection = d3.event.selection;
         
+        scales.xScale2.domain(scales.xScale.domain());
         var e = d3.event.selection.map(scales.xScale2.invert, scales.xScale2);
         
         let selectedData = dataToFit.filter(function(d) {
