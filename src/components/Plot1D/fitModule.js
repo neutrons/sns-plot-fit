@@ -35,7 +35,8 @@ var fit1D = (function(d3, _, $, eventBus) {
         var dim = {
             width: undefined,
             height: undefined,
-            height2: undefined
+            height2: undefined,
+            viewbox: undefined
         };
 
         var margin = {
@@ -103,10 +104,205 @@ var fit1D = (function(d3, _, $, eventBus) {
     var my = {};
     
     /*********** Plotting Function  ***************/
+
+    my.initDimensions = function(isfit) {
+        let viewHeight;
+        
+        // Pull plot's parent container width, this will be used to scale the plot responsively
+        var containerWidth = document.getElementById("plot-1D").offsetWidth;
+
+        if(isfit) {
+            margin = {
+                top: 50,
+                right: 50,
+                bottom: 160, // adjusts margin for slider
+                left: 80
+            };
+            
+            // View Height is calculated on a 16:9 aspect ratio
+            // This is to properly adjust the plot to the container width
+            // This is mostly used when the user adjusts the browser 
+            // from small (mobile) to large (desktop) window sizes.
+            viewHeight = containerWidth / (16/9);
+            dim.height = viewHeight - margin.top - margin.bottom;
+        } else {
+            margin = {
+                top: 50,
+                right: 50,
+                bottom: 80,
+                left: 80
+            };
+
+            viewHeight = containerWidth / (16/9);
+            dim.height = viewHeight - margin.top - margin.bottom;
+        }
+
+        dim.width = containerWidth - margin.left - margin.right;
+
+        // Set viewbox for to enable responsive scaling for svg upon window resize
+        dim.viewbox = "0 0 " + containerWidth + " " + viewHeight;
+    }
+
+    my.initScales = function() {
+                
+        axesObj.xTitle = plotParameters.fitConfiguration.xTransformation; //xTitle according to label
+        axesObj.yTitle = plotParameters.fitConfiguration.yTransformation; //yTitle according to label
+        
+        // Set scales
+        scales.xScale = plotParameters.scales.xScale;
+        scales.xScale.range([0,dim.width]);
+        scales.xScale.domain(d3.extent(plotData, function (d) {
+            return d.x;
+        }));
+        
+        scales.yScale = plotParameters.scales.yScale;
+        scales.yScaleType = plotParameters.scales.yScaleType;
+        scales.yScale.range([dim.height, 0]);
+        scales.yScale.domain(d3.extent(plotData, function(d) {
+            return d.y;
+        }));
+
+        // Set Axes
+        axesObj.xAxis = d3.axisBottom(scales.xScale).ticks(10);
+        axesObj.yAxis = d3.axisLeft(scales.yScale).ticks(10);
+        axesObj.xGridline = d3.axisBottom(scales.xScale).ticks(10).tickSize(-dim.height).tickFormat("");
+        axesObj.yGridline = d3.axisLeft(scales.yScale).ticks(10).tickSize(-dim.width).tickFormat("");
+
+        // Set Color Scale
+        // color domain is set in order for filenames to have
+        // assigned colors. If this wasn't set and a filename
+        // was unselected from the list, the plot would re-assign
+        // color values to the plots causing confusion at first glance
+        // reference: https://stackoverflow.com/questions/20590396/d3-scale-category10-not-behaving-as-expected
+        color = d3.scaleOrdinal(d3.schemeCategory20)
+            .domain(plotParameters.colorDomain);
+    }
+
+    my.initSlider = function() {
+
+        dataToFit = plotData.filter( (d) => d.name === plotParameters.fileToFit);
+
+        fitResults = fd.fitData(dataToFit, plotParameters.fitConfiguration.equation, plotParameters.fitSettings);
+        coefficients = fitResults.coefficients;
+        fitData = fitResults.fittedData;
+        fitError = fitResults.error;
+        
+        // Assign new fit equation to property data
+        // fitEquation = fitResults.fitEquation;
+        // console.log("FIT EQUATION:", fitEquation);
+
+        margin2 = {
+            top: 10,
+            right: 50,
+            bottom: 70,
+            left: 80
+        };
+
+        dim.height2 = 25;
+        
+        scales.xScale2 = d3.scaleLinear().range([0, dim.width]);
+        scales.xScale2.domain(scales.xScale.domain());
+
+        axesObj.xAxis2 = d3.axisBottom(scales.xScale2);
+
+        elements.slider = elements.svg.append("g")
+            .attr("class", "slider")
+            .attr("transform", "translate(" + margin2.left + "," + (dim.height + margin2.top + margin2.bottom) + ")");
+
+        brushObj.brush = d3.brushX()
+            .extent([
+                [0, 0],
+                [dim.width, dim.height2]
+            ])
+            .on("brush", my.brushed);
+
+        // append scatter plot to brush chart area
+        elements.slider.append("g").selectAll("dotslider")
+            .data(dataToFit)
+            .enter().append("line")
+            .attr('class', 'dotslider')
+            .attr("x1", function(d) { return scales.xScale2(d.x); })
+            .attr("y1", dim.height2)
+            .attr("x2", function(d) { return scales.xScale2(d.x); })
+            .attr("y2", 0);
+
+        // set initial brushSelection
+        if(brushObj.brushSelection === null) {
+            brushObj.brushSelection = scales.xScale.range(); // Default selection [0, max(x)]
+        }
+
+        elements.slider.append("g")
+            .attr("class", "brush")
+            .call(brushObj.brush)
+            .call(brushObj.brush.move, brushObj.brushSelection); 
+            // brush.move allows you to set the current selection for the brush element
+            // this will dynamically update according to the last selection made.
+            // This is to allow for persistent selections upon the plot being re-drawn.
+        
+        elements.slider.append("g")
+            .attr("class", "axis axis--x")
+            .attr("transform", "translate(0," + dim.height2 + ")")
+            .call(axesObj.xAxis2);
+    }
+
+    my.addFitLine = function() {
+        var minX = d3.min(dataToFit, function(d) { return d.x });
+        var maxX = d3.max(dataToFit, function(d) { return d.x });
+
+        // Add fitted lin
+        elements.plot.append("path")
+            .attr("clip-path", "url(#clip)")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .datum(fitData)
+            .attr("class", "fitted-line")
+            .attr("d", plotLine)
+            .style("fill", "none")
+            .style("stroke", color(plotParameters.fileToFit));
+
+        // Add fit results below chart
+        d3.select("td#fit-file").html("<b>File tessssst: </b>" + plotParameters.fileToFit);
+        d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
+        d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
+        d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toExponential(5) + ", " + maxX.toExponential(5) + ")");
+        d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
+        
+        d3.select("td#fit-coefficients").html(function() {
+            let coeffString = "<ul>";
+            for( let key in coefficients) {
+                
+                if(plotParameters.fitConfiguration.fit.toLowerCase().includes('guinier')) {
+
+                    if(key === 'I0') {
+                        let I0 = Math.exp(coefficients[key]);
+                    
+                        coeffString += "<li>Real " + key + " = " + I0 + "</li>";
+                        continue;
+                    }
+
+                    if(key === 'Rg') {
+                        let RgX = coefficients[key] * scales.xScale.invert(brushObj.brushSelection[1]);
+                        coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
+                        continue;
+                    }
+                }
+
+                coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
+            }
+            coeffString += "</ul>";
+            return coeffString;
+        });
+
+        d3.select("li#fit-damping").html("<b>Damping: </b>" + plotParameters.fitSettings.damping);
+        d3.select("li#fit-iterations").html("<b>No. Iterations: </b>" + plotParameters.fitSettings.maxIterations);
+        d3.select("li#fit-tolerance").html("<b>Error Tolerance: </b>" + plotParameters.fitSettings.errorTolerance);
+        d3.select("li#fit-gradient").html("<b>Gradient Difference: </b>" + plotParameters.fitSettings.gradientDifference);
+
+        d3.select("#fit-note").html(plotParameters.fitConfiguration.note);
+    }
+
     my.plotData = function(parameters, vm) {
 
         plotParameters = _.cloneDeep(parameters);
-        console.log("PARAMETERS:", plotParameters);
 
         plotData = plotParameters.data; //regular data to plot
         // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
@@ -135,71 +331,29 @@ var fit1D = (function(d3, _, $, eventBus) {
         d3.select("#tooltip-1D").remove();
         
         // Set isFit to check if a file is selected to fit
-        isFit = vm.isFit;
+        isFit = plotParameters.fileToFit !== null && plotParameters.fitConfiguration.fit !== 'None';
 
-        // Set Color Scale
-        // color domain is set in order for filenames to have
-        // assigned colors. If this wasn't set and a filename
-        // was unselected from the list, the plot would re-assign
-        // color values to the plots causing confusion at first glance
-        // reference: https://stackoverflow.com/questions/20590396/d3-scale-category10-not-behaving-as-expected
-        color = d3.scaleOrdinal(d3.schemeCategory20)
-            .domain(plotParameters.colorDomain);
+        // Set chart dimensions
+        my.initDimensions(isFit);
 
-        // Pull plot's parent container width, this will be used to scale the plot responsively
-        var containerWidth = document.getElementById("plot-1D").offsetWidth;
+        // Set scale elements
+        my.initScales();
 
-        //Set chart dimensions
-        if(isFit) {
-            margin = {
-                top: 50,
-                right: 50,
-                bottom: 160, // adjusts margin for slider
-                left: 80
-            };
-            
-            // View Height is calculated on a 16:9 aspect ratio
-            // This is to properly adjust the plot to the container width
-            // This is mostly used when the user adjusts the browser 
-            // from small (mobile) to large (desktop) window sizes.
-            var viewHeight = containerWidth / (16/9);
-            var height = viewHeight - margin.top - margin.bottom;
-        } else {
-            margin = {
-                top: 50,
-                right: 50,
-                bottom: 80,
-                left: 80
-            };
-
-            var viewHeight = containerWidth / (16/9);
-            dim.height = viewHeight - margin.top - margin.bottom;
-        }
-        
-        dim.width = containerWidth - margin.left - margin.right;
-        
-        axesObj.xTitle = plotParameters.fitConfiguration.xTransformation; //xTitle according to label
-        axesObj.yTitle = plotParameters.fitConfiguration.yTransformation; //yTitle according to label
-        
-        // Set scales
-        scales.xScale = plotParameters.scales.xScale;
-        scales.xScale.range([0,dim.width]);
-        scales.xScale.domain(d3.extent(plotData, function (d) {
-            return d.x;
-        }));
-        
-        scales.yScale = plotParameters.scales.yScale;
-        scales.yScaleType = plotParameters.scales.yScaleType;
-        scales.yScale.range([dim.height, 0]);
-        scales.yScale.domain(d3.extent(plotData, function(d) {
-            return d.y;
-        }));
-
-        // Set Axes
-        axesObj.xAxis = d3.axisBottom(scales.xScale).ticks(10);
-        axesObj.yAxis = d3.axisLeft(scales.yScale).ticks(10);
-        axesObj.xGridline = d3.axisBottom(scales.xScale).ticks(10).tickSize(-dim.height).tickFormat("");
-        axesObj.yGridline = d3.axisLeft(scales.yScale).ticks(10).tickSize(-dim.width).tickFormat("");
+        //Add a Line Plot Function
+        plotLine = d3.line()
+            .defined(function(d) { 
+                if(scales.yScaleType === 'Log(Y)') {
+                    return d.y > 0;
+                } else {
+                    return d;
+                }
+            })
+            .x(function (d) {
+                return scales.xScale(d.x);
+            })
+            .y(function (d) {
+                return scales.yScale(d.y);
+            });
 
         // Add tool tip and hide it until invoked
         var tooltip = d3.select("#app-container").append("div")
@@ -208,9 +362,8 @@ var fit1D = (function(d3, _, $, eventBus) {
             .style("opacity", 0);
 
         // Add main chart area
-        var viewbox = "0 0 " + containerWidth + " " + viewHeight;
         elements.svg = d3.select("#plot-1D").append("svg")
-            .attr("viewBox", viewbox)
+            .attr("viewBox", dim.viewbox)
             .attr("perserveAspectRatio","xMidYMid meet")
             .attr("class", "chart-1D")
             .attr("width", dim.width + margin.left + margin.right)
@@ -249,92 +402,9 @@ var fit1D = (function(d3, _, $, eventBus) {
         //Add Group to Plot Line/Points
         elements.plot = elements.svg.append("g")
             .attr("class", "chart");
-
-        //Add a Line Plot Function
-        plotLine = d3.line()
-            .defined(function(d) { 
-                if(scales.yScaleType === 'Log(Y)') {
-                    return d.y > 0;
-                } else {
-                    return d;
-                }
-            })
-            .x(function (d) {
-                return scales.xScale(d.x);
-            })
-            .y(function (d) {
-                return scales.yScale(d.y);
-            });
         
-        /* CHECK ISFIT AND SETUP DIMENSIONS, FIT DATA, & SCALES */
-        if(isFit) {
-            console.log("IS FIT IS TRUE");
-            dataToFit = plotData.filter( (d) => d.name === plotParameters.fileToFit);
-
-            // var dataFitted = calcLinear(dataToFit, "x", "y", minX, maxX);
-            fitResults = fd.fitData(dataToFit, plotParameters.fitConfiguration.equation, plotParameters.fitSettings);
-            coefficients = fitResults.coefficients;
-            fitData = fitResults.fittedData;
-            fitError = fitResults.error;
-            
-            // Assign new fit equation to property data
-            // fitEquation = fitResults.fitEquation;
-            // console.log("FIT EQUATION:", fitEquation);
-
-            margin2 = {
-                top: 10,
-                right: 50,
-                bottom: 70,
-                left: 80
-            };
-
-            dim.height2 = 25;
-            
-            scales.xScale2 = d3.scaleLinear().range([0, dim.width]);
-            scales.xScale2.domain(scales.xScale.domain());
-
-            axesObj.xAxis2 = d3.axisBottom(scales.xScale2);
-
-            elements.slider = elements.svg.append("g")
-                .attr("class", "slider")
-                .attr("transform", "translate(" + margin2.left + "," + (dim.height + margin2.top + margin2.bottom) + ")");
-
-            brushObj.brush = d3.brushX()
-                .extent([
-                    [0, 0],
-                    [dim.width, dim.height2]
-                ])
-                .on("brush", my.brushed);
-
-            // append scatter plot to brush chart area
-            elements.slider.append("g").selectAll("dotslider")
-                .data(dataToFit)
-                .enter().append("line")
-                .attr('class', 'dotslider')
-                .attr("x1", function(d) { return scales.xScale2(d.x); })
-                .attr("y1", dim.height2)
-                .attr("x2", function(d) { return scales.xScale2(d.x); })
-                .attr("y2", 0);
-
-            // set initial brushSelection
-            if(brushObj.brushSelection === null) {
-                brushObj.brushSelection = scales.xScale.range(); // Default selection [0, max(x)]
-                console.log("BRUSH SELECTIONS", brushObj.brushSelection);
-            }
-
-            elements.slider.append("g")
-                .attr("class", "brush")
-                .call(brushObj.brush)
-                .call(brushObj.brush.move, brushObj.brushSelection); 
-                // brush.move allows you to set the current selection for the brush element
-                // this will dynamically update according to the last selection made.
-                // This is to allow for persistent selections upon the plot being re-drawn.
-            
-            elements.slider.append("g")
-                .attr("class", "axis axis--x")
-                .attr("transform", "translate(0," + dim.height2 + ")")
-                .call(axesObj.xAxis2);
-        }
+        /* CHECK ISFIT AND SETUP Slider DIMENSIONS, FIT DATA, & SCALES */
+        if(isFit)   my.initSlider();
         /* END OF IS FIT SETUP*/
 
         // X Gridlines
@@ -569,61 +639,8 @@ var fit1D = (function(d3, _, $, eventBus) {
 
         });
 
-        // Code for fitted line
-        if(isFit) {
-            var minX = d3.min(dataToFit, function(d) { return d.x });
-            var maxX = d3.max(dataToFit, function(d) { return d.x });
-
-            // Add fitted lin
-            elements.plot.append("path")
-                .attr("clip-path", "url(#clip)")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                .datum(fitData)
-                .attr("class", "fitted-line")
-                .attr("d", plotLine)
-                .style("fill", "none")
-                .style("stroke", color(plotParameters.fileToFit));
-
-            // Add fit results below chart
-            d3.select("td#fit-file").html("<b>File tessssst: </b>" + plotParameters.fileToFit);
-            d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
-            d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
-            d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toExponential(5) + ", " + maxX.toExponential(5) + ")");
-            d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
-            
-            d3.select("td#fit-coefficients").html(function() {
-                let coeffString = "<ul>";
-                for( let key in coefficients) {
-                    
-                    if(plotParameters.fitConfiguration.fit.toLowerCase().includes('guinier')) {
-
-                        if(key === 'I0') {
-                            let I0 = Math.exp(coefficients[key]);
-                        
-                            coeffString += "<li>Real " + key + " = " + I0 + "</li>";
-                            continue;
-                        }
-
-                        if(key === 'Rg') {
-                            let RgX = coefficients[key] * scales.xScale.invert(brushObj.brushSelection[1]);
-                            coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
-                            continue;
-                        }
-                    }
-
-                    coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
-                }
-                coeffString += "</ul>";
-                return coeffString;
-            });
-
-            d3.select("li#fit-damping").html("<b>Damping: </b>" + plotParameters.fitSettings.damping);
-            d3.select("li#fit-iterations").html("<b>No. Iterations: </b>" + plotParameters.fitSettings.maxIterations);
-            d3.select("li#fit-tolerance").html("<b>Error Tolerance: </b>" + plotParameters.fitSettings.errorTolerance);
-            d3.select("li#fit-gradient").html("<b>Gradient Difference: </b>" + plotParameters.fitSettings.gradientDifference);
-
-            d3.select("#fit-note").html(plotParameters.fitConfiguration.note);
-        }
+        // If fit is select add elements for fitted line
+        if(isFit)   my.addFitLine();
 
         // Add responsive elements
         // Essentially when the plot-1D gets resized it will look to the
@@ -670,8 +687,12 @@ var fit1D = (function(d3, _, $, eventBus) {
         });
     }
 
-     // Create brush function redraw scatterplot with selection
-     my.brushed = function() {
+    my.update = function() {
+
+    }
+
+    // Create brush function redraw scatterplot with selection
+    my.brushed = function() {
         // console.log("Calling brush...");
         brushObj.brushSelection = d3.event.selection;
         
@@ -699,10 +720,6 @@ var fit1D = (function(d3, _, $, eventBus) {
 
             // Re-assign updated fit equation and fitline function
             fitEquation = fitResults.fitEquation;
-            //vm.fitLineFunction = brushPlotLine;
-
-            // Filter out fitted y's <=0, this is to prevent Y-scale: log(y <= 0) and Y values cannot be negative.
-            fitData = fitData; //.filter( el => el.y > 0);
 
             if(fitData.length <= 0) {
                 if(vm.checkError()) {

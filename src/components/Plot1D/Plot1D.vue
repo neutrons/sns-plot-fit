@@ -93,11 +93,6 @@ export default {
             isError: false,
         }
     },
-    computed: {
-        isFit: function() {
-            return this.plotParams.fileToFit !== null && this.plotParams.fitConfiguration.fit !== 'None';
-        }
-    },
     methods: {
         checkError() {
             let len = document.getElementById("error-container").children.length;
