@@ -193,12 +193,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
         // set Zoom function
         zoomObj.zoom = d3.zoom().on('zoom', my.zoomed);
 
-        // Only allow brushes when 2+ lines are plotted
-        // if(brushObj.brushCount >= 1) {
-        //     my.newBrush();
-        //     my.drawBrushes();
-        // }
-
         // Set a Line Generator
         plotLine = d3.line()
             .x(function (d) {
@@ -247,11 +241,9 @@ var stitch = (function(d3, _, $, eventBus, store) {
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .attr("class", "brushes");
   
-        // Only allow brushes when 2+ lines are plotted
-        if(brushObj.brushCount >= 0) {
-            my.newBrush();
-            my.drawBrushes();
-        }
+        // set up brush layer
+        my.newBrush();
+        my.drawBrushes();
 
         // Add Error-bars Section
         elements.errorlines = elements.svg.append('g')
@@ -356,8 +348,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
             chartStitch.attr("height", Math.round(targetWidth / aspectRatio));
         });
 
-
-        
         // Once elements are set call update to plot data
         my.update(plotData);
         
