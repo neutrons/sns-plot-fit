@@ -109,7 +109,7 @@
     
         <v-plot-1D
             :DISABLE="disable"
-            :SHOWTABLE="fileToFit !== null"
+            :SHOWTABLE="fileToFit !== null && $data.currentConfiguration.fit !== 'None'"
             ref="plot_1D"
         ></v-plot-1D>
 </div>
@@ -268,11 +268,7 @@ export default {
             this.fileFitChoice = [];
             this.fileToFit = null;
         },
-        setCurrentData(chosenData, checkList) {
-
-            // console.log("setting current data:", chosenData, checkList);
-            // console.log("selected data should be empty:", this.selectedData);
-            
+        setCurrentData(chosenData, checkList) {            
             var vm = this;
             if (checkList.length == 0) {
                 // If no data is selected to be plotted, then
@@ -311,7 +307,7 @@ export default {
                 for(let i = 0, len = addList.length; i < len; i++) {
                     let temp = addList[i].data;
                     if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
-                        temp.dataTransformed = fd.transformData(temp, this.currentConfiguration);
+                        temp.dataTransformed = fd.transformData(temp.data, this.currentConfiguration);
                         // console.log("Temp data:", temp);
                         this.selectedData.push(temp);
                     } else {
@@ -394,7 +390,7 @@ export default {
         fileToFit: function () {
             // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
             // If fileToFit is set to Null, don't transform anything and reset the fit to none
-            console.log("File is being fit:", this.fileToFit);
+            // console.log("File is being fit:", this.fileToFit);
             if(this.fileToFit === null) {
                 
                 this.$refs.fit_configurations.setFitBack();
@@ -501,8 +497,7 @@ export default {
                     
                     // Next fetch the file URLs
                     var fileURLs = this.getURLs(filesToFetch, "-Fetch1D");
-
-                    // console.log("Got dem fileURLs", fileURLs);
+                    
                     if(fileURLs.length > 0) {
                         this.pull1DData(fileURLs, tempData);
                     } else {

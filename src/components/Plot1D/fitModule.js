@@ -6,7 +6,7 @@ import $ from 'jquery';
 // Here it's being used in moduleStitch to communicate to App.vue for error messages
 import { eventBus } from '../../assets/javascript/eventBus.js';
 
-import fd from './fitData.js';
+import fd from '../../assets/javascript/fitData.js';
 
 var fit1D = (function(d3, _, $, eventBus) {
     /******* Private Global Variables for Stitch Module **************/
@@ -39,19 +39,8 @@ var fit1D = (function(d3, _, $, eventBus) {
             viewbox: undefined
         };
 
-        var margin = {
-            top: 80,
-            bottom: 80,
-            left: 80,
-            right: 80
-        };
-
-        var margin2 = {
-            top: 10,
-            right: 50,
-            bottom: 70,
-            left: 80
-        };
+        var margin = {};
+        var margin2 = {};
 
         // Object for axis generators
         var axesObj = {
@@ -67,7 +56,10 @@ var fit1D = (function(d3, _, $, eventBus) {
         // Object for brush elements
         var brushObj = {
             brush: undefined,
-            brushSelection: null
+            brushSelection: [],
+            brushFile: undefined,
+            brushFit: undefined,
+            brushTransformation: undefined
         };
 
         var selLimits = {
@@ -103,6 +95,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         var prevKeys = [];
         var isFit = undefined;
         var prevFit = null;
+        var prevTransform = undefined;
 
     /******* End of Global for Stitch Module **************/
 
@@ -121,8 +114,8 @@ var fit1D = (function(d3, _, $, eventBus) {
             margin = {
                 top: 50,
                 right: 50,
-                bottom: 160, // adjusts margin for slider
-                left: 80
+                bottom: 150, // adjusts margin for slider
+                left: 75
             };
             
             // View Height is calculated on a 16:9 aspect ratio
@@ -135,8 +128,8 @@ var fit1D = (function(d3, _, $, eventBus) {
             margin = {
                 top: 50,
                 right: 50,
-                bottom: 80,
-                left: 80
+                bottom: 50,
+                left: 75
             };
 
             viewHeight = containerWidth / (16/9);
@@ -185,23 +178,11 @@ var fit1D = (function(d3, _, $, eventBus) {
     }
 
     my.initSlider = function() {
-
-        // dataToFit = plotData.filter( (d) => d.name === plotParameters.fileToFit);
-
-        // fitResults = fd.fitData(dataToFit, plotParameters.fitConfiguration.equation, plotParameters.fitSettings);
-        // coefficients = fitResults.coefficients;
-        // fitData = fitResults.fittedData;
-        // fitError = fitResults.error;
-        
-        // Assign new fit equation to property data
-        // fitEquation = fitResults.fitEquation;
-        // console.log("FIT EQUATION:", fitEquation);
-
         margin2 = {
-            top: 10,
+            top: 30,
             right: 50,
-            bottom: 70,
-            left: 80
+            bottom: 50,
+            left: 75
         };
 
         dim.height2 = 25;
@@ -229,36 +210,17 @@ var fit1D = (function(d3, _, $, eventBus) {
 
         // append scatter plot to brush chart area
         elements.slider.append("g").attr("id", "slider-lines")
-        // elements.slider.append("g").selectAll("dotslider")
-        //     .data(dataToFit)
-        //     .enter().append("line")
-        //     .attr('class', 'dotslider')
-        //     .attr("x1", function(d) { return scales.xScale(d.x); })
-        //     .attr("y1", dim.height2)
-        //     .attr("x2", function(d) { return scales.xScale(d.x); })
-        //     .attr("y2", 0);
-
-        // set initial brushSelection
-        // if(brushObj.brushSelection === null) {
-        //     brushObj.brushSelection = scales.xScale.range(); // Default selection [0, max(x)]
-        // }
 
         elements.slider.append("g")
             .attr("class", "brush")
-            // .call(brushObj.brush)
-            // .call(brushObj.brush.move, brushObj.brushSelection); 
-            // brush.move allows you to set the current selection for the brush element
-            // this will dynamically update according to the last selection made.
-            // This is to allow for persistent selections upon the plot being re-drawn.
         
         elements.slider.append("g")
             .attr("class", "axis axis--x")
             .attr("transform", "translate(0," + dim.height2 + ")");
-            // .call(axesObj.xAxis);
     }
 
     my.updateSlider = function() {
-        console.log("UPDATING SLIDER");
+        
         dataToFit = plotData.filter( (d) => d.name === plotParameters.fileToFit);
 
         fitResults = fd.fitData(dataToFit, plotParameters.fitConfiguration.equation, plotParameters.fitSettings);
@@ -302,12 +264,26 @@ var fit1D = (function(d3, _, $, eventBus) {
         brushObj.brush.on("brush", my.brushed);
 
         // set initial brushSelection
-        if(brushObj.brushSelection === null) {
-            brushObj.brushSelection = scales.xScale2.range(); // Default selection [0, max(x)]
-        } else {
+        if(brushObj.brushSelection.length === 0 || !(plotParameters.fileToFit === brushObj.brushFile) || !(brushObj.brushTransformation === plotParameters.fitConfiguration.xTransformation)) {
+
+            let xExtent = d3.extent(dataToFit, function(d) { return d.x;});
+            
+            brushObj.brushSelection[0] = new_xScale2(xExtent[0]);
+            brushObj.brushSelection[1] = new_xScale2(xExtent[1]);
+            brushObj.brushFit = plotParameters.fitConfiguration.fit;
+            brushObj.brushFile = plotParameters.fileToFit;
+            brushObj.brushTransformation = plotParameters.fitConfiguration.xTransformation;
+
+        } else if (!(brushObj.brushFit === plotParameters.fitConfiguration.fit)) { // if same file to fit, but new fit transformation, change brush selections
+
+            let xExtent = d3.extent(dataToFit, function(d) { return d.x;});
+            
+            brushObj.brushSelection[0] = new_xScale2(xExtent[0]);
+            brushObj.brushSelection[1] = new_xScale2(xExtent[1]);
+            brushObj.brushFit = plotParameters.fitConfiguration.fit;   
+        } else { // if same file to fit after update and same fit transformation, simply update brush selection to current selection
             brushObj.brushSelection[0] = new_xScale2(selLimits.xMin);
             brushObj.brushSelection[1] = new_xScale2(selLimits.xMax);
-            console.log("Brush selections:", brushObj.brushSelection)
         }
 
         elements.slider.select('.brush')
@@ -319,59 +295,12 @@ var fit1D = (function(d3, _, $, eventBus) {
     }
 
     my.initFitLine = function() {
-        // var minX = d3.min(dataToFit, function(d) { return d.x });
-        // var maxX = d3.max(dataToFit, function(d) { return d.x });
-
         // Add fitted line
         elements.plot.append("g")
             .attr("id", "fit-line")
             .append("path")
             .attr("clip-path", "url(#clip)")
             .attr("class", "fitted-line");
-            // .datum(fitData)
-            // .attr("d", plotLine)
-            // .style("fill", "none")
-            // .style("stroke", color(plotParameters.fileToFit));
-
-        // Add fit results below chart
-        // d3.select("td#fit-file").html("<b>File tessssst: </b>" + plotParameters.fileToFit);
-        // d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
-        // d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
-        // d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toExponential(5) + ", " + maxX.toExponential(5) + ")");
-        // d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
-        
-        // d3.select("td#fit-coefficients").html(function() {
-        //     let coeffString = "<ul>";
-        //     for( let key in coefficients) {
-                
-        //         if(plotParameters.fitConfiguration.fit.toLowerCase().includes('guinier')) {
-
-        //             if(key === 'I0') {
-        //                 let I0 = Math.exp(coefficients[key]);
-                    
-        //                 coeffString += "<li>Real " + key + " = " + I0 + "</li>";
-        //                 continue;
-        //             }
-
-        //             if(key === 'Rg') {
-        //                 let RgX = coefficients[key] * scales.xScale.invert(brushObj.brushSelection[1]);
-        //                 coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
-        //                 continue;
-        //             }
-        //         }
-
-        //         coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + "</li>";
-        //     }
-        //     coeffString += "</ul>";
-        //     return coeffString;
-        // });
-
-        // d3.select("li#fit-damping").html("<b>Damping: </b>" + plotParameters.fitSettings.damping);
-        // d3.select("li#fit-iterations").html("<b>No. Iterations: </b>" + plotParameters.fitSettings.maxIterations);
-        // d3.select("li#fit-tolerance").html("<b>Error Tolerance: </b>" + plotParameters.fitSettings.errorTolerance);
-        // d3.select("li#fit-gradient").html("<b>Gradient Difference: </b>" + plotParameters.fitSettings.gradientDifference);
-
-        // d3.select("#fit-note").html(plotParameters.fitConfiguration.note);
     }
 
     my.updateFitLine = function() {
@@ -449,6 +378,8 @@ var fit1D = (function(d3, _, $, eventBus) {
             d3.select("#tooltip-1D").remove();
             selLimits.xMin = null;
             selLimits.yMin = null;
+            brushObj.brushSelection = [];
+            brushObj.brushFile = undefined;
         }
 
         plotData = plotParameters.data; //regular data to plot
@@ -1343,8 +1274,6 @@ var fit1D = (function(d3, _, $, eventBus) {
         scales.yScale = values.yScale.copy();
 
         // update scale types
-        console.log("y scale type", values.yScaleType);
-
         scales.yScaleType = values.yScaleType;
 
         // if theres a fit, update brush scale
