@@ -6,7 +6,7 @@ import $ from 'jquery';
 // Here it's being used in moduleStitch to communicate to App.vue for error messages
 import { eventBus } from '../../assets/javascript/eventBus.js';
 
-import fd from './fitData.js';
+import fd from '../../assets/javascript/fitData.js';
 
 var fit1D = (function(d3, _, $, eventBus) {
     /******* Private Global Variables for Stitch Module **************/
@@ -17,7 +17,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             plot: undefined,
             axis: undefined,
             legend: undefined,
-            errorLines: undefined,
+            errorlines: undefined,
             slider: undefined,
             fitline: undefined,
             tooltip: undefined
@@ -39,19 +39,8 @@ var fit1D = (function(d3, _, $, eventBus) {
             viewbox: undefined
         };
 
-        var margin = {
-            top: 80,
-            bottom: 80,
-            left: 80,
-            right: 80
-        };
-
-        var margin2 = {
-            top: 10,
-            right: 50,
-            bottom: 70,
-            left: 80
-        };
+        var margin = {};
+        var margin2 = {};
 
         // Object for axis generators
         var axesObj = {
@@ -67,8 +56,16 @@ var fit1D = (function(d3, _, $, eventBus) {
         // Object for brush elements
         var brushObj = {
             brush: undefined,
-            brushSelection: null
+            brushSelection: [],
+            brushFile: undefined,
+            brushFit: undefined,
+            brushTransformation: undefined
         };
+
+        var selLimits = {
+            xMin: null,
+            xMax: null
+        }
 
         // Object for Zoom behaviors
         var zoomObj = {
@@ -95,8 +92,10 @@ var fit1D = (function(d3, _, $, eventBus) {
 
         // Generator for color
         var color = undefined;
-
+        var prevKeys = [];
         var isFit = undefined;
+        var prevFit = null;
+        var prevTransform = undefined;
 
     /******* End of Global for Stitch Module **************/
 
@@ -115,8 +114,8 @@ var fit1D = (function(d3, _, $, eventBus) {
             margin = {
                 top: 50,
                 right: 50,
-                bottom: 160, // adjusts margin for slider
-                left: 80
+                bottom: 150, // adjusts margin for slider
+                left: 75
             };
             
             // View Height is calculated on a 16:9 aspect ratio
@@ -129,8 +128,8 @@ var fit1D = (function(d3, _, $, eventBus) {
             margin = {
                 top: 50,
                 right: 50,
-                bottom: 80,
-                left: 80
+                bottom: 50,
+                left: 75
             };
 
             viewHeight = containerWidth / (16/9);
@@ -179,29 +178,22 @@ var fit1D = (function(d3, _, $, eventBus) {
     }
 
     my.initSlider = function() {
-
-        dataToFit = plotData.filter( (d) => d.name === plotParameters.fileToFit);
-
-        fitResults = fd.fitData(dataToFit, plotParameters.fitConfiguration.equation, plotParameters.fitSettings);
-        coefficients = fitResults.coefficients;
-        fitData = fitResults.fittedData;
-        fitError = fitResults.error;
-        
-        // Assign new fit equation to property data
-        // fitEquation = fitResults.fitEquation;
-        // console.log("FIT EQUATION:", fitEquation);
-
         margin2 = {
-            top: 10,
+            top: 30,
             right: 50,
-            bottom: 70,
-            left: 80
+            bottom: 50,
+            left: 75
         };
 
         dim.height2 = 25;
-        
-        scales.xScale2 = d3.scaleLinear().range([0, dim.width]);
-        scales.xScale2.domain(scales.xScale.domain());
+
+        // Set scales
+        scales.xScale2 = plotParameters.scales.xScale;
+
+        scales.xScale2.range([0,dim.width]);
+        scales.xScale2.domain(d3.extent(plotData, function (d) {
+            return d.x;
+        }));
 
         axesObj.xAxis2 = d3.axisBottom(scales.xScale2);
 
@@ -213,53 +205,119 @@ var fit1D = (function(d3, _, $, eventBus) {
             .extent([
                 [0, 0],
                 [dim.width, dim.height2]
-            ])
-            .on("brush", my.brushed);
+            ]);
+            // .on("brush", my.brushed);
 
         // append scatter plot to brush chart area
-        elements.slider.append("g").selectAll("dotslider")
-            .data(dataToFit)
-            .enter().append("line")
-            .attr('class', 'dotslider')
-            .attr("x1", function(d) { return scales.xScale2(d.x); })
-            .attr("y1", dim.height2)
-            .attr("x2", function(d) { return scales.xScale2(d.x); })
-            .attr("y2", 0);
-
-        // set initial brushSelection
-        if(brushObj.brushSelection === null) {
-            brushObj.brushSelection = scales.xScale.range(); // Default selection [0, max(x)]
-        }
+        elements.slider.append("g").attr("id", "slider-lines")
 
         elements.slider.append("g")
             .attr("class", "brush")
-            .call(brushObj.brush)
-            .call(brushObj.brush.move, brushObj.brushSelection); 
-            // brush.move allows you to set the current selection for the brush element
-            // this will dynamically update according to the last selection made.
-            // This is to allow for persistent selections upon the plot being re-drawn.
         
         elements.slider.append("g")
             .attr("class", "axis axis--x")
-            .attr("transform", "translate(0," + dim.height2 + ")")
-            .call(axesObj.xAxis2);
+            .attr("transform", "translate(0," + dim.height2 + ")");
     }
 
-    my.addFitLine = function() {
-        var minX = d3.min(dataToFit, function(d) { return d.x });
-        var maxX = d3.max(dataToFit, function(d) { return d.x });
+    my.updateSlider = function() {
+        
+        dataToFit = plotData.filter( (d) => d.name === plotParameters.fileToFit);
 
-        // Add fitted lin
-        elements.plot.append("path")
+        fitResults = fd.fitData(dataToFit, plotParameters.fitConfiguration.equation, plotParameters.fitSettings);
+        coefficients = fitResults.coefficients;
+        fitData = fitResults.fittedData;
+        fitError = fitResults.error;
+
+        scales.xScale2.domain(d3.extent(plotData, function(d) { return d.x; })).nice();
+
+        let t = d3.zoomTransform( elements.svg.select('.zoom').node());
+        let new_xScale2 = t.rescaleX(scales.xScale2);
+
+        // update brush x scale axis
+        axesObj.xAxis2.scale(new_xScale2);
+        
+        // visually reflect the newly updated x axis
+        elements.slider.select('.axis--x').transition().duration(750).call(axesObj.xAxis2);
+
+        let selectSlider = elements.slider.select("#slider-lines").selectAll("line").data(dataToFit);
+
+        selectSlider.transition().duration(750)
+            .attr("x1", function(d) { return new_xScale2(d.x); })
+            .attr("y1", dim.height2)
+            .attr("x2", function(d) { return new_xScale2(d.x); })
+            .attr("y2", 0);
+        
+        // enter new brush lines
+        selectSlider.enter()
+            .append("line")
+            .attr('class', 'dotslider')
+            .attr("x1", function(d) { return new_xScale2(d.x); })
+            .attr("y1", dim.height2)
+            .attr("x2", function(d) { return new_xScale2(d.x); })
+            .attr("y2", 0)
+            .style("stroke", "slategray");
+
+        // remove any old brush lines
+        selectSlider.exit().remove();
+
+        // Call brush
+        brushObj.brush.on("brush", my.brushed);
+
+        // set initial brushSelection
+        if(brushObj.brushSelection.length === 0 || !(plotParameters.fileToFit === brushObj.brushFile) || !(brushObj.brushTransformation === plotParameters.fitConfiguration.xTransformation)) {
+
+            let xExtent = d3.extent(dataToFit, function(d) { return d.x;});
+            
+            brushObj.brushSelection[0] = new_xScale2(xExtent[0]);
+            brushObj.brushSelection[1] = new_xScale2(xExtent[1]);
+            brushObj.brushFit = plotParameters.fitConfiguration.fit;
+            brushObj.brushFile = plotParameters.fileToFit;
+            brushObj.brushTransformation = plotParameters.fitConfiguration.xTransformation;
+
+        } else if (!(brushObj.brushFit === plotParameters.fitConfiguration.fit)) { // if same file to fit, but new fit transformation, change brush selections
+
+            let xExtent = d3.extent(dataToFit, function(d) { return d.x;});
+            
+            brushObj.brushSelection[0] = new_xScale2(xExtent[0]);
+            brushObj.brushSelection[1] = new_xScale2(xExtent[1]);
+            brushObj.brushFit = plotParameters.fitConfiguration.fit;   
+        } else { // if same file to fit after update and same fit transformation, simply update brush selection to current selection
+            brushObj.brushSelection[0] = new_xScale2(selLimits.xMin);
+            brushObj.brushSelection[1] = new_xScale2(selLimits.xMax);
+        }
+
+        elements.slider.select('.brush')
+            .call(brushObj.brush)
+            .call(brushObj.brush.move, brushObj.brushSelection); 
+        // brush.move allows you to set the current selection for the brush element
+        // this will dynamically update according to the last selection made.
+        // This is to allow for persistent selections upon the plot being re-drawn.
+    }
+
+    my.initFitLine = function() {
+        // Add fitted line
+        elements.plot.append("g")
+            .attr("id", "fit-line")
+            .append("path")
             .attr("clip-path", "url(#clip)")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            .datum(fitData)
-            .attr("class", "fitted-line")
+            .attr("class", "fitted-line");
+    }
+
+    my.updateFitLine = function() {
+        
+        // update fitted line
+        // Re-draw plot lines with new data            
+        let selectFitLine = elements.plot.select("#fit-line").select("path").data([fitData]);
+
+        selectFitLine.transition().duration(750)
             .attr("d", plotLine)
             .style("fill", "none")
             .style("stroke", color(plotParameters.fileToFit));
 
-        // Add fit results below chart
+        // Update Fit Table
+        var minX = d3.min(dataToFit, function(d) { return d.x });
+        var maxX = d3.max(dataToFit, function(d) { return d.x });
+
         d3.select("td#fit-file").html("<b>File tessssst: </b>" + plotParameters.fileToFit);
         d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
         d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
@@ -301,8 +359,28 @@ var fit1D = (function(d3, _, $, eventBus) {
     }
 
     my.plotData = function(parameters, vm) {
-
+        // Set isFit to check if a file is selected to fit
         plotParameters = _.cloneDeep(parameters);
+        isFit = plotParameters.fileToFit !== null && plotParameters.fitConfiguration.fit !== 'None';
+
+        // If plot is already present, simply update with the new set of data
+        if(!d3.select(".chart-1D").empty() && isFit === prevFit) {
+            
+            // Update titles according to new transformations
+            axesObj.xTitle = plotParameters.fitConfiguration.xTransformation;
+            axesObj.yTitle = plotParameters.fitConfiguration.yTransformation;
+
+            my.update(parameters.data);
+
+            return;
+        } else { // New fit is being selected so tear down plot and re-do everything from scratch
+            d3.select(".chart-1D").remove();
+            d3.select("#tooltip-1D").remove();
+            selLimits.xMin = null;
+            selLimits.yMin = null;
+            brushObj.brushSelection = [];
+            brushObj.brushFile = undefined;
+        }
 
         plotData = plotParameters.data; //regular data to plot
         // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
@@ -316,7 +394,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             d3.select("#tooltip-1D").remove();
             vm.isError = !vm.isError;
             
-            if(vm.checkError()) {
+            if(my.checkError()) {
                 let errorMsg = "<strong>Error!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.";
                 eventBus.$emit('error-message', errorMsg, 'danger');
             }
@@ -325,13 +403,6 @@ var fit1D = (function(d3, _, $, eventBus) {
         } else {
             vm.isError = false;
         }
-
-        //Remove any elements previously plotted
-        d3.select(".chart-1D").remove();
-        d3.select("#tooltip-1D").remove();
-        
-        // Set isFit to check if a file is selected to fit
-        isFit = plotParameters.fileToFit !== null && plotParameters.fitConfiguration.fit !== 'None';
 
         // Set chart dimensions
         my.initDimensions(isFit);
@@ -356,7 +427,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             });
 
         // Add tool tip and hide it until invoked
-        var tooltip = d3.select("#app-container").append("div")
+        elements.tooltip = d3.select("#app-container").append("div")
             .attr("id", "tooltip-1D")
             .attr("class", "tooltip")
             .style("opacity", 0);
@@ -393,14 +464,15 @@ var fit1D = (function(d3, _, $, eventBus) {
             .attr('class', 'zoom')
             .attr('width', dim.width)
             .attr('height', dim.height)
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-            .call(zoomObj.zoom);
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
         //Add Error-bars Section
-        elements.errorlines = elements.svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        elements.errorlines = elements.svg.append('g')
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
         
         //Add Group to Plot Line/Points
         elements.plot = elements.svg.append("g")
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
             .attr("class", "chart");
         
         /* CHECK ISFIT AND SETUP Slider DIMENSIONS, FIT DATA, & SCALES */
@@ -410,26 +482,22 @@ var fit1D = (function(d3, _, $, eventBus) {
         // X Gridlines
         elements.axis.append("g")
             .attr("transform", "translate(" + margin.left + "," + (dim.height + margin.top) + ")")
-            .attr("class", "gridline gridline--x")
-            .call(axesObj.xGridline);
+            .attr("class", "gridline gridline--x");
 
         // Y Gridlines
         elements.axis.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            .attr("class", "gridline gridline--y")
-            .call(axesObj.yGridline);
+            .attr("class", "gridline gridline--y");
 
         // Add X Axis
         elements.axis.append("g")
             .attr("transform", "translate(" + margin.left + "," + (dim.height + margin.top) + ")")
-            .attr("class", "axis axis--x")
-            .call(axesObj.xAxis);
+            .attr("class", "axis axis--x");
 
         // Add Y Axis
         elements.axis.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-            .attr("class", "axis axis--y")
-            .call(axesObj.yAxis);
+            .attr("class", "axis axis--y");
         
         // Add Y Axis Label
         elements.svg.append("g").append("foreignObject")
@@ -447,7 +515,6 @@ var fit1D = (function(d3, _, $, eventBus) {
             .attr("id", "xLabel")
             .html("`" + axesObj.xTitle + "`");
 
-
         // Add Chart Title
         elements.svg.append("g").append("foreignObject")
             .attr("height", 100)
@@ -458,189 +525,15 @@ var fit1D = (function(d3, _, $, eventBus) {
 
         // Call MathJax to make plot axis labels look pretty 
         MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel", "yLabel", "plotTitle"]]);
-        
-        // Nest the entries by name
-        dataNest = d3.nest()
-            .key(function (d) {
-                return d.name;
-            })
-            .entries(plotData);
 
-        // Loop through each name / key
-        dataNest.forEach(function (d, i) {
-
-            // Add line plot
-            elements.plot.append("path")
-                .attr("clip-path", "url(#clip)")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                .datum(d.values)
-                .attr("class", "pointlines")
-                .attr("d", plotLine)
-                .style("fill", "none")
-                .style("stroke", function () {
-                    return d.color = color(d.key);
-                });;
-
-            // Add error lines
-            elements.errorlines.append("g")
-                .selectAll(".error")
-                .data(d.values)
-                .enter()
-                .append('line')
-                .attr("clip-path", "url(#clip)")
-                .attr('class', 'error')
-                .attr('x1', function (d) {
-                    return scales.xScale(d.x);
-                })
-                .attr('x2', function (d) {
-                    return scales.xScale(d.x);
-                })
-                .attr('y1', function (d) {
-                    return scales.yScale(d.y + d.e);
-                })
-                .attr('y2', function (d) {
-                    if(d.y - d.e < 0 && scales.yScaleType === "Log(Y)") {
-                        return scales.yScale(d.y)
-                    } else {
-                        return scales.yScale(d.y - d.e);
-                    }
-                })
-                .style("stroke", function () {
-                    return d.color = color(d.key);
-                });
-
-                // Add error tick top
-                // When calculating error capsizes, the '4' is chosen to match
-                // the radius of the points, which is also 4 pixels.
-                // The reason to +/- after scaling is the xScale(d.x) takes the
-                // data value and converts it to a pixel value, thus subtracting by same units:
-                // xScale(d.x) - 4 = pixel_value - pixel_value
-                // This leads to uniform capsizes no matter the scaling/transforming of data,
-                // which is not the case if xScale(d.x - 4) is used.
-                elements.errorlines.append("g")
-                .selectAll(".error-tick-top")
-                .data(d.values)
-                .enter()
-                .append('line')
-                .attr("clip-path", "url(#clip)")
-                .attr('class', 'error-tick-top')
-                .attr('x1', function (d) {
-                    return scales.xScale(d.x) - 4;
-                })
-                .attr('x2', function (d) {
-                    return scales.xScale(d.x) + 4;
-                })
-                .attr('y1', function (d) {
-                    return scales.yScale(d.y + d.e);
-                })
-                .attr('y2', function (d) {
-                    return scales.yScale(d.y + d.e);
-                })
-                .style("stroke", function () {
-                    return d.color = color(d.key);
-                });
-
-                // Add error tick bottom
-                elements.errorlines.append("g")
-                .selectAll(".error-tick-bottom")
-                .data(d.values)
-                .enter()
-                .append('line')
-                .attr("clip-path", "url(#clip)")
-                .attr('class', 'error-tick-bottom')
-                .filter( function(d) {
-                    if(scales.yScaleType === "Log(Y)") {
-                        return d.y - d.e > 0;
-                    } else {
-                        return true;
-                    }
-                })
-                .attr('x1', function (d) {
-                    return scales.xScale(d.x) - 4;
-                })
-                .attr('x2', function (d) {
-                    return scales.xScale(d.x) + 4;
-                })
-                .attr('y1', function (d) {
-                    return scales.yScale(d.y - d.e);
-                })
-                .attr('y2', function (d) {
-                    return scales.yScale(d.y - d.e);
-                })
-                .style("stroke", function () {
-                    return d.color = color(d.key);
-                });
-
-                // Add Scatter plot
-                elements.plot.append("g")
-                    .attr("clip-path", "url(#clip)")
-                    .attr("class", "dot")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    .selectAll("dot")
-                    .data(d.values)
-                    .enter()
-                    .append("circle")
-                    .filter(function(d) {
-                        return d.x !== null && d.x !== NaN && d.y !== null && d.y !== NaN;
-                    })
-                    .attr("r", 4)
-                    .attr("cx", function (d) {
-                        return scales.xScale(d.x);
-                    })
-                    .attr("cy", function (d) {
-                        return scales.yScale(d.y);
-                    })
-                    .attr("class", function(d) { return d.name + "-dot" })
-                    .style("stroke", "white")
-                    .style("stroke-width", "1px")
-                    .style("opacity", 1)
-                    .style("fill", function () {
-                        return d.color = color(d.key);
-                    })
-                    .on("mouseover", function (d) {
-
-                        tooltip.transition()
-                            .duration(200)
-                            .style("opacity", 1);
-                        tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6))
-                            .style("top", (d3.event.pageY - 40) + "px")
-                            .style("left", (d3.event.pageX + 20) + "px");
-                    })
-                    .on("mouseout", function (d) {
-
-                        tooltip.transition()
-                            .duration(500)
-                            .style("opacity", 0);
-                    });
-
-                // Add the Legend
-                elements.legend = elements.plot.append("g");
-
-                elements.legend.append("rect")
-                    .attr("x", dim.width - margin.right - margin.right)
-                    .attr("y", (margin.top + 20) + i * 25)
-                    .attr("class", "legend")
-                    .style("fill", function () {
-                        return d.color = color(d.key);
-                    })
-                    .attr("height", "8px")
-                    .attr("width", "8px");
-
-                elements.legend.append("text")
-                    .attr("x", dim.width - margin.right - margin.right + 15)
-                    .attr("y", (margin.top + 28) + i * 25)
-                    .attr("class", "legend")
-                    .style("fill", function () {
-                        return d.color = color(d.key);
-                    })
-                    .style("font-size", "12px")
-                    .style("font-weight", "bold")
-                    .text(d.key);
-
-        });
+        // Add the Legend
+        elements.legend = elements.plot.append("g").attr("id", "legend-1D");
 
         // If fit is select add elements for fitted line
-        if(isFit)   my.addFitLine();
+        if(isFit)   my.initFitLine();
+
+        // Set zoom on zoomWindow
+        elements.svg.select(".zoom").call(zoomObj.zoom);
 
         // Add responsive elements
         // Essentially when the plot-1D gets resized it will look to the
@@ -685,10 +578,489 @@ var fit1D = (function(d3, _, $, eventBus) {
             chart1D.attr("width", targetWidth);
             chart1D.attr("height", Math.round(targetWidth / aspectRatio));
         });
+
+        // Once elements are set call update to plot data
+        prevFit = isFit;
+        my.update(plotData);
     }
 
-    my.update = function() {
+    /**************** Update Function *******************************/
 
+    my.update = function(newData) {
+        
+            // Update Plot Data
+            plotData = newData;
+            plotData = plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
+    
+            // Nest the entries by name
+            dataNest = d3.nest()
+                .key(function (d) {
+                    return d.name;
+                })
+                .entries(plotData);
+            
+            // Add keys
+            let newKeys = [];
+            dataNest.forEach(el => {
+                let keyIndex = newKeys.indexOf(el.key);
+                
+                if( keyIndex === -1) {
+                    newKeys.push(el.key);
+                }
+            })
+    
+            // Adjust scale's domain whenver new data is added
+            scales.xScale.domain(d3.extent(plotData, function(d) { return d.x; })).nice();
+            scales.yScale.domain(d3.extent(plotData, function(d) { return d.y; })).nice();
+
+            // Adjust brush scale if a fit is selected
+            if( isFit )  my.updateSlider();
+    
+            // Rescale to zoom's scale
+            let t = d3.zoomTransform( elements.svg.select('.zoom').node());
+            let new_yScale = t.rescaleY(scales.yScale); 
+            let new_xScale = t.rescaleX(scales.xScale);
+    
+            // Adjust plotline generator
+            plotLine = d3.line()
+                .defined(function(d) { 
+                    if(scales.yScaleType === 'Log(Y)') {
+                        return d.y > 0;
+                    } else {
+                        return d;
+                    }
+                })
+                .x(function(d) {
+                    return new_xScale(d.x);
+                })
+                .y(function(d) {
+                    return new_yScale(d.y);
+                });
+            
+            // Adjust axis and gridline labels
+            axesObj.yAxis.scale(new_yScale);
+            axesObj.xAxis.scale(new_xScale);
+            axesObj.yGridline.scale(new_yScale);
+            axesObj.xGridline.scale(new_xScale);
+            
+            // Transition axis and gridlines labels accordingly
+            elements.axis.transition().duration(750).select('.axis--y').call(axesObj.yAxis);
+            elements.axis.transition().duration(750).select('.axis--x').call(axesObj.xAxis);
+            elements.axis.transition().duration(750).select('.gridline--y').call(axesObj.yGridline);
+            elements.axis.transition().duration(750).select('.gridline--x').call(axesObj.xGridline);
+    
+            // Add and update data
+            dataNest.forEach(function (d, i) {
+                
+                // Add new elements if nothing exists
+                if (d3.select("#line-1D-"+d.key).empty()) {
+                    
+                    // Add line plot
+                    elements.plot.append("g").attr("id", "line-1D-" + d.key)
+                    .append("g")
+                    .attr("clip-path", "url(#clip)")
+                    .append("path")
+                        .data([d.values])
+                        .attr("class", "pointlines")
+                        .attr("d", plotLine)
+                        .style("fill", "none")
+                        .style("stroke", function () {
+                            return d.color = color(d.key);
+                        });;
+                    
+                    // Add error lines
+                    elements.errorlines.append("g").attr("id", "error-1D-" + d.key)
+                    .append("g")
+                    .attr("clip-path", "url(#clip)")
+                        .selectAll(".error-1D")
+                        .data(d.values)
+                        .enter()
+                        .append('line')
+                            .attr('class', 'error error-1D')
+                            .attr('x1', function (d) {
+                                return new_xScale(d.x);
+                            })
+                            .attr('x2', function (d) {
+                                return new_xScale(d.x);
+                            })
+                            .attr('y1', function (d) {
+                                return new_yScale(d.y + d.e);
+                            })
+                            .attr('y2', function (d) {
+                                if(d.y - d.e < 0 && scales.yScaleType === "Log(Y)") {
+                                    return new_yScale(d.y)
+                                } else {
+                                    return new_yScale(d.y - d.e);
+                                }
+                            })
+                            .style("stroke", function () {
+                                return d.color = color(d.key);
+                            });
+                    
+                    // Add error tick top
+                    elements.errorlines.append("g").attr("id", "error-1D-top-" + d.key)
+                    .append("g")
+                    .attr("clip-path", "url(#clip)")
+                        .selectAll(".error-1D-tick-top")
+                        .data(d.values)
+                        .enter()
+                        .append('line')
+                            .attr('class', 'error-1D-tick-top')
+                            .attr('x1', function (d) {
+                                return new_xScale(d.x) - 4;
+                            })
+                            .attr('x2', function (d) {
+                                return new_xScale(d.x) + 4;
+                            })
+                            .attr('y1', function (d) {
+                                return new_yScale(d.y + d.e);
+                            })
+                            .attr('y2', function (d) {
+                                return new_yScale(d.y + d.e);
+                            })
+                            .style("stroke", function () {
+                                return d.color = color(d.key);
+                            });
+    
+                    // Add error tick bottom
+                    elements.errorlines.append("g").attr("id", "error-1D-bottom-" + d.key)
+                    .append("g")
+                    .attr("clip-path", "url(#clip)")
+                        .selectAll(".error-1D-tick-bottom")
+                        .data(d.values)
+                        .enter()
+                        .append('line')
+                            .attr('class', 'error-1D-tick-bottom')
+                            .filter( function(d) {
+                                if(scales.yScaleType === "Log(Y)") {
+                                    return d.y - d.e > 0;
+                                } else {
+                                    return true;
+                                }
+                            })
+                            .attr('x1', function (d) {
+                                return new_xScale(d.x) - 4;
+                            })
+                            .attr('x2', function (d) {
+                                return new_xScale(d.x) + 4;
+                            })
+                            .attr('y1', function (d) {
+                                return new_yScale(d.y - d.e);
+                            })
+                            .attr('y2', function (d) {
+                                return new_yScale(d.y - d.e);
+                            })
+                            .style("stroke", function () {
+                                return d.color = color(d.key);
+                            });
+    
+                    // Add Scatter plot
+                    elements.plot.append("g").attr("id", "scatter-1D-" + d.key)
+                    .append("g")
+                    .attr("clip-path", "url(#clip)")
+                    .selectAll(".dot")
+                    .data(d.values)
+                        .enter().append("circle")
+                        .attr("class", "dot")
+                            .filter(function(d) {
+                                return d.x !== null && d.x !== NaN && d.y !== null && d.y !== NaN;
+                            })
+                            .attr("r", 4)
+                            .attr("cx", function (d) {
+                                return new_xScale(d.x);
+                            })
+                            .attr("cy", function (d) {
+                                return new_yScale(d.y);
+                            })
+                            .style("stroke", "white")
+                            .style("stroke-width", "1px")
+                            .style("opacity", 1)
+                            .style("fill", function () {
+                                return d.color = color(d.key);
+                            })
+                            .on("mouseover", function (d) {
+                                
+                                elements.tooltip.transition()
+                                    .duration(200)
+                                    .style("opacity", 1);
+    
+                                elements.tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6))
+                                    .style("top", (d3.event.pageY - 40) + "px")
+                                    .style("left", (d3.event.pageX + 20) + "px");
+                            })
+                            .on("mouseout", function (d) {
+    
+                                elements.tooltip.transition()
+                                    .duration(500)
+                                    .style("opacity", 0);
+                            });
+                    
+                    // Add Legend
+                    elements.legend.append("g").attr("id", "legend-1D-" + d.key)
+                            .append("rect")
+                            .attr("x", dim.width - margin.right - margin.right)
+                            .attr("y", (margin.top + 20) + i * 25)
+                            .style("fill", function () {
+                                return d.color = color(d.key);
+                            })
+                            .attr("height", "8px")
+                            .attr("width", "8px");
+    
+                    elements.legend.select("#legend-1D-" + d.key)
+                        .append("text")
+                        .attr("x", dim.width - margin.right - margin.right + 15)
+                        .attr("y", (margin.top + 28) + i * 25)
+                        .style("fill", function () {
+                            return d.color = color(d.key);
+                        })
+                        .style("font-size", "12px")
+                        .style("font-weight", "bold")
+                        .text(d.key);
+                            
+                } else {
+                    
+                    // Re-draw plot lines with new data
+                    let lineSelect = elements.plot.select("#line-1D-"+d.key).select("path").data([d.values]);
+                    
+                    lineSelect.transition().duration(750)
+                        .attr("d", plotLine);
+    
+                    // Re-draw Error Lines
+                    let errorSelect = elements.errorlines.select("#error-1D-"+d.key).selectAll("line").data(d.values);
+                    
+                    errorSelect.transition().duration(750)
+                        .attr('x1', function (d) {
+                            return new_xScale(d.x);
+                        })
+                        .attr('x2', function (d) {
+                            return new_xScale(d.x);
+                        })
+                        .attr('y1', function (d) {
+                            return new_yScale(d.y + d.e);
+                        })
+                        .attr('y2', function (d) {
+                            if(d.y - d.e < 0 && scales.yScaleType === "Log(Y)") {
+                                return new_yScale(d.y)
+                            } else {
+                                return new_yScale(d.y - d.e);
+                            }
+                        });
+                    
+                    // Enter new error Lines
+                    errorSelect.enter()
+                        .append('line')
+                            .attr('class', 'error-1D')
+                            .attr('x1', function (d) {
+                                return new_xScale(d.x);
+                            })
+                            .attr('x2', function (d) {
+                                return new_xScale(d.x);
+                            })
+                            .attr('y1', function (d) {
+                                return new_yScale(d.y + d.e);
+                            })
+                            .attr('y2', function (d) {
+                                if(d.y - d.e < 0 && scales.yScaleType === "Log(Y)") {
+                                    return new_yScale(d.y)
+                                } else {
+                                    return new_yScale(d.y - d.e);
+                                }
+                            })
+                            .style("stroke", function () {
+                                return d.color = color(d.key);
+                            });
+    
+                    // Remove old error lines
+                    errorSelect.exit().remove();
+    
+                    // Re-draw Error Top
+                    let errorTopSelect = elements.errorlines.select("#error-1D-top-"+d.key).selectAll("line").data(d.values);
+                    
+                    errorTopSelect.transition().duration(750)
+                        .attr('x1', function (d) {
+                            return new_xScale(d.x) - 4;
+                        })
+                        .attr('x2', function (d) {
+                            return new_xScale(d.x) + 4;
+                        })
+                        .attr('y1', function (d) {
+                            return new_yScale(d.y + d.e);
+                        })
+                        .attr('y2', function (d) {
+                            return new_yScale(d.y + d.e);
+                        });
+                    
+                    // Enter new error tops
+                    errorTopSelect.enter()
+                        .append('line')
+                        .attr('class', 'error-1D-tick-top')
+                        .attr('x1', function (d) {
+                            return new_xScale(d.x) - 4;
+                        })
+                        .attr('x2', function (d) {
+                            return new_xScale(d.x) + 4;
+                        })
+                        .attr('y1', function (d) {
+                            return new_yScale(d.y + d.e);
+                        })
+                        .attr('y2', function (d) {
+                            return new_yScale(d.y + d.e);
+                        })
+                        .style("stroke", function () {
+                            return d.color = color(d.key);
+                        });
+    
+                    // Remove old error tops
+                    errorTopSelect.exit().remove();
+    
+                    // Re-draw Error Bottom
+                    let errorBottomSelect = elements.errorlines.select("#error-1D-bottom-"+d.key).selectAll("line").data(d.values);
+                    
+                    errorBottomSelect.transition().duration(750)
+                        .attr('x1', function (d) {
+                            return new_xScale(d.x) - 4;
+                        })
+                        .attr('x2', function (d) {
+                            return new_xScale(d.x) + 4;
+                        })
+                        .attr('y1', function (d) {
+                            return new_yScale(d.y - d.e);
+                        })
+                        .attr('y2', function (d) {
+                            return new_yScale(d.y - d.e);
+                        });
+                    
+                    // Enter new error bottoms
+                    errorTopSelect.enter()
+                        .append('line')
+                            .attr('class', 'error-1D-tick-bottom')
+                            .filter( function(d) {
+                                if(scales.yScaleType === "Log(Y)") {
+                                    return d.y - d.e > 0;
+                                } else {
+                                    return true;
+                                }
+                            })
+                            .attr('x1', function (d) {
+                                return new_xScale(d.x) - 4;
+                            })
+                            .attr('x2', function (d) {
+                                return new_xScale(d.x) + 4;
+                            })
+                            .attr('y1', function (d) {
+                                return new_yScale(d.y - d.e);
+                            })
+                            .attr('y2', function (d) {
+                                return new_yScale(d.y - d.e);
+                            })
+                            .style("stroke", function () {
+                                return d.color = color(d.key);
+                            });
+    
+                    // Remove old error bottoms
+                    errorBottomSelect.exit().remove();
+    
+                    // Update all circles
+                    let scatterSelect = elements.plot.select("#scatter-1D-"+d.key).selectAll("circle").data(d.values);
+                    
+                    // Re-position points
+                    scatterSelect.transition().duration(750)
+                        .attr("cx", function(d) {
+                            return new_xScale(d.x);
+                        })
+                        .attr("cy", function(d) {
+                            return new_yScale(d.y);
+                        });
+    
+                    // Enter new points
+                    scatterSelect.enter()
+                        .append("circle")
+                        .attr("class", "dot")
+                        .filter(function(d) {
+                            return d.x !== null && d.x !== NaN && d.y !== null && d.y !== NaN;
+                        })
+                        .attr("cx", function(d) {
+                            return new_xScale(d.x);
+                        })
+                        .attr("cy", function(d) {
+                            return new_yScale(d.y);
+                        })
+                        .attr("r", 5)
+                        .attr("stroke", "white")
+                        .attr("stroke-width", "2px")
+                        .style("fill", function() {
+                            return d.color = color(d.key);
+                        })
+                        .on("mouseover", function (d) {
+                            
+                            elements.tooltip.transition()
+                                .duration(200)
+                                .style("opacity", 1);
+    
+                            elements.tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6) + "<br/><br/><b>Note:</b> Click point to <em>delete</em> it.")
+                                .style("top", (d3.event.pageY - 40) + "px")
+                                .style("left", (d3.event.pageX + 20) + "px");
+                        })
+                        .on("mouseout", function (d) {
+    
+                            elements.tooltip.transition()
+                                .duration(500)
+                                .style("opacity", 0);
+                        })
+                        .on("click", function(d,i) {
+                            removePoint(i, d.name);
+                        });
+    
+                    // Remove old
+                    scatterSelect.exit().remove()
+                    
+                    // If stitch line is part of the plot, re-draw it too
+                    if(!elements.plot.select("#fit-line").empty()) {
+                        
+                            elements.plot.select("#fit-line").select("path")
+                                .transition().duration(750)
+                                .attr("d", plotLine);
+                            
+                    }
+                        
+                }
+            });
+
+            // Updated axis according to any new transformations
+            // Add X Axis Label
+            elements.svg.select("#xLabel").html("`" + axesObj.xTitle + "`");
+            elements.svg.select("#yLabel").html("`" + axesObj.yTitle + "`");
+            elements.svg.select("#plotTitle").html("`" + axesObj.yTitle + "` vs `" + axesObj.xTitle + "`");
+
+            // Call MathJax to make plot axis labels look pretty 
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel", "yLabel", "plotTitle"]]);
+
+            // if a fit is selected add/update data
+            if (isFit)  my.updateFitLine();
+    
+            let delKeys = [];
+    
+            for (let i = 0, len = prevKeys.length; i < len; i++) {
+                let match = newKeys.indexOf( prevKeys[i] );
+    
+                if ( match === -1) {
+                    delKeys.push( prevKeys[i] );
+                }
+            }
+    
+            // Remove any lines not in the dataNest
+            delKeys.forEach(k => {
+                d3.select("#scatter-1D-" + k).remove();
+                d3.select("#line-1D-" + k).remove();
+                d3.select("#error-1D-" + k).remove();
+                d3.select("#error-1D-top-" + k).remove();
+                d3.select("#error-1D-bottom-" + k).remove();
+                d3.select("#legend-1D-" + k).remove();
+            })
+    
+            // Update previous keys with current keys
+            prevKeys = _.clone(newKeys);
+        
     }
 
     // Create brush function redraw scatterplot with selection
@@ -696,11 +1068,17 @@ var fit1D = (function(d3, _, $, eventBus) {
         // console.log("Calling brush...");
         brushObj.brushSelection = d3.event.selection;
         
+        scales.xScale2.domain(scales.xScale.domain());
         var e = d3.event.selection.map(scales.xScale2.invert, scales.xScale2);
         
         let selectedData = dataToFit.filter(function(d) {
             return e[0] <= d.x && d.x <= e[1];
         })
+
+        // Update brush selections to the current selected data
+        // This will be used to dynamically adjust brush location when new data is added
+        selLimits.xMin = d3.min(selectedData, function(d) { return d.x; });
+        selLimits.xMax = d3.max(selectedData, function(d) { return d.x; });
 
         if (brushObj.brushSelection !== null && selectedData.length > 1) {
 
@@ -722,7 +1100,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             fitEquation = fitResults.fitEquation;
 
             if(fitData.length <= 0) {
-                if(vm.checkError()) {
+                if(my.checkError()) {
                     let errorMsg = "<strong>Error!</strong> Fitted y-values < 0, thus no fit-line to display.";
                     eventBus.$emit('error-message', errorMsg, 'danger');
                 }
@@ -768,7 +1146,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             });
         } else {
             // Notify user that more data needs to be selected for the fit
-            if(vm.checkError()) {
+            if(my.checkError()) {
                 let errorMsg = "<strong>Error!</strong> Not enough data selected, please select 2 or more points. If plot is blank, no data is available for generating a fit line.";
                 eventBus.$emit('error-message', errorMsg, 'danger');
             }
@@ -832,7 +1210,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         }
 
         // Re-draw error
-        elements.errorlines.selectAll('.error')
+        elements.errorlines.selectAll('.error-1D')
             .attr('x1', function (d) {
                 return new_xScale(d.x);
             })
@@ -852,7 +1230,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             });
         
         // re-draw error tick top
-       elements.errorlines.selectAll(".error-tick-top")
+       elements.errorlines.selectAll(".error-1D-tick-top")
             .attr('x1', function (d) {
                 return new_xScale(d.x) - 4;
             })
@@ -867,7 +1245,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             });
 
         // re-draw error tick bottom
-        elements.errorlines.selectAll(".error-tick-bottom")
+        elements.errorlines.selectAll(".error-1D-tick-bottom")
             .filter( function(d) {
                 if(scales.yScaleType === "Log(Y)") {
                     return d.y - d.e > 0;
@@ -887,6 +1265,28 @@ var fit1D = (function(d3, _, $, eventBus) {
             .attr('y2', function (d) {
                 return new_yScale(d.y - d.e);
             });
+    }
+
+    /**** Funciton to Update Scales ***********/
+    my.changeScales = function(values) {
+        
+        scales.xScale = values.xScale.copy();
+        scales.yScale = values.yScale.copy();
+
+        // update scale types
+        scales.yScaleType = values.yScaleType;
+
+        // if theres a fit, update brush scale
+        if(isFit) {
+            scales.xScale2 = values.xScale.copy();
+            scales.xScale2.range([0, dim.width]);
+        }
+        
+        scales.xScale.range([0, dim.width]);
+        scales.yScale.range([dim.height, 0]);
+        
+        // update plot
+        my.update(plotData);
     }
 
     /***** Function To Reset to Original Coords Position ******/
@@ -937,6 +1337,11 @@ var fit1D = (function(d3, _, $, eventBus) {
             coeffString += "</ul>";
             return coeffString;
         });
+    }
+
+    my.checkError = function() {
+        let len = document.getElementById("error-container").children.length;
+        return len > 0 ? false : true;
     }
 
     // Return Module object for public use

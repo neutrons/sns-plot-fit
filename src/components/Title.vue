@@ -113,7 +113,10 @@ export default {
         // Add Fetched File List(s) to Global Store
         if (temp1D.length > 0) this.$store.commit('addFetched1DFiles', temp1D);
         if (temp2D.length > 0) this.$store.commit('addFetched2DFiles', temp2D);
-      });
+      }).catch(function (err) {
+          console.log(err.message);
+          eventBus.$emit('error-message', err.message, 'danger');
+      })
     },
     uploadFile(files) {
 

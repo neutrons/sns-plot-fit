@@ -116,7 +116,7 @@ div.tooltip:before {
   position: relative;
   padding: 0 10px;
   margin: 0 auto;
-  width: 90%;
+  width: 95%;
   min-width: 400px;
 }
 
@@ -129,7 +129,6 @@ iframe.width-changed {
 
 .fitted-line {
     stroke-width: 2px;
-    stroke: steelblue;
     stroke-dasharray: 10,5;
 }
 
