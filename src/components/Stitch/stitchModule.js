@@ -112,13 +112,13 @@ var stitch = (function(d3, _, $, eventBus, store) {
             }
             
             // Remove Brush Cursor Styles
-            d3.select('.stitch-chart').style('cursor', 'move');
+            // d3.select('.stitch-chart').style('cursor', 'move');
             d3.select('.brushes').selectAll('.selection').style("cursor", "move");
             d3.select('.brushes').selectAll('.overlay').style("cursor", "move");
 
-            elements.svg.call(zoomObj.zoom);
+            elements.svg.select('.brushes').call(zoomObj.zoom);
         } else if (toggleChoice === 'brush') {
-            elements.svg.on('.zoom', null);
+            elements.svg.select('.brushes').on('.zoom', null);
             
             // Toggle on all brushes
             for(let i = 0, len = brushObj.brushes.length; i < len; i++) {
@@ -194,10 +194,10 @@ var stitch = (function(d3, _, $, eventBus, store) {
         zoomObj.zoom = d3.zoom().on('zoom', my.zoomed);
 
         // Only allow brushes when 2+ lines are plotted
-        if(brushObj.brushCount >= 1) {
-            my.newBrush();
-            my.drawBrushes();
-        }
+        // if(brushObj.brushCount >= 1) {
+        //     my.newBrush();
+        //     my.drawBrushes();
+        // }
 
         // Set a Line Generator
         plotLine = d3.line()
@@ -248,7 +248,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
             .attr("class", "brushes");
   
         // Only allow brushes when 2+ lines are plotted
-        if(brushObj.brushCount >= 1) {
+        if(brushObj.brushCount >= 0) {
             my.newBrush();
             my.drawBrushes();
         }
@@ -310,7 +310,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
         elements.legend = elements.plot.append("g").attr("id", "legend");
 
         // Set zoom on zoomWindow
-        elements.svg.call(zoomObj.zoom);
+        elements.svg.select(".brushes").call(zoomObj.zoom);
 
         // Add responsive elements
         // Essentially when the plot gets resized it will look to the
@@ -396,7 +396,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
         
         // Rescale to zoom's scale
-        let t = d3.zoomTransform( elements.svg.node());
+        let t = d3.zoomTransform( elements.svg.select('.brushes').node());
         let new_yScale = t.rescaleY(scale.yScale); 
         let new_xScale = t.rescaleX(scale.xScale);
         
@@ -1105,7 +1105,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
 
     /***** Function To Reset to Original Coords Position ******/
     my.resetPlot = function() {
-        elements.svg.transition().duration(750)
+        elements.svg.select(".brushes").transition().duration(750)
             .call(zoomObj.zoom.transform, d3.zoomIdentity);
     }
 
