@@ -58,9 +58,11 @@ module.exports = {
       'vue$': 'vue/dist/vue.esm.js'
     }
   },
+  // configuration for development server
   devServer: {
     compress: true,
-    port: 8080,
+    host: process.env.NODE_HOST,
+    port: process.env.NODE_PORT,
     proxy: {
     "/external": {
       target: process.env.SERVER_URL,

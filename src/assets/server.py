@@ -1,6 +1,9 @@
-from flask import Flask, jsonify, request, send_from_directory
+import os
+import argparse
 import json
 from pprint import pprint
+
+from flask import Flask, jsonify, request, send_from_directory
 
 '''
 
@@ -106,9 +109,20 @@ def fetch():
     print(request)
     return jsonify(data)
 
-
-
 if __name__ == "__main__":
+
     print("Starting server")
-    # app.run()
-    app.run(host= '0.0.0.0', port=8000 ,debug=True)
+
+    parser = argparse.ArgumentParser(add_help=True)
+    parser.add_argument('--host', '-o', nargs='?', default='localhost',
+                        help="default host: %(default)s")
+    parser.add_argument('--port', '-p', nargs='?', type=int, default=8000,
+                        help="default port: %(default)s")
+    args = parser.parse_args()
+    
+    try:
+        app.run(host=args.host, port=args.port, debug=True)
+    except OSError as e:
+        print(str(e))
+        parser.print_help()
+
