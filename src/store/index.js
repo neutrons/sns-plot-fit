@@ -30,7 +30,7 @@ export default new Vuex.Store({
     fitConfigurations: {
           'None': {
             fit: 'None',
-            equation: null,
+            equation: '',
             yTransformation: 'y',
             xTransformation: 'x',
             eTransformation: 'e',

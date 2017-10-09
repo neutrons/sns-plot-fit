@@ -65,8 +65,6 @@ export default {
                     </div>';
             } else {
                 document.getElementById('transformation-error').innerHTML = "";
-                console.log("New transformations X", newXTrans);
-                console.log("New transformation y", newYTrans);
                 this.$emit('set-transformations', newXTrans, newYTrans);
             }
         },
