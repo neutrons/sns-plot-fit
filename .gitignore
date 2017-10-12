@@ -3,9 +3,7 @@
 
 # Webpack
 /node_modules
-/test/js
-/test/browsertest/js
-/test/fixtures/temp-cache-fixture
+/test/coverage
 /benchmark/js
 /benchmark/fixtures
 /examples/**/js
