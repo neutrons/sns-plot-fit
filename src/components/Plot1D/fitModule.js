@@ -229,9 +229,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         fitError = fitResults.error;
 
         scales.xScale2.domain(d3.extent(plotData, function(d) { return d.x; })).nice();
-
-        let t = d3.zoomTransform( elements.svg.select('.zoom').node());
-        let new_xScale2 = t.rescaleX(scales.xScale2);
+        let new_xScale2 = scales.xScale2.copy();
 
         // update brush x scale axis
         axesObj.xAxis2.scale(new_xScale2);
@@ -1068,7 +1066,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         // console.log("Calling brush...");
         brushObj.brushSelection = d3.event.selection;
         
-        scales.xScale2.domain(scales.xScale.domain());
+        //scales.xScale2.domain(scales.xScale.domain());
         var e = d3.event.selection.map(scales.xScale2.invert, scales.xScale2);
         
         let selectedData = dataToFit.filter(function(d) {
