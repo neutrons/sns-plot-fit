@@ -38,12 +38,12 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         include: [resolve('src'), 
-                  resolve('test'), 
-                  resolve('node_modules/ml-matrix'),
-                  resolve('node_modules/ml-array-max'),
-                  resolve('node_modules/ml-array-min'),
-                  resolve('node_modules/ml-array-rescale'),
-                  resolve('node_modules/ml-levenberg-marquardt')]
+                  resolve('test')]
+                  // resolve('node_modules/ml-matrix'),
+                  // resolve('node_modules/ml-array-max'),
+                  // resolve('node_modules/ml-array-min'),
+                  // resolve('node_modules/ml-array-rescale'),
+                  // resolve('node_modules/ml-levenberg-marquardt')]
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
