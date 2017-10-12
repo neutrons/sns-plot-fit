@@ -38,7 +38,7 @@ module.exports = {
         test: /\.js$/,
         loader: 'babel-loader',
         include: [resolve('src'), 
-                  resolve('test')]
+                  resolve('test')],
                   // resolve('node_modules/ml-matrix'),
                   // resolve('node_modules/ml-array-max'),
                   // resolve('node_modules/ml-array-min'),
