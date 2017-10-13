@@ -316,11 +316,11 @@ var fit1D = (function(d3, _, $, eventBus) {
         var minX = d3.min(dataToFit, function(d) { return d.x });
         var maxX = d3.max(dataToFit, function(d) { return d.x });
 
-        d3.select("td#fit-file").html("<b>File tessssst: </b>" + plotParameters.fileToFit);
+        d3.select("td#fit-file").html("<b>File: </b>" + plotParameters.fileToFit);
         d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
         d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
-        d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toExponential(5) + ", " + maxX.toExponential(5) + ")");
-        d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
+        d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toExponential(2) + ", " + maxX.toExponential(2) + ")");
+        d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(2));
         
         d3.select("td#fit-coefficients").html(function() {
             let coeffString = "<ul>";
@@ -336,7 +336,7 @@ var fit1D = (function(d3, _, $, eventBus) {
                     }
 
                     if(key === 'Rg') {
-                        let RgX = coefficients[key] * scales.xScale.invert(brushObj.brushSelection[1]);
+                        let RgX = coefficients[key] * Math.sqrt(scales.xScale.invert(brushObj.brushSelection[1]));
                         coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
                         continue;
                     }
@@ -1114,8 +1114,8 @@ var fit1D = (function(d3, _, $, eventBus) {
             d3.select("td#fit-file").html("<b>File tesssst: </b>" + plotParameters.fileToFit);
             d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
             d3.select("td#fit-points").html("<b>No. Points:</b> " + selectedData.length);
-            d3.select("td#fit-range").html("<b>Fit Range:</b> (" + e[0].toExponential(5) + ", " + e[1].toExponential(5) + ")");
-            d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
+            d3.select("td#fit-range").html("<b>Fit Range:</b> (" + e[0].toExponential(2) + ", " + e[1].toExponential(2) + ")");
+            d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(2));
             
             d3.select("td#fit-coefficients").html(function() {
                 let coeffString = "<ul>";
@@ -1131,7 +1131,7 @@ var fit1D = (function(d3, _, $, eventBus) {
                         }
 
                         if(key === 'Rg') {
-                            let RgX = coefficients[key] * scales.xScale.invert(brushObj.brushSelection[1]);
+                            let RgX = coefficients[key] * Math.sqrt(scales.xScale.invert(brushObj.brushSelection[1]));
                             coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
                             continue;
                         }
