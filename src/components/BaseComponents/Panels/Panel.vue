@@ -5,8 +5,8 @@
     <div :class="'panel panel-' + PANELTYPE">
         <div class="panel-heading">
             <div class="panel-title">
-                <slot name="header-content"></slot>
                 <div class="collapser" @click="isCollapsed = !isCollapsed">
+                    <slot name="header-content"></slot>
                     <span>{{PANELTITLE}} </span>
                     <span class="collapser-icon" v-if="isCollapsed"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <span class="collapser-icon" v-else><i class="fa fa-minus-square" aria-hidden="true"></i></span>
@@ -65,30 +65,6 @@ export default {
 }
 </script>
 
-<style scoped>
-.panel-heading {
-    text-align: center;
-    padding: 0px;
-    border-radius: 0px !important;
-}
-
-.collapser {
-    position: relative;
-    padding: 10px;
-    display: block;
-    cursor: pointer;
-}
-
-.panel {
-    margin: 0px;
-}
-
-.collapser-icon {
-    position: absolute;
-    right: 10px;
-}
-
-.panel {
-    border-radius: 0px !important;
-}
+<style lang="less" scoped>
+@import '../../../assets/styles/less/panel-component.less';
 </style>

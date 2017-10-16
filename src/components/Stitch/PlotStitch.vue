@@ -1,5 +1,5 @@
 <template>
-  <div id="StitchPlot" class="col-lg-10">
+  <div id="plot-stitch-col" class="col-md-10">
 
             <!-- Plot Panel  -->
             <v-panel PANELTITLE="Stitch Plot" PANELTYPE="primary">
@@ -76,15 +76,6 @@ export default {
 </script>
 
 <style scoped>
-/* Many of the Plot 1D Styles are the same */
-@import '../../assets/styles/plot-1D-styles.css';
-
 /* Anything that needs changing gets overidden here */
 @import '../../assets/styles/plot-stitch-styles.css';
-
-#selection-error {
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
 </style>

@@ -41,7 +41,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
             top: 80,
             bottom: 80,
             left: 80,
-            right: 80
+            right: 50
         };
 
         // Object for axis generators
@@ -299,7 +299,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
             .text("Y vs X");
 
         // Add the Legend
-        elements.legend = elements.plot.append("g").attr("id", "legend");
+        elements.legend = elements.plot.append("g").attr("id", "legend-stitch");
 
         // Set zoom on zoomWindow
         elements.svg.select(".brushes").call(zoomObj.zoom);
@@ -310,21 +310,21 @@ var stitch = (function(d3, _, $, eventBus, store) {
         // The css file has min- and max-width's incase the resizing gets too small,
         // the plot will not scale below these dimensions.
         // Solution courtesy of: https://stackoverflow.com/a/26077110
-        $.event.special.widthChanged = {
+        $.event.special.widthStitchChanged = {
             remove: function() {
-                $(this).children('iframe.width-changed').remove();
+                $(this).children('iframe.width-changed-stitch').remove();
             },
             add: function () {
                 var elm = $(this);
-                var iframe = elm.children('iframe.width-changed');
+                var iframe = elm.children('iframe.width-changed-stitch');
                 if (!iframe.length) {
-                    iframe = $('<iframe/>').addClass('width-changed').prependTo(this);
+                    iframe = $('<iframe/>').addClass('width-changed-stitch').prependTo(this);
                 }
                 var oldWidth = elm.width();
                 function elmResized() {
                     var width = elm.width();
                     if (oldWidth != width) {
-                        elm.trigger('widthChanged', [width, oldWidth]);
+                        elm.trigger('widthStitchChanged', [width, oldWidth]);
                         oldWidth = width;
                     }
                 }
@@ -342,7 +342,7 @@ var stitch = (function(d3, _, $, eventBus, store) {
         var aspectRatio = chartStitch.width() / chartStitch.height()
         var container = chartStitch.parent();
 
-        $("#stitch-plot").on("widthChanged", function() {
+        $("#stitch-plot").on("widthStitchChanged", function() {
             var targetWidth = container.width();
             chartStitch.attr("width", targetWidth);
             chartStitch.attr("height", Math.round(targetWidth / aspectRatio));
@@ -564,28 +564,6 @@ var stitch = (function(d3, _, $, eventBus, store) {
                         .on("click", function(d,i) {
                             removePoint(i, d.name);
                         });
-                
-                // Add Legend
-                elements.legend.append("g").attr("id", "legend-" + d.key)
-                        .append("rect")
-                        .attr("x", dim.width - margin.right - margin.right)
-                        .attr("y", (margin.top + 20) + i * 25)
-                        .style("fill", function () {
-                            return d.color = color(d.key);
-                        })
-                        .attr("height", "8px")
-                        .attr("width", "8px");
-
-                elements.legend.select("#legend-" + d.key)
-                    .append("text")
-                    .attr("x", dim.width - margin.right - margin.right + 15)
-                    .attr("y", (margin.top + 28) + i * 25)
-                    .style("fill", function () {
-                        return d.color = color(d.key);
-                    })
-                    .style("font-size", "12px")
-                    .style("font-weight", "bold")
-                    .text(d.key);
                         
             } else {
                 
@@ -796,6 +774,10 @@ var stitch = (function(d3, _, $, eventBus, store) {
             }
         });
 
+        /******* UPDATING LEGEND **********/
+        my.updateLegend();
+        /******* End LEGEND  **************/
+
         let delKeys = [];
 
         for (let i = 0, len = prevKeys.length; i < len; i++) {
@@ -819,6 +801,62 @@ var stitch = (function(d3, _, $, eventBus, store) {
         // Update previous keys with current keys
         prevKeys = _.clone(newKeys);
 
+    }
+
+    my.updateLegend = function() {
+        let keys = [];
+        dataNest.forEach(el => { keys.push(el.key); });
+
+        let w = document.getElementById('stitch-plot').offsetWidth;
+        
+        var legend = elements.svg.select("#legend-stitch");
+        
+        var legendBox = legend.selectAll("rect").data(keys, function(d) { return d; });
+
+        legendBox.exit().remove();
+    
+        legendBox.enter()
+            .append("rect")
+            .merge(legendBox)
+            .attr("x", function(d,i) {                
+                return w > 1400 ? dim.width - margin.right*4.5 + 'px' :
+                        w > 1000 ? dim.width - margin.right*4 + 'px' : dim.width - margin.right*3 + 'px';
+            })
+            .attr("y", function(d,i) { 
+                return w > 1400 ? margin.top + i * 25 + 'px' :
+                       w > 1000 ? margin.top/1.5 + i * 25 + 'px' : margin.top/2 + i * 20 + 'px';
+            })
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", function (d, i) {
+                return color(d);
+            })
+            .attr("height", "8px")
+            .attr("width", "8px");
+
+        var legendText = legend.selectAll("text").data(keys, function(d) {return d;});
+
+        legendText.exit().remove();
+    
+        legendText.enter()
+            .append("text")
+            .merge(legendText)
+            .attr("x", function(d,i) {
+                return w > 1400 ? dim.width - margin.right*4.5 + 15 + 'px' :
+                       w > 1000 ? dim.width - margin.right*4 + 15 + 'px' : dim.width - margin.right*3 + 15 + 'px';
+            })
+            .attr("y", function(d,i) { 
+                return w > 1400 ? (margin.top + 8) + i * 25 + 'px' :
+                       w > 1000 ? (margin.top + 12)/1.5 + i * 25 + 'px' : (margin.top + 14)/2 + i * 20 + 'px';
+            })
+            .style("fill", function (d,i) {
+                return color(d);
+            })
+            .style("font-size", "12px")
+            .style("font-weight", "bold")
+            .text(function (d) {
+                return d;
+            });
     }
     
     /********** Functions to Remove Points ********************************/

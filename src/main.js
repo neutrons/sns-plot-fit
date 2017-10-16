@@ -7,6 +7,7 @@ import store from './store/index.js';
 
 import $ from 'jquery';
 require('bootstrap');
+require('bootstrap-webpack!./assets/styles/bootstrap/bootstrap.config.js');
 
 new Vue({
   el: '#app',

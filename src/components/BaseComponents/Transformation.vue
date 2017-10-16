@@ -79,8 +79,4 @@ export default {
 #Transformation {
     text-align: center;
 }
-
-.input-group {
-    margin-bottom: 10px;
-}
 </style>

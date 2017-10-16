@@ -1,0 +1,11 @@
+/* Scale input dimensions to size of window */
+.input-group > * {
+    @media (max-width: 1499px) { height: 25px; }
+    @media (min-width: 1500px) { height: 30px; }
+}
+
+/* Reduce padding on non-mobile screens */
+#plot-1d-col, #plot-2d-col, #plot-stitch-col {
+    @media (min-width: 992px) { padding-left: 0px; }
+    @media (max-width: 991px) { padding-left: 15px;}
+}
