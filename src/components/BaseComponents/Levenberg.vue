@@ -1,6 +1,6 @@
 <template>
   <div id="Levenberg">
-    <fieldset :disabled="DISABLE">
+    <fieldset :disabled="DISABLE" :class="DISABLE ? 'disabled' : ''">
         <label>Damping: <span class="fit-settings">{{ fitSettings.damping }}</span></label>
         <input type="range" v-model.number="fitSettings.damping" min="0.001" max="10" step="0.001" @mouseup="setFitSettings" @keyup="setFitSettings" @touchend="setFitSettings" >
 
@@ -54,6 +54,8 @@ export default {
   }
 </script>
 
-<style scoped>
-
+<style lang="less" scoped>
+.disabled {
+    opacity: 0.75;
+}
 </style>

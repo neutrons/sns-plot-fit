@@ -1,5 +1,5 @@
 <template>
-<div class="form-inline">
+<div>
     <div class="filter-selection input-group">
         <span class="select-tag input-group-addon"><i class="fa fa-filter" aria-hidden="true"></i> Filter:</span>
         <select class="group-selection form-control input-sm" v-model="filterChoice">
@@ -51,7 +51,13 @@ export default {
 </script>
 
 <style scoped>
-.form-inline {
+.filter-selection {
+    width: 100%;
+    margin-bottom: 5px
+}
+
+.btn-sort {
+    width: 100%;
     margin-bottom: 5px;
 }
 </style>

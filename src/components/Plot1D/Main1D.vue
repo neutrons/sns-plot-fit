@@ -7,7 +7,7 @@
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
 
             <!-- Fetched Data Panel  -->
-                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
+                <v-panel PANELTITLE="Fetched" PANELTYPE="success">
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
@@ -19,11 +19,11 @@
                             <template>
                                 <tr v-for="f in fetchFiles('1D', sortBy, filterBy)" :class="isPlotted(f.filename)">
                                     <template>
-                                        <td><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
+                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td><input :id="f.filename + '-Fetch1D'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
-                                        <td>{{f.filename}}</td>
-                                        <td>{{f.jobTitle}}</td>
+                                        <td class="td-check"><input :id="f.filename + '-Fetch1D'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
+                                        <td class="td-name">{{f.filename}}</td>
+                                        <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
                                 </tr>
                             </template>
@@ -32,17 +32,17 @@
                 </v-panel>
 
             <!-- Uploaded Data Panel  -->
-                <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success">
+                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
                     <div v-show="uploadFiles.length > 0">
                      <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
                             <template>
                                 <tr v-for="f in uploadFiles" :class="isPlotted(f.filename)">
                                     <template>
-                                        <td><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled="(isPlotted(f.filename) == 'success' ? false : true)"
+                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled="(isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td><input :id="f.filename + '-Upload1D'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
-                                        <td>{{f.filename}}</td>
-                                        <td><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td class="td-check"><input :id="f.filename + '-Upload1D'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
+                                        <td class="td-name">{{f.filename}}</td>
+                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -50,9 +50,9 @@
                     </div>
                 </v-panel>
 
-                <div id="btn-selections" v-if="isFiles" class="row">
-                    <div class="col-md-6"><button class="btn btn-default btn-select-all" @click="checkAll"><i class="fa fa-plus-circle" aria-hidden="true"></i> Select All</button></div>
-                    <div class="col-md-6"><button class="btn btn-default btn-unselect-all" @click="clearSelected" :disabled="disable"><i class="fa fa-minus-circle" aria-hidden="true"></i> Unselect All</button></div>
+                <div id="btn-selections" v-if="isFiles" class="btn-group btn-group-justified">
+                        <div class="btn-group"><button class="btn btn-default btn-select-all" @click="checkAll"><i class="fa fa-plus-circle" aria-hidden="true"></i> Plot All</button></div>
+                        <div class="btn-group"><button class="btn btn-default btn-unselect-all" @click="clearSelected" :disabled="disable"><i class="fa fa-minus-circle" aria-hidden="true"></i> Remove All</button></div>
                 </div>
             </v-panel-group>
 
@@ -95,7 +95,7 @@
             </v-panel>
 
             <!-- Fit Settings Panel  -->
-            <v-panel PANELTITLE="Levenberg–Marquardt Parameters" PANELTYPE="info" :COLLAPSE="true">
+            <v-panel PANELTITLE="Levenberg–Marquardt Settings" PANELTYPE="info" :COLLAPSE="true">
                 <v-levenberg
                     :DISABLE="this.fileToFit === null"
                     @set-fit-settings="setFitSettings"
@@ -511,16 +511,19 @@ export default {
   }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 #Main1D {
   position: absolute;
   left: 0;
   right: 0;
+  padding: 0px;
 }
 
 .btn-select-all, .btn-unselect-all {
-  width: 100%;
-  margin-top: 10px;
-  white-space: normal;
+    padding: 2px;
+
+    @media screen and (min-width: 1441px) { font-size: 12px; }
+    @media screen and (max-width: 1440px) { font-size: 8px; }
+
 }
 </style>

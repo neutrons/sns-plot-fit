@@ -16,9 +16,9 @@
                             <template>
                                 <tr v-for="f in fetchFiles('2D', sortBy, filterBy)" :class="isPlotted(f.filename)">
                                     <template>
-                                        <td><input type="checkbox" :value="f.filename" v-model="filePlotChoices" @change="setFileToPlot"></td>
-                                        <td>{{f.filename}}</td>
-                                        <td>{{f.jobTitle}}</td>
+                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filePlotChoices" @change="setFileToPlot"></td>
+                                        <td class="td-name">{{f.filename}}</td>
+                                        <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
                                 </tr>
                             </template>
@@ -32,9 +32,9 @@
                             <template>
                                 <tr v-for="f in uploadFiles" :class="isPlotted(f.filename)">
                                     <template>
-                                        <td><input type="checkbox" :value="f.filename" v-model="filePlotChoices" @change="setFileToPlot"></td>
-                                        <td>{{f.filename}}</td>
-                                        <td><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filePlotChoices" @change="setFileToPlot"></td>
+                                        <td class="td-name">{{f.filename}}</td>
+                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -66,8 +66,6 @@
                             <option>Linear</option>
                         </select>
                     </div>
-
-                    <br>
                     
                     <button id="btn-reset-hex-settings" class="btn btn-warning btn-sm" @click="resetSettings"><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
                 </fieldset>
@@ -76,7 +74,7 @@
         </v-panel-group>
       </div>
 
-      <div class="col-md-10">
+      <div class="col-md-10" id="plot-2d-col">
         <v-panel PANELTITLE="2D Plot" PANELTYPE="primary">
             <!-- Plot reset button inserted into panel heading  -->
             <v-reset-button :onClick="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</v-reset-button>
@@ -232,7 +230,8 @@ export default {
 #Plot2D {
   position: absolute;
   left: 0;
-  right: 0;  
+  right: 0;
+  padding: 0px;  
 }
 
 /* Styles for control panel elements  */

@@ -8,7 +8,6 @@
                 <option v-for="scale in xScales">{{scale}}</option>
             </select>
         </div>
-        <br>
         <!-- Y Scale Selection -->
         <div class="input-group">
             <span class="input-group-addon">Y Scale</span>
@@ -16,7 +15,6 @@
                 <option v-for="scale in yScales">{{scale}}</option>
             </select>
         </div>
-        <br>
         <button class="btn btn-warning btn-sm btn-block" @click="resetScale"><i class="fa fa-refresh" aria-hidden="true"></i> Reset Scales</button>
     </fieldset>
 </div>
@@ -59,6 +57,6 @@ export default {
   }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 
 </style>

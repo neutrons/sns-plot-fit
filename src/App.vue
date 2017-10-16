@@ -13,15 +13,15 @@
         ref="title">
       </app-title>
 
-      <transition name="slide" appear>
+      <transition name="fade" appear>
         <app-main-1D v-show="toggleView === '1D'"></app-main-1D>
       </transition>  
 
-       <transition name="slide" appear>
+       <transition name="fade" appear>
         <app-plot-2D v-show="toggleView === '2D'"></app-plot-2D>
       </transition> 
 
-      <transition name="slide" appear>
+      <transition name="fade" appear>
         <app-stitch v-show="toggleView === 'Stitch'"></app-stitch>
       </transition> 
 
@@ -47,9 +47,7 @@
 </template>
 
 <script>
-
 import $ from 'jquery';
-
 import Main1D from './components/Plot1D/Main1D.vue';
 import Plot2D from './components/Plot2D/Plot2D.vue';
 import Stitch from './components/Stitch/Stitch.vue';
@@ -142,28 +140,33 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less">
 /* Set Font-Awesome Globally for all sub-components  */
- @import '../node_modules/font-awesome/css/font-awesome.min.css'; 
+@import '../node_modules/font-awesome/css/font-awesome.min.css';
+@import './assets/styles/less/responsiveText.less';
+@import './assets/styles/less/mediaQueries.less';
 
-/* Global Styles  */
-html,
 body {
-   margin:0;
-   padding:0;
+  background: #fff;
+  margin:0;
+  padding:0;
+  transition: 0.5s;
+  .fluid-type(font-size, 300px, 2000px, 8px, 16px);
 }
 
-body {
-    background: white;
+.input-group {
+  margin-bottom: 10px;
+
+    > * {
+      .fluid-type(font-size, 300px, 2000px, 8px, 14px);
+      padding: 0px 5px;
+      transition: 0.5s;
+    }
 }
 
 .container-fluid {
     padding-left: 0px;
     padding-right: 0px;
-}
-
-#app-container {
-  height: 100vh;
 }
 
 div#dropzone {
@@ -180,12 +183,13 @@ div#dropzone {
     color: #fff;
     background: rgba(0, 0, 0, 0.45);
     font: bold 42px Oswald, DejaVu Sans, Tahoma, sans-serif;
-}
-div#textnode {
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    transition: font-size 175ms;
+
+      div#textnode {
+          display: table-cell;
+          text-align: center;
+          vertical-align: middle;
+          transition: font-size 175ms;
+      }
 }
 
 .form-control {
@@ -193,20 +197,11 @@ div#textnode {
 }
 
 /* Transition effects for Sliding  */
-
-.slide-enter-active {
+.fade-enter-active, .fade-leave-active {
   transition: all 1.0s ease;
 }
-.slide-leave-active {
-  transition: all 1.0s ease;
-}
-.slide-enter
-/* .slide-fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
 
-.slide-leave-to
-/* .slide-fade-leave-active below version 2.1.8 */ {
+.fade-enter, .fade-leave-to {
   opacity: 0;
 }
 
@@ -216,10 +211,6 @@ div#textnode {
   z-index: 9999;
   bottom: 25px;
   right: 25px;
-}
-
-.error {
-  position: relative;
 }
 
 #myModal {

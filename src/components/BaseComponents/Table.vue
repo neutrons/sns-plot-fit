@@ -1,6 +1,6 @@
 <template>
 <div class="table-container">
-  <table class="table table-hover table-bordered table-condensed">
+  <table class="table table-hover table-bordered">
       <thead>
         <tr>
           <th v-for="field in fieldNames">{{field}}</th>
@@ -35,7 +35,9 @@ export default {
   }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+@import url('../../assets/styles/less/responsiveText.less');
+
 .table-container {
   height: auto;
   max-height: 225px;
@@ -43,25 +45,33 @@ export default {
   background-color: white;
 }
 
-th {
-    text-align: center;
-}
+table {
+    .fluid-type(font-size, 300px, 2000px, 8px, 14px);
+    margin-bottom: 0px;
+    
+    th, td { 
+        text-align: center;
+        padding: 0px !important; 
+        margin: 0px !important; 
+    }
 
-td
-{
-    text-align: center;
-    max-width: 100px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-td:hover
-{
-    overflow: visible; 
-    white-space: normal;
-    text-overflow: wrap;
-    word-wrap: break-word;
-    height:auto;
+    .td-check {
+        width: 30px;
+    }
+    
+    .td-name {
+        max-width: 50px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        
+        &:hover {
+            overflow: visible; 
+            white-space: normal;
+            text-overflow: wrap;
+            word-wrap: break-word;
+            height: auto;
+        }
+    }
 }
 </style>
