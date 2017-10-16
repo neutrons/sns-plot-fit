@@ -383,7 +383,9 @@ export default {
     watch: {
         scales: {
             handler() {
-                this.$refs.plot_1D.changeScales(this.scales);
+                this.$nextTick(function() {
+                    if(this.selectedData.length > 0)    this.$refs.plot_1D.changeScales(this.scales);
+                })
             },
             deep: true
         },

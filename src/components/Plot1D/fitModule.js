@@ -1013,6 +1013,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             elements.svg.select("#plotTitle").html("`" + axesObj.yTitle + "` vs `" + axesObj.xTitle + "`");
 
             // Call MathJax to make plot axis labels look pretty 
+            console.log("CALLING MATHJAX");
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel", "yLabel", "plotTitle"]]);
 
             // if a fit is selected add/update data
