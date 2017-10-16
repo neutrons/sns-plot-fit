@@ -3,13 +3,13 @@ import _ from 'lodash';
 import $ from 'jquery';
 
 // The eventBus serves as the means to communicating between components.
-// Here it's being used in moduleStitch to communicate to App.vue for error messages
+// Here it's being used in modulefit to communicate to App.vue for error messages
 import { eventBus } from '../../assets/javascript/eventBus.js';
 
 import fd from '../../assets/javascript/fitData.js';
 
 var fit1D = (function(d3, _, $, eventBus) {
-    /******* Private Global Variables for Stitch Module **************/
+    /******* Private Global Variables for fit Module **************/
 
         // Object for plot elements
         var elements = {
@@ -85,7 +85,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         var fitError = undefined;
         var fitResults = undefined;
 
-        // Array to store a stitched line's data
+        // Array to store a fited line's data
         var fitLineData = [];
         var fitEquation = undefined;
         var plotParameters = undefined;
@@ -97,7 +97,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         var prevFit = null;
         var prevTransform = undefined;
 
-    /******* End of Global for Stitch Module **************/
+    /******* End of Global for fit Module **************/
 
     // Module object
     var my = {};
@@ -114,7 +114,7 @@ var fit1D = (function(d3, _, $, eventBus) {
             margin = {
                 top: 50,
                 right: 50,
-                bottom: 150, // adjusts margin for slider
+                bottom: 100, // adjusts margin for slider
                 left: 75
             };
             
@@ -316,11 +316,11 @@ var fit1D = (function(d3, _, $, eventBus) {
         var minX = d3.min(dataToFit, function(d) { return d.x });
         var maxX = d3.max(dataToFit, function(d) { return d.x });
 
-        d3.select("td#fit-file").html("<b>File tessssst: </b>" + plotParameters.fileToFit);
+        d3.select("td#fit-file").html("<b>File: </b>" + plotParameters.fileToFit);
         d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
         d3.select("td#fit-points").html("<b>No. Points:</b> " + dataToFit.length);
-        d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toExponential(5) + ", " + maxX.toExponential(5) + ")");
-        d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
+        d3.select("td#fit-range").html("<b>Fit Range:</b> (" + minX.toExponential(2) + ", " + maxX.toExponential(2) + ")");
+        d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(2));
         
         d3.select("td#fit-coefficients").html(function() {
             let coeffString = "<ul>";
@@ -336,7 +336,7 @@ var fit1D = (function(d3, _, $, eventBus) {
                     }
 
                     if(key === 'Rg') {
-                        let RgX = coefficients[key] * scales.xScale.invert(brushObj.brushSelection[1]);
+                        let RgX = coefficients[key] * Math.sqrt(scales.xScale.invert(brushObj.brushSelection[1]));
                         coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
                         continue;
                     }
@@ -509,7 +509,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         elements.svg.append("g").append("foreignObject")
             .attr("height", 100)
             .attr("width", 200)
-            .attr("transform", "translate(" + ((dim.width+margin.left+margin.right)/2) + "," + (dim.height+margin.top+margin.bottom/2) + ")")
+            .attr("transform", "translate(" + ((dim.width+margin.left+margin.right)/2) + "," + (dim.height+margin.top*2.5) + ")")
             .attr("id", "xLabel")
             .html("`" + axesObj.xTitle + "`");
 
@@ -792,28 +792,6 @@ var fit1D = (function(d3, _, $, eventBus) {
                                     .duration(500)
                                     .style("opacity", 0);
                             });
-                    
-                    // Add Legend
-                    elements.legend.append("g").attr("id", "legend-1D-" + d.key)
-                            .append("rect")
-                            .attr("x", dim.width - margin.right - margin.right)
-                            .attr("y", (margin.top + 20) + i * 25)
-                            .style("fill", function () {
-                                return d.color = color(d.key);
-                            })
-                            .attr("height", "8px")
-                            .attr("width", "8px");
-    
-                    elements.legend.select("#legend-1D-" + d.key)
-                        .append("text")
-                        .attr("x", dim.width - margin.right - margin.right + 15)
-                        .attr("y", (margin.top + 28) + i * 25)
-                        .style("fill", function () {
-                            return d.color = color(d.key);
-                        })
-                        .style("font-size", "12px")
-                        .style("font-weight", "bold")
-                        .text(d.key);
                             
                 } else {
                     
@@ -1012,7 +990,7 @@ var fit1D = (function(d3, _, $, eventBus) {
                     // Remove old
                     scatterSelect.exit().remove()
                     
-                    // If stitch line is part of the plot, re-draw it too
+                    // If fit line is part of the plot, re-draw it too
                     if(!elements.plot.select("#fit-line").empty()) {
                         
                             elements.plot.select("#fit-line").select("path")
@@ -1023,6 +1001,10 @@ var fit1D = (function(d3, _, $, eventBus) {
                         
                 }
             });
+
+            /******* UPDATING LEGEND **********/
+            my.updateLegend();
+            /******* End LEGEND  **************/
 
             // Updated axis according to any new transformations
             // Add X Axis Label
@@ -1059,6 +1041,68 @@ var fit1D = (function(d3, _, $, eventBus) {
             // Update previous keys with current keys
             prevKeys = _.clone(newKeys);
         
+    }
+
+    my.updateLegend = function() {
+        let keys = [];
+        dataNest.forEach(el => { keys.push(el.key); });
+        
+        var legend = elements.svg.select("#legend-1D");
+        
+        var legendBox = legend.selectAll("rect").data(keys, function(d) { return d; });
+
+        legendBox.exit().remove();
+    
+        legendBox.enter()
+            .append("rect")
+            .merge(legendBox)
+            .attr("x", function(d,i) {
+                let w = document.getElementById('plot-1D').offsetWidth;
+                
+                return w > 1400 ? dim.width - margin.right*4.5 + 'px' :
+                        w > 1000 ? dim.width - margin.right*4 + 'px' : dim.width - margin.right*3 + 'px';
+            })
+            .attr("y", function(d,i) { 
+                let w = document.getElementById('plot-1D').offsetWidth;
+
+                return w > 1400 ? margin.top + i * 25 + 'px' :
+                       w > 1000 ? margin.top/1.5 + i * 25 + 'px' : margin.top/2 + i * 20 + 'px';
+            })
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", function (d, i) {
+                return color(d);
+            })
+            .attr("height", "8px")
+            .attr("width", "8px");
+
+        var legendText = legend.selectAll("text").data(keys, function(d) {return d;});
+
+        legendText.exit().remove();
+    
+        legendText.enter()
+            .append("text")
+            .merge(legendText)
+            .attr("x", function(d,i) {
+                let w = document.getElementById('plot-1D').offsetWidth;
+
+                return w > 1400 ? dim.width - margin.right*4.5 + 15 + 'px' :
+                       w > 1000 ? dim.width - margin.right*4 + 15 + 'px' : dim.width - margin.right*3 + 15 + 'px';
+            })
+            .attr("y", function(d,i) { 
+                let w = document.getElementById('plot-1D').offsetWidth;
+
+                return w > 1400 ? (margin.top + 8) + i * 25 + 'px' :
+                       w > 1000 ? (margin.top + 12)/1.5 + i * 25 + 'px' : (margin.top + 14)/2 + i * 20 + 'px';
+            })
+            .style("fill", function (d,i) {
+                return color(d);
+            })
+            .style("font-size", "12px")
+            .style("font-weight", "bold")
+            .text(function (d) {
+                return d;
+            });
     }
 
     // Create brush function redraw scatterplot with selection
@@ -1111,11 +1155,11 @@ var fit1D = (function(d3, _, $, eventBus) {
                 .attr("d", plotLine);
 
             // Revise fit results below chart
-            d3.select("td#fit-file").html("<b>File tesssst: </b>" + plotParameters.fileToFit);
+            d3.select("td#fit-file").html("<b>File: </b>" + plotParameters.fileToFit);
             d3.select("td#fit-type").html("<b>Fit Type:</b> " + plotParameters.fitConfiguration.fit);
             d3.select("td#fit-points").html("<b>No. Points:</b> " + selectedData.length);
-            d3.select("td#fit-range").html("<b>Fit Range:</b> (" + e[0].toExponential(5) + ", " + e[1].toExponential(5) + ")");
-            d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(5));
+            d3.select("td#fit-range").html("<b>Fit Range:</b> (" + e[0].toExponential(2) + ", " + e[1].toExponential(2) + ")");
+            d3.select("td#fit-error").html("<b>Fit Error:</b> " + fitError.toExponential(2));
             
             d3.select("td#fit-coefficients").html(function() {
                 let coeffString = "<ul>";
@@ -1131,7 +1175,7 @@ var fit1D = (function(d3, _, $, eventBus) {
                         }
 
                         if(key === 'Rg') {
-                            let RgX = coefficients[key] * scales.xScale.invert(brushObj.brushSelection[1]);
+                            let RgX = coefficients[key] * Math.sqrt(scales.xScale.invert(brushObj.brushSelection[1]));
                             coeffString += "<li>" + key + " = " + coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
                             continue;
                         }
@@ -1346,5 +1390,5 @@ var fit1D = (function(d3, _, $, eventBus) {
     return my;
 }(d3, _, $, eventBus));
     
-// Export stitch module for use in PlotStitch.vue
+// Export fit module for use in Plotfit.vue
 export default fit1D;

@@ -4,6 +4,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
+require('dotenv').load();
 
 module.exports = {
   build: {
@@ -33,7 +34,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       "/external": {
-        target: "http://localhost:8000",
+        target: process.env.SERVER_URL,
         pathRewrite: {"^/external" : ""}
       }
     },

@@ -16,17 +16,24 @@ export default {
 }
 </script>
 
-<style scoped>
-.btn-reset {
-    position: relative;
-    top: 10px;
-    left: 10px;
-    z-index: 999;
-}
+<style lang="less" scoped>
 
-.btn-reset:active, .btn-reset:target, .btn-reset:focus {
-    outline: none;
-    border: none;
-    background-color: #5cb85c;
+.btn-reset {
+
+    position: relative;
+    top: 0px;
+    left: 5px;
+    z-index: 999;
+    padding: 0px 5px;
+
+    @media screen and (min-width: 1441px) { font-size: 12px; }
+    
+    @media screen and (max-width: 1440px) { font-size: 10px; }
+
+    &:active, &:target, &:focus {
+        outline: none;
+        border: none;
+        background-color: #5cb85c;
+    }
 }
 </style>

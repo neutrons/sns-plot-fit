@@ -1,0 +1,33 @@
+@import './responsiveText.less';
+
+.panel {
+    margin: 0px;
+    border-radius: 0px !important;
+
+    .panel-heading {
+        text-align: center;
+        padding: 2.5px;
+        border-radius: 0px !important;
+
+        .panel-title {
+            .fluid-type(font-size, 300px, 2000px, 8px, 14px);
+
+            .collapser {
+                position: relative;
+                padding: 2.5px;
+                display: block;
+                cursor: pointer;
+
+                .collapser-icon {
+                    position: absolute;
+                    top: 0px;
+                    right: 0px;
+                }
+            }
+        }
+    }
+
+    .panel-body {
+        padding: 5px;
+    }
+}

@@ -1,8 +1,8 @@
 <template>
-  <div id="Stitch" class="col-lg-12">
+  <div id="Stitch" class="col-md-12">
     <div class="container-fluid">
         <!-- Left Sidebar for Controls and File List  -->
-        <div class="col-lg-2">
+        <div class="col-md-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
                 <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
                     <div v-show="fetchFiles.length > 0">
@@ -16,9 +16,9 @@
                             <template>
                                 <tr v-for="f in fetchFiles('1D', sortBy, filterBy)">
                                     <template>
-                                        <td><input :id="f.filename + '-FetchStitch'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
-                                        <td>{{f.filename}}</td>
-                                        <td>{{f.jobTitle}}</td>
+                                        <td class="td-check"><input :id="f.filename + '-FetchStitch'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
+                                        <td class="td-name">{{f.filename}}</td>
+                                        <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
                                 </tr>
                             </template>
@@ -32,9 +32,9 @@
                             <template>
                                 <tr v-for="f in uploadFiles">
                                     <template>
-                                        <td><input type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
-                                        <td>{{f.filename}}</td>
-                                        <td><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
+                                        <td class="td-name">{{f.filename}}</td>
+                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -397,11 +397,12 @@ export default {
   }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 #Stitch {
   position: absolute;
   left: 0;
-  right: 0;  
+  right: 0;
+  padding: 0px;  
 }
 
 #save-error-msg {

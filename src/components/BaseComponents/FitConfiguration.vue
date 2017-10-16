@@ -108,8 +108,4 @@ export default {
 #FitConfig {
     text-align: center;
 }
-
-.input-group {
-    margin-bottom: 10px;
-}
 </style>

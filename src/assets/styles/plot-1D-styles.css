@@ -1,114 +1,24 @@
+@import url('./shared-1D-styles.css');
+
 /* Plot Panel Styles */
 .panel-heading {
-    text-align: center;
-    padding: 0px 5px;
+  text-align: center;
+  padding: 0px 5px;
 }
 
 /* Styles for Fit results Table */
 #fit-results-table {
-    width: 85%;
-    padding: 0 auto;
-    margin: 0 auto;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding: 0 5px;
+  margin: 0 auto;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #fit-results-table td {
-padding: 5px 10px;
+  padding: 5px;
 }
 
 #fit-results-table .sub-heading {
-text-align: center;
-font-weight: bold;
-}
-
-/* Styles for Plot Area */
-#plot-panel-collapse {
-    cursor: pointer;
-    padding: 7px 15px;
-}
-
-#plot-collapse {
-    background: rgba(0,0,0, 0.02);
-}
-
-#btn-reset-plot {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    margin: 5px 0px 5px 10px;
-}
-
-/* Plot Styles */
-div.plot {
-  width: 100%;
-  height: 650px;
-  padding: 0px;
-  margin: 0px;
-}
-
-.zoom {
-  cursor: move;
-  opacity: 0;
-  pointer-events: all;
-}
-
-.pointlines {
-  fill: none;
-}
-
-.error {
-  stroke-width: 2px;
-  stroke-dasharray: 4, 4;
-}
-
-.error-tick-bottom, .error-tick-top {
-  stroke-width: 1.5px;
-}
-
-.plotbg {
-  fill: white;
-  opacity: 1;
-}
-
-.axis .tick line {
-  stroke: black;
-}
-
-.gridline .tick line {
-  stroke: gainsboro;
-}
-
-div.tooltip {
-  position: absolute;
-  text-align: center;
-  width: auto;
-  height: auto;
-  padding: 10px 30px;
-  font: 12px;
-  font-family: Arial, Helvetica, sans-serif;
-  color: black;
-  border-radius: 0px;
-  border: 1px solid dimgray;
-  pointer-events: none;
-  background: white;
-}
-
-div.tooltip:before {
-  right: 100%;
-  top: 50%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-  border-color: rgba(255, 255, 255, 0);
-  border-right-color: dimgray;
-  border-width: 10px;
-  margin-top: -10px;
-}
-
-.charttitle {
-  text-anchor: middle;
+  text-align: left;
   font-weight: bold;
 }
 
@@ -116,20 +26,14 @@ div.tooltip:before {
   position: relative;
   padding: 0 10px;
   margin: 0 auto;
-  width: 95%;
   min-width: 400px;
 }
 
-iframe.width-changed {
-    width: 90%;
-    display: block;
-    border: 0;
-    height: 0;
-}
+
 
 .fitted-line {
-    stroke-width: 2px;
-    stroke-dasharray: 10,5;
+  stroke-width: 2px;
+  stroke-dasharray: 10,5;
 }
 
 ul {
@@ -143,8 +47,9 @@ ul {
   opacity: 0.75;
 }
 
-/* Override MathJax positioning for rendered elements */
-.MathJax_SVG {
-  position: static !important;
-  display: inline-block !important;
+iframe.width-changed {
+  width: 90%;
+  display: block;
+  border: 0;
+  height: 0;
 }

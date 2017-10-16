@@ -1,5 +1,5 @@
 <template>
-  <div id="Plot1d" class="col-md-10">
+  <div id="plot-1d-col" class="col-md-10">
 
             <!-- Plot Panel  -->
             <v-panel PANELTITLE="1D Plot" PANELTYPE="primary">
@@ -128,7 +128,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 @import '../../assets/styles/plot-1D-styles.css';
 
 #selection-error {
