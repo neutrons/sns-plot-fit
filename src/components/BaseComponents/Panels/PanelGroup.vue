@@ -49,7 +49,7 @@ export default {
     }
   },
   mounted() {   
-      $('.collapser').click(function() {
+      $('.collapser:not(button)').click(function() {
           
           $(this).parent().parent().next().collapse('toggle');
       })

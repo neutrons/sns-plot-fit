@@ -472,10 +472,6 @@ var fit1D = (function(d3, _, $, eventBus) {
         elements.plot = elements.svg.append("g")
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
             .attr("class", "chart");
-        
-        /* CHECK ISFIT AND SETUP Slider DIMENSIONS, FIT DATA, & SCALES */
-        if(isFit)   my.initSlider();
-        /* END OF IS FIT SETUP*/
 
         // X Gridlines
         elements.axis.append("g")
@@ -527,8 +523,7 @@ var fit1D = (function(d3, _, $, eventBus) {
         // Add the Legend
         elements.legend = elements.plot.append("g").attr("id", "legend-1D");
 
-        // If fit is select add elements for fitted line
-        if(isFit)   my.initFitLine();
+        if (isFit) { my.initSlider(); my.initFitLine(); }
 
         // Set zoom on zoomWindow
         elements.svg.select(".zoom").call(zoomObj.zoom);
@@ -988,17 +983,7 @@ var fit1D = (function(d3, _, $, eventBus) {
                         });
     
                     // Remove old
-                    scatterSelect.exit().remove()
-                    
-                    // If fit line is part of the plot, re-draw it too
-                    if(!elements.plot.select("#fit-line").empty()) {
-                        
-                            elements.plot.select("#fit-line").select("path")
-                                .transition().duration(750)
-                                .attr("d", plotLine);
-                            
-                    }
-                        
+                    scatterSelect.exit().remove()                        
                 }
             });
 
@@ -1013,7 +998,6 @@ var fit1D = (function(d3, _, $, eventBus) {
             elements.svg.select("#plotTitle").html("`" + axesObj.yTitle + "` vs `" + axesObj.xTitle + "`");
 
             // Call MathJax to make plot axis labels look pretty 
-            console.log("CALLING MATHJAX");
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel", "yLabel", "plotTitle"]]);
 
             // if a fit is selected add/update data

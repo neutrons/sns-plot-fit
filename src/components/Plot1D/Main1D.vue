@@ -130,7 +130,7 @@ import Scales from '../BaseComponents/Scales.vue';
 import Levenberg from '../BaseComponents/Levenberg.vue';
 import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
 import Transformation from '../BaseComponents/Transformation.vue';
-import Plot1D from './Plot1D.vue';
+import Plot1D from './fitPlot.vue';
 
 /* Import Mixins */
 import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
@@ -384,7 +384,7 @@ export default {
         scales: {
             handler() {
                 this.$nextTick(function() {
-                    if(this.selectedData.length > 0)    this.$refs.plot_1D.changeScales(this.scales);
+                    if(this.selectedData.length > 0)    this.$refs.plot_1D.updateScales(this.scales);
                 })
             },
             deep: true
@@ -473,9 +473,6 @@ export default {
                     
                     // Reset selected data to an empty array
                     this.selectedData = [];
-
-                    // Reset brush selection
-                    this.$refs.plot_1D.resetBrushSelection();
                     
                     console.log("No files to plot");
 

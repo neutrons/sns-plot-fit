@@ -102,9 +102,6 @@ export default {
             // Check data is valid prior to plotting
             this.plotParams = _.cloneDeep(parameters);
         },
-        resetBrushSelection: function() {
-            this.brushSelection = null;
-        },
         setIsError(val) {
             this.isError = val;
         }
