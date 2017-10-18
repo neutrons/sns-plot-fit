@@ -106,39 +106,44 @@ export default {
         }
     },
     data() {
+
+        let tempData = _.cloneDeep(chartElements);
+
         // Extend onto chart elements' base data
-        chartElements.elements.slider = undefined;
-        chartElements.elements.fitline = undefined;
-        chartElements.dimensions.h2 = undefined;
-        chartElements.margin2 = {};
-        chartElements.axis.x2 = undefined;
-        chartElements.scale.x2 = undefined;
-        chartElements.fitEquation = undefined;
-        chartElements.fitResults = null;
-        chartElements.fitData = null;
-        chartElements.brushObj = {
+        tempData.elements.slider = undefined;
+        tempData.elements.fitline = undefined;
+        tempData.dimensions.h2 = undefined;
+        tempData.margin2 = {};
+        tempData.axis.x2 = undefined;
+        tempData.scale.x2 = undefined;
+        tempData.fitEquation = undefined;
+        tempData.fitResults = null;
+        tempData.fitData = null;
+        tempData.brushObj = {
             brush: undefined,
             brushSelection: [],
             brushFile: undefined,
             brushFit: undefined,
             brushTransformation: undefined
         };
-        chartElements.ID = '1D';
-        chartElements.dataToFit = undefined;
-        chartElements.selLimits = {
+        tempData.ID = '1D';
+        tempData.dataToFit = undefined;
+        tempData.selLimits = {
             xMin: null,
             xMax: null
         };
-        chartElements.dataToFit = undefined;
-        chartElements.isError = false;
-        chartElements.coefficients = undefined;
-        chartElements.fitError = undefined;
-        chartElements.fitResults = undefined;
-        chartElements.fitLineData = [];
-        chartElements.prevFit = null;
-        chartElements.prevTransform = undefined;
+        tempData.dataToFit = undefined;
+        tempData.isError = false;
+        tempData.coefficients = undefined;
+        tempData.fitError = undefined;
+        tempData.fitResults = undefined;
+        tempData.fitLineData = [];
+        tempData.prevFit = null;
+        tempData.prevTransform = undefined;
 
-        return chartElements;
+        tempData.zoom = d3.zoom().on("zoom", this.zooming);
+
+        return tempData;
 
     },
     computed: {
@@ -185,14 +190,10 @@ export default {
                 vm.scale.x2 = s.xScale.copy();
                 vm.scale.x2.range([0, vm.dimensions.w]);
             }
-
-
-            // Lastly, update plot with data
-            if (vm.isFit)  vm.updateSlider();
-            let t = d3.zoomTransform(vm.elements.svg.select('.zoom').node());
-            vm.updatePlot(vm.plotData, t);
+            
+            vm.updatePlot(vm.plotData);
             // if a fit is selected add/update data
-            if (vm.isFit)  vm.updateFitLine();
+            if (vm.isFit) { vm.updateSlider(); vm.updateFitLine(); }
         },
         zooming() {
             let vm = this;
@@ -201,30 +202,14 @@ export default {
             let new_yScale = d3.event.transform.rescaleY(vm.scale.y);
             let new_xScale = d3.event.transform.rescaleX(vm.scale.x);
 
-            // re-draw line
-            vm.line = d3.line()
-                .defined(function(d) { 
-                    if(vm.scale.yType === 'Log(Y)') {
-                        return d.y > 0;
-                    } else {
-                        return d;
-                    }
-                })
-                .x(function (d) {
-                    return new_xScale(d.x);
-                })
-                .y(function (d) {
-                    return new_yScale(d.y);
-                });
-
+            // Now call re-usable part of zoom
+            vm.zoomed(new_yScale, new_xScale);
+            
             if (vm.isFit) {
                 // Re-draw fitted line
                 vm.elements.plot.select(".fitted-line")
                     .attr("d", vm.line);
             }
-
-            // Now call re-usable part of zoom
-            vm.zoomed(new_yScale, new_xScale);
         },
         reset() {
             let vm = this;

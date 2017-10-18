@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 
 export const updatePlot = {
     methods: {
-        updatePlot(newData, t) {
+        updatePlot(newData) {
             let vm = this;
 
             // First update plot data to new data
@@ -12,6 +12,7 @@ export const updatePlot = {
             vm.adjustDomains();           
     
             // Then rescale to zoom's scale
+            let t = d3.zoomTransform( vm.elements.zoom.select('.zoom').node());
             let new_yScale = t.rescaleY(vm.scale.y); 
             let new_xScale = t.rescaleX(vm.scale.x);
             

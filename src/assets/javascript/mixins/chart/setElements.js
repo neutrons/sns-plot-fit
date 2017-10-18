@@ -23,7 +23,7 @@ export const setElements = {
 
             // Add tool tip and hide it until invoked
             vm.elements.tooltip = d3.select("#app-container").append("div")
-                .attr("id", "tooltip-1D")
+                .attr("id", "tooltip-" + vm.ID)
                 .attr("class", "tooltip")
                 .style("opacity", 0);
 
@@ -52,10 +52,11 @@ export const setElements = {
             // Add Axis and Gridline section
             vm.elements.axis = vm.elements.svg.append("g").attr("id", "axis-" + vm.ID);
 
-            // Add zoom window
-            vm.zoom = d3.zoom().on("zoom", vm.zooming);
+            vm.elements.zoom = vm.elements.svg.append('g').attr('id', 'zoom-' + vm.ID);
 
-            vm.elements.svg.append('rect')
+            vm.elements.zoom.append('g')
+                .attr("id", "zoom-" + vm.ID)
+                .append('rect')
                 .attr('class', 'zoom')
                 .attr('width', vm.dimensions.w)
                 .attr('height', vm.dimensions.h)

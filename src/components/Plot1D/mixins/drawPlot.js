@@ -12,12 +12,10 @@ export const drawPlot = {
                 vm.labels.x = vm.plotParameters.fitConfiguration.xTransformation;
                 vm.labels.y = vm.plotParameters.fitConfiguration.yTransformation;
 
-                 // Lastly, update plot with data
-                if (vm.isFit)  vm.updateSlider();
-                let t = d3.zoomTransform(vm.elements.svg.select('.zoom').node());
-                vm.updatePlot(vm.plotParameters.data, t);
+                 // Lastly, update plot with data                
+                vm.updatePlot(vm.plotParameters.data);
                 // if a fit is selected add/update data
-                if (vm.isFit)  vm.updateFitLine();
+                if (vm.isFit) { vm.updateSlider(); vm.updateFitLine(); }
 
                 return;
             } else { // New fit is being selected so tear down plot and re-do everything from scratch
@@ -33,6 +31,9 @@ export const drawPlot = {
             vm.plotData = vm.plotParameters.data; //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
             vm.plotData = vm.plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
+
+            vm.labels.x = vm.plotParameters.fitConfiguration.xTransformation; //xTitle according to label
+            vm.labels.y = vm.plotParameters.fitConfiguration.yTransformation; //yTitle according to label
 
             //Catch any empty data and throw an error
             if (vm.plotData.length < 1) {
@@ -79,9 +80,8 @@ export const drawPlot = {
             // Lastly, update plot with data
             if (vm.isFit)  vm.updateSlider();
 
-            let t = d3.zoomTransform(vm.elements.svg.select('.zoom').node());
+            vm.updatePlot(vm.plotData);
 
-            vm.updatePlot(vm.plotData, t);
             // if a fit is selected add/update data
             if (vm.isFit)  vm.updateFitLine();
         }

@@ -5,9 +5,6 @@ export const initScales = {
         initScales() {
             let vm = this;
 
-            vm.labels.x = vm.plotParameters.fitConfiguration.xTransformation; //xTitle according to label
-            vm.labels.y = vm.plotParameters.fitConfiguration.yTransformation; //yTitle according to label
-
             // Set scales
             vm.scale.x = vm.plotParameters.scales.xScale;
             vm.scale.x.range([0,vm.dimensions.w]);

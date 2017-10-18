@@ -4,7 +4,8 @@ export default {
         plot: undefined,
         axis: undefined,
         legend: undefined,
-        tooltip: undefined
+        tooltip: undefined,
+        zoom: undefined
     },
     dimensions: {
         w: 960,

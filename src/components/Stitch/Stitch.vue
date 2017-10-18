@@ -135,7 +135,7 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Scales from '../BaseComponents/Scales.vue';
 import Table from '../BaseComponents/Table.vue';
 import TableFilter from '../BaseComponents/TableFilter.vue';
-import PlotStitch from './PlotStitch.vue';
+import PlotStitch from './stitchPlot.vue';
 import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
 
 /* Import Mixins */
@@ -218,7 +218,7 @@ export default {
                 // remove any elements previously plotted
                 // and reset to default values
                 console.log("Removing plot elements...");
-                d3.select(".stitch-chart").remove();
+                d3.select(".chart-stitch").remove();
                 d3.select("#tooltip-stitch").remove();
 
                 this.selectedData = [];
@@ -259,16 +259,16 @@ export default {
         setParameters() {
             this.$nextTick(function() {
                 if(this.selectedData.length > 0) {
-                    this.$refs.stitchPlot.plot({
+                    this.$refs.stitchPlot.setParameters({
                         data: this.prepData(this.selectedData),
                         scales: this.scales,
                         colorDomain: this.$store.getters.getColorDomain,
                         brushCount: this.filesToPlot.length
-                    })
+                    });
 
                 } else {
                     // console.log("No data to plot...");
-                    d3.select(".stitch-chart").remove();
+                    d3.select(".chart-stitch").remove();
                     d3.select("#tooltip-stitch").remove();
                     this.$refs.stitchPlot.resetDefaults();
                     this.$refs.toggle.picked = true;
@@ -304,7 +304,7 @@ export default {
             this.isBrushesStored = true;
             this.resetScales();
 
-            d3.select(".stitch-chart").remove();
+            d3.select(".chart-stitch").remove();
             d3.select("#tooltip-stitch").remove();
 
         },
@@ -315,7 +315,11 @@ export default {
     watch: {
         scales: {
             handler() {
-                this.$refs.stitchPlot.changeScales(this.scales);
+                this.$nextTick(function() {
+                    if (this.selectedData.length > 0) {
+                        this.$refs.stitchPlot.updateScales(this.scales);
+                    }
+                });
             },
             deep: true
         },
@@ -327,7 +331,7 @@ export default {
                     // There should be nothing to plot or fit,
                     // so reset everything to defaults.
                     // Remove any elements previously plotted
-                    d3.select(".stitch-chart").remove();
+                    d3.select(".chart-stitch").remove();
                     d3.select("#tooltip-stitch").remove();
 
                     // Reset disable to default 'true'

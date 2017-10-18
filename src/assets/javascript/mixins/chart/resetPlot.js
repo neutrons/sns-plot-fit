@@ -5,7 +5,8 @@ export const resetPlot = {
         resetPlot(selection) {
             let vm = this;
             
-            selection.transition().duration(750).call(vm.zoom.transform, d3.zoomIdentity);
+            vm.elements.zoom.select('.zoom').transition().duration(750)
+                .call(vm.zoom.transform, d3.zoomIdentity);
         }
     }
 }
