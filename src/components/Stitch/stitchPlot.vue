@@ -107,7 +107,6 @@ export default {
         tempData.brushSelection = null;
         tempData.toggleChoice = 'zoom';
 
-        tempData.isBrushes = true;
         tempData.zoom = d3.zoom().on("zoom", this.zooming);
         
         return tempData;
@@ -157,6 +156,11 @@ export default {
     computed: {
         selections() {
             return this.brushObj.brushSelections;
+        },
+        isBrushes() {
+            let vm = this;
+
+            return Object.keys(vm.selections).length > 0;
         }
     },
     methods: {

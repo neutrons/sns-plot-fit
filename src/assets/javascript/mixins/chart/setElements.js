@@ -52,9 +52,10 @@ export const setElements = {
             // Add Axis and Gridline section
             vm.elements.axis = vm.elements.svg.append("g").attr("id", "axis-" + vm.ID);
 
-            vm.elements.zoom = vm.elements.svg.append('g').attr('id', 'zoom-' + vm.ID);
+            vm.elements.zoom = vm.elements.svg.append('g').attr('id', 'zoom-group-' + vm.ID);
 
             vm.elements.zoom.append('g')
+                .attr("id", "zoom-" + vm.ID)
                 .append('rect')
                 .attr('class', 'zoom')
                 .attr('width', vm.dimensions.w)
