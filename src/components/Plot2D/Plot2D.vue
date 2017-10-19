@@ -4,7 +4,7 @@
       <div class="col-md-2">
         <!-- Files Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
-                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
+                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
@@ -102,13 +102,14 @@ import ResetButton from '../BaseComponents/ResetButton.vue';
 import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/readData.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
+import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 
 /* Import Hex Module */
 import hex from './hexModule.js';
 
 export default {
     name: 'Plot2D',
-    mixins: [parse2D, read2DData, get2DData, fetchFiles, filterJobs],
+    mixins: [parse2D, read2DData, get2DData, fetchFiles, filterJobs, isOffline],
     components: {
       'v-panel-group': PanelGroup,
       'v-panel': Panel,

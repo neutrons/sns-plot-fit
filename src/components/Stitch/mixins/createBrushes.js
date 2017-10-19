@@ -26,11 +26,14 @@ export const newBrush = {
                 let rawSelection = d3.event.selection;
                 let convertedSelection = d3.event.selection.map(i => vm.scale.brushX.invert(i));
 
-                vm.brushObj.brushSelections[this.id] = {
+                // this is to let Vue able to watch dynamic changes to brush selections
+                // that way they can be printed in the table with a computed property.
+                let tobj = { [this.id]: {
                     raw: rawSelection,
                     converted: convertedSelection
-                };
+                }};
 
+                vm.brushObj.brushSelections = Object.assign({}, vm.brushObj.brushSelections, tobj);
                 // console.log("Selections are: ", brushObj.brushSelections);
                 // console.log("ID:", this.id);
             }

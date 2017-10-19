@@ -4,7 +4,7 @@
         <!-- Left Sidebar for Controls and File List  -->
         <div class="col-md-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
-                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
+                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
@@ -63,15 +63,15 @@
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
                         <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
                     </v-switch> 
-                    <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" v-if="isMultipleLines" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" v-if="isMultipleLines" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
                     <br>
-                    <button id="stitch-btn" class="btn btn-success btn-sm btn-block" v-if="isMultipleLines" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
+                    <button id="stitch-btn" class="btn btn-success btn-xs btn-block" v-if="isMultipleLines" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
                     <br>
-                    <button id="remove-brushes-btn" class="btn btn-danger btn-sm btn-block" @click="removeStitch" v-if="isStitched"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Stitch Line</button>
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" @click="removeStitch" v-if="isStitched"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Stitch</button>
                     <br>
-                    <button id="save-stitch-btn" class="btn btn-primary btn-sm btn-block" v-if="isStitched" @click="saveStitchLine"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save Stitch Line</button>
+                    <button id="save-stitch-btn" class="btn btn-primary btn-xs btn-block" v-if="isStitched" @click="saveStitchLine"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save Stitch</button>
                     <br>
-                    <button id="draw-brushes-btn" class="btn btn-primary btn-sm btn-block" v-if="isBrushesStored" @click="drawBrushes" :disabled="!isMultipleLines"><i class="fa fa-undo" aria-hidden="true"></i> Restore Brushes</button>
+                    <button id="draw-brushes-btn" class="btn btn-primary btn-xs btn-block" v-if="isBrushesStored" @click="drawBrushes" :disabled="!isMultipleLines"><i class="fa fa-undo" aria-hidden="true"></i> Restore Brushes</button>
                 </v-panel>
 
             </v-panel-group>
@@ -144,6 +144,7 @@ import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
+import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
@@ -186,7 +187,7 @@ export default {
             vm.isStitched = false;
         })
     },
-    mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs],
+    mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs, isOffline],
     computed: {
       xScales() {
         return this.$store.getters.getXScales;
@@ -213,6 +214,8 @@ export default {
         setCurrentData(chosenData, checkList) {
             
             var vm = this;
+            chosenData = _.cloneDeep(chosenData);
+            
             if (checkList.length == 0) {
                 // If no data is selected to be plotted, then
                 // remove any elements previously plotted

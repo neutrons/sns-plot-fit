@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import $ from 'jquery';
 
 export const setResponsive = {
     methods: {
@@ -44,6 +45,7 @@ export const setResponsive = {
             let container = chart.parent();
 
             $("#plot-" + vm.ID).on("widthChanged", function() {
+                
                 let targetWidth = container.width();
                 chart.attr("width", targetWidth);
                 chart.attr("height", Math.round(targetWidth / aspectRatio));

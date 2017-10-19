@@ -55,7 +55,6 @@ export const setElements = {
             vm.elements.zoom = vm.elements.svg.append('g').attr('id', 'zoom-' + vm.ID);
 
             vm.elements.zoom.append('g')
-                .attr("id", "zoom-" + vm.ID)
                 .append('rect')
                 .attr('class', 'zoom')
                 .attr('width', vm.dimensions.w)

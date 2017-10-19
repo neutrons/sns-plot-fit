@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import _ from 'lodash';
 
 import { eventBus } from '../../../assets/javascript/eventBus';
 
@@ -21,14 +22,14 @@ export const drawPlot = {
                 vm.removeBrushes();
     
                 vm.toggleEdit(vm.toggleChoice);
-                vm.updatePlot(vm.plotParameters.data);
+                vm.updatePlot(_.cloneDeep(vm.plotParameters.data));
                 vm.updateBrushScale();
                 vm.updateStitchLine();
 
                 return;
             }
 
-            vm.plotData = vm.plotParameters.data; //regular data to plot
+            vm.plotData = _.cloneDeep(vm.plotParameters.data); //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
             vm.plotData = vm.plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
 

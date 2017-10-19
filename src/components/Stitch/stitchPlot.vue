@@ -26,8 +26,8 @@
                         
                         <tr v-for="(value, key) in selections">
                             <td>{{key}}</td>
-                            <td>{{value.converted[0]}}</td>
-                            <td>{{value.converted[1]}}</td>
+                            <td>{{value.converted[0].toExponential(4)}}</td>
+                            <td>{{value.converted[1].toExponential(4)}}</td>
                         </tr>
 
                         </tbody>
@@ -108,7 +108,6 @@ export default {
         tempData.toggleChoice = 'zoom';
 
         tempData.isBrushes = true;
-
         tempData.zoom = d3.zoom().on("zoom", this.zooming);
         
         return tempData;
