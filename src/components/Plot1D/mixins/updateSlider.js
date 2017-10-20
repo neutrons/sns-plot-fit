@@ -6,6 +6,8 @@ export const updateSlider = {
         updateSlider() {
             let vm = this;
 
+            console.log("Updating slider...", vm.plotData.length);
+            
             vm.dataToFit = vm.plotData.filter( (d) => d.name === vm.plotParameters.fileToFit);
 
             vm.fitResults = fd.fitData(vm.dataToFit, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitSettings);

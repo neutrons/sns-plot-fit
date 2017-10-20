@@ -189,8 +189,35 @@ export const updatePlot = {
                                         .style("opacity", 0);
                                 })
                                 .on("click", function(d,i) {
-                                    vm.removePoint(i, d.name);
-                                });;
+                                    //vm.removePoint(i, d.name);
+
+                                        $("#myModal").modal('show')
+                                        
+                                        $("#btn-yes-delete").on("click", function(){
+                                            $.when( yes(i, d.name)).done( function() {
+                                                $("#myModal").modal('hide');
+                                                vm.updatePlot(vm.plotData);
+                                            })
+                                        });
+                                
+                                        $("#btn-no-delete").on("click", function(){
+                                            $("#btn-no-delete").off();
+                                            $("#btn-yes-delete").off();
+                                            $("#myModal").modal('hide');
+                                        });
+
+                                        function yes(index, name) {
+                                            console.log("Yes");
+                                            $("#btn-no-delete").off();
+                                            $("#btn-yes-delete").off();
+                                            
+                                            // Remove point from current data
+                                            vm.plotData.splice(index, 1);
+                            
+                                            // Remove point from stored dataset
+                                            store.commit('removePoint', {name: name, index: index});
+                                        }
+                                });
                             
                 } else {
                     
