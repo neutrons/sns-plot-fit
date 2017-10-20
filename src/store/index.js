@@ -58,44 +58,44 @@ export default new Vuex.Store({
             xLabel: "q^2",
             note: ""
           },
-          'Low-Q Guinier': {
-            fit: 'Low-Q Guinier',
-            equation: "-(L^2/12+Rg^2/2)/3*x+I0",
-            yTransformation: "log(y)",
-            xTransformation: "x^2",
-            eTransformation: "((1/y)*e)^2",
-            yLabel: "Log(I(q))",
-            xLabel: "q^2",
-            note: "Cylinder of length L and Radius R"
-          },
-          'Intermediate-Q Guinier': {
-            fit: 'Intermediate-Q Guinier',
-            equation: "-(Rg^2/2)/3*x+I0/x",
-            yTransformation: "log(x*y)",
-            xTransformation: "x^2",
-            eTransformation: "((1/y)*e)^2",
-            yLabel: "Log(q*I(q))",
-            xLabel: "q^2",
-            note: "Radius R"
-          },
-          'Flat Object Guinier': {
-            fit: 'Flat Object Guinier',
-            equation: "-(T^2/12)/3*x+I0/x^2",
-            yTransformation: "log(x^2*y)",
-            xTransformation: "x^2",
-            eTransformation: "((1/y)*e)^2",
-            yLabel: "Log(q^2*I(q))",
-            xLabel: "q^2",
-            note: "T is the thickness of a flat (lamella) object."
-          },
+          // 'Low-Q Guinier': {
+          //   fit: 'Low-Q Guinier',
+          //   equation: "-(L^2/12+Rg^2/2)/3*x+I0",
+          //   yTransformation: "log(y)",
+          //   xTransformation: "x^2",
+          //   eTransformation: "((1/y)*e)^2",
+          //   yLabel: "Log(I(q))",
+          //   xLabel: "q^2",
+          //   note: "Cylinder of length L and Radius R"
+          // },
+          // 'Intermediate-Q Guinier': {
+          //   fit: 'Intermediate-Q Guinier',
+          //   equation: "-(Rg^2/2)/3*x+I0/x",
+          //   yTransformation: "log(x*y)",
+          //   xTransformation: "x^2",
+          //   eTransformation: "((1/y)*e)^2",
+          //   yLabel: "Log(q*I(q))",
+          //   xLabel: "q^2",
+          //   note: "Radius R"
+          // },
+          // 'Flat Object Guinier': {
+          //   fit: 'Flat Object Guinier',
+          //   equation: "-(T^2/12)/3*x+I0/x^2",
+          //   yTransformation: "log(x^2*y)",
+          //   xTransformation: "x^2",
+          //   eTransformation: "((1/y)*e)^2",
+          //   yLabel: "Log(q^2*I(q))",
+          //   xLabel: "q^2",
+          //   note: "T is the thickness of a flat (lamella) object."
+          // },
           'Porod': {
             fit: 'Porod',
-            equation: "log10(A)-n*log10(x)",
-            yTransformation: "log10(y)",
-            xTransformation: "log10(x)",
-            eTransformation: "(1/y * e)^2",
-            yLabel: "Log10(I(q))",
-            xLabel: "Log10(q)",
+            equation: "p0*x^(-p1)",
+            yTransformation: "y",
+            xTransformation: "x",
+            eTransformation: "e",
+            yLabel: "I(q)",
+            xLabel: "q",
             note: "This is valid for high Q."
           },
           'Zimm': {
