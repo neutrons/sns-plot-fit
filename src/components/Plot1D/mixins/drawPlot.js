@@ -22,16 +22,12 @@ export const drawPlot = {
                 
                 d3.select(".chart-1D").remove();
                 d3.select("#tooltip-1D").remove();
-                // vm.selLimits.xMin = null;
-                // vm.selLimits.yMin = null;
                 vm.selLimits = [];
                 vm.brushObj.brushSelection = [];
                 vm.brushObj.brushFile = undefined;
             }
 
             vm.dataNest = vm.plotParameters.data; //regular data to plot
-            // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
-            //vm.plotData = vm.plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
 
             vm.labels.x = vm.plotParameters.fitConfiguration.xTransformation; //xTitle according to label
             vm.labels.y = vm.plotParameters.fitConfiguration.yTransformation; //yTitle according to label

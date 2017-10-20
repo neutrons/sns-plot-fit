@@ -13,7 +13,6 @@ export const brushed = {
             // console.log("Calling brush...");
             vm.brushObj.brushSelection = d3.event.selection;
             
-            //scales.xScale2.domain(scales.xScale.domain());
             var e = d3.event.selection.map(vm.scale.x2.invert, vm.scale.x2);
             
             let selectedData = vm.dataToFit.filter(function(d) {

@@ -30,8 +30,6 @@ export const drawPlot = {
             }
 
             vm.dataNest = _.cloneDeep(vm.plotParameters.data); //regular data to plot
-            // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
-            //vm.plotData = vm.plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
 
             // Set plot dimensions
             vm.initDimensions();
