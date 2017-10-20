@@ -104,12 +104,34 @@ import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 
-/* Import Hex Module */
-import hex from './hexModule.js';
+import { drawPlot } from './mixins/drawPlot.js';
+import { updatePlot } from './mixins/updatePlot.js';
+import { initDimensions } from './mixins/initDimensions.js';
+import { initScales } from './mixins/initScales.js';
+import { setElements } from './mixins/setElements.js';
+import { zoomed } from './mixins/zoomed.js';
+import { resetPlot } from './mixins/resetPlot.js';
+
+import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsive.js';
 
 export default {
     name: 'Plot2D',
-    mixins: [parse2D, read2DData, get2DData, fetchFiles, filterJobs, isOffline],
+    mixins: [
+        parse2D, 
+        read2DData, 
+        get2DData, 
+        fetchFiles, 
+        filterJobs, 
+        isOffline,
+        drawPlot,
+        updatePlot,
+        initDimensions,
+        initScales,
+        setElements,
+        zoomed,
+        setResponsive,
+        resetPlot
+        ],
     components: {
       'v-panel-group': PanelGroup,
       'v-panel': Panel,
@@ -129,7 +151,39 @@ export default {
                 intensityTransformation: 'Log',
                 binSize: 15
             },
-            currentData: []
+            currentData: [],
+            zoom: undefined,
+            elements: {
+                svg: undefined,
+                plot: undefined,
+                axis: undefined,
+                tooltip: undefined
+            },
+            scale: {
+                x: undefined,
+                y: undefined,
+                l: undefined
+            },
+            axis: {
+                x: undefined,
+                y: undefined
+            },
+            dimensions: {
+                w: undefined,
+                h: undefined,
+                viewbox: undefined,
+                lw: undefined,
+                lh: undefined
+            },
+            margin: {
+                top: 50, 
+                right: 65, 
+                bottom: 50, 
+                left: 65 
+            },
+            binSize: undefined,
+            plotData: [],
+            ID: '2D'
         }
     },
     computed: {
@@ -177,15 +231,12 @@ export default {
             d3.select(".tooltip-2D").remove();
 
             this.$store.commit('remove2DFile', filename);
-        },
-        hexPlot: hex.hexPlot,
-        resetPlot: hex.resetPlot,
-        zoomed: hex.zoomed
+        }
     },
     watch: {
         hexSettings: {
             handler: function() {
-                this.hexPlot(this.currentData, this.hexSettings);
+                this.drawPlot(this.currentData, this.hexSettings);
             },
             deep: true
         },
@@ -211,7 +262,7 @@ export default {
                 } else {
                     // File is in saved, so let's plot it
                     this.currentData = data2D;
-                    this.hexPlot(data2D, this.hexSettings);
+                    this.drawPlot(data2D, this.hexSettings);
                 }
             } else {
                 

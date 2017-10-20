@@ -378,7 +378,7 @@ var hex = (function(d3, _, $, d3hex) {
 
     /********** Plot Reset Function  *****************************************/
     my.resetPlot = function() {
-        elements.svg.transition().duration(750)
+        elements.svg.select('.zoom').transition().duration(750)
             .call(zoom.transform, d3.zoomIdentity);
     }
 
