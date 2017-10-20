@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import extent from './extent.js';
 
 export const initScales = {
     methods: {
@@ -6,18 +7,17 @@ export const initScales = {
             let vm = this;
 
             // Set scales
+            let xExtent = extent(vm.dataNest, 'x');
+            let yExtent = extent(vm.dataNest, 'y');
+
             vm.scale.x = vm.plotParameters.scales.xScale;
             vm.scale.x.range([0,vm.dimensions.w]);
-            vm.scale.x.domain(d3.extent(vm.plotData, function (d) {
-                return d.x;
-            }));
+            vm.scale.x.domain(xExtent);
             
             vm.scale.y = vm.plotParameters.scales.yScale;
             vm.scale.yType = vm.plotParameters.scales.yScaleType;
             vm.scale.y.range([vm.dimensions.h, 0]);
-            vm.scale.y.domain(d3.extent(vm.plotData, function(d) {
-                return d.y;
-            }));
+            vm.scale.y.domain(yExtent);
 
             // Set Axes
             vm.axis.x = d3.axisBottom(vm.scale.x).ticks(10);

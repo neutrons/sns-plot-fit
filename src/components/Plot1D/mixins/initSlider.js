@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import extent from '../../../assets/javascript/mixins/chart/extent.js';
 
 export const initSlider = {
     methods: {
@@ -18,9 +19,7 @@ export const initSlider = {
             vm.scale.x2 = vm.plotParameters.scales.xScale;
 
             vm.scale.x2.range([0,vm.dimensions.w]);
-            vm.scale.x2.domain(d3.extent(vm.plotData, function (d) {
-                return d.x;
-            }));
+            vm.scale.x2.domain(extent(vm.dataNest, 'x'));
 
             vm.axis.x2 = d3.axisBottom(vm.scale.x2);
     

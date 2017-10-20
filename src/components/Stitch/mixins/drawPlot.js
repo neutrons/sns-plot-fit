@@ -29,9 +29,9 @@ export const drawPlot = {
                 return;
             }
 
-            vm.plotData = _.cloneDeep(vm.plotParameters.data); //regular data to plot
+            vm.dataNest = _.cloneDeep(vm.plotParameters.data); //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
-            vm.plotData = vm.plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
+            //vm.plotData = vm.plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
 
             // Set plot dimensions
             vm.initDimensions();
@@ -62,7 +62,7 @@ export const drawPlot = {
 
             // Now finally update the plot with current data
             vm.toggleEdit(vm.toggleChoice);
-            vm.updatePlot(vm.plotData);
+            vm.updatePlot(vm.dataNest);
             vm.updateBrushScale();
             vm.updateStitchLine();
         }

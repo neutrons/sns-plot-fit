@@ -22,21 +22,22 @@ export const drawPlot = {
                 
                 d3.select(".chart-1D").remove();
                 d3.select("#tooltip-1D").remove();
-                vm.selLimits.xMin = null;
-                vm.selLimits.yMin = null;
+                // vm.selLimits.xMin = null;
+                // vm.selLimits.yMin = null;
+                vm.selLimits = [];
                 vm.brushObj.brushSelection = [];
                 vm.brushObj.brushFile = undefined;
             }
 
-            vm.plotData = vm.plotParameters.data; //regular data to plot
+            vm.dataNest = vm.plotParameters.data; //regular data to plot
             // Filter any infinity values, null, or NaN before plotting, this will happen when transforming log data = 0
-            vm.plotData = vm.plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
+            //vm.plotData = vm.plotData.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
 
             vm.labels.x = vm.plotParameters.fitConfiguration.xTransformation; //xTitle according to label
             vm.labels.y = vm.plotParameters.fitConfiguration.yTransformation; //yTitle according to label
 
             //Catch any empty data and throw an error
-            if (vm.plotData.length < 1) {
+            if (vm.dataNest.length < 1) {
                 console.log("No data! Error!");
                 //Remove any elements previously plotted
                 d3.select(".chart-1D").remove();
@@ -80,7 +81,7 @@ export const drawPlot = {
             // Lastly, update plot with data
             if (vm.isFit)  vm.updateSlider();
 
-            vm.updatePlot(vm.plotData);
+            vm.updatePlot(vm.dataNest);
 
             // if a fit is selected add/update data
             if (vm.isFit)  vm.updateFitLine();

@@ -82,6 +82,7 @@ import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsiv
 import { updateData } from '../../assets/javascript/mixins/chart/updateData.js';
 import { updateLegend } from '../../assets/javascript/mixins/chart/updateLegend.js';
 import { zoomed } from '../../assets/javascript/mixins/chart/zoomed.js';
+import { removePointExtend } from './mixins/removePointExtend.js';
 import { removePoint } from '../../assets/javascript/mixins/chart/removePoint.js';
 import { initScales } from '../../assets/javascript/mixins/chart/initScales.js';
 import { setElements } from '../../assets/javascript/mixins/chart/setElements.js';
@@ -128,10 +129,7 @@ export default {
         };
         tempData.ID = '1D';
         tempData.dataToFit = undefined;
-        tempData.selLimits = {
-            xMin: null,
-            xMax: null
-        };
+        tempData.selLimits = [];
         tempData.dataToFit = undefined;
         tempData.isError = false;
         tempData.coefficients = undefined;
@@ -169,6 +167,7 @@ export default {
         updateLegend,
         zoomed,
         removePoint,
+        removePointExtend,
         initScales,
         setElements,
         removeLines,
@@ -191,7 +190,7 @@ export default {
                 vm.scale.x2.range([0, vm.dimensions.w]);
             }
             
-            vm.updatePlot(vm.plotData);
+            vm.updatePlot(vm.dataNest);
             // if a fit is selected add/update data
             if (vm.isFit) { vm.updateSlider(); vm.updateFitLine(); }
         },

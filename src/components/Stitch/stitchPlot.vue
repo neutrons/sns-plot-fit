@@ -52,14 +52,16 @@ import chartElements from '../../assets/javascript/mixins/chart/chartElements.js
 import { newBrush, drawBrushes, removeBrushes, sortBrushes, drawSavedBrushes} from './mixins/createBrushes.js';
 import { updateBrushScale } from './mixins/updateBrushScale.js';
 import { formatData } from './mixins/formatData.js';
-import { saveStitchLine, saveConfirm, isValidFilename } from './mixins/SaveStitchLine.js';
+import { saveStitchLine, saveConfirm, isValidFilename } from './mixins/saveStitchLine.js';
 import { stitchData, addStitch, removeStitchLine, selectData } from './mixins/stitchData.js';
 import { updateStitchLine } from './mixins/updateStitchLine.js';
 import { toggleEdit, resetToggle} from './mixins/toggleEdit.js';
 import { validateBrushes, validateSelections } from './mixins/validateBrushes.js';
 import { initDimensions } from './mixins/initDimensions.js';
 import { drawPlot } from './mixins/drawPlot.js';
+import { removePointExtend } from './mixins/removePointExtend.js';
 
+import { removePoint } from '../../assets/javascript/mixins/chart/removePoint.js';
 import { resetPlot } from '../../assets/javascript/mixins/chart/resetPlot.js';
 import { adjustDomains } from '../../assets/javascript/mixins/chart/adjustDomains.js';
 import { changeScales } from '../../assets/javascript/mixins/chart/changeScales.js';
@@ -67,7 +69,6 @@ import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsiv
 import { updateData } from '../../assets/javascript/mixins/chart/updateData.js';
 import { updateLegend } from '../../assets/javascript/mixins/chart/updateLegend.js';
 import { zoomed } from '../../assets/javascript/mixins/chart/zoomed.js';
-import { removePoint } from '../../assets/javascript/mixins/chart/removePoint.js';
 import { initScales } from '../../assets/javascript/mixins/chart/initScales.js';
 import { setElements } from '../../assets/javascript/mixins/chart/setElements.js';
 import { removeLines } from '../../assets/javascript/mixins/chart/removeLines.js';
@@ -146,6 +147,7 @@ export default {
         updateLegend,
         zoomed,
         removePoint,
+        removePointExtend,
         initScales,
         setElements,
         removeLines,
@@ -171,7 +173,7 @@ export default {
         updateScales(s) {
             let vm = this;
             vm.changeScales(s);
-            vm.updatePlot(vm.plotData);
+            vm.updatePlot(vm.dataNest);
 
             // If there are brushes, re-adjust selections according to new scale
             // Update brushScale to reflect new zoomed scale

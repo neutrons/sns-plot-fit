@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import setLineGenerator from './setLineGenerator.js';
 
 export const setElements = {
     methods: {
@@ -6,20 +7,7 @@ export const setElements = {
             let vm = this;
 
             //Add a Line Plot Function
-            vm.line = d3.line()
-                .defined(function(d) { 
-                    if(vm.scale.yType === 'Log(Y)') {
-                        return d.y > 0;
-                    } else {
-                        return d;
-                    }
-                })
-                .x(function (d) {
-                    return vm.scale.x(d.x);
-                })
-                .y(function (d) {
-                    return vm.scale.y(d.y);
-                });
+            setLineGenerator(vm, vm.scale.x, vm.scale.y);
 
             // Add tool tip and hide it until invoked
             vm.elements.tooltip = d3.select("#app-container").append("div")

@@ -1,4 +1,6 @@
 import * as d3 from 'd3';
+import errorBottomY from './errorBottomY.js';
+import setLineGenerator from './setLineGenerator.js';
 
 export const zoomed = {
     methods: {
@@ -6,20 +8,7 @@ export const zoomed = {
             let vm = this;
 
             // re-set line generator
-            vm.line = d3.line()
-                .defined(function(d) { 
-                    if(vm.scale.yType === 'Log(Y)') {
-                        return d.y > 0;
-                    } else {
-                        return d;
-                    }
-                })
-                .x(function (d) {
-                    return new_xScale(d.x);
-                })
-                .y(function (d) {
-                    return new_yScale(d.y);
-                });
+            setLineGenerator(vm, new_xScale, new_yScale);
 
             // re-scale axes and gridlines during zoom
             vm.elements.axis.select(".axis--y").transition()
@@ -62,12 +51,7 @@ export const zoomed = {
                     return new_yScale(d.y + d.e);
                 })
                 .attr('y2', function (d) {
-                    if(d.y - d.e < 0 && vm.scale.yType === "Log(Y)") {
-                        // console.log("Below zero! d.y = " + d.y + " | d.e = " + d.e + "| d.y - d.e = " + (d.y - d.e));
-                        return new_yScale(d.y)
-                    } else {
-                        return new_yScale(d.y - d.e);
-                    }
+                    return errorBottomY(d, vm.scale.yType, new_yScale);
                 });
             
             // re-draw error tick top

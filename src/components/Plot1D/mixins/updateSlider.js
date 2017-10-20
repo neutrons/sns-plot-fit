@@ -1,21 +1,22 @@
 import * as d3 from 'd3';
 import fd from '../../../assets/javascript/fitData.js';
+import extent from '../../../assets/javascript/mixins/chart/extent.js';
 
 export const updateSlider = {
     methods: {
         updateSlider() {
             let vm = this;
 
-            console.log("Updating slider...", vm.plotData.length);
+            //console.log("Updating slider...", vm.plotData.length);
             
-            vm.dataToFit = vm.plotData.filter( (d) => d.name === vm.plotParameters.fileToFit);
-
+            vm.dataToFit = vm.dataNest.filter(el => { if (el.key === vm.plotParameters.fileToFit)  return el.values; })[0].values;
+            
             vm.fitResults = fd.fitData(vm.dataToFit, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitSettings);
             vm.coefficients = vm.fitResults.coefficients;
             vm.fitData = vm.fitResults.fittedData;
             vm.fitError = vm.fitResults.error;
 
-            vm.scale.x2.domain(d3.extent(vm.plotData, function(d) { return d.x; })).nice();
+            vm.scale.x2.domain( extent(vm.dataNest, 'x') ).nice();
             let new_xScale2 = vm.scale.x2.copy();
 
             // update brush x scale axis
@@ -53,8 +54,10 @@ export const updateSlider = {
 
                 let xExtent = d3.extent(vm.dataToFit, function(d) { return d.x;});
                 
-                vm.brushObj.brushSelection[0] = new_xScale2(xExtent[0]);
-                vm.brushObj.brushSelection[1] = new_xScale2(xExtent[1]);
+                // vm.brushObj.brushSelection[0] = new_xScale2(xExtent[0]);
+                // vm.brushObj.brushSelection[1] = new_xScale2(xExtent[1]);
+                setBrushLimits(xExtent, new_xScale2);
+
                 vm.brushObj.brushFit = vm.plotParameters.fitConfiguration.fit;
                 vm.brushObj.brushFile = vm.plotParameters.fileToFit;
                 vm.brushObj.brushTransformation = vm.plotParameters.fitConfiguration.xTransformation;
@@ -63,12 +66,14 @@ export const updateSlider = {
 
                 let xExtent = d3.extent(vm.dataToFit, function(d) { return d.x;});
                 
-                vm.brushObj.brushSelection[0] = new_xScale2(xExtent[0]);
-                vm.brushObj.brushSelection[1] = new_xScale2(xExtent[1]);
+                // vm.brushObj.brushSelection[0] = new_xScale2(xExtent[0]);
+                // vm.brushObj.brushSelection[1] = new_xScale2(xExtent[1]);
+                setBrushLimits(xExtent, new_xScale2)
                 vm.brushObj.brushFit = vm.plotParameters.fitConfiguration.fit;   
             } else { // if same file to fit after update and same fit transformation, simply update brush selection to current selection
-                vm.brushObj.brushSelection[0] = new_xScale2(vm.selLimits.xMin);
-                vm.brushObj.brushSelection[1] = new_xScale2(vm.selLimits.xMax);
+                // vm.brushObj.brushSelection[0] = new_xScale2(vm.selLimits.xMin);
+                // vm.brushObj.brushSelection[1] = new_xScale2(vm.selLimits.xMax);
+                setBrushLimits(vm.selLimits, new_xScale2);
             }
 
             vm.elements.slider.select('.brush')
@@ -77,6 +82,12 @@ export const updateSlider = {
             // brush.move allows you to set the current selection for the brush element
             // this will dynamically update according to the last selection made.
             // This is to allow for persistent selections upon the plot being re-drawn.
+
+
+            function setBrushLimits(limits, scale) {
+                vm.brushObj.brushSelection[0] = scale(limits[0]);
+                vm.brushObj.brushSelection[1] = scale(limits[1]);
+            }
         }
     }
 }

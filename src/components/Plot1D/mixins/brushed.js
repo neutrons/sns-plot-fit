@@ -3,6 +3,8 @@ import fd from '../../../assets/javascript/fitData.js';
 /* Import Event Bus */
 import { eventBus } from '../../../assets/javascript/eventBus';
 
+import reviseFitTable from './reviseFitTable.js';
+
 export const brushed = {
     methods: {
         brushed() {
@@ -20,8 +22,9 @@ export const brushed = {
 
             // Update brush selections to the current selected data
             // This will be used to dynamically adjust brush location when new data is added
-            vm.selLimits.xMin = d3.min(selectedData, function(d) { return d.x; });
-            vm.selLimits.xMax = d3.max(selectedData, function(d) { return d.x; });
+            // vm.selLimits.xMin = d3.min(selectedData, function(d) { return d.x; });
+            // vm.selLimits.xMax = d3.max(selectedData, function(d) { return d.x; });
+            vm.selLimits = d3.extent(selectedData, function(d) { return d.x; });
 
             if (vm.brushObj.brushSelection !== null && selectedData.length > 1) {
 
@@ -56,37 +59,8 @@ export const brushed = {
                     .attr("d", vm.line);
 
                 // Revise fit results below chart
-                d3.select("td#fit-file").html("<b>File: </b>" + vm.plotParameters.fileToFit);
-                d3.select("td#fit-type").html("<b>Fit Type:</b> " + vm.plotParameters.fitConfiguration.fit);
-                d3.select("td#fit-points").html("<b>No. Points:</b> " + selectedData.length);
-                d3.select("td#fit-range").html("<b>Fit Range:</b> (" + e[0].toExponential(2) + ", " + e[1].toExponential(2) + ")");
-                d3.select("td#fit-error").html("<b>Fit Error:</b> " + vm.fitError.toExponential(2));
-                
-                d3.select("td#fit-coefficients").html(function() {
-                    let coeffString = "<ul>";
-                    for( let key in vm.coefficients) {
-                        
-                        if(vm.plotParameters.fitConfiguration.fit.toLowerCase().includes('guinier')) {
-
-                            if(key === 'I0') {
-                                let I0 = Math.exp(vm.coefficients[key]);
-                            
-                                coeffString += "<li>Real " + key + " = " + I0 + "</li>";
-                                continue;
-                            }
-
-                            if(key === 'Rg') {
-                                let RgX = vm.coefficients[key] * Math.sqrt(vm.scale.x.invert(vm.brushObj.brushSelection[1]));
-                                coeffString += "<li>" + key + " = " + vm.coefficients[key].toFixed(3) + " | Rg * x_max = " + RgX.toFixed(3) + "</li>";
-                                continue;
-                            }
-                        }
-
-                        coeffString += "<li>" + key + " = " + vm.coefficients[key].toFixed(3) + "</li>";
-                    }
-                    coeffString += "</ul>";
-                    return coeffString;
-                });
+                let limits = d3.extent(selectedData, function(d) { return d.x; });
+                reviseFitTable(limits, vm, selectedData.length);
             } else {
                 // Notify user that more data needs to be selected for the fit
                 if(vm.checkError()) {

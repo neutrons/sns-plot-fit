@@ -1,4 +1,7 @@
 import * as d3 from 'd3';
+import store from '../../../../store/index.js';
+import errorBottomY from './errorBottomY.js';
+import setLineGenerator from './setLineGenerator.js';
 
 export const updatePlot = {
     methods: {
@@ -6,7 +9,8 @@ export const updatePlot = {
             let vm = this;
 
             // First update plot data to new data
-            vm.updateData(newData);
+            //vm.updateData(newData);
+            vm.dataNest = newData;
     
             // Then adjust scale's domain whenver new data is added
             vm.adjustDomains();           
@@ -28,20 +32,8 @@ export const updatePlot = {
             vm.elements.axis.transition().duration(750).select('.gridline--y').call(vm.axis.yGrid);
             vm.elements.axis.transition().duration(750).select('.gridline--x').call(vm.axis.xGrid);
 
-            vm.line = d3.line()
-                .defined(function(d) { 
-                    if(vm.scale.yType === 'Log(Y)') {
-                        return d.y > 0;
-                    } else {
-                        return d;
-                    }
-                })
-                .x(function(d) {
-                    return new_xScale(d.x);
-                })
-                .y(function(d) {
-                    return new_yScale(d.y);
-                });
+            //Add a Line Plot Function
+            setLineGenerator(vm, new_xScale, new_yScale);
     
             // Add and update data
             vm.dataNest.forEach(function (d, i) {
@@ -81,11 +73,7 @@ export const updatePlot = {
                                     return new_yScale(d.y + d.e);
                                 })
                                 .attr('y2', function (d) {
-                                    if(d.y - d.e < 0 && vm.scale.yType === "Log(Y)") {
-                                        return new_yScale(d.y)
-                                    } else {
-                                        return new_yScale(d.y - d.e);
-                                    }
+                                    return errorBottomY(d, vm.scale.yType, new_yScale);
                                 })
                                 .style("stroke", function () {
                                     return d.color = vm.color(d.key);
@@ -126,11 +114,7 @@ export const updatePlot = {
                             .append('line')
                                 .attr('class', 'error-' + vm.ID + '-tick-bottom')
                                 .filter( function(d) {
-                                    if(vm.scale.yType === "Log(Y)") {
-                                        return d.y - d.e > 0;
-                                    } else {
-                                        return true;
-                                    }
+                                    return checkYType(d);
                                 })
                                 .attr('x1', function (d) {
                                     return new_xScale(d.x) - 4;
@@ -172,51 +156,10 @@ export const updatePlot = {
                                 .style("fill", function () {
                                     return d.color = vm.color(d.key);
                                 })
-                                .on("mouseover", function (d) {
-                                    
-                                    vm.elements.tooltip.transition()
-                                        .duration(200)
-                                        .style("opacity", 1);
-        
-                                    vm.elements.tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6))
-                                        .style("top", (d3.event.pageY - 40) + "px")
-                                        .style("left", (d3.event.pageX + 20) + "px");
-                                })
-                                .on("mouseout", function (d) {
-        
-                                    vm.elements.tooltip.transition()
-                                        .duration(500)
-                                        .style("opacity", 0);
-                                })
+                                .on("mouseover", function(d) { ttEnter(d) })
+                                .on("mouseout", function (d) { ttLeave(d) })
                                 .on("click", function(d,i) {
-                                    //vm.removePoint(i, d.name);
-
-                                        $("#myModal").modal('show')
-                                        
-                                        $("#btn-yes-delete").on("click", function(){
-                                            $.when( yes(i, d.name)).done( function() {
-                                                $("#myModal").modal('hide');
-                                                vm.updatePlot(vm.plotData);
-                                            })
-                                        });
-                                
-                                        $("#btn-no-delete").on("click", function(){
-                                            $("#btn-no-delete").off();
-                                            $("#btn-yes-delete").off();
-                                            $("#myModal").modal('hide');
-                                        });
-
-                                        function yes(index, name) {
-                                            console.log("Yes");
-                                            $("#btn-no-delete").off();
-                                            $("#btn-yes-delete").off();
-                                            
-                                            // Remove point from current data
-                                            vm.plotData.splice(index, 1);
-                            
-                                            // Remove point from stored dataset
-                                            store.commit('removePoint', {name: name, index: index});
-                                        }
+                                    vm.removePointExtend(i, d.name);
                                 });
                             
                 } else {
@@ -241,11 +184,7 @@ export const updatePlot = {
                             return new_yScale(d.y + d.e);
                         })
                         .attr('y2', function (d) {
-                            if(d.y - d.e < 0 && vm.scale.yType === "Log(Y)") {
-                                return new_yScale(d.y)
-                            } else {
-                                return new_yScale(d.y - d.e);
-                            }
+                            return errorBottomY(d, vm.scale.yType, new_yScale);
                         });
                     
                     // Enter new error Lines
@@ -262,11 +201,7 @@ export const updatePlot = {
                                 return new_yScale(d.y + d.e);
                             })
                             .attr('y2', function (d) {
-                                if(d.y - d.e < 0 && vm.scale.yType === "Log(Y)") {
-                                    return new_yScale(d.y)
-                                } else {
-                                    return new_yScale(d.y - d.e);
-                                }
+                                return errorbottomY(d, vm.scale.yType, new_yScale);
                             })
                             .style("stroke", function () {
                                 return d.color = vm.color(d.key);
@@ -337,11 +272,7 @@ export const updatePlot = {
                         .append('line')
                             .attr('class', 'error-' + vm.ID + '-tick-bottom')
                             .filter( function(d) {
-                                if(vm.scale.yType === "Log(Y)") {
-                                    return d.y - d.e > 0;
-                                } else {
-                                    return true;
-                                }
+                                return checkYType(d);
                             })
                             .attr('x1', function (d) {
                                 return new_xScale(d.x) - 4;
@@ -393,22 +324,8 @@ export const updatePlot = {
                         .style("fill", function() {
                             return d.color = vm.color(d.key);
                         })
-                        .on("mouseover", function (d) {
-                            
-                            vm.elements.tooltip.transition()
-                                .duration(200)
-                                .style("opacity", 1);
-    
-                            vm.elements.tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6) + "<br/><br/><b>Note:</b> Click point to <em>delete</em> it.")
-                                .style("top", (d3.event.pageY - 40) + "px")
-                                .style("left", (d3.event.pageX + 20) + "px");
-                        })
-                        .on("mouseout", function (d) {
-    
-                            vm.elements.tooltip.transition()
-                                .duration(500)
-                                .style("opacity", 0);
-                        })
+                        .on("mouseover", function(d) { ttEnter(d) })
+                        .on("mouseout", function (d) { ttLeave(d) })
                         .on("click", function(d,i) {
                             vm.removePoint(i, d.name);
                         });
@@ -426,6 +343,32 @@ export const updatePlot = {
     
             // Add keys
             vm.removeLines();
+
+            // Functions used in plot update
+            function checkYType(d) {
+                if(vm.scale.yType === "Log(Y)") {
+                    return d.y - d.e > 0;
+                } else {
+                    return true;
+                }
+            }
+
+            function ttEnter(d) {
+                
+                vm.elements.tooltip.transition()
+                    .duration(200)
+                    .style("opacity", 1);
+
+                vm.elements.tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6))
+                    .style("top", (d3.event.pageY - 40) + "px")
+                    .style("left", (d3.event.pageX + 20) + "px");
+            }
+
+            function ttLeave(d) {
+                vm.elements.tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            }
         }
     }
 }
