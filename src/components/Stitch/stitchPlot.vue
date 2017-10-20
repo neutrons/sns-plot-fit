@@ -52,7 +52,7 @@ import chartElements from '../../assets/javascript/mixins/chart/chartElements.js
 import { newBrush, drawBrushes, removeBrushes, sortBrushes, drawSavedBrushes} from './mixins/createBrushes.js';
 import { updateBrushScale } from './mixins/updateBrushScale.js';
 import { formatData } from './mixins/formatData.js';
-import { saveStitchLine, saveConfirm, isValidFilename } from './mixins/SaveStitchLine.js';
+import { saveStitchLine, saveConfirm, isValidFilename } from './mixins/saveStitchLine.js';
 import { stitchData, addStitch, removeStitchLine, selectData } from './mixins/stitchData.js';
 import { updateStitchLine } from './mixins/updateStitchLine.js';
 import { toggleEdit, resetToggle} from './mixins/toggleEdit.js';
