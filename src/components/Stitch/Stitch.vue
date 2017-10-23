@@ -226,26 +226,8 @@ export default {
 
                 this.selectedData = [];
             } else {
-                var toFilter = [];
-                
-                // Remove any instances where checked file isn't in selected
-                this.selectedData = this.selectedData.filter(function(item) { 
-                    var match = checkList.indexOf(item.filename);
 
-                    if(match > -1) {
-                        toFilter.push(checkList[match]);
-                    }
-
-                    return checkList.indexOf(item.filename) > -1;
-                });
-
-                // Filter out data that doesn't need to be added and keep the rest
-                checkList.filter(el => toFilter.indexOf(el) < 0).map(function(fname) {
-
-                    let temp = chosenData.find(el => el.filename === fname);
-                    
-                    vm.selectedData.push(temp);
-                });
+                this.selectedData = _.cloneDeep(chosenData);
 
             }
         },

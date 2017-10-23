@@ -80,8 +80,8 @@ export const pull1DData = {
                         // var fetchData = results.map(function(result) {
                         //     return vm.parse1D(result.data, result.filename);
                         // });
-
-                        vm.setCurrentData(plotData, this.filesToPlot);
+                        
+                        vm.setCurrentData(plotData, vm.filesToPlot);
                         // var data = fetchData.concat(tempData);
                         
                         // eventBus.$emit('disable-buttons', true);

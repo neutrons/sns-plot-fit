@@ -273,6 +273,7 @@ export default {
             var vm = this;
 
             chosenData = _.cloneDeep(chosenData);
+            console.log("CHOSEN:", chosenData);
             
             if (checkList.length == 0) {
                 // If no data is selected to be plotted, then
@@ -288,37 +289,25 @@ export default {
                 this.selectedData = [];
                 this.fileToFit = null;
             } else {
-                var toFilter = [];
-                
-                // Remove any instances where checked file isn't in selected
-                this.selectedData = this.selectedData.filter(function(item) { 
-                    var match = checkList.indexOf(item.filename);
-                    if(match > -1) {
-                        toFilter.push(checkList[match]);
-                    }
+                let tempSelect = [];
 
-                    return checkList.indexOf(item.filename) > -1;
-                });
+                for(let i = 0, len = chosenData.length; i < len; i++) {
+                    
+                    let temp = chosenData[i].data;
+                    let name = chosenData[i].filename;
 
-                // console.log("Selected Data after removing unnecessary", this.selectedData);
-
-                // Filter out data that doesn't need to be added
-                var addList = checkList.filter(el => toFilter.indexOf(el) < 0).map(function(fname) {
-                    let temp = chosenData.find(el => el.filename === fname);
-                    return {filename: fname, data: temp};
-                });
-
-                for(let i = 0, len = addList.length; i < len; i++) {
-                    let temp = addList[i].data;
-                    if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
-                        temp.dataTransformed = fd.transformData(temp.data, this.currentConfiguration);
-                        // console.log("Temp data:", temp);
-                        this.selectedData.push(temp);
+                    if (this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
+                        let dataTransformed = fd.transformData(temp, this.currentConfiguration);
+                        
+                        tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
                     } else {
-                        temp.dataTransformed = _.cloneDeep(temp.data);
-                        this.selectedData.push(temp);
+                        let dataTransformed = _.cloneDeep(temp);
+                        
+                        tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
                     }
                 }
+
+                this.selectedData = tempSelect;
             }
         },
         setFitFile(filename) {
@@ -501,6 +490,8 @@ export default {
 
                     // First check if files to plot are in stored data
                     var tempData = this.filesToPlot.map(function(filename) {
+                       
+
                         var temp = vm.$store.getters.getSaved1D(filename);
                     
                         // console.log("Here is the temp:", temp);
@@ -516,6 +507,7 @@ export default {
                     // Next fetch the file URLs
                     var fileURLs = this.getURLs(filesToFetch, "-Fetch1D");
                     
+                    console.log("TEMP", tempData);
                     if(fileURLs.length > 0) {
                         this.pull1DData(fileURLs, tempData);
                     } else {

@@ -82,5 +82,8 @@ export const removePoint = (state, payload) => {
     let name = payload.name;
     let index = payload.index;
 
+    console.log("removing " + name, state.saved1DData[name].data);
     state.saved1DData[name].data.splice(index,1);
+
+    console.log("removing " + name, state.saved1DData[name].data);
 }

@@ -6,6 +6,8 @@ export const removePoint = {
         removePoint(index, name, callback) {
             let vm = this;
 
+            callback = callback || $.noop;
+
             // console.log("Removing point: ", index, name);
 
             let yes = function() {
@@ -33,7 +35,17 @@ export const removePoint = {
                 $("#myModal").modal('hide');
             });
 
-            callback(yes);
+            $("#btn-yes-delete").on("click", function(){
+    
+                $.when( yes() ).done(function() {
+                    $("#myModal").modal('hide');
+                    vm.updatePlot(vm.dataNest);
+                    
+                    callback();
+                });
+            });
+
+            //callback(yes);
         }
     }
 }

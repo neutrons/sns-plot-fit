@@ -11,6 +11,7 @@ export const updatePlot = {
             // First update plot data to new data
             //vm.updateData(newData);
             vm.dataNest = newData;
+            console.log("data nest:", vm.dataNest[0].values.length);
     
             // Then adjust scale's domain whenver new data is added
             vm.adjustDomains();           
@@ -327,7 +328,7 @@ export const updatePlot = {
                         .on("mouseover", function(d) { ttEnter(d) })
                         .on("mouseout", function (d) { ttLeave(d) })
                         .on("click", function(d,i) {
-                            vm.removePoint(i, d.name);
+                            vm.removePointExtend(i, d.name);
                         });
     
                     // Remove old

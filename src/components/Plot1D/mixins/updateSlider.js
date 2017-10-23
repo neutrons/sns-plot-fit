@@ -50,9 +50,9 @@ export const updateSlider = {
             vm.brushObj.brush.on("brush", vm.brushed);
 
             // set initial brushSelection
+            let xExtent = d3.extent(vm.dataToFit, function(d) { return d.x;});
             if(vm.brushObj.brushSelection.length === 0 || !(vm.plotParameters.fileToFit === vm.brushObj.brushFile) || !(vm.brushObj.brushTransformation === vm.plotParameters.fitConfiguration.xTransformation)) {
-
-                let xExtent = d3.extent(vm.dataToFit, function(d) { return d.x;});
+                
                 setBrushLimits(xExtent, new_xScale2);
 
                 vm.brushObj.brushFit = vm.plotParameters.fitConfiguration.fit;
@@ -61,7 +61,6 @@ export const updateSlider = {
 
             } else if (!(vm.brushObj.brushFit === vm.plotParameters.fitConfiguration.fit)) { // if same file to fit, but new fit transformation, change brush selections
 
-                let xExtent = d3.extent(vm.dataToFit, function(d) { return d.x;});
                 setBrushLimits(xExtent, new_xScale2)
                 vm.brushObj.brushFit = vm.plotParameters.fitConfiguration.fit;   
             } else { // if same file to fit after update and same fit transformation, simply update brush selection to current selection
