@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-import interpolate from '../interpolateLine.js';
+import interpolate from './interpolateLine.js';
 
 export const stitchData = {
     methods: {

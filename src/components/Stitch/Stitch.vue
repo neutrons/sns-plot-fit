@@ -61,9 +61,9 @@
                      @switchChange="toggleEdit"
                      >
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
-                        <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
+                        <span slot="right-label"><i class="fa fa-square-o"></i> Select</span>
                     </v-switch> 
-                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" v-if="isMultipleLines" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" v-if="isMultipleLines" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Selections</button>
                     <br>
                     <button id="stitch-btn" class="btn btn-success btn-xs btn-block" v-if="isMultipleLines" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
                     <br>

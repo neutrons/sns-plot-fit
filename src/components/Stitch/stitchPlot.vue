@@ -13,10 +13,9 @@
                   <!-- Fit Results Table to add fit results -->
               <div id="brush-selection-table" class="table table-condensed table-responsive" v-if="isBrushes">          
                     <table class="table table-bordered">
-                        <caption><h4>Brush Selections:</h4></caption>
                         <thead>
                             <tr>
-                                <th>Brushes</th>
+                                <th>Selections</th>
                                 <th>X-Min</th>
                                 <th>X-Max</th>
                             </tr>

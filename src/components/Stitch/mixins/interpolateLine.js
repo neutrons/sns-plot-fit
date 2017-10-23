@@ -195,17 +195,17 @@ var interpolate = (function(everpolate, LM, _) {
 
         for( let i = 0, len = data.x.length; i < len; i++) {
 
-            if ( direction === 'right' && data.x[i] > cutoff) {
+            if ( direction === 'right' ? data.x[i] > cutoff : direction === 'left' ? data.x[i] < cutoff : false) {
                 temp.x.push(data.x[i]);
                 temp.y.push(data.y[i]);
                 temp.e.push(data.e[i]);
             }
 
-            if ( direction === 'left' && data.x[i] < cutoff) {
-                temp.x.push(data.x[i]);
-                temp.y.push(data.y[i]);
-                temp.e.push(data.e[i]);
-            }
+            // if ( direction === 'left' && data.x[i] < cutoff) {
+            //     temp.x.push(data.x[i]);
+            //     temp.y.push(data.y[i]);
+            //     temp.e.push(data.e[i]);
+            // }
         }
 
         return temp;
