@@ -72,8 +72,6 @@ export const getGroups = state => (type) => {
 export const getSaved1D = state => (file) => {
     let temp = state.saved1DData[file];
 
-    console.log("file", state.saved1DData[file]);
-
     if (temp === undefined) {
         return '999'
     } else {

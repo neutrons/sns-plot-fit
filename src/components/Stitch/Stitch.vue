@@ -63,13 +63,13 @@
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
                         <span slot="right-label"><i class="fa fa-square-o"></i> Select</span>
                     </v-switch> 
-                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" v-if="isMultipleLines" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Selections</button>
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" :disabled="!isMultipleLines" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Selections</button>
                     <br>
-                    <button id="stitch-btn" class="btn btn-success btn-xs btn-block" v-if="isMultipleLines" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
+                    <button id="stitch-btn" class="btn btn-success btn-xs btn-block" :disabled="!isMultipleLines" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
                     <br>
-                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" @click="removeStitch" v-if="isStitched"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Stitch</button>
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" @click="removeStitch" :disabled="!isStitched"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Stitch</button>
                     <br>
-                    <button id="save-stitch-btn" class="btn btn-primary btn-xs btn-block" v-if="isStitched" @click="saveStitchLine"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save Stitch</button>
+                    <button id="save-stitch-btn" class="btn btn-primary btn-xs btn-block" :disabled="!isStitched" @click="saveStitchLine"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save Stitch</button>
                     <br>
                     <button id="draw-brushes-btn" class="btn btn-primary btn-xs btn-block" v-if="isBrushesStored" @click="drawBrushes" :disabled="!isMultipleLines"><i class="fa fa-undo" aria-hidden="true"></i> Restore Brushes</button>
                 </v-panel>

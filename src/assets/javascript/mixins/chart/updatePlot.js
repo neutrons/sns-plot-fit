@@ -9,9 +9,7 @@ export const updatePlot = {
             let vm = this;
 
             // First update plot data to new data
-            //vm.updateData(newData);
             vm.dataNest = newData;
-            console.log("data nest:", vm.dataNest[0].values.length);
     
             // Then adjust scale's domain whenver new data is added
             vm.adjustDomains();           
