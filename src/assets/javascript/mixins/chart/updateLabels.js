@@ -9,10 +9,10 @@ export const updateLabels = {
             // Add X Axis Label
             vm.elements.svg.select("#xLabel-" + vm.ID).html("`" + vm.labels.x + "`");
             vm.elements.svg.select("#yLabel-" + vm.ID).html("`" + vm.labels.y + "`");
-            vm.elements.svg.select("#plotTitle-" + vm.ID).html("`" + vm.labels.y + "` vs `" + vm.labels.x + "`");
+            // vm.elements.svg.select("#plotTitle-" + vm.ID).html("`" + vm.labels.y + "` vs `" + vm.labels.x + "`");
 
             // Call MathJax to make plot axis labels look pretty 
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel-" + vm.ID, "yLabel-" + vm.ID, "plotTitle-" + vm.ID]]);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel-" + vm.ID, "yLabel-" + vm.ID]]);
         }
     }
 }

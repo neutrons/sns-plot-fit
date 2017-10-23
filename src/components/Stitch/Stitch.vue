@@ -276,7 +276,8 @@ export default {
                         data: this.prepData(this.selectedData),
                         scales: this.scales,
                         colorDomain: this.$store.getters.getColorDomain,
-                        brushCount: this.filesToPlot.length
+                        brushCount: this.filesToPlot.length,
+                        labels: {x: 'q', y: 'I(q)'}
                     });
 
                 } else {

@@ -8,6 +8,9 @@ export const drawPlot = {
         drawPlot() {
             let vm = this;
 
+            vm.labels.x = vm.plotParameters.labels.x;
+            vm.labels.y = vm.plotParameters.labels.y;
+
             // If plot is already present, simply update with the new set of data
             if (!d3.select(".chart-stitch").empty()) {
             

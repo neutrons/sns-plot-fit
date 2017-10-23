@@ -61,14 +61,6 @@ export const setElements = {
                 .attr("id", "yLabel-2D")
                 .html("`Qy`");
 
-            //Add Chart Title
-            vm.elements.svg.append("text")
-                .attr("class", "title-2D")
-                .attr("transform",
-                    "translate(" + (vm.dimensions.w / 2) + " ," +
-                    (vm.margin.top / 1.5) + ")")
-                .text("Intensity Plot (Hexbin Size = " + vm.binSize + ")");
-
             // Enable zoom
             vm. zoom = d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", vm.zoomed)
             vm.elements.svg.call(vm.zoom);

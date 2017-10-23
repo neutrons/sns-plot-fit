@@ -7,9 +7,9 @@ export const initSlider = {
             let vm = this;
 
             vm.margin2 = {
-                top: 30,
+                top: 10,
                 right: 50,
-                bottom: 50,
+                bottom: 70,
                 left: 75
             };
 

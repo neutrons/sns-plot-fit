@@ -87,20 +87,12 @@ export const setElements = {
             vm.elements.svg.append("g").append("foreignObject")
                 .attr("height", 100)
                 .attr("width", 200)
-                .attr("transform", "translate(" + ((vm.dimensions.w + vm.margin.left + vm.margin.right)/2) + "," + (vm.dimensions.h + vm.margin.top*2.5) + ")")
+                .attr("transform", "translate(" + ((vm.dimensions.w + vm.margin.left + vm.margin.right)/2) + "," + (vm.dimensions.h + vm.margin.bottom - 15) + ")")
                 .attr("id", "xLabel-" + vm.ID)
                 .html("`" + vm.labels.x + "`");
 
-            // Add Chart Title
-            vm.elements.svg.append("g").append("foreignObject")
-                .attr("height", 100)
-                .attr("width", 200)
-                .attr("transform", "translate(" + ((vm.dimensions.w + vm.margin.left + vm.margin.right)/2) + ",10)")
-                .attr("id", "plotTitle-" + vm.ID)
-                .html("`" + vm.labels.y + "` vs `" + vm.labels.x + "`");
-
             // Call MathJax to make plot axis labels look pretty 
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel-" + vm.ID, "yLabel-" + vm.ID, "plotTitle-" + vm.ID]]);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel-" + vm.ID, "yLabel-" + vm.ID]]);
 
             // Add the Legend
             vm.elements.legend = vm.elements.plot.append("g").attr("id", "legend-" + vm.ID);

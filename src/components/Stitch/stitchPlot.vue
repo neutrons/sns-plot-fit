@@ -88,7 +88,7 @@ export default {
         // Extend conto chart elements' base data
         tempData.scale.brushX = undefined;
         tempData.elements.stitch = undefined;
-        tempData.margin = { top: 50, bottom: 50, left: 80, right: 50 };
+        tempData.margin = { top: 20, bottom: 55, left: 50, right: 25 };
         tempData.brushObj = {
             brushes: [],
             brushCount: null,

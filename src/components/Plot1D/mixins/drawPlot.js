@@ -4,33 +4,8 @@ export const drawPlot = {
     methods: {
         drawPlot() {
             let vm = this;
-            
-            // If plot is already present, simply update with the new set of data
-            if (!d3.select(".chart-1D").empty() && vm.isFit === vm.prevFit) {
-            
-                // Update titles according to new transformations
-                vm.labels.x = vm.plotParameters.fitConfiguration.xTransformation;
-                vm.labels.y = vm.plotParameters.fitConfiguration.yTransformation;
-
-                 // Lastly, update plot with data                
-                vm.updatePlot(vm.plotParameters.data);
-                // if a fit is selected add/update data
-                if (vm.isFit) { vm.updateSlider(); vm.updateFitLine(); }
-
-                return;
-            } else { // New fit is being selected so tear down plot and re-do everything from scratch
-                
-                d3.select(".chart-1D").remove();
-                d3.select("#tooltip-1D").remove();
-                vm.selLimits = [];
-                vm.brushObj.brushSelection = [];
-                vm.brushObj.brushFile = undefined;
-            }
 
             vm.dataNest = vm.plotParameters.data; //regular data to plot
-
-            vm.labels.x = vm.plotParameters.fitConfiguration.xTransformation; //xTitle according to label
-            vm.labels.y = vm.plotParameters.fitConfiguration.yTransformation; //yTitle according to label
 
             //Catch any empty data and throw an error
             if (vm.dataNest.length < 1) {
@@ -49,6 +24,27 @@ export const drawPlot = {
                 return;
             } else {
                 vm.isError = false;
+            }
+
+            vm.labels.x = 'q = ' + vm.plotParameters.labels.x; //plotParameters.fitConfiguration.xTransformation; //xTitle according to label
+            vm.labels.y = 'I(q) = ' + vm.plotParameters.labels.y; //plotParameters.fitConfiguration.yTransformation; //yTitle according to label
+            
+            // If plot is already present, simply update with the new set of data
+            if (!d3.select(".chart-1D").empty() && vm.isFit === vm.prevFit) {
+
+                 // Lastly, update plot with data                
+                vm.updatePlot(vm.plotParameters.data);
+                // if a fit is selected add/update data
+                if (vm.isFit) { vm.updateSlider(); vm.updateFitLine(); }
+
+                return;
+            } else { // New fit is being selected so tear down plot and re-do everything from scratch
+                
+                d3.select(".chart-1D").remove();
+                d3.select("#tooltip-1D").remove();
+                vm.selLimits = [];
+                vm.brushObj.brushSelection = [];
+                vm.brushObj.brushFile = undefined;
             }
 
             // Set plot dimensions

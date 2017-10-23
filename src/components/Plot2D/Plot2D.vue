@@ -176,7 +176,7 @@ export default {
                 lh: undefined
             },
             margin: {
-                top: 50, 
+                top: 20, 
                 right: 65, 
                 bottom: 50, 
                 left: 65 

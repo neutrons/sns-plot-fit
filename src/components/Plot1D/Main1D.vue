@@ -367,7 +367,11 @@ export default {
                         scales: this.scales,
                         fileToFit: this.fileToFit,
                         fitConfiguration: this.currentConfiguration,
-                        fitSettings: this.fitSettings
+                        fitSettings: this.fitSettings,
+                        labels: {
+                            x: this.currentConfiguration.xTransformation,
+                            y: this.currentConfiguration.yTransformation
+                        }
                     });
                 } else {
                     // Remove any elements previously plotted
