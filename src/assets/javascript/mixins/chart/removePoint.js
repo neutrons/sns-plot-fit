@@ -16,7 +16,6 @@ export const removePoint = {
                 
                 // Remove point from current data
                 // console.log(vm.dataNest);
-                // vm.plotData.splice(index, 1);
                 vm.dataNest.forEach(el => {
                     if (el.key === name)    el.values.splice(index,1);
                 })
@@ -44,8 +43,6 @@ export const removePoint = {
                     callback();
                 });
             });
-
-            //callback(yes);
         }
     }
 }

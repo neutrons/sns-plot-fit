@@ -273,7 +273,6 @@ export default {
             var vm = this;
 
             chosenData = _.cloneDeep(chosenData);
-            console.log("CHOSEN:", chosenData);
             
             if (checkList.length == 0) {
                 // If no data is selected to be plotted, then
@@ -302,7 +301,7 @@ export default {
                         tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
                     } else {
                         let dataTransformed = _.cloneDeep(temp);
-                        
+
                         tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
                     }
                 }
@@ -507,7 +506,6 @@ export default {
                     // Next fetch the file URLs
                     var fileURLs = this.getURLs(filesToFetch, "-Fetch1D");
                     
-                    console.log("TEMP", tempData);
                     if(fileURLs.length > 0) {
                         this.pull1DData(fileURLs, tempData);
                     } else {

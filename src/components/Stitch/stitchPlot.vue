@@ -162,12 +162,27 @@ export default {
             let vm = this;
 
             return Object.keys(vm.selections).length > 0;
+        },
+        brushSelectionLength() {
+            let vm = this;
+
+            return Object.keys(vm.brushObj.brushSelections).length > 0;
         }
     },
     methods: {
         setParameters: function(parameters) {
             // Check data is valid prior to plotting
             this.plotParameters = _.cloneDeep(parameters);
+        },
+        reconvertBrushSelections() {
+            let vm = this;
+            
+            vm.brushObj.brushSelections = _.mapValues(vm.brushObj.brushSelections, function(el) {
+                    return {
+                        raw: el.raw,
+                        converted: el.raw.map(i => vm.scale.brushX.invert(i))
+                    }
+                });            
         },
         updateScales(s) {
             let vm = this;
@@ -178,15 +193,7 @@ export default {
             // Update brushScale to reflect new zoomed scale
             vm.scale.brushX = vm.scale.x.copy();
 
-            if (Object.keys(vm.brushObj.brushSelections).length > 0) {
-                
-                vm.brushObj.brushSelections = _.mapValues(vm.brushObj.brushSelections, function(el) {
-                    return {
-                        raw: el.raw,
-                        converted: el.raw.map(i => vm.scale.brushX.invert(i))
-                    }
-                });
-            }
+            if (vm.brushSelectionLength)    vm.reconvertBrushSelections();
 
             vm.updateStitchLine();
         },
@@ -201,15 +208,7 @@ export default {
             vm.scale.brushX = new_xScale.copy();
 
             // If there are brushes, re-adjust selections according to new scale
-            if (Object.keys(vm.brushObj.brushSelections).length > 0) {
-                
-                vm.brushObj.brushSelections = _.mapValues(vm.brushObj.brushSelections, function(el) {
-                    return {
-                        raw: el.raw,
-                        converted: el.raw.map(i => vm.scale.brushX.invert(i))
-                    }
-                });
-            }
+           if (vm.brushSelectionLength)    vm.reconvertBrushSelections();
 
             // Now call re-usable part of zoom
             vm.zoomed(new_yScale, new_xScale);

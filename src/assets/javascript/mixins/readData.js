@@ -35,9 +35,8 @@ export const pull1DData = {
 
                             let data = vm.parse1D(response.data, url.filename);
                             
-                            // console.log("cleaned up axios data", data);
                             vm.$store.commit('store1DData', { filename: url.filename, data: data});
-                            //vm.storedData[url.filename] = response.data;
+
                             return data;
                         });        
                     } else if(url.type === 'upload') {
@@ -53,8 +52,8 @@ export const pull1DData = {
 
                                 // Code to read Upload 2D file
                                 let data = vm.parse1D(content, url.filename);
+
                                 vm.$store.commit('store1DData', { filename: url.filename, data: data});
-                                // vm.storedData[url.filename] = content;
                                 
                                 resolve(data);    
                             }
@@ -66,26 +65,13 @@ export const pull1DData = {
                     }
                 });
 
-                if(promises.length === 0) {
-                    // eventBus.$emit('disable-buttons', true);
-                    // eventBus.$emit('set-current-data', tempData, this.filesToPlot);
-                    // console.log("No data to plot!");
-                } else {
+                if(promises.length > 0) {
+ 
                     Promise.all(promises).then(results => {
                         let plotData = _.concat(tempData, results);
-                        // console.log("Data is ready to be plotted!", plotData);
-                        // var data = results.cocnat(tempData);
-                        // console.log("Results", results);
-                        // console.log("tempData", tempData);
-                        // var fetchData = results.map(function(result) {
-                        //     return vm.parse1D(result.data, result.filename);
-                        // });
                         
                         vm.setCurrentData(plotData, vm.filesToPlot);
-                        // var data = fetchData.concat(tempData);
-                        
-                        // eventBus.$emit('disable-buttons', true);
-                        // eventBus.$emit('set-current-data', data, this.filesToPlot);
+
                     }).catch(reason => { console.log(reason) });
                 }
         }
