@@ -1,11 +1,16 @@
+import getContainerWidth from '../../../assets/javascript/mixins/chart/getContainerWidth.js';
+import getViewHeight from '../../../assets/javascript/mixins/chart/getViewHeight.js';
+
 export const initDimensions = {
     methods: {
         initDimensions() {
             let vm = this;
             
             // Pull plot's parent container width, this will be used to scale the plot responsively
-            var containerWidth = document.getElementById("plot-" + vm.ID).offsetWidth;
-            let viewHeight = containerWidth / (vm.dimensions.aspectW/vm.dimensions.aspectH);
+            // var containerWidth = document.getElementById("plot-" + vm.ID).offsetWidth;
+            // let viewHeight = containerWidth / (vm.dimensions.aspectW/vm.dimensions.aspectH);
+            var containerWidth = getContainerWidth(vm);
+            var viewHeight = getViewHeight(vm, containerWidth);
     
             if (vm.isFit) {
                 vm.margin = {

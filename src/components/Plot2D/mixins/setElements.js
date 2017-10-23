@@ -47,16 +47,12 @@ export const setElements = {
 
             // Add X Axis Label
             vm.elements.svg.append("g").append("foreignObject")
-            .attr("height", 100)
-            .attr("width", 200)
             .attr("transform", "translate(" + ((vm.dimensions.w + vm.margin.left+vm.margin.right)/2) + "," + (vm.dimensions.h + vm.margin.top + vm.margin.bottom/1.5) + ")")
             .attr("id", "xLabel-2D")
             .html("`Qx`");
 
             // Add Y Axis Label
             vm.elements.svg.append("g").append("foreignObject")
-                .attr("height", 100)
-                .attr("width", 200)
                 .attr("transform", "translate(0," + (vm.dimensions.h / 2) + ") rotate(-90)")
                 .attr("id", "yLabel-2D")
                 .html("`Qy`");

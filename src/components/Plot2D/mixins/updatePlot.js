@@ -3,7 +3,7 @@ import * as d3hex from 'd3-hexbin';
 
 export const updatePlot = {
     methods: {
-        updatePlot(newData, binSize, transformType) {
+        updatePlot(newData, binSize) {
             let vm = this;
                 
             let plotData = _.cloneDeep(newData);

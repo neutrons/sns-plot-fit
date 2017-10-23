@@ -1,4 +1,5 @@
-import * as d3 from 'd3';
+import getContainerWidth from '../../../assets/javascript/mixins/chart/getContainerWidth.js';
+import getViewHeight from '../../../assets/javascript/mixins/chart/getViewHeight.js';
 
 export const initDimensions = {
     methods: {
@@ -6,9 +7,8 @@ export const initDimensions = {
             let vm = this;
 
             // Set plot dimensions
-            var containerWidth = document.getElementById("plot-" + vm.ID).offsetWidth; // Pull plot's parent container width, this will be used to scale the plot responsively
-
-            let viewHeight = containerWidth / (vm.dimensions.aspectW/vm.dimensions.aspectH);
+            var containerWidth = getContainerWidth(vm);
+            var viewHeight = getViewHeight(vm, containerWidth);
 
             vm.dimensions.h = viewHeight - vm.margin.top - vm.margin.bottom;
 

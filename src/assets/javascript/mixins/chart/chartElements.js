@@ -15,10 +15,10 @@ export default {
         aspectH: 9
     },
     margin: {
-        top: 50,
-        right: 50,
+        top: 20,
+        right: 65,
         bottom: 50,
-        left: 75
+        left: 65
     },
     scale: {
         x: undefined,

@@ -91,6 +91,9 @@
 import * as d3 from 'd3';
 import _ from 'lodash';
 
+/* Import Default Chart Elements */
+import chartElements from '../../assets/javascript/mixins/chart/chartElements.js';
+
 /* Import Components */
 import Panel from '../BaseComponents/Panels/Panel.vue';
 import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
@@ -116,6 +119,46 @@ import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsiv
 
 export default {
     name: 'Plot2D',
+    components: {
+      'v-panel-group': PanelGroup,
+      'v-panel': Panel,
+      'v-table': Table,
+      'v-filter': Filter,
+      'v-reset-button': ResetButton
+    },
+    data() {
+
+        let tempData = _.cloneDeep(chartElements);
+
+        tempData.filePlotChoices = [];
+        tempData.fileToPlot = null;
+        tempData.filterBy = 'All';
+        tempData.sortBy = 'ascending';
+        tempData.tempBinSize = 15;
+        tempData.tempTransform = 'Log';
+        tempData.hexSettings = {
+            intensityTransformation: 'Log',
+            binSize: 15
+        };
+
+        tempData.currentData = [];
+
+        tempData.scale.l = undefined;
+
+        tempData.dimensions.lw = undefined;
+        tempData.dimensions.lh = undefined;
+
+        tempData.binSize = undefined;
+        tempData.plotData = [];
+        tempData.ID = '2D';
+
+        return tempData;
+    },
+    computed: {
+      uploadFiles() {
+          return _.cloneDeep(this.$store.getters.getUploaded2D);
+      }
+    },
     mixins: [
         parse2D, 
         read2DData, 
@@ -131,66 +174,7 @@ export default {
         zoomed,
         setResponsive,
         resetPlot
-        ],
-    components: {
-      'v-panel-group': PanelGroup,
-      'v-panel': Panel,
-      'v-table': Table,
-      'v-filter': Filter,
-      'v-reset-button': ResetButton
-    },
-    data: function () {
-        return {
-            filePlotChoices: [],
-            fileToPlot: null,
-            filterBy: 'All',
-            sortBy: 'ascending',
-            tempBinSize: 15,
-            tempTransform: 'Log',
-            hexSettings: {
-                intensityTransformation: 'Log',
-                binSize: 15
-            },
-            currentData: [],
-            zoom: undefined,
-            elements: {
-                svg: undefined,
-                plot: undefined,
-                axis: undefined,
-                tooltip: undefined
-            },
-            scale: {
-                x: undefined,
-                y: undefined,
-                l: undefined
-            },
-            axis: {
-                x: undefined,
-                y: undefined
-            },
-            dimensions: {
-                w: undefined,
-                h: undefined,
-                viewbox: undefined,
-                lw: undefined,
-                lh: undefined
-            },
-            margin: {
-                top: 20, 
-                right: 65, 
-                bottom: 50, 
-                left: 65 
-            },
-            binSize: undefined,
-            plotData: [],
-            ID: '2D'
-        }
-    },
-    computed: {
-      uploadFiles() {
-          return _.cloneDeep(this.$store.getters.getUploaded2D);
-      }
-    },
+    ],
     methods: {
         resetSettings() {
             this.tempBinSize = 15;
