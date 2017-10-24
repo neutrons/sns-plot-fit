@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import store from '../../../../store/index.js';
 import errorBottomY from './errorBottomY.js';
 import setLineGenerator from './setLineGenerator.js';
+import tooltip from './tooltip.js';
 
 export const updatePlot = {
     methods: {
@@ -155,8 +156,6 @@ export const updatePlot = {
                                 .style("fill", function () {
                                     return d.color = vm.color(d.key);
                                 })
-                                .on("mouseover", function(d) { ttEnter(d) })
-                                .on("mouseout", function (d) { ttLeave(d) })
                                 .on("click", function(d,i) {
                                     vm.removePointExtend(i, d.name);
                                 });
@@ -323,8 +322,6 @@ export const updatePlot = {
                         .style("fill", function() {
                             return d.color = vm.color(d.key);
                         })
-                        .on("mouseover", function(d) { ttEnter(d) })
-                        .on("mouseout", function (d) { ttLeave(d) })
                         .on("click", function(d,i) {
                             vm.removePointExtend(i, d.name);
                         });
@@ -333,6 +330,13 @@ export const updatePlot = {
                     scatterSelect.exit().remove();                        
                 }
             });
+
+            vm.elements.plot.selectAll('circle')
+                .on("mouseover", function(d) { 
+                    let htmlString = "Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6);
+                    tooltip.enter(d, htmlString, vm.elements.tooltip) 
+                })
+                .on("mouseout", function (d) { tooltip.exit(d, vm.elements.tooltip) });
 
             // Update legend
             vm.updateLegend();
@@ -350,23 +354,6 @@ export const updatePlot = {
                 } else {
                     return true;
                 }
-            }
-
-            function ttEnter(d) {
-                
-                vm.elements.tooltip.transition()
-                    .duration(200)
-                    .style("opacity", 1);
-
-                vm.elements.tooltip.html("Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6))
-                    .style("top", (d3.event.pageY - 40) + "px")
-                    .style("left", (d3.event.pageX + 20) + "px");
-            }
-
-            function ttLeave(d) {
-                vm.elements.tooltip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
             }
         }
     }

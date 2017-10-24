@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import * as d3hex from 'd3-hexbin';
+import tooltip from '../../../assets/javascript/mixins/chart/tooltip.js';
 
 export const updatePlot = {
     methods: {
@@ -115,18 +116,11 @@ export const updatePlot = {
                 .attr("stroke", "none")
                 .attr("class", "hexagons")
                 .on("mouseover", function(d) {
-                    vm.elements.tooltip.transition()
-                        .duration(200)
-                        .style("opacity", 1);
-    
-                    vm.elements.tooltip.html("Qx: " + vm.scale.x.invert(d.x).toFixed(4) + "<br/>" + "Qy: " + vm.scale.y.invert(d.y).toFixed(4) + "<br/> Avg. Intensity: " + d.avgIntensity.toFixed(4))
-                        .style("top", (d3.event.pageY - 40) + "px")
-                        .style("left", (d3.event.pageX + 15) + "px");
+                    let htmlString = "Qx: " + vm.scale.x.invert(d.x).toFixed(4) + "<br/>" + "Qy: " + vm.scale.y.invert(d.y).toFixed(4) + "<br/> Avg. Intensity: " + d.avgIntensity.toFixed(4);
+                    tooltip.enter(d, htmlString, vm.elements.tooltip);
                 })
                 .on("mouseout", function(d) {
-                    vm.elements.tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0);
+                    tooltip.exit(d, vm.elements.tooltip);
                 });
         }
     }

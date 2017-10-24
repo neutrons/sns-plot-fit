@@ -79,7 +79,6 @@ import { resetPlot } from '../../assets/javascript/mixins/chart/resetPlot.js';
 import { adjustDomains } from '../../assets/javascript/mixins/chart/adjustDomains.js';
 import { changeScales } from '../../assets/javascript/mixins/chart/changeScales.js';
 import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsive.js';
-import { updateData } from '../../assets/javascript/mixins/chart/updateData.js';
 import { updateLegend } from '../../assets/javascript/mixins/chart/updateLegend.js';
 import { zoomed } from '../../assets/javascript/mixins/chart/zoomed.js';
 import { removePointExtend } from './mixins/removePointExtend.js';
@@ -163,7 +162,6 @@ export default {
         adjustDomains,
         changeScales,
         setResponsive,
-        updateData,
         updateLegend,
         zoomed,
         removePoint,
