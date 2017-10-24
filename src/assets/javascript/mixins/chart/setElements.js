@@ -31,49 +31,43 @@ export const setElements = {
                 .attr("height", vm.dimensions.h);
 
             // Add plot area
-            vm.elements.svg.append("rect")
+            vm.elements.g = vm.elements.svg.append('g').attr('transform', 'translate(' + vm.margin.left + ',' + vm.margin.top + ')');
+
+            vm.elements.g.append("rect")
                 .attr("class", "plotbg")
                 .attr("width", vm.dimensions.w)
-                .attr("height", vm.dimensions.h)
-                .attr("transform", "translate(" + vm.margin.left + "," + vm.margin.top + ")");
+                .attr("height", vm.dimensions.h);
 
             // Add Axis and Gridline section
-            vm.elements.axis = vm.elements.svg.append("g").attr("id", "axis-" + vm.ID);
+            vm.elements.axis = vm.elements.g.append("g").attr("id", "axis-" + vm.ID);
 
-            vm.elements.zoom = vm.elements.svg.append('g').attr('id', 'zoom-group-' + vm.ID);
+            vm.elements.zoom = vm.elements.g.append('g').attr('id', 'zoom-group-' + vm.ID);
 
             vm.elements.zoom.append('g')
                 .attr("id", "zoom-" + vm.ID)
                 .append('rect')
                 .attr('class', 'zoom')
                 .attr('width', vm.dimensions.w)
-                .attr('height', vm.dimensions.h)
-                .attr('transform', 'translate(' + vm.margin.left + ',' + vm.margin.top + ')');
+                .attr('height', vm.dimensions.h);
             
             //Add Group to Plot Line/Points
-            vm.elements.plot = vm.elements.svg.append("g")
-                .attr('transform', 'translate(' + vm.margin.left + ',' + vm.margin.top + ')')
-                .attr("class", "chart");
+            vm.elements.plot = vm.elements.g.append("g").attr("class", "chart");
 
             // X Gridlines
             vm.elements.axis.append("g")
-                .attr("transform", "translate(" + vm.margin.left + "," + (vm.dimensions.h + vm.margin.top) + ")")
+                .attr("transform", "translate(0," + (vm.dimensions.h) + ")")
                 .attr("class", "gridline gridline--x");
 
             // Y Gridlines
-            vm.elements.axis.append("g")
-                .attr("transform", "translate(" + vm.margin.left + "," + vm.margin.top + ")")
-                .attr("class", "gridline gridline--y");
+            vm.elements.axis.append("g").attr("class", "gridline gridline--y");
 
             // Add X Axis
             vm.elements.axis.append("g")
-                .attr("transform", "translate(" + vm.margin.left + "," + (vm.dimensions.h + vm.margin.top) + ")")
+                .attr("transform", "translate(0," + (vm.dimensions.h) + ")")
                 .attr("class", "axis axis--x");
 
             // Add Y Axis
-            vm.elements.axis.append("g")
-                .attr("transform", "translate(" + vm.margin.left + "," + vm.margin.top + ")")
-                .attr("class", "axis axis--y");
+            vm.elements.axis.append("g").attr("class", "axis axis--y");
             
             // Add Y Axis Label
             vm.elements.svg.append("g").append("foreignObject")
