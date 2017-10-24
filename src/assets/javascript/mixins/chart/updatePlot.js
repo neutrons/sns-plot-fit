@@ -1,8 +1,9 @@
 import * as d3 from 'd3';
 import store from '../../../../store/index.js';
-import errorBottomY from './errorBottomY.js';
 import setLineGenerator from './setLineGenerator.js';
 import tooltip from './tooltip.js';
+import errorbars from './errorBars.js';
+import scatterPoints from './scatterPoints.js';
 
 export const updatePlot = {
     methods: {
@@ -52,7 +53,7 @@ export const updatePlot = {
                         .style("fill", "none")
                         .style("stroke", function () {
                             return d.color = vm.color(d.key);
-                        });;
+                        });
                     
                     // Add error lines
                     vm.elements.plot.append("g").attr("id", "error-" + vm.ID + "-" + d.key)
@@ -61,23 +62,7 @@ export const updatePlot = {
                             .selectAll(".error-" + vm.ID)
                             .data(d.values)
                             .enter()
-                            .append('line')
-                                .attr('class', 'error error-' + vm.ID)
-                                .attr('x1', function (d) {
-                                    return new_xScale(d.x);
-                                })
-                                .attr('x2', function (d) {
-                                    return new_xScale(d.x);
-                                })
-                                .attr('y1', function (d) {
-                                    return new_yScale(d.y + d.e);
-                                })
-                                .attr('y2', function (d) {
-                                    return errorBottomY(d, vm.scale.yType, new_yScale);
-                                })
-                                .style("stroke", function () {
-                                    return d.color = vm.color(d.key);
-                                });
+                            .call(errorbars.line, new_xScale, new_yScale, vm);
                     
                     // Add error tick top
                     vm.elements.plot.append("g").attr("id", "error-" + vm.ID + "-top-" + d.key)
@@ -86,23 +71,7 @@ export const updatePlot = {
                             .selectAll(".error-" + vm.ID + "-tick-top")
                             .data(d.values)
                             .enter()
-                            .append('line')
-                                .attr('class', 'error-' + vm.ID + '-tick-top')
-                                .attr('x1', function (d) {
-                                    return new_xScale(d.x) - 4;
-                                })
-                                .attr('x2', function (d) {
-                                    return new_xScale(d.x) + 4;
-                                })
-                                .attr('y1', function (d) {
-                                    return new_yScale(d.y + d.e);
-                                })
-                                .attr('y2', function (d) {
-                                    return new_yScale(d.y + d.e);
-                                })
-                                .style("stroke", function () {
-                                    return d.color = vm.color(d.key);
-                                });
+                            .call(errorbars.caps, 'top', new_xScale, new_yScale, vm);
     
                     // Add error tick bottom
                     vm.elements.plot.append("g").attr("id", "error-" + vm.ID + "-bottom-" + d.key)
@@ -111,26 +80,7 @@ export const updatePlot = {
                             .selectAll(".error-" + vm.ID + "-tick-bottom")
                             .data(d.values)
                             .enter()
-                            .append('line')
-                                .attr('class', 'error-' + vm.ID + '-tick-bottom')
-                                .filter( function(d) {
-                                    return checkYType(d);
-                                })
-                                .attr('x1', function (d) {
-                                    return new_xScale(d.x) - 4;
-                                })
-                                .attr('x2', function (d) {
-                                    return new_xScale(d.x) + 4;
-                                })
-                                .attr('y1', function (d) {
-                                    return new_yScale(d.y - d.e);
-                                })
-                                .attr('y2', function (d) {
-                                    return new_yScale(d.y - d.e);
-                                })
-                                .style("stroke", function () {
-                                    return d.color = vm.color(d.key);
-                                });
+                            .call(errorbars.caps, 'bottom', new_xScale, new_yScale, vm);
     
                     // Add Scatter plot
                     vm.elements.plot.append("g").attr("id", "scatter-" + vm.ID + "-" + d.key)
@@ -138,72 +88,23 @@ export const updatePlot = {
                         .attr("clip-path", "url(#clip-" + vm.ID + ")")
                         .selectAll(".dot")
                         .data(d.values)
-                            .enter().append("circle")
-                            .attr("class", "dot")
-                                .filter(function(d) {
-                                    return d.x !== null && d.x !== NaN && d.y !== null && d.y !== NaN;
-                                })
-                                .attr("r", 4)
-                                .attr("cx", function (d) {
-                                    return new_xScale(d.x);
-                                })
-                                .attr("cy", function (d) {
-                                    return new_yScale(d.y);
-                                })
-                                .style("stroke", "white")
-                                .style("stroke-width", "1px")
-                                .style("opacity", 1)
-                                .style("fill", function () {
-                                    return d.color = vm.color(d.key);
-                                })
-                                .on("click", function(d,i) {
-                                    vm.removePointExtend(i, d.name);
-                                });
+                            .enter()
+                            .call(scatterPoints, new_xScale, new_yScale, vm.color);
                             
                 } else {
                     
                     // Re-draw plot lines with new data
                     let lineSelect = vm.elements.plot.select("#line-" + vm.ID + "-" +d.key).select("path").data([d.values]);
                     
-                    lineSelect.transition().duration(750)
-                        .attr("d", vm.line);
+                    lineSelect.transition().duration(750).attr("d", vm.line);
     
                     // Re-draw Error Lines
                     let errorSelect = vm.elements.plot.select("#error-" + vm.ID + "-" +d.key).selectAll("line").data(d.values);
                     
-                    errorSelect.transition().duration(750)
-                        .attr('x1', function (d) {
-                            return new_xScale(d.x);
-                        })
-                        .attr('x2', function (d) {
-                            return new_xScale(d.x);
-                        })
-                        .attr('y1', function (d) {
-                            return new_yScale(d.y + d.e);
-                        })
-                        .attr('y2', function (d) {
-                            return errorBottomY(d, vm.scale.yType, new_yScale);
-                        });
+                    errorSelect.transition().duration(750).call(errorbars.updateLine, new_xScale, new_yScale, vm.scale.yType);
                     
                     // Enter new error Lines
-                    errorSelect.enter()
-                        .append('line')
-                            .attr('class', 'error-' + vm.ID)
-                            .attr('x1', function (d) {
-                                return new_xScale(d.x);
-                            })
-                            .attr('x2', function (d) {
-                                return new_xScale(d.x);
-                            })
-                            .attr('y1', function (d) {
-                                return new_yScale(d.y + d.e);
-                            })
-                            .attr('y2', function (d) {
-                                return errorbottomY(d, vm.scale.yType, new_yScale);
-                            })
-                            .style("stroke", function () {
-                                return d.color = vm.color(d.key);
-                            });
+                    errorSelect.enter().call(errorbars.line, new_xScale, new_yScale, vm);
     
                     // Remove old error lines
                     errorSelect.exit().remove();
@@ -211,39 +112,10 @@ export const updatePlot = {
                     // Re-draw Error Top
                     let errorTopSelect = vm.elements.plot.select("#error-" + vm.ID + "-top-" + d.key).selectAll("line").data(d.values);
                     
-                    errorTopSelect.transition().duration(750)
-                        .attr('x1', function (d) {
-                            return new_xScale(d.x) - 4;
-                        })
-                        .attr('x2', function (d) {
-                            return new_xScale(d.x) + 4;
-                        })
-                        .attr('y1', function (d) {
-                            return new_yScale(d.y + d.e);
-                        })
-                        .attr('y2', function (d) {
-                            return new_yScale(d.y + d.e);
-                        });
+                    errorTopSelect.transition().duration(750).call(errorbars.updateCaps, 'top', new_xScale, new_yScale);
                     
                     // Enter new error tops
-                    errorTopSelect.enter()
-                        .append('line')
-                        .attr('class', 'error-' + vm.ID + '-tick-top')
-                        .attr('x1', function (d) {
-                            return new_xScale(d.x) - 4;
-                        })
-                        .attr('x2', function (d) {
-                            return new_xScale(d.x) + 4;
-                        })
-                        .attr('y1', function (d) {
-                            return new_yScale(d.y + d.e);
-                        })
-                        .attr('y2', function (d) {
-                            return new_yScale(d.y + d.e);
-                        })
-                        .style("stroke", function () {
-                            return d.color = vm.color(d.key);
-                        });
+                    errorTopSelect.enter().call(errorbars.caps, 'top', new_xScale, new_yScale, vm);
     
                     // Remove old error tops
                     errorTopSelect.exit().remove();
@@ -251,42 +123,10 @@ export const updatePlot = {
                     // Re-draw Error Bottom
                     let errorBottomSelect = vm.elements.plot.select("#error-" + vm.ID + "-bottom-" + d.key).selectAll("line").data(d.values);
                     
-                    errorBottomSelect.transition().duration(750)
-                        .attr('x1', function (d) {
-                            return new_xScale(d.x) - 4;
-                        })
-                        .attr('x2', function (d) {
-                            return new_xScale(d.x) + 4;
-                        })
-                        .attr('y1', function (d) {
-                            return new_yScale(d.y - d.e);
-                        })
-                        .attr('y2', function (d) {
-                            return new_yScale(d.y - d.e);
-                        });
+                    errorBottomSelect.transition().duration(750).call(errorbars.updateCaps, 'bottom', new_xScale, new_yScale);
                     
                     // Enter new error bottoms
-                    errorTopSelect.enter()
-                        .append('line')
-                            .attr('class', 'error-' + vm.ID + '-tick-bottom')
-                            .filter( function(d) {
-                                return checkYType(d);
-                            })
-                            .attr('x1', function (d) {
-                                return new_xScale(d.x) - 4;
-                            })
-                            .attr('x2', function (d) {
-                                return new_xScale(d.x) + 4;
-                            })
-                            .attr('y1', function (d) {
-                                return new_yScale(d.y - d.e);
-                            })
-                            .attr('y2', function (d) {
-                                return new_yScale(d.y - d.e);
-                            })
-                            .style("stroke", function () {
-                                return d.color = vm.color(d.key);
-                            });
+                    errorBottomSelect.enter().call(errorbars.caps, 'bottom', new_xScale, new_yScale, vm);
     
                     // Remove old error bottoms
                     errorBottomSelect.exit().remove();
@@ -305,38 +145,23 @@ export const updatePlot = {
     
                     // Enter new points
                     scatterSelect.enter()
-                        .append("circle")
-                        .attr("class", "dot")
-                        .filter(function(d) {
-                            return d.x !== null && d.x !== NaN && d.y !== null && d.y !== NaN;
-                        })
-                        .attr("cx", function(d) {
-                            return new_xScale(d.x);
-                        })
-                        .attr("cy", function(d) {
-                            return new_yScale(d.y);
-                        })
-                        .attr("r", 5)
-                        .attr("stroke", "white")
-                        .attr("stroke-width", "2px")
-                        .style("fill", function() {
-                            return d.color = vm.color(d.key);
-                        })
-                        .on("click", function(d,i) {
-                            vm.removePointExtend(i, d.name);
-                        });
+                        .call(scatterPoints, new_xScale, new_yScale, vm.color);
     
                     // Remove old
                     scatterSelect.exit().remove();                        
                 }
             });
 
+            // Add event listeners for scatter points
             vm.elements.plot.selectAll('circle')
                 .on("mouseover", function(d) { 
                     let htmlString = "Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6);
                     tooltip.enter(d, htmlString, vm.elements.tooltip) 
                 })
-                .on("mouseout", function (d) { tooltip.exit(d, vm.elements.tooltip) });
+                .on("mouseout", function (d) { tooltip.exit(d, vm.elements.tooltip) })
+                .on("click", function(d,i) {
+                    vm.removePointExtend(i, d.name);
+                });
 
             // Update legend
             vm.updateLegend();
@@ -346,15 +171,6 @@ export const updatePlot = {
     
             // Add keys
             vm.removeLines();
-
-            // Functions used in plot update
-            function checkYType(d) {
-                if(vm.scale.yType === "Log(Y)") {
-                    return d.y - d.e > 0;
-                } else {
-                    return true;
-                }
-            }
         }
     }
 }

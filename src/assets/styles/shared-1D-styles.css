@@ -75,6 +75,11 @@ iframe.width-changed {
   height: 0;
 }
 
+circle {
+  stroke: white;
+  stroke-width: 1px;
+}
+
 
 /* Override MathJax positioning for rendered elements */
 
