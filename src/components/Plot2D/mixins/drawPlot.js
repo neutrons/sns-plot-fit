@@ -26,11 +26,6 @@ export const drawPlot = {
             // Transform data if log transform
             checkTransformType(transformType);
 
-            // Add tool tip and hide it until invoked
-            vm.elements.tooltip = d3.select("#app-container").append("div")
-                .attr("class", "tooltip-2D")
-                .style("opacity", 0);
-
             // set dimensions            
             vm.initDimensions();
 

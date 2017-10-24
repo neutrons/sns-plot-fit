@@ -33,10 +33,10 @@
 
             <!-- Uploaded Data Panel  -->
                 <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show="uploadFiles.length > 0">
+                    <div v-show="uploaded1DFiles.length > 0">
                      <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in uploadFiles" :class="isPlotted(f.filename)">
+                                <tr v-for="f in uploaded1DFiles" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled="(isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
@@ -134,6 +134,10 @@ import Plot1D from './fitPlot.vue';
 
 /* Import Mixins */
 import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
+import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
+import { remove1DFile } from '../../assets/javascript/mixins/remove1DFile.js';
+import { uploaded1DFiles } from '../../assets/javascript/mixins/uploaded1DFiles.js';
+import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
@@ -198,12 +202,8 @@ export default {
 
       }
     },
-    mixins: [parse1D, pull1DData, fetchFiles, setScales, filterJobs, getURLs, isOffline],
+    mixins: [parse1D, pull1DData, fetchFiles, setScales, filterJobs, getURLs, isOffline, isPlotted, remove1DFile, uploaded1DFiles, prepPlotData],
     computed: {
-      uploadFiles() {
-        //   console.log("Store 1D", this.$store.getters.getUploaded1D);
-          return _.cloneDeep(this.$store.getters.getUploaded1D);
-      },
       isFiles() {
           let fetchLength = this.$store.getters.getFetched1D.length;
           let uploadLength = this.$store.getters.getUploaded1D.length;
@@ -240,26 +240,11 @@ export default {
         },
         removeFile(filename) {
 
-            let index = this.filesToPlot.indexOf(filename);
-            if(this.filesToPlot.indexOf(filename) > -1) {
-                
-                if(this.fileToFit === filename) {
-                    this.fileToFit = null;
-                }
+            let vm = this;
 
-                this.filesToPlot.splice(index,1);
-            }
-
-            this.$store.commit('remove1DFile', filename);
-            this.$store.commit('removeColor', filename);
-        },
-        isPlotted(filename) {
-            //Dynamically style the file lists blue for plotted data
-            if(this.filesToPlot.indexOf(filename) > -1) {
-                return "success";
-            } else {
-                return "default";
-            }
+            this.remove1DFile(filename, function() {
+                if (vm.fileToFit === filename)    vm.fileToFit = null;
+            })
         },
         setFileToFit() {
             if(this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
@@ -318,30 +303,14 @@ export default {
             this.currentConfiguration = _.cloneDeep(this.$store.getters.getFitConfigsByID(fitname));
         },
         prepData(sd) {
-            // This function is to prepare the data before calling 'plotCurrentData' function
-            // The initial array has multiple arrays with objects inside,
-            // The for loop strips out the object for just the arrays of data
-            // Then _.flatten is used to make it a single, non-nested array
-            // This is simply to ease the process of plotting (see the nested loop function in 'plotCurrentData.js')
-            let temp = [];
-            // console.log("Data to push to temp:", sd);
-            for (let i = 0; i < sd.length; i++) {
-            // If a fit is set push transformed data, else push normal data
-                temp.push(sd[i].dataTransformed);
-            }
 
-            temp = _.flatten(temp);
-            temp = temp.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
-    
-            // Nest the entries by name
-            temp = d3.nest()
-                .key(function (d) {
-                    return d.name;
-                })
-                .entries(temp);
+            return this.prepPlotData(sd, function() {
+                    let temp = [];
 
-            // console.log("Merging data:", _.flatten(temp));
-            return temp;
+                    for (let i = 0; i < sd.length; i++) temp.push(sd[i].dataTransformed);
+
+                    return temp;
+                });
         },
         setParameters() {
             // Next tick is used to wait for all parameter changes to be updated

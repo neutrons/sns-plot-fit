@@ -5,7 +5,7 @@ export const resetPlot = {
         resetPlot() {
             let vm = this;
             
-            vm.elements.svg.transition().duration(750)
+            vm.elements.plot.transition().duration(750)
                 .call(vm.zoom.transform, d3.zoomIdentity);
         }
     }

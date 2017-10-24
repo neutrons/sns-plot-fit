@@ -14,7 +14,7 @@
                         </div>
                         <v-table :fieldNames="['Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles('1D', sortBy, filterBy)">
+                                <tr v-for="f in fetchFiles('1D', sortBy, filterBy)" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input :id="f.filename + '-FetchStitch'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
@@ -27,14 +27,14 @@
                 </v-panel>
 
                 <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success">
-                    <div v-show="uploadFiles.length > 0">
+                    <div v-show="uploaded1DFiles.length > 0">
                      <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in uploadFiles">
+                                <tr v-for="f in uploaded1DFiles" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="remove1DFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -142,9 +142,13 @@ import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
+import { remove1DFile } from '../../assets/javascript/mixins/remove1DFile.js';
+import { uploaded1DFiles } from '../../assets/javascript/mixins/uploaded1DFiles.js';
+import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
+import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
@@ -187,30 +191,16 @@ export default {
             vm.isStitched = false;
         })
     },
-    mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs, isOffline],
+    mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs, isOffline, isPlotted, remove1DFile, uploaded1DFiles, prepPlotData],
     computed: {
       xScales() {
         return this.$store.getters.getXScales;
       },
       yScales() {
         return this.$store.getters.getYScales;
-      },
-      uploadFiles() {
-          return _.cloneDeep(this.$store.getters.getUploaded1D);
       }
     },
     methods: {
-        removeFile(filename) {
-  
-            let index = this.filesToPlot.indexOf(filename);
-            if(this.filesToPlot.indexOf(filename) > -1) {
-
-                this.filesToPlot.splice(index,1);
-            }
-
-            this.$store.commit('remove1DFile', filename);
-            this.$store.commit('removeColor', filename);
-        },
         setCurrentData(chosenData, checkList) {
             
             var vm = this;
@@ -232,24 +222,14 @@ export default {
             }
         },
         prepData(sd) {
-            let temp = [];
-           
-            for (let i = 0; i < sd.length; i++) {
-                temp.push(sd[i].data);
-            }
-            
-            temp = _.flatten(temp);
-            temp = temp.filter((d) => Number.isFinite(d.y) && Number.isFinite(d.x));
-    
-            // Nest the entries by name
-            temp = d3.nest()
-                .key(function (d) {
-                    return d.name;
-                })
-                .entries(temp);
 
-            // console.log("Merging data:", _.flatten(temp));
-            return temp;
+            return this.prepPlotData(sd, function() {
+                    let temp = [];
+
+                    for (let i = 0; i < sd.length; i++) temp.push(sd[i].data);
+
+                    return temp;
+                });
         },
         setParameters() {
             this.$nextTick(function() {

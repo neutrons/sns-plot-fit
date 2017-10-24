@@ -16,7 +16,7 @@
                             <template>
                                 <tr v-for="f in fetchFiles('2D', sortBy, filterBy)" :class="isPlotted(f.filename)">
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filePlotChoices" @change="setFileToPlot"></td>
+                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
                                         <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
@@ -32,7 +32,7 @@
                             <template>
                                 <tr v-for="f in uploadFiles" :class="isPlotted(f.filename)">
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filePlotChoices" @change="setFileToPlot"></td>
+                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
                                         <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
@@ -106,6 +106,7 @@ import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/r
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
+import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 
 import { drawPlot } from './mixins/drawPlot.js';
 import { updatePlot } from './mixins/updatePlot.js';
@@ -130,7 +131,7 @@ export default {
 
         let tempData = _.cloneDeep(chartElements);
 
-        tempData.filePlotChoices = [];
+        tempData.filesToPlot = [];
         tempData.fileToPlot = null;
         tempData.filterBy = 'All';
         tempData.sortBy = 'ascending';
@@ -173,7 +174,8 @@ export default {
         setElements,
         zoomed,
         setResponsive,
-        resetPlot
+        resetPlot,
+        isPlotted
     ],
     methods: {
         resetSettings() {
@@ -191,26 +193,19 @@ export default {
                 binSize: this.tempBinSize
             }
         },
-        isPlotted(filename) {
-            //Dynamically style the file lists blue for plotted data
-            if(this.fileToPlot === filename){
-                return "success";
-            } else {
-                return "default";
-            }
-        },
         setFileToPlot() {
-            if(this.filePlotChoices.length > 0) this.filePlotChoices = this.filePlotChoices.slice(-1);
+            if (this.filesToPlot.length > 0) this.filesToPlot = this.filesToPlot.slice(-1);
             
-            this.fileToPlot = this.filePlotChoices[0] ? this.filePlotChoices[0] : null;
+            this.fileToPlot = this.filesToPlot[0] ? this.filesToPlot[0] : null;
         },
         removeFile(filename) {
-            // If file is in fileToPlot or filePlotChoices, remove it
+            // If file is in fileToPlot or filesToPlot, remove it
             // and remove plot elements
-            if(this.fileToPlot === filename) {
+            if (this.fileToPlot === filename) {
                 this.fileToPlot = null;
-                this.filePlotChoices = [];
+                this.filesToPlot = [];
             }
+
             d3.select(".chart-2D").remove();
             d3.select(".tooltip-2D").remove();
 
@@ -227,14 +222,14 @@ export default {
         fileToPlot: function() {
             // Check if file is in the stored 2d list
             // a value of '999' means no data is stored
-            if(this.fileToPlot !== null) {
+            if (this.fileToPlot !== null) {
                 var data2D = this.$store.getters.getSaved2D(this.fileToPlot);
 
                 // If not, Check if the file is in the Fetched list or Uploaded
-                if(data2D === '999') {
+                if (data2D === '999') {
                     var inUpload2D = this.$store.getters.inUploaded2D(this.fileToPlot);
 
-                    if(inUpload2D) {
+                    if (inUpload2D) {
                         // It's an uploaded file so read the data from blob
                         this.read2DData(inUpload2D)
 

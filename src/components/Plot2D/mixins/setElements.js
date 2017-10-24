@@ -5,12 +5,17 @@ export const setElements = {
         setElements() {
             let vm = this;
 
+            // Add tool tip and hide it until invoked
+            vm.elements.tooltip = d3.select("#app-container").append("div")
+                .attr("class", "tooltip-2D")
+                .style("opacity", 0);
+
             vm.elements.svg = d3.select("#plot-2D").append("svg")
-            .attr("viewBox", vm.dimensions.viewbox)
-            .attr("perserveAspectRatio","xMidYMid meet")
-            .attr('class', 'chart-2D')
-            .attr("width", vm.dimensions.w + vm.margin.left + vm.margin.right)
-            .attr("height", vm.dimensions.h + vm.margin.top + vm.margin.bottom);
+                .attr("viewBox", vm.dimensions.viewbox)
+                .attr("perserveAspectRatio","xMidYMid meet")
+                .attr('class', 'chart-2D')
+                .attr("width", vm.dimensions.w + vm.margin.left + vm.margin.right)
+                .attr("height", vm.dimensions.h + vm.margin.top + vm.margin.bottom);
     
             //Add clip path so hexagons do not exceed boundaries
             vm.elements.svg.append("defs").append("clipPath")
@@ -24,7 +29,13 @@ export const setElements = {
                 .attr("clip-path", "url(#clip-2D)")
                 .attr("transform", "translate(" + vm.margin.left + "," + vm.margin.top + ")");
                     
-            vm.elements.plot.append("g").attr("class", "hexagon");
+            vm.elements.plot.append('g')
+                .append('rect')
+                .attr('class', 'zoom')
+                .attr('width', vm.dimensions.w)
+                .attr('height', vm.dimensions.h);
+
+            vm.elements.plot.append("g").attr("class", "hexagon");            
 
             vm.elements.axis = vm.elements.svg.append("g").attr("id", "axis-2D")
                 .attr("transform", "translate(" + vm.margin.left + "," + vm.margin.top + ")");
@@ -58,8 +69,8 @@ export const setElements = {
                 .html("`Qy`");
 
             // Enable zoom
-            vm. zoom = d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", vm.zoomed)
-            vm.elements.svg.call(vm.zoom);
+            vm.zoom = d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", vm.zoomed)
+            vm.elements.plot.call(vm.zoom);
 
             // Call MathJax to make plot axis labels look pretty
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel-2D", "yLabel-2D"]]);

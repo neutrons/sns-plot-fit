@@ -5,7 +5,7 @@
             <v-panel PANELTITLE="1D Plot" PANELTYPE="primary">
                 <!-- Plot reset button inserted into panel heading  -->
                 <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
-                <v-reset-button :onClick="reset" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
+                <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
                 
                 <div id="plot-1D"></div>
 
@@ -209,11 +209,6 @@ export default {
                 vm.elements.plot.select(".fitted-line")
                     .attr("d", vm.line);
             }
-        },
-        reset() {
-            let vm = this;
-            let selection = vm.elements.svg.select('.zoom');
-            vm.resetPlot(selection);
         }
     },
     created() {
