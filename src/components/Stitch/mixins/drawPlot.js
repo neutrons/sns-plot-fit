@@ -48,7 +48,6 @@ export const drawPlot = {
                 .attr("height", vm.dimensions.h)
                 .attr("width", vm.dimensions.w)
                 .attr("fill", "none")
-                .attr("transform", "translate(" + vm.margin.left + "," + vm.margin.top + ")")
                 .attr("class", "brushes");
 
             // set up brush layer
