@@ -16,6 +16,12 @@
   fill: none;
 }
 
+.brushes text {
+  fill: white;
+  text-anchor: end;
+  letter-spacing: 1px;
+}
+
 .stitch-chart circle {
   cursor: pointer;
 }

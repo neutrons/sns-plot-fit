@@ -23,6 +23,24 @@ export const newBrush = {
             };
 
             function brushed() {
+
+                /**** Add brush label */
+
+                let d = d3.select(this).data()[0];
+                
+                let bTitle = d3.select(this).selectAll("text").data([d.id]);
+                
+                bTitle.enter().append("text").text(function(d) { return "selection-" + d; })
+                    .attr("id", "selection-label-" + d.id)
+                    .attr("x", -5);
+
+                d3.select(this).select("#selection-label-" + d.id)
+                    .attr("dy", "0.75em")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", d3.event.selection[0] + 5);
+
+                /*** End add brush label */
+
                 let rawSelection = d3.event.selection;
                 let convertedSelection = d3.event.selection.map(i => vm.scale.brushX.invert(i));
 
@@ -41,8 +59,10 @@ export const newBrush = {
             function brushend() {
                 // Figure out if our latest brush has a selection
                 var lastBrushID = vm.brushObj.brushes[vm.brushObj.brushes.length - 1].id;
-                var lastBrush = document.getElementById('brush-' + lastBrushID);
+                var lastBrush = document.getElementById('selection-' + lastBrushID);
                 var selection = d3.brushSelection(lastBrush);
+
+                if (selection === null)	d3.select("#selection-label-" + lastBrushID).remove();
 
                 if (selection && selection[0] !== selection[1]) {
                     vm.brushObj.brushes[vm.brushObj.brushes.length-1].selection = [vm.scale.x.invert(selection[0]), vm.scale.x.invert(selection[1])];
@@ -74,7 +94,7 @@ export const drawBrushes = {
             brushSelection.enter()
                 .insert("g", '.brush')
                 .attr('class', 'brush')
-                .attr('id', function(brush) { return "brush-" + brush.id; })
+                .attr('id', function(brush) { return "selection-" + brush.id; })
                 .each(function(brushItem) {
                     // call the brush
                     brushItem.brush(d3.select(this));
@@ -90,14 +110,16 @@ export const drawBrushes = {
                     .attr('class', 'brush')
                     .selectAll('.overlay')
                     .style('pointer-events', function() {
-                    var brush = brushItem.brush;
-                    if (brushItem.id === vm.brushObj.brushes.length-1 && brush !== undefined) {
-                        return 'all';
-                    } else {
-                        return 'none';
-                    }
+
+                        var brush = brushItem.brush;
+
+                        if (brushItem.id === vm.brushObj.brushes.length-1 && brush !== undefined) {
+                            return 'all';
+                        } else {
+                            return 'none';
+                        }
                     });
-                })
+            })
 
             brushSelection.exit().remove();
         }
