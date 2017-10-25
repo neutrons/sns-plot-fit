@@ -20,8 +20,8 @@ export const updateLegend = {
                 .append("rect")
                 .merge(legendBox)
                 .attr("x", function(d,i) {
-                    return w > 1400 ? vm.dimensions.w - vm.margin.right*4.5 + 'px' :
-                            w > 1000 ? vm.dimensions.w - vm.margin.right*4 + 'px' : vm.dimensions.w - vm.margin.right*3 + 'px';
+                    return w > 1400 ? vm.dimensions.w - vm.margin.right*5 + 'px' :
+                            w > 1000 ? vm.dimensions.w - vm.margin.right*4.5 + 'px' : vm.dimensions.w - vm.margin.right*3 + 'px';
                 })
                 .attr("y", function(d,i) { 
                     return w > 1400 ? vm.margin.top + i * 25 + 'px' :
@@ -43,8 +43,8 @@ export const updateLegend = {
                 .append("text")
                 .merge(legendText)
                 .attr("x", function(d,i) {
-                    return w > 1400 ? vm.dimensions.w - vm.margin.right*4.5 + 15 + 'px' :
-                           w > 1000 ? vm.dimensions.w - vm.margin.right*4 + 15 + 'px' : vm.dimensions.w - vm.margin.right*3 + 15 + 'px';
+                    return w > 1400 ? vm.dimensions.w - vm.margin.right*5 + 15 + 'px' :
+                           w > 1000 ? vm.dimensions.w - vm.margin.right*4.5 + 15 + 'px' : vm.dimensions.w - vm.margin.right*3 + 15 + 'px';
                 })
                 .attr("y", function(d,i) { 
                     return w > 1400 ? (vm.margin.top + 8) + i * 25 + 'px' :
