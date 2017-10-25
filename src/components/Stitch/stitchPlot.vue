@@ -58,7 +58,6 @@ import { toggleEdit, resetToggle} from './mixins/toggleEdit.js';
 import { validateBrushes, validateSelections } from './mixins/validateBrushes.js';
 import { initDimensions } from './mixins/initDimensions.js';
 import { drawPlot } from './mixins/drawPlot.js';
-import { removePointExtend } from './mixins/removePointExtend.js';
 
 import { removePoint } from '../../assets/javascript/mixins/chart/removePoint.js';
 import { resetPlot } from '../../assets/javascript/mixins/chart/resetPlot.js';
@@ -144,7 +143,6 @@ export default {
         updateLegend,
         zoomed,
         removePoint,
-        removePointExtend,
         initScales,
         setElements,
         removeLines,
@@ -168,7 +166,7 @@ export default {
         }
     },
     methods: {
-        setParameters: function(parameters) {
+        setParameters(parameters) {
             // Check data is valid prior to plotting
             this.plotParameters = _.cloneDeep(parameters);
         },
@@ -226,7 +224,7 @@ export default {
     },
     watch: {
         plotParameters: {
-            handler: function() {
+            handler() {
                 let vm = this;
 
                 this.$nextTick(function() { 

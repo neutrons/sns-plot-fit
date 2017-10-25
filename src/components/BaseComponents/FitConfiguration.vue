@@ -96,7 +96,7 @@ export default {
         }
     },
     watch: {
-        fit: function() {
+        fit() {
             if(this.fit === 'None') this.coefficients = {};
             this.$emit('set-fit', this.fit);
         }

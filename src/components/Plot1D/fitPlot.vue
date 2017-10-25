@@ -81,7 +81,6 @@ import { changeScales } from '../../assets/javascript/mixins/chart/changeScales.
 import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsive.js';
 import { updateLegend } from '../../assets/javascript/mixins/chart/updateLegend.js';
 import { zoomed } from '../../assets/javascript/mixins/chart/zoomed.js';
-import { removePointExtend } from './mixins/removePointExtend.js';
 import { removePoint } from '../../assets/javascript/mixins/chart/removePoint.js';
 import { initScales } from '../../assets/javascript/mixins/chart/initScales.js';
 import { setElements } from '../../assets/javascript/mixins/chart/setElements.js';
@@ -165,7 +164,6 @@ export default {
         updateLegend,
         zoomed,
         removePoint,
-        removePointExtend,
         initScales,
         setElements,
         removeLines,
@@ -173,7 +171,7 @@ export default {
         drawPlot
     ],
     methods: {
-        setParameters: function(parameters) {
+        setParameters(parameters) {
             // Check data is valid prior to plotting
             this.plotParameters = _.cloneDeep(parameters);
         },
@@ -215,7 +213,7 @@ export default {
     },
     watch: {
         plotParameters: {
-            handler: function() {
+            handler() {
                 let vm = this;
 
                 this.$nextTick(function() { 

@@ -6,24 +6,10 @@ import { eventBus } from '../../eventBus.js';
 
 export const removePoint = {
     methods: {
-        removePoint(index, name, callback) {
+        removePoint(index, name) {
             let vm = this;
 
-            callback = callback || $.noop;
-
             // console.log("Removing point: ", index, name);
-
-            let yes = function() {
-                $("#btn-no-delete").off();
-                $("#btn-yes-delete").off();
-
-                eventBus.$emit('update-selected-data-' + vm.ID, index, name);
-
-                // Remove point from stored dataset
-                store.commit('removePoint', {name: name, index: index});
-
-                return true;
-            }
 
             $("#myModal").modal('show')
     
@@ -35,12 +21,15 @@ export const removePoint = {
 
             $("#btn-yes-delete").on("click", function(){
     
-                $.when( yes() ).done(function() {
-                    $("#myModal").modal('hide');
-                    vm.updatePlot(vm.dataNest);
-                    
-                    callback();
-                });
+                $("#btn-no-delete").off();
+                $("#btn-yes-delete").off();
+
+                eventBus.$emit('update-selected-data', index, name);
+
+                // Remove point from stored dataset
+                store.commit('removePoint', {name: name, index: index});
+                $("#myModal").modal('hide');
+
             });
         }
     }

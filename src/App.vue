@@ -115,10 +115,10 @@ export default {
     eventBus.$on('error-message', this.generateError);
   },
   methods: {
-    switchPlotComponent: function(plotType) {
+    switchPlotComponent(plotType) {
       this.toggleView = plotType;
     },
-    generateError: function(errorMSG, type) {
+    generateError(errorMSG, type) {
       document.getElementById("error_"+this.errorCount) === null ? this.errorCount = 0 : this.errorCount += 1;
       var newDiv = document.createElement("div");
       var timer = this.errorCount === 0 ? 5000 : 5000+(this.errorCount*1000);

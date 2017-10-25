@@ -23,6 +23,6 @@ export default function(selection, x, y, vm) {
         })
         .on("mouseout", function (d) { tooltip.exit(d, vm.elements.tooltip) })
         .on("click", function(d,i) {
-            vm.removePointExtend(i, d.name);
+            vm.removePoint(i, d.name);
         });
 }

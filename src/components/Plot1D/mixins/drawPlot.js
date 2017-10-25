@@ -1,4 +1,6 @@
 import * as d3 from 'd3';
+/* Import Event Bus */
+import { eventBus } from '../../../assets/javascript/eventBus';
 
 export const drawPlot = {
     methods: {
@@ -16,8 +18,8 @@ export const drawPlot = {
                 
                 vm.isError = !vm.isError;
                 
-                if(vm.checkError()) {
-                    let errorMsg = "<strong>Error!</strong> No data to plot...might be due to the fit transformation resulting in invalid values.";
+                if (vm.checkError()) {
+                    let errorMsg = "<strong>Error!</strong> No data to plot. Check fit or transformations for invalid values.";
                     eventBus.$emit('error-message', errorMsg, 'danger');
                 }
 

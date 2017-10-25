@@ -214,12 +214,12 @@ export default {
     },
     watch: {
         hexSettings: {
-            handler: function() {
+            handler() {
                 this.drawPlot(this.currentData, this.hexSettings);
             },
             deep: true
         },
-        fileToPlot: function() {
+        fileToPlot() {
             // Check if file is in the stored 2d list
             // a value of '999' means no data is stored
             if (this.fileToPlot !== null) {

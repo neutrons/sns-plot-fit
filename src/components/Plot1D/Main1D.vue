@@ -217,7 +217,7 @@ export default {
     mounted() {
         let vm = this;
 
-        eventBus.$on('update-selected-data-1D', vm.updateSelectedData);
+        eventBus.$on('update-selected-data', vm.updateSelectedData);
     },
     methods: {
         updateSelectedData(index, name) {
@@ -383,7 +383,7 @@ export default {
             },
             deep: true
         },
-        fileToFit: function () {
+        fileToFit () {
             // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
             // If fileToFit is set to Null, don't transform anything and reset the fit to none
             // console.log("File is being fit:", this.fileToFit);
@@ -399,13 +399,13 @@ export default {
             }
         },
         selectedData: {
-            handler: function() {
+            handler() {
                 this.setParameters();
             },
             deep: true
         },
         currentConfiguration: {
-            handler: function() {
+            handler() {
                 // console.log("Current configurations changed!");
                 if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                     this.selectedData.forEach( el => {
@@ -419,7 +419,7 @@ export default {
             },
             deep: true
         },
-        uploadedFiles: function () {
+        uploadedFiles () {
             if (this.uploadedFiles.length > 0) {
                 this.isUploaded = true;
             } else {
@@ -434,7 +434,7 @@ export default {
         },
         filesToPlot: {
             // Watch if a file is selected, if so enable buttons and append selected data to a list
-            handler: function () {
+            handler () {
                 var vm = this;
 
                 // If a file is unselected while it has a fit, unselect the fit

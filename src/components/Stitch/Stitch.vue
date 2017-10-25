@@ -190,7 +190,7 @@ export default {
         eventBus.$on('reset-is-stitched', function() {
             vm.isStitched = false;
         })
-        eventBus.$on('update-selected-data-stitch', this.updateSelectedData);
+        eventBus.$on('update-selected-data', this.updateSelectedData);
     },
     mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs, isOffline, isPlotted, remove1DFile, uploaded1DFiles, prepPlotData],
     computed: {
