@@ -1,6 +1,9 @@
 import * as d3 from 'd3';
 import store from '../../../../store/index.js';
 
+// The eventBus serves as the means to communicating between components.
+import { eventBus } from '../../eventBus.js';
+
 export const removePoint = {
     methods: {
         removePoint(index, name, callback) {
@@ -13,12 +16,8 @@ export const removePoint = {
             let yes = function() {
                 $("#btn-no-delete").off();
                 $("#btn-yes-delete").off();
-                
-                // Remove point from current data
-                // console.log(vm.dataNest);
-                vm.dataNest.forEach(el => {
-                    if (el.key === name)    el.values.splice(index,1);
-                })
+
+                eventBus.$emit('update-selected-data-' + vm.ID, index, name);
 
                 // Remove point from stored dataset
                 store.commit('removePoint', {name: name, index: index});

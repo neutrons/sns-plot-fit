@@ -145,6 +145,9 @@ import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import fd from '../../assets/javascript/fitData.js';
 
+// The eventBus serves as the means to communicating between components.
+import { eventBus } from '../../assets/javascript/eventBus';
+
 export default {
     name: 'Main1D',
     components: {
@@ -211,7 +214,22 @@ export default {
           return fetchLength > 0 || uploadLength > 0 ? true : false;
       }
     },
+    mounted() {
+        let vm = this;
+
+        eventBus.$on('update-selected-data-1D', vm.updateSelectedData);
+    },
     methods: {
+        updateSelectedData(index, name) {
+
+            this.selectedData.forEach(el => {
+
+                if (name === el.filename) { 
+                    el.data.splice(index,1); 
+                    el.dataTransformed.splice(index, 1); 
+                };
+            })
+        },
         clearSelected() {
             this.fileFitChoice = [];
             this.filesToPlot = [];
@@ -247,7 +265,7 @@ export default {
             })
         },
         setFileToFit() {
-            if(this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
+            if (this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
             this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
         },
         resetFileFitChoice() {

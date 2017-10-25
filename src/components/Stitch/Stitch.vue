@@ -190,6 +190,7 @@ export default {
         eventBus.$on('reset-is-stitched', function() {
             vm.isStitched = false;
         })
+        eventBus.$on('update-selected-data-stitch', this.updateSelectedData);
     },
     mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs, isOffline, isPlotted, remove1DFile, uploaded1DFiles, prepPlotData],
     computed: {
@@ -201,6 +202,14 @@ export default {
       }
     },
     methods: {
+        updateSelectedData(index, name) {
+
+            this.selectedData.forEach(el => {
+
+                if (name === el.filename)   el.data.splice(index,1);
+                
+            })
+        },
         setCurrentData(chosenData, checkList) {
             
             var vm = this;
@@ -232,6 +241,7 @@ export default {
                 });
         },
         setParameters() {
+
             this.$nextTick(function() {
                 if(this.selectedData.length > 0) {
                     this.$refs.stitchPlot.setParameters({

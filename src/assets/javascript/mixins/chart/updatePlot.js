@@ -89,7 +89,7 @@ export const updatePlot = {
                         .selectAll(".dot")
                         .data(d.values)
                             .enter()
-                            .call(scatterPoints, new_xScale, new_yScale, vm.color);
+                            .call(scatterPoints, new_xScale, new_yScale, vm);
                             
                 } else {
                     
@@ -153,15 +153,15 @@ export const updatePlot = {
             });
 
             // Add event listeners for scatter points
-            vm.elements.plot.selectAll('circle')
-                .on("mouseover", function(d) { 
-                    let htmlString = "Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6);
-                    tooltip.enter(d, htmlString, vm.elements.tooltip) 
-                })
-                .on("mouseout", function (d) { tooltip.exit(d, vm.elements.tooltip) })
-                .on("click", function(d,i) {
-                    vm.removePointExtend(i, d.name);
-                });
+            // vm.elements.plot.selectAll('circle')
+            //     .on("mouseover", function(d) { 
+            //         let htmlString = "Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6);
+            //         tooltip.enter(d, htmlString, vm.elements.tooltip) 
+            //     })
+            //     .on("mouseout", function (d) { tooltip.exit(d, vm.elements.tooltip) })
+            //     .on("click", function(d,i) {
+            //         vm.removePointExtend(i, d.name);
+            //     });
 
             // Update legend
             vm.updateLegend();
