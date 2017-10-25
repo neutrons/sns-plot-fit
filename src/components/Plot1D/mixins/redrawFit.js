@@ -3,6 +3,8 @@ import * as d3 from 'd3';
 export const redrawFit = {
     methods: {
         redrawFit(c) {
+            let vm = this;
+            
             // console.log("Coefficients are:", c);
             let temp = d3.select(".fitted-line").datum();
             let tempX = [];
@@ -16,7 +18,7 @@ export const redrawFit = {
                 tempCoefficients.push(c[key]);
             }
 
-            let newFitEq = fitEquation(tempCoefficients);
+            let newFitEq = vm.fitEquation(tempCoefficients);
 
             let y_fitted = tempX.map(function(el) {
                 return newFitEq(el);
