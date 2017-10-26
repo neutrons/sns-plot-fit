@@ -4,7 +4,7 @@
         <!-- Left Sidebar for Controls and File List  -->
         <div class="col-md-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
-                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success">
+                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
@@ -144,6 +144,7 @@ import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
+import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
@@ -186,7 +187,7 @@ export default {
             vm.isStitched = false;
         })
     },
-    mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs],
+    mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs, isOffline],
     computed: {
       xScales() {
         return this.$store.getters.getXScales;

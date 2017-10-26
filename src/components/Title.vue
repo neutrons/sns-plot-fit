@@ -14,7 +14,7 @@
 
         <div class="collapse navbar-collapse" id="navbarElements">
           <ul id="menu-buttons" class="nav navbar-nav navbar-right">
-            <li>
+            <li v-if="!isOffline">
               <button class="btn btn-success navbar-btn" @click="fetchData">Fetch Data</button>
             </li>
             <li>
@@ -47,6 +47,8 @@
 //       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../assets/javascript/eventBus';
 
+import { isOffline } from '../assets/javascript/mixins/isOffline.js';
+
 // Use papa parse to parse csv/tsv files
 // Axios to handle HTTP requests
 import pp from 'papaparse';
@@ -62,6 +64,7 @@ export default {
   mounted() {
     eventBus.$on('fetch-data', this.fetchData);
   },
+  mixins: [isOffline],
   methods: {
     fetchData() {
       console.log("Fetching data...");

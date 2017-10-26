@@ -7,7 +7,7 @@
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
 
             <!-- Fetched Data Panel  -->
-                <v-panel PANELTITLE="Fetched" PANELTYPE="success">
+                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
@@ -138,6 +138,7 @@ import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
+import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import fd from '../../assets/javascript/fitData.js';
 
 export default {
@@ -197,7 +198,7 @@ export default {
 
       }
     },
-    mixins: [parse1D, pull1DData, fetchFiles, setScales, filterJobs, getURLs],
+    mixins: [parse1D, pull1DData, fetchFiles, setScales, filterJobs, getURLs, isOffline],
     computed: {
       uploadFiles() {
         //   console.log("Store 1D", this.$store.getters.getUploaded1D);
