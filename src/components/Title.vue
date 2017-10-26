@@ -70,6 +70,7 @@ export default {
   mounted() {
     // Event listener for when stitch lines are saved
     eventBus.$on('fetch-data', this.fetchData);
+    eventBus.$on('upload-files', this.uploadFile);
   },
   mixins: [isOffline],
   methods: {
@@ -79,7 +80,7 @@ export default {
       axios.get('/external/fetch').then(response => {
 
         var files = response.data;
-        console.log("RESPONSE:", response);
+      
         var temp1D = [];
         var temp2D = [];
         var vm = this;
@@ -89,7 +90,6 @@ export default {
           var temp2DFiles = [];
           var jobTitle = files[i].job_title;
           var jobModified = files[i].date_modified;
-          console.log("FILES[" + i + "]", files[i]);
 
           files[i].results.forEach(function(item) {
             
@@ -141,8 +141,6 @@ export default {
         // loadFiles(files[i]);
         let url = files[i].name;
         let blob = files[i];
-
-        console.log("LOAD FILE:", files);
 
         if (vm.dataType(url) === '1D') {
           // console.log("1D Item", {url: url, group: group, fileName: name});

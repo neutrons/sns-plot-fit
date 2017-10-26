@@ -4,13 +4,11 @@
       <div id="error-container"></div>
 
       <!-- File Drop Zone -->
-      <div style="visibility:hidden; opacity:0" id="dropzone">
-        <div id="textnode">Drop files to add data.</div>
-      </div>
+      <app-dropzone></app-dropzone>
       
       <app-title 
         @switch-plot-component="switchPlotComponent" 
-        ref="title">
+      >
       </app-title>
 
       <transition name="fade" appear>
@@ -60,6 +58,8 @@ import Stitch from './components/Stitch/Stitch.vue';
 import TAS from './components/TAS/TAS.vue';
 import Title from './components/Title.vue';
 
+import Dropzone from './components/BaseComponents/Dropzone.vue';
+
 // The eventBus serves as the means to communicating between components.
 // e.g., If scales are reset in 'Controls.vue', an event is emitted
 //       and the event is then 'caught' in 'Main.vue'
@@ -72,53 +72,14 @@ export default {
     'app-stitch': Stitch,
     'app-main-1D': Main1D,
     'app-plot-2D': Plot2D,
-    'app-tas': TAS
+    'app-tas': TAS,
+    'app-dropzone': Dropzone,
   },
   data: function () {
     return {
       toggleView: 'TAS',
       errorCount: 0
     }
-  },
-  mounted() {
-      var vm = this;
-
-      // Event listeners are added for monitoring drag 'n drop of data files.
-      window.addEventListener("dragenter", function (e) {
-        document.querySelector("#dropzone").style.visibility = "";
-        document.querySelector("#dropzone").style.opacity = 1;
-        document.querySelector("#textnode").style.fontSize = "48px";
-      });
-
-      window.addEventListener("dragleave", function (e) {
-        e.preventDefault();
-
-        document.querySelector("#dropzone").style.visibility = "hidden";
-        document.querySelector("#dropzone").style.opacity = 0;
-        document.querySelector("#textnode").style.fontSize = "42px";
-          
-      });
-
-      window.addEventListener("dragover", function (e) {
-        e.preventDefault();
-
-        document.querySelector("#dropzone").style.visibility = "";
-        document.querySelector("#dropzone").style.opacity = 1;
-        document.querySelector("#textnode").style.fontSize = "48px";
-      });
-
-      window.addEventListener("drop", function (e) {
-        e.preventDefault();
-
-        document.querySelector("#dropzone").style.visibility = "hidden";
-        document.querySelector("#dropzone").style.opacity = 0;
-        document.querySelector("#textnode").style.fontSize = "42px";
-        
-        var files = e.dataTransfer.files;
-        
-        // Call uplaod funciton in child component 'title'
-        vm.$refs.title.uploadFile(files);
-      });
   },
   created() {
     // Listen for error messages
