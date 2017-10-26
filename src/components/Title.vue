@@ -19,7 +19,10 @@
             </li>
             <li>
               <label class="btn btn-success navbar-btn">
-                <i class="fa fa-file" aria-hidden="true"></i> Load Files <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple></label>
+                <i class="fa fa-file" aria-hidden="true"></i> 
+                Load Files 
+                <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple>
+              </label>
             </li>
           </ul>
 
@@ -65,6 +68,7 @@ export default {
     }
   },
   mounted() {
+    // Event listener for when stitch lines are saved
     eventBus.$on('fetch-data', this.fetchData);
   },
   mixins: [isOffline],
@@ -75,7 +79,7 @@ export default {
       axios.get('/external/fetch').then(response => {
 
         var files = response.data;
-
+        console.log("RESPONSE:", response);
         var temp1D = [];
         var temp2D = [];
         var vm = this;
@@ -137,6 +141,8 @@ export default {
         // loadFiles(files[i]);
         let url = files[i].name;
         let blob = files[i];
+
+        console.log("LOAD FILE:", files);
 
         if (vm.dataType(url) === '1D') {
           // console.log("1D Item", {url: url, group: group, fileName: name});

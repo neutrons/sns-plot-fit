@@ -137,6 +137,7 @@ export default {
     data: function () {
       return {
         msg: 'TAS Component!',
+        filesToPlot: [],
         fileToFit: null,
         fileFitChoice: [],
         selectedData: [],
