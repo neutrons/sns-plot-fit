@@ -33,10 +33,10 @@
 
             <!-- Uploaded Data Panel  -->
                 <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show="uploadFiles.length > 0">
+                    <div v-show="uploaded1DFiles.length > 0">
                      <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in uploadFiles" :class="isPlotted(f.filename)">
+                                <tr v-for="f in uploaded1DFiles" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled="(isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
@@ -130,16 +130,23 @@ import Scales from '../BaseComponents/Scales.vue';
 import Levenberg from '../BaseComponents/Levenberg.vue';
 import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
 import Transformation from '../BaseComponents/Transformation.vue';
-import Plot1D from './Plot1D.vue';
+import Plot1D from './fitPlot.vue';
 
 /* Import Mixins */
 import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
+import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
+import { remove1DFile } from '../../assets/javascript/mixins/remove1DFile.js';
+import { uploaded1DFiles } from '../../assets/javascript/mixins/uploaded1DFiles.js';
+import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import fd from '../../assets/javascript/fitData.js';
+
+// The eventBus serves as the means to communicating between components.
+import { eventBus } from '../../assets/javascript/eventBus';
 
 export default {
     name: 'Main1D',
@@ -198,12 +205,8 @@ export default {
 
       }
     },
-    mixins: [parse1D, pull1DData, fetchFiles, setScales, filterJobs, getURLs, isOffline],
+    mixins: [parse1D, pull1DData, fetchFiles, setScales, filterJobs, getURLs, isOffline, isPlotted, remove1DFile, uploaded1DFiles, prepPlotData],
     computed: {
-      uploadFiles() {
-        //   console.log("Store 1D", this.$store.getters.getUploaded1D);
-          return _.cloneDeep(this.$store.getters.getUploaded1D);
-      },
       isFiles() {
           let fetchLength = this.$store.getters.getFetched1D.length;
           let uploadLength = this.$store.getters.getUploaded1D.length;
@@ -211,7 +214,22 @@ export default {
           return fetchLength > 0 || uploadLength > 0 ? true : false;
       }
     },
+    mounted() {
+        let vm = this;
+
+        eventBus.$on('update-selected-data', vm.updateSelectedData);
+    },
     methods: {
+        updateSelectedData(index, name) {
+
+            this.selectedData.forEach(el => {
+
+                if (name === el.filename) { 
+                    el.data.splice(index,1); 
+                    el.dataTransformed.splice(index, 1); 
+                };
+            })
+        },
         clearSelected() {
             this.fileFitChoice = [];
             this.filesToPlot = [];
@@ -240,29 +258,14 @@ export default {
         },
         removeFile(filename) {
 
-            let index = this.filesToPlot.indexOf(filename);
-            if(this.filesToPlot.indexOf(filename) > -1) {
-                
-                if(this.fileToFit === filename) {
-                    this.fileToFit = null;
-                }
+            let vm = this;
 
-                this.filesToPlot.splice(index,1);
-            }
-
-            this.$store.commit('remove1DFile', filename);
-            this.$store.commit('removeColor', filename);
-        },
-        isPlotted(filename) {
-            //Dynamically style the file lists blue for plotted data
-            if(this.filesToPlot.indexOf(filename) > -1) {
-                return "success";
-            } else {
-                return "default";
-            }
+            this.remove1DFile(filename, function() {
+                if (vm.fileToFit === filename)    vm.fileToFit = null;
+            })
         },
         setFileToFit() {
-            if(this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
+            if (this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
             this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
         },
         resetFileFitChoice() {
@@ -271,6 +274,9 @@ export default {
         },
         setCurrentData(chosenData, checkList) {            
             var vm = this;
+
+            chosenData = _.cloneDeep(chosenData);
+            
             if (checkList.length == 0) {
                 // If no data is selected to be plotted, then
                 // remove any elements previously plotted
@@ -285,37 +291,25 @@ export default {
                 this.selectedData = [];
                 this.fileToFit = null;
             } else {
-                var toFilter = [];
-                
-                // Remove any instances where checked file isn't in selected
-                this.selectedData = this.selectedData.filter(function(item) { 
-                    var match = checkList.indexOf(item.filename);
-                    if(match > -1) {
-                        toFilter.push(checkList[match]);
-                    }
+                let tempSelect = [];
 
-                    return checkList.indexOf(item.filename) > -1;
-                });
+                for(let i = 0, len = chosenData.length; i < len; i++) {
+                    
+                    let temp = chosenData[i].data;
+                    let name = chosenData[i].filename;
 
-                // console.log("Selected Data after removing unnecessary", this.selectedData);
-
-                // Filter out data that doesn't need to be added
-                var addList = checkList.filter(el => toFilter.indexOf(el) < 0).map(function(fname) {
-                    let temp = chosenData.find(el => el.filename === fname);
-                    return {filename: fname, data: temp};
-                });
-
-                for(let i = 0, len = addList.length; i < len; i++) {
-                    let temp = addList[i].data;
-                    if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
-                        temp.dataTransformed = fd.transformData(temp.data, this.currentConfiguration);
-                        // console.log("Temp data:", temp);
-                        this.selectedData.push(temp);
+                    if (this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
+                        let dataTransformed = fd.transformData(temp, this.currentConfiguration);
+                        
+                        tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
                     } else {
-                        temp.dataTransformed = _.cloneDeep(temp.data);
-                        this.selectedData.push(temp);
+                        let dataTransformed = _.cloneDeep(temp);
+
+                        tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
                     }
                 }
+
+                this.selectedData = tempSelect;
             }
         },
         setFitFile(filename) {
@@ -327,19 +321,14 @@ export default {
             this.currentConfiguration = _.cloneDeep(this.$store.getters.getFitConfigsByID(fitname));
         },
         prepData(sd) {
-            // This function is to prepare the data before calling 'plotCurrentData' function
-            // The initial array has multiple arrays with objects inside,
-            // The for loop strips out the object for just the arrays of data
-            // Then _.flatten is used to make it a single, non-nested array
-            // This is simply to ease the process of plotting (see the nested loop function in 'plotCurrentData.js')
-            let temp = [];
-            // console.log("Data to push to temp:", sd);
-            for (let i = 0; i < sd.length; i++) {
-            // If a fit is set push transformed data, else push normal data
-                temp.push(sd[i].dataTransformed);
-            }
-            // console.log("Merging data:", _.flatten(temp));
-            return _.flatten(temp);
+
+            return this.prepPlotData(sd, function() {
+                    let temp = [];
+
+                    for (let i = 0; i < sd.length; i++) temp.push(sd[i].dataTransformed);
+
+                    return temp;
+                });
         },
         setParameters() {
             // Next tick is used to wait for all parameter changes to be updated
@@ -353,7 +342,11 @@ export default {
                         scales: this.scales,
                         fileToFit: this.fileToFit,
                         fitConfiguration: this.currentConfiguration,
-                        fitSettings: this.fitSettings
+                        fitSettings: this.fitSettings,
+                        labels: {
+                            x: this.currentConfiguration.xTransformation,
+                            y: this.currentConfiguration.yTransformation
+                        }
                     });
                 } else {
                     // Remove any elements previously plotted
@@ -385,12 +378,12 @@ export default {
         scales: {
             handler() {
                 this.$nextTick(function() {
-                    if(this.selectedData.length > 0)    this.$refs.plot_1D.changeScales(this.scales);
+                    if(this.selectedData.length > 0)    this.$refs.plot_1D.updateScales(this.scales);
                 })
             },
             deep: true
         },
-        fileToFit: function () {
+        fileToFit () {
             // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
             // If fileToFit is set to Null, don't transform anything and reset the fit to none
             // console.log("File is being fit:", this.fileToFit);
@@ -406,13 +399,13 @@ export default {
             }
         },
         selectedData: {
-            handler: function() {
+            handler() {
                 this.setParameters();
             },
             deep: true
         },
         currentConfiguration: {
-            handler: function() {
+            handler() {
                 // console.log("Current configurations changed!");
                 if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                     this.selectedData.forEach( el => {
@@ -426,7 +419,7 @@ export default {
             },
             deep: true
         },
-        uploadedFiles: function () {
+        uploadedFiles () {
             if (this.uploadedFiles.length > 0) {
                 this.isUploaded = true;
             } else {
@@ -441,7 +434,7 @@ export default {
         },
         filesToPlot: {
             // Watch if a file is selected, if so enable buttons and append selected data to a list
-            handler: function () {
+            handler () {
                 var vm = this;
 
                 // If a file is unselected while it has a fit, unselect the fit
@@ -474,9 +467,6 @@ export default {
                     
                     // Reset selected data to an empty array
                     this.selectedData = [];
-
-                    // Reset brush selection
-                    this.$refs.plot_1D.resetBrushSelection();
                     
                     console.log("No files to plot");
 
@@ -486,6 +476,8 @@ export default {
 
                     // First check if files to plot are in stored data
                     var tempData = this.filesToPlot.map(function(filename) {
+                       
+
                         var temp = vm.$store.getters.getSaved1D(filename);
                     
                         // console.log("Here is the temp:", temp);

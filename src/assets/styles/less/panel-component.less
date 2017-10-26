@@ -11,9 +11,9 @@
 
         .panel-title {
             .fluid-type(font-size, 300px, 2000px, 8px, 14px);
+            position: relative;
 
             .collapser {
-                position: relative;
                 padding: 2.5px;
                 display: block;
                 cursor: pointer;
@@ -23,6 +23,13 @@
                     top: 0px;
                     right: 0px;
                 }
+            }
+
+            button { 
+                position: absolute;
+                top: 0px;
+                left: 5px;
+                z-index: 999;
             }
         }
     }

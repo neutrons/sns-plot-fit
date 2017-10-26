@@ -5,8 +5,8 @@
     <div :class="'panel panel-' + PANELTYPE">
         <div class="panel-heading">
             <div class="panel-title">
-                <div class="collapser" @click="isCollapsed = !isCollapsed">
                     <slot name="header-content"></slot>
+                <div class="collapser" @click="isCollapsed = !isCollapsed">
                     <span>{{PANELTITLE}} </span>
                     <span class="collapser-icon" v-if="isCollapsed"><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <span class="collapser-icon" v-else><i class="fa fa-minus-square" aria-hidden="true"></i></span>
@@ -58,7 +58,7 @@ export default {
       }
   },
   mounted() {
-      $('.collapser').click(function() {          
+      $('.collapser:not(button)').click(function() {          
           $(this).parent().parent().next().collapse('toggle');
       })
   }

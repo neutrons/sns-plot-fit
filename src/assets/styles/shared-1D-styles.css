@@ -1,3 +1,5 @@
+@import url('./plot-labels.css');
+
 .zoom {
   cursor: move;
   opacity: 0;
@@ -71,6 +73,11 @@ iframe.width-changed {
   display: block;
   border: 0;
   height: 0;
+}
+
+circle {
+  stroke: white;
+  stroke-width: 1px;
 }
 
 

@@ -1,5 +1,5 @@
 <template>
-    <button @click="onClick" class="btn btn-success btn-xs pull-left btn-reset">
+    <button @click="onClick" class="btn btn-success btn-xs btn-reset">
         <slot>Button</slot>
     </button>
 </template>
@@ -17,13 +17,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
 .btn-reset {
-
-    position: relative;
-    top: 0px;
-    left: 5px;
-    z-index: 999;
     padding: 0px 5px;
 
     @media screen and (min-width: 1441px) { font-size: 12px; }

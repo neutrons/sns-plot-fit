@@ -50,7 +50,7 @@ export default {
             let newXTrans = document.getElementById('x-transform').value;
             let newYTrans = document.getElementById('y-transform').value;
 
-            if(fd.isSymbols([newXTrans, newYTrans])) {
+            if (fd.isSymbols([newXTrans, newYTrans])) {
                 // console.log("Invalid entry!");
                 // Generate error message for invalid transformation
                 document.getElementById('transformation-error').innerHTML = 

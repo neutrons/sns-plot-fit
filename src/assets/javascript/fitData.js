@@ -5,8 +5,6 @@ import LM from 'ml-levenberg-marquardt';
 import * as _ from 'lodash';
 var fd = {};
 
-fd.print = function() { console.log("JUST TESTING")};
-
 fd.isSymbols = function (expression) {
     // Function to check that user did not enter a transformation that doesn't include 'x' or 'y'
     // E.g. x*2+c would throw an error

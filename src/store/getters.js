@@ -20,7 +20,7 @@ export const get2DFile = state => (id) => {
 }
 
 export const getColorDomain = state => {
-    return state.colorDomain
+    return _.cloneDeep(state.colorDomain);
 }
 
 export const getDataType = state => {
