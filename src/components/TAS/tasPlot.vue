@@ -4,7 +4,6 @@
             <!-- Plot Panel  -->
             <v-panel PANELTITLE="TAS Plot" PANELTYPE="primary">
                 <!-- Plot reset button inserted into panel heading  -->
-                <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
                 <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
                 
                 <div :id="'plot-' + ID"></div>

@@ -85,6 +85,7 @@ export default {
           var temp2DFiles = [];
           var jobTitle = files[i].job_title;
           var jobModified = files[i].date_modified;
+          console.log("FILES[" + i + "]", files[i]);
 
           files[i].results.forEach(function(item) {
             
