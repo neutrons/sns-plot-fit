@@ -24,14 +24,17 @@
           </ul>
 
           <ul id="view-switches" class="nav navbar-nav navbar-right">
-            <li id="switch-1D" class="active">
-              <a href="#1D" @click="switchView('1D')">1D</a>
+            <li id="switch-1D">
+              <a href="#1D" @click="switchView('1D')">SANS 1D</a>
             </li>
             <li id="switch-2D">
-              <a href="#2D" @click="switchView('2D')">2D</a>
+              <a href="#2D" @click="switchView('2D')">SANS 2D</a>
             </li>
             <li id="switch-Stitch">
               <a href="#Stitch" @click="switchView('Stitch')">Stitch</a>
+            </li>
+            <li id="switch-TAS" class="active">
+              <a href="#TAS" @click="switchView('TAS')">TAS</a>
             </li>
           </ul>
         </div>

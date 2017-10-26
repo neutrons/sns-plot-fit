@@ -7,7 +7,7 @@
                 <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
                 <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
                 
-                <div id="plot-1D"></div>
+                <div :id="'plot-' + ID"></div>
 
                 <!-- Fit Results Table to add fit results -->
               <div id="fit-results-table" class="table table-condensed table-responsive" v-show="SHOWTABLE && !isError">          

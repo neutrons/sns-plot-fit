@@ -10,10 +10,7 @@
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
-                            <v-filter 
-                                @filter-job="filterJob"
-                                @sort-by-date="sortByDate"
-                            ></v-filter>
+                            <v-filter></v-filter>
                         </div>
                         <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
                             <template>
@@ -418,13 +415,6 @@ export default {
                 }
             },
             deep: true
-        },
-        uploadedFiles () {
-            if (this.uploadedFiles.length > 0) {
-                this.isUploaded = true;
-            } else {
-                this.isUploaded = false;
-            }
         },
         fitSettings: {
             handler: function() {

@@ -25,6 +25,10 @@
         <app-stitch v-show="toggleView === 'Stitch'"></app-stitch>
       </transition> 
 
+      <transition name="fade" appear>
+        <app-tas v-show="toggleView === 'TAS'"></app-tas>
+      </transition> 
+
 
         <!-- Modal for Point Deletion -->
         <div class="modal fade" id="myModal" role="dialog" data-keyboard="false" data-backdrop="static">
@@ -48,9 +52,12 @@
 
 <script>
 import $ from 'jquery';
+
+/* Import Components */
 import Main1D from './components/Plot1D/Main1D.vue';
 import Plot2D from './components/Plot2D/Plot2D.vue';
 import Stitch from './components/Stitch/Stitch.vue';
+import TAS from './components/TAS/TAS.vue';
 import Title from './components/Title.vue';
 
 // The eventBus serves as the means to communicating between components.
@@ -64,11 +71,12 @@ export default {
     'app-title': Title,
     'app-stitch': Stitch,
     'app-main-1D': Main1D,
-    'app-plot-2D': Plot2D
+    'app-plot-2D': Plot2D,
+    'app-tas': TAS
   },
   data: function () {
     return {
-      toggleView: '1D',
+      toggleView: 'TAS',
       errorCount: 0
     }
   },
