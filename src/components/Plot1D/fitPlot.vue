@@ -2,7 +2,7 @@
   <div id="plot-1d-col" class="col-md-10">
 
             <!-- Plot Panel  -->
-            <v-panel PANELTITLE="1D Plot" PANELTYPE="primary">
+            <v-panel PANELTITLE="SANS 1D Plot" PANELTYPE="primary">
                 <!-- Plot reset button inserted into panel heading  -->
                 <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
                 

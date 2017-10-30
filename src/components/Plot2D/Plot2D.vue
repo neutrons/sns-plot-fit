@@ -76,7 +76,7 @@
       </div>
 
       <div class="col-md-10" id="plot-2d-col">
-        <v-panel PANELTITLE="2D Plot" PANELTYPE="primary">
+        <v-panel PANELTITLE="SANS 2D Plot" PANELTYPE="primary">
             <!-- Plot reset button inserted into panel heading  -->
             <v-reset-button :onClick="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</v-reset-button>
             
