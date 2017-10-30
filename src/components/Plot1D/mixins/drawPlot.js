@@ -13,8 +13,8 @@ export const drawPlot = {
             if (vm.dataNest.length < 1) {
                 console.log("No data! Error!");
                 //Remove any elements previously plotted
-                d3.select(".chart-1D").remove();
-                d3.select("#tooltip-1D").remove();
+                d3.select(".chart-SANS1D").remove();
+                d3.select("#tooltip-SANS1D").remove();
                 
                 vm.isError = !vm.isError;
                 
@@ -32,7 +32,7 @@ export const drawPlot = {
             vm.labels.y = 'I(q) = ' + vm.plotParameters.labels.y; //plotParameters.fitConfiguration.yTransformation; //yTitle according to label
             
             // If plot is already present, simply update with the new set of data
-            if (!d3.select(".chart-1D").empty() && vm.isFit === vm.prevFit) {
+            if (!d3.select(".chart-SANS1D").empty() && vm.isFit === vm.prevFit) {
 
                  // Lastly, update plot with data                
                 vm.updatePlot(vm.plotParameters.data);
@@ -42,8 +42,8 @@ export const drawPlot = {
                 return;
             } else { // New fit is being selected so tear down plot and re-do everything from scratch
                 
-                d3.select(".chart-1D").remove();
-                d3.select("#tooltip-1D").remove();
+                d3.select(".chart-SANS1D").remove();
+                d3.select("#tooltip-SANS1D").remove();
                 vm.selLimits = [];
                 vm.brushObj.brushSelection = [];
                 vm.brushObj.brushFile = undefined;

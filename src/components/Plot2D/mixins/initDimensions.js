@@ -6,7 +6,7 @@ export const initDimensions = {
         initDimensions() {
             let vm = this;
             
-            var containerWidth = document.getElementById("plot-2D").offsetWidth;
+            var containerWidth = document.getElementById("plot-" + vm.ID).offsetWidth;
             var viewHeight = containerWidth / (16/9);
 
             var containerWidth = getContainerWidth(vm);

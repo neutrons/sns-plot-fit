@@ -10,11 +10,13 @@
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
-                            <v-filter></v-filter>
+                            <v-filter
+                            group-type="TAS"
+                            ></v-filter>
                         </div>
                         <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles('1D', sortBy, filterBy)" :class="isPlotted(f.filename)">
+                                <tr v-for="f in fetchFiles('TAS', sortBy, filterBy)" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
@@ -29,11 +31,11 @@
                 </v-panel>
 
             <!-- Uploaded Data Panel  -->
-                <!-- <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show="uploaded1DFiles.length > 0">
+                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
+                    <div v-show="getUploaded.length > 0">
                      <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in uploaded1DFiles" :class="isPlotted(f.filename)">
+                                <tr v-for="f in getUploaded" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled="(isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
@@ -45,7 +47,7 @@
                             </template>
                         </v-table>
                     </div>
-                </v-panel> -->
+                </v-panel>
             </v-panel-group>
 
         <!-- Controls Main Panel  -->
@@ -116,7 +118,6 @@ import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
-import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 
 // The eventBus serves as the means to communicating between components.
@@ -159,11 +160,15 @@ export default {
     mixins: [
         fetchFiles, 
         setScales, 
-        filterJobs, 
-        getURLs, 
+        filterJobs,
         isPlotted,
         isOffline
     ],
+    computed: {
+        getUploaded() {
+          return this.$store.getters.getUploaded('TAS');
+      }
+    },
     methods: {
          setFileToFit() {
             if (this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);

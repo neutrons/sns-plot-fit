@@ -8,13 +8,14 @@
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
+                                group-type="SANS2D"
                                 @filter-job="filterJob"
                                 @sort-by-date="sortByDate"
                             ></v-filter>
                         </div>
                         <v-table :fieldNames="['Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles('2D', sortBy, filterBy)" :class="isPlotted(f.filename)">
+                                <tr v-for="f in fetchFiles('SANS2D', sortBy, filterBy)" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
@@ -27,10 +28,10 @@
                 </v-panel>
 
                 <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success">
-                    <div v-show="uploadFiles.length > 0">
+                    <div v-show="getUploaded.length > 0">
                      <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in uploadFiles" :class="isPlotted(f.filename)">
+                                <tr v-for="f in getUploaded" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
@@ -79,7 +80,7 @@
             <!-- Plot reset button inserted into panel heading  -->
             <v-reset-button :onClick="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</v-reset-button>
             
-            <div id="plot-2D"></div>
+            <div :id="'plot-' + ID"></div>
         </v-panel>
       </div>
 </div>
@@ -101,13 +102,7 @@ import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import ResetButton from '../BaseComponents/ResetButton.vue';
 
-/* Import Mixins */
-import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/readData.js';
-import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
-import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
-import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
-import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
-
+/* Import Local Mixins */
 import { drawPlot } from './mixins/drawPlot.js';
 import { updatePlot } from './mixins/updatePlot.js';
 import { initDimensions } from './mixins/initDimensions.js';
@@ -116,6 +111,12 @@ import { setElements } from './mixins/setElements.js';
 import { zoomed } from './mixins/zoomed.js';
 import { resetPlot } from './mixins/resetPlot.js';
 
+/* Import Shared Mixins */
+import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
+import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
+import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
+import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
+import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsive.js';
 
 export default {
@@ -151,13 +152,13 @@ export default {
 
         tempData.binSize = undefined;
         tempData.plotData = [];
-        tempData.ID = '2D';
+        tempData.ID = 'SANS2D';
 
         return tempData;
     },
     computed: {
-      uploadFiles() {
-          return _.cloneDeep(this.$store.getters.getUploaded2D);
+      getUploaded() {
+          return _.cloneDeep(this.$store.getters.getUploaded('SANS2D'));
       }
     },
     mixins: [
@@ -199,6 +200,8 @@ export default {
             this.fileToPlot = this.filesToPlot[0] ? this.filesToPlot[0] : null;
         },
         removeFile(filename) {
+            let vm = this;
+
             // If file is in fileToPlot or filesToPlot, remove it
             // and remove plot elements
             if (this.fileToPlot === filename) {
@@ -206,10 +209,10 @@ export default {
                 this.filesToPlot = [];
             }
 
-            d3.select(".chart-2D").remove();
-            d3.select(".tooltip-2D").remove();
+            d3.select(".chart-" + vm.ID).remove();
+            d3.select(".tooltip-" + vm.ID).remove();
 
-            this.$store.commit('remove2DFile', filename);
+            this.$store.commit('removeFile', { filename: filename, dataType: 'SANS2D'});
         }
     },
     watch: {
@@ -220,14 +223,16 @@ export default {
             deep: true
         },
         fileToPlot() {
+            let vm = this;
+
             // Check if file is in the stored 2d list
             // a value of '999' means no data is stored
             if (this.fileToPlot !== null) {
-                var data2D = this.$store.getters.getSaved2D(this.fileToPlot);
+                var data2D = this.$store.getters.getSavedFile('SANS2D', this.fileToPlot);
 
                 // If not, Check if the file is in the Fetched list or Uploaded
                 if (data2D === '999') {
-                    var inUpload2D = this.$store.getters.inUploaded2D(this.fileToPlot);
+                    var inUpload2D = this.$store.getters.inUploadedSANS2D(this.fileToPlot);
 
                     if (inUpload2D) {
                         // It's an uploaded file so read the data from blob
@@ -235,7 +240,7 @@ export default {
 
                     } else {
                         // It's a fetched file so get file then get the data url
-                        var file = this.$store.getters.get2DFile(this.fileToPlot);
+                        var file = this.$store.getters.getSANS2DFile(this.fileToPlot);
                         this.get2DData(file);
                     }
                 } else {
@@ -247,8 +252,8 @@ export default {
                 
                 this.currentData = [];
                 // Remove any current 2D plots
-                d3.select(".chart-2D").remove();
-                d3.select(".tooltip-2D").remove();
+                d3.select(".chart-" + vm.ID).remove();
+                d3.select(".tooltip-" + vm.ID).remove();
             }
         }
     }

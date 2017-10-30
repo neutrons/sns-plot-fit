@@ -46,7 +46,7 @@ export const saveStitchLine = {
                         eventBus.$emit("reset-stitch");
     
                         // Then fetch data to include the saved stitch file
-                        eventBus.$emit("fetch-data");
+                        eventBus.$emit("fetch-files");
                     })
                     .catch(function (error) {
                         console.log(error);

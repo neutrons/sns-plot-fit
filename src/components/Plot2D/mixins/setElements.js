@@ -7,26 +7,26 @@ export const setElements = {
 
             // Add tool tip and hide it until invoked
             vm.elements.tooltip = d3.select("#app-container").append("div")
-                .attr("class", "tooltip-2D")
+                .attr("class", "tooltip-" + vm.ID)
                 .style("opacity", 0);
 
-            vm.elements.svg = d3.select("#plot-2D").append("svg")
+            vm.elements.svg = d3.select("#plot-" + vm.ID).append("svg")
                 .attr("viewBox", vm.dimensions.viewbox)
                 .attr("perserveAspectRatio","xMidYMid meet")
-                .attr('class', 'chart-2D')
+                .attr('class', 'chart-' + vm.ID)
                 .attr("width", vm.dimensions.w + vm.margin.left + vm.margin.right)
                 .attr("height", vm.dimensions.h + vm.margin.top + vm.margin.bottom);
     
             //Add clip path so hexagons do not exceed boundaries
             vm.elements.svg.append("defs").append("clipPath")
-                .attr("id", "clip-2D")
+                .attr("id", "clip-" + vm.ID)
                 .append("rect")
                 .attr("width", vm.dimensions.w)
                 .attr("height", vm.dimensions.h);
 
             // Create plot elements (plot area, axis, and color legend)
             vm.elements.plot = vm.elements.svg.append("g").attr("class", "plot")
-                .attr("clip-path", "url(#clip-2D)")
+                .attr("clip-path", "url(#clip-" + vm.ID + ")")
                 .attr("transform", "translate(" + vm.margin.left + "," + vm.margin.top + ")");
                     
             vm.elements.plot.append('g')
@@ -37,7 +37,7 @@ export const setElements = {
 
             vm.elements.plot.append("g").attr("class", "hexagon");            
 
-            vm.elements.axis = vm.elements.svg.append("g").attr("id", "axis-2D")
+            vm.elements.axis = vm.elements.svg.append("g").attr("id", "axis-" + vm.ID)
                 .attr("transform", "translate(" + vm.margin.left + "," + vm.margin.top + ")");
 
             vm.elements.axis.append("g")
@@ -59,13 +59,13 @@ export const setElements = {
             // Add X Axis Label
             vm.elements.svg.append("g").append("foreignObject")
             .attr("transform", "translate(" + ((vm.dimensions.w + vm.margin.left+vm.margin.right)/2) + "," + (vm.dimensions.h + vm.margin.top + vm.margin.bottom/1.5) + ")")
-            .attr("id", "xLabel-2D")
+            .attr("id", "xLabel-" + vm.ID)
             .html("`Qx`");
 
             // Add Y Axis Label
             vm.elements.svg.append("g").append("foreignObject")
                 .attr("transform", "translate(0," + (vm.dimensions.h / 2) + ") rotate(-90)")
-                .attr("id", "yLabel-2D")
+                .attr("id", "yLabel-" + vm.ID)
                 .html("`Qy`");
 
             // Enable zoom
@@ -73,7 +73,7 @@ export const setElements = {
             vm.elements.plot.call(vm.zoom);
 
             // Call MathJax to make plot axis labels look pretty
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel-2D", "yLabel-2D"]]);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel-" + vm.ID, "yLabel-" + vm.ID]]);
         }
     }
 }

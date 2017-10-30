@@ -12,11 +12,11 @@
       </app-title>
 
       <transition name="fade" appear>
-        <app-main-1D v-show="toggleView === '1D'"></app-main-1D>
+        <app-main-1D v-show="toggleView === 'SANS1D'"></app-main-1D>
       </transition>  
 
        <transition name="fade" appear>
-        <app-plot-2D v-show="toggleView === '2D'"></app-plot-2D>
+        <app-plot-2D v-show="toggleView === 'SANS2D'"></app-plot-2D>
       </transition> 
 
       <transition name="fade" appear>
@@ -41,7 +41,7 @@ import Stitch from './components/Stitch/Stitch.vue';
 import TAS from './components/TAS/TAS.vue';
 import Title from './components/Title.vue';
 
-import Dropzone from './components/BaseComponents/Dropzone.vue';
+import Dropzone from './components/BaseComponents/FileUpload/Dropzone.vue';
 import PointModal from './components/BaseComponents/PointModal.vue';
 
 // The eventBus serves as the means to communicating between components.
@@ -62,7 +62,7 @@ export default {
   },
   data: function () {
     return {
-      toggleView: 'TAS',
+      toggleView: 'SANS1D',
       errorCount: 0
     }
   },

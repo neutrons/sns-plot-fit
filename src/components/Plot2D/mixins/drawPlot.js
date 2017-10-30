@@ -15,7 +15,7 @@ export const drawPlot = {
             vm.plotData = vm.plotData.filter(el => Number.isFinite(el.qx) && Number.isFinite(el.qy) && Number.isFinite(el.intensity) && Number.isFinite(el.error));
 
             // If plot is already present, simply update with the new set of data
-            if (!d3.select(".chart-2D").empty()) {
+            if (!d3.select(".chart-" + vm.ID).empty()) {
                 // Transform data if log transform
                 checkTransformType(transformType);
                 

@@ -27,7 +27,7 @@ export const removePoint = {
                 eventBus.$emit('update-selected-data', index, name);
 
                 // Remove point from stored dataset
-                store.commit('removePoint', {name: name, index: index});
+                store.commit('removePoint', {name: name, index: index, dataType: vm.ID});
                 $("#myModal").modal('hide');
 
             });

@@ -1,6 +1,6 @@
 @import url('./plot-labels.css');
 
-#plot-2D {
+#plot-SANS2D {
   position: relative;
   padding: 0 10px;
   margin: 0 auto;
@@ -8,7 +8,7 @@
   min-width: 400px;
 }
 
-div.tooltip-2D {
+div.tooltip-SANS2D {
   position: absolute;
   text-align: center;
   width: auto;
@@ -23,7 +23,7 @@ div.tooltip-2D {
   background: white;
 }
 
-div.tooltip-2D:before {
+div.tooltip-SANS2D:before {
   right: 100%;
   top: 50%;
   border: solid transparent;
@@ -38,11 +38,11 @@ div.tooltip-2D:before {
   margin-top: -10px;
 }
 
-#axis-2D .tick line {
+#axis-SANS2D .tick line {
   stroke: black;
 }
 
-iframe.width-changed-2D {
+iframe.width-changed-SANS2D {
     width: 90%;
     display: block;
     border: 0;

@@ -17,7 +17,11 @@
 
 export default {
   props: {
-
+      groupType: {
+          type: String,
+          default: 'SANS1D',
+          required: true
+      }
   },
   data: function() {
     return {
@@ -27,7 +31,7 @@ export default {
   },
   computed: {
     jobs() {
-        var jobs = this.$store.getters.getGroups('1D');
+        var jobs = this.$store.getters.getGroups(this.groupType);
 
         return jobs.reduce(function(prev, cur) {
                 if (prev.indexOf(cur) < 0) prev.push(cur);

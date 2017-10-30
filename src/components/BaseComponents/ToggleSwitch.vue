@@ -53,10 +53,11 @@ export default {
 </script>
 
 <style scoped>
-.disable *{
+.disable * {
     opacity: 0.75;
     cursor: not-allowed !important;
 }
+
 .switch {
   position: relative;
   margin: 20px auto;

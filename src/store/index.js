@@ -10,13 +10,29 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-      fetched1DFiles: [],
-      fetched2DFiles: [],
-      uploaded1DFiles: [],
-      uploaded2DFiles: [],
-      saved1DData: {},
-      saved2DData: {},
-      colorDomain: [],
+      fetched: {
+        'SANS1D': [],
+        'SANS2D': [],
+        'TAS': [],
+        'Stitch': []
+      },
+      uploaded: {
+        'SANS1D': [],
+        'SANS2D': [],
+        'TAS': [],
+        'Stitch': []
+      },
+      colorDomain: {
+        'SANS1D': [],
+        'TAS': [],
+        'Stitch': []
+      },
+      saved: {
+        'SANS1D': [],
+        'SANS2D': [],
+        'TAS': [],
+        'Stitch': []
+      },
       xScales: {
         'X': d3.scaleLinear(),
         'X^2': d3.scalePow().exponent(2),
