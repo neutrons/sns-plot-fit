@@ -23,7 +23,7 @@
           </ul>
 
           <ul id="view-switches" class="nav navbar-nav navbar-right">
-            <li id="switch-SANS1D" class="active">
+            <li id="switch-SANS1D">
               <a href="#SANS1D" @click="switchView('SANS1D')">SANS 1D</a>
             </li>
             <li id="switch-SANS2D">
@@ -32,7 +32,7 @@
             <li id="switch-Stitch">
               <a href="#Stitch" @click="switchView('Stitch')">Stitch</a>
             </li>
-            <li id="switch-TAS">
+            <li id="switch-TAS" class="active">
               <a href="#TAS" @click="switchView('TAS')">TAS</a>
             </li>
           </ul>

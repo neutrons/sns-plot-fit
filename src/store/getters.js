@@ -65,6 +65,49 @@ export const inUploadedSANS2D = state => (fname) => {
     return match;
 }
 
+export const getTASFile = state => (id, loadType) => {
+    let temp = null;
+    let data = state[loadType].TAS;
+
+    for (let i = 0, len = data.length; i < len; i++) {
+
+        let tempFile = data[i];
+
+        if (id === tempFile.filename) {
+            temp = tempFile;
+            break;
+        }
+    }
+
+    return temp;
+}
+
+export const getSavedTAS = state => (file) => {
+    let temp = state.TAS[file];
+
+    if (temp === undefined) {
+        return '999'
+    } else {
+        return _.cloneDeep(temp)
+    }
+}
+
+export const inUploadedTAS = state => (fname) => {
+    let match = null
+    let uploaded = state.uploaded.TAS;
+
+    for (let i = 0, len = uploaded.length; i < len; i++) {
+
+        let temp = uploaded[i]
+
+        if (fname === temp.filename) {
+            match = temp;
+            break;
+        }
+    }
+
+    return match;
+}
 export const getFitConfigs = state => {
     return _.cloneDeep(state.fitConfigurations)
 }

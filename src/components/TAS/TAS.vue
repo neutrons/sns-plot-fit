@@ -11,7 +11,9 @@
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter
-                            group-type="TAS"
+                                group-type="TAS"
+                                @filter-job="filterJob"
+                                @sort-by-date="sortByDate"
                             ></v-filter>
                         </div>
                         <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
@@ -20,7 +22,7 @@
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="f.filename + '-FetchTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
+                                        <td class="td-check"><input :id="f.filename + '-FetchTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
                                         <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
@@ -37,9 +39,9 @@
                             <template>
                                 <tr v-for="f in getUploaded" :class="isPlotted(f.filename)">
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled="(isPlotted(f.filename) == 'success' ? false : true)"
+                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="f.filename + '-UploadTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
+                                        <td class="td-check"><input :id="f.filename + '-UploadTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
                                         <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
@@ -53,7 +55,7 @@
         <!-- Controls Main Panel  -->
         <v-panel-group MAINTITLE="Controls" PANELTYPE="primary">
             <!-- Scales Panel  -->
-            <v-panel PANELTITLE="Scales" PANELTYPE="success" :COLLAPSE="false">
+            <!-- <v-panel PANELTITLE="Scales" PANELTYPE="success" :COLLAPSE="false">
 
                 <v-scales 
                     :DISABLE="disable"
@@ -62,10 +64,10 @@
                     ref="scales">
                 </v-scales>
 
-            </v-panel>
+            </v-panel> -->
 
             <!-- Fit Configuration Panel  -->
-            <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
+            <!-- <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
                 <v-fit-config
                     :DISABLE="this.fileToFit === null"
                     :EQUATION="$data.currentConfiguration.equation"
@@ -75,16 +77,16 @@
                     @reset-file-fit-choice="resetFileFitChoice"
                     ref="fit_configurations"
                 ></v-fit-config>
-            </v-panel>
+            </v-panel> -->
 
             <!-- Fit Settings Panel  -->
-            <v-panel PANELTITLE="Levenberg–Marquardt Settings" PANELTYPE="info" :COLLAPSE="true">
+            <!-- <v-panel PANELTITLE="Levenberg–Marquardt Settings" PANELTYPE="info" :COLLAPSE="true">
                 <v-levenberg
                     :DISABLE="this.fileToFit === null"
                     @set-fit-settings="setFitSettings"
                     ref="fit_settings"
                 ></v-levenberg>
-            </v-panel>
+            </v-panel> -->
 
 
         </v-panel-group>
@@ -92,6 +94,7 @@
     
         <v-plot-TAS
             :DISABLE="disable"
+            :METADATA="metadata"
             ref="plot_TAS"
         ></v-plot-TAS>
 </div>
@@ -119,6 +122,7 @@ import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
+import { parseTAS, readTASData, getTASData, extractMetadata } from '../../assets/javascript/mixins/readFiles/readTAS.js';
 
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
@@ -139,12 +143,14 @@ export default {
       return {
         msg: 'TAS Component!',
         filesToPlot: [],
+        fileToPlot: null,
         fileToFit: null,
         fileFitChoice: [],
         selectedData: [],
         filterBy: 'All',
         sortBy: 'ascending',
         disable: true,
+        currentData: [],
         currentConfiguration: {
             fit: 'Linear',
             equation: 'm*x+b',
@@ -154,7 +160,7 @@ export default {
             yLabel: "I",
             xLabel: "Q",
             note: ""
-        }
+        },
       }
     },
     mixins: [
@@ -162,17 +168,29 @@ export default {
         setScales, 
         filterJobs,
         isPlotted,
-        isOffline
+        isOffline,
+        parseTAS,
+        readTASData,
+        getTASData,
+        extractMetadata
     ],
     computed: {
         getUploaded() {
           return this.$store.getters.getUploaded('TAS');
+      },
+      metadata() {
+          return this.currentData.metadata;
       }
     },
     methods: {
          setFileToFit() {
             if (this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
             this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
+        },
+        setFileToPlot() {
+            if (this.filesToPlot.length > 0) this.filesToPlot = this.filesToPlot.slice(-1);
+            
+            this.fileToPlot = this.filesToPlot[0] ? this.filesToPlot[0] : null;
         },
         resetFileFitChoice() {
             this.fileFitChoice = [];
@@ -198,8 +216,8 @@ export default {
                     // Code here to plot data
                 } else {
                     // Remove any elements previously plotted
-                    d3.select(".chart-TAS").remove();
-                    d3.select("#tooltip-TAS").remove();
+                    d3.select(".chart-" + this.$refs.plot_TAS.ID).remove();
+                    d3.select("#tooltip-" + this.$refs.plot_TAS.ID).remove();
                 }
             })
         },
@@ -208,6 +226,27 @@ export default {
         },
         setEquation(eq) {
             this.currentConfiguration.equation = eq;
+        },
+        removeFile(filename) {
+            let vm = this;
+
+            // If file is in fileToPlot or filesToPlot, remove it
+            // and remove plot elements
+            if (this.fileToPlot === filename) {
+                this.fileToPlot = null;
+                this.filesToPlot = [];
+
+                // If file is also being fit, reset to defaults
+                if (this.fileToFit === filename) {
+                    this.fileToFit = null;
+                    this.fileFitChoice = [];
+                }
+            }
+
+            d3.select(".chart-" + this.$refs.plot_TAS.ID).remove();
+            d3.select(".tooltip-" + this.$refs.plot_TAS.ID).remove();
+
+            this.$store.commit('removeFile', { filename: filename, dataType: 'TAS'});
         }
     },
     watch: {
@@ -259,18 +298,47 @@ export default {
             },
             deep: true
         },
-        filesToPlot: {
-            // Watch if a file is selected, if so enable buttons and append selected data to a list
-            handler () {
-                var vm = this;
+        fileToPlot() {
+            let vm = this;
 
-                // code to handle files to plot
+            // Check if file is in the stored TAS list
+            // a value of '999' means no data is stored
+            if (this.fileToPlot !== null) {
+                let dataTAS = this.$store.getters.getSavedFile('TAS', this.fileToPlot);
 
+                // If not, Check if the file is in the Fetched list or Uploaded
+                if (dataTAS === '999') {
+                    var inUploadTAS = this.$store.getters.inUploadedTAS(this.fileToPlot);
+
+                    if (inUploadTAS) {
+                        // It's an uploaded file so read the data from blob
+                        // this.readTASData(inUploadTAS)
+                        var file = this.$store.getters.getTASFile(this.fileToPlot, 'uploaded');
+                        console.log("In uploaded:", file);
+                        this.readTASData(file);
+
+                    } else {
+                        // It's a fetched file so get file then get the data url
+                        var file = this.$store.getters.getTASFile(this.fileToPlot, 'fetched');
+                        console.log("In fetch:", file);
+                        this.getTASData(file);
+                    }
+                } else {
+                    // File is in saved, so let's plot it
+                    this.currentData = dataTAS;
+                    console.log("Current Data:", this.currentData);
+                    // this.drawPlot(dataTAS);
                 }
-            },
-            deep: true
+            } else {               
+                console.log("No files selected...");
+                this.currentData = [];
+                // Remove any current 2D plots
+                d3.select(".chart-" + vm.$refs.plot_TAS.ID).remove();
+                d3.select(".tooltip-" + vm.$refs.plot_TAS.ID).remove();
+            }
         }
     }
+}
 </script>
 
 <style lang="less" scoped>

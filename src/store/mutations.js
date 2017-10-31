@@ -69,5 +69,6 @@ export const storeData = (state, payload) => {
     let tempData = payload.data;
     let type = payload.dataType;
         
+    console.log("Storing data:", tempName, tempData, type);
     state.saved[type][tempName] = tempData
 }

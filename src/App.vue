@@ -62,7 +62,7 @@ export default {
   },
   data: function () {
     return {
-      toggleView: 'SANS1D',
+      toggleView: 'TAS',
       errorCount: 0
     }
   },
