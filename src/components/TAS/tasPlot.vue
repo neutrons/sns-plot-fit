@@ -7,6 +7,15 @@
                 <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
                 
                 <div :id="'plot-' + ID"></div>
+                <div class="metadata" v-if="METADATA">
+                    <hr>
+                    <h3>Metadata</h3>
+                    <ul class="metadata-list">
+                        <li v-for="m in METADATA">
+                            {{m}}
+                        </li>
+                    </ul>
+                </div>
             </v-panel>
   </div>
 </template>
@@ -37,6 +46,9 @@ export default {
         DISABLE: {
             type: Boolean,
             default: true
+        },
+        METADATA: {
+            type: Array
         }
     },
     data() {
@@ -44,7 +56,7 @@ export default {
         let tempData = _.cloneDeep(chartElements);
 
         // Extend onto chart elements' base data
-        tempData.ID = '1D';
+        tempData.ID = 'TAS';
 
         return tempData;
 
@@ -74,4 +86,16 @@ export default {
 
 <style lang="less" scoped>
 @import '../../assets/styles/plot-TAS-styles.css';
+
+.metadata {
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+
+    .metadata-list {
+        -webkit-column-count: 3; /* Chrome, Safari, Opera */
+        -moz-column-count: 3; /* Firefox */
+        column-count: 3;
+
+        word-wrap: break-word;
+    }
+}
 </style>

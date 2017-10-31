@@ -1,11 +1,11 @@
 <template>
-    <div style="visibility:hidden; opacity:0" id="dropzone">
+    <div style="visibility: hidden; opacity: 0" id="dropzone">
         <div id="textnode">Drop files to add data.</div>
     </div>
 </template>
 
 <script>
-import { eventBus } from '../../assets/javascript/eventBus.js';
+import { eventBus } from '../../../assets/javascript/eventBus.js';
 
 export default {
     name: 'Dropzone',
@@ -53,9 +53,7 @@ export default {
         
         var files = e.dataTransfer.files;
         
-        // Call uplaod funciton in child component 'title'
-        // vm.$refs.title.uploadFile(files);
-        eventBus.$emit('upload-files', files);
+        vm.$emit('drag-files', files);
       });
     },
     created() {

@@ -1,6 +1,6 @@
-export const remove1DFile = {
+export const removeFile = {
     methods: {
-        remove1DFile(filename, callback) {
+        removeFile(type, filename, callback) {
             let vm = this;
 
             callback = callback || function() { return; };
@@ -8,10 +8,11 @@ export const remove1DFile = {
             let index = vm.filesToPlot.indexOf(filename);
 
             if (index > -1) vm.filesToPlot.splice(index,1);
+
             callback();
 
-            vm.$store.commit('remove1DFile', filename);
-            vm.$store.commit('removeColor', filename);
+            vm.$store.commit('removeFile', {dataType: type, filename: filename});
+            vm.$store.commit('removeColor', {dataType: type, filename: filename});
         }
     }
 }

@@ -12,7 +12,7 @@ export const drawPlot = {
             vm.labels.y = vm.plotParameters.labels.y;
 
             // If plot is already present, simply update with the new set of data
-            if (!d3.select(".chart-stitch").empty()) {
+            if (!d3.select(".chart-Stitch").empty()) {
             
                 // Remove stitch line if present,
                 d3.select("#stitched-line").remove();
@@ -44,7 +44,7 @@ export const drawPlot = {
             vm.setElements();
 
             // Generate a SVG group to keep brushes
-            vm.brushObj.brushGroup = vm.elements.zoom.select("#zoom-stitch").append('g')
+            vm.brushObj.brushGroup = vm.elements.zoom.select("#zoom-Stitch").append('g')
                 .attr("height", vm.dimensions.h)
                 .attr("width", vm.dimensions.w)
                 .attr("fill", "none")

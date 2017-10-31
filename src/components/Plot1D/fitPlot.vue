@@ -2,9 +2,8 @@
   <div id="plot-1d-col" class="col-md-10">
 
             <!-- Plot Panel  -->
-            <v-panel PANELTITLE="1D Plot" PANELTYPE="primary">
+            <v-panel PANELTITLE="SANS 1D Plot" PANELTYPE="primary">
                 <!-- Plot reset button inserted into panel heading  -->
-                <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
                 <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
                 
                 <div :id="'plot-' + ID"></div>
@@ -65,7 +64,7 @@ import $ from 'jquery';
 /* Import Common Data Variables */
 import chartElements from '../../assets/javascript/mixins/chart/chartElements.js';
 
-/* Import Mixins */
+/* Import Local Mixins */
 import { brushed } from './mixins/brushed.js';
 import { checkError } from './mixins/checkError.js';
 import { initDimensions } from './mixins/initDimensions.js';
@@ -75,6 +74,8 @@ import { redrawFit } from './mixins/redrawFit.js';
 import { updateFitLine } from './mixins/updateFitLine.js';
 import { updateSlider } from './mixins/updateSlider.js';
 import { drawPlot } from './mixins/drawPlot.js';
+
+/* Import Shared Mixins */
 import { resetPlot } from '../../assets/javascript/mixins/chart/resetPlot.js';
 import { adjustDomains } from '../../assets/javascript/mixins/chart/adjustDomains.js';
 import { changeScales } from '../../assets/javascript/mixins/chart/changeScales.js';
@@ -125,7 +126,7 @@ export default {
             brushFit: undefined,
             brushTransformation: undefined
         };
-        tempData.ID = '1D';
+        tempData.ID = 'SANS1D';
         tempData.dataToFit = undefined;
         tempData.selLimits = [];
         tempData.dataToFit = undefined;

@@ -10,11 +10,15 @@
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
-                            <v-filter></v-filter>
+                            <v-filter
+                                group-type="SANS1D"
+                                @filter-job="filterJob"
+                                @sort-by-date="sortByDate"
+                            ></v-filter>
                         </div>
                         <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles('1D', sortBy, filterBy)" :class="isPlotted(f.filename)">
+                                <tr v-for="f in fetchFiles('SANS1D', sortBy, filterBy)" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
@@ -30,16 +34,16 @@
 
             <!-- Uploaded Data Panel  -->
                 <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show="uploaded1DFiles.length > 0">
+                    <div v-show="getUploaded.length > 0">
                      <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in uploaded1DFiles" :class="isPlotted(f.filename)">
+                                <tr v-for="f in getUploaded" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled="(isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
                                         <td class="td-check"><input :id="f.filename + '-Upload1D'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="remove1DFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -129,16 +133,14 @@ import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
 import Transformation from '../BaseComponents/Transformation.vue';
 import Plot1D from './fitPlot.vue';
 
-/* Import Mixins */
-import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
+/* Import Shared Mixins */
+import { parse1D, read1DData } from '../../assets/javascript/mixins/readFiles/read1D.js';
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
-import { remove1DFile } from '../../assets/javascript/mixins/remove1DFile.js';
-import { uploaded1DFiles } from '../../assets/javascript/mixins/uploaded1DFiles.js';
+import { removeFile } from '../../assets/javascript/mixins/removeFile.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
-import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import fd from '../../assets/javascript/fitData.js';
 
@@ -202,13 +204,26 @@ export default {
 
       }
     },
-    mixins: [parse1D, pull1DData, fetchFiles, setScales, filterJobs, getURLs, isOffline, isPlotted, remove1DFile, uploaded1DFiles, prepPlotData],
+    mixins: [
+        parse1D,
+        read1DData,
+        fetchFiles,
+        setScales,
+        filterJobs,
+        isOffline,
+        isPlotted,
+        removeFile,
+        prepPlotData
+    ],
     computed: {
       isFiles() {
-          let fetchLength = this.$store.getters.getFetched1D.length;
-          let uploadLength = this.$store.getters.getUploaded1D.length;
+          let fetchLength = this.$store.getters.getFetched('SANS1D').length;
+          let uploadLength = this.$store.getters.getUploaded('SANS1D').length;
           
           return fetchLength > 0 || uploadLength > 0 ? true : false;
+      },
+      getUploaded() {
+          return this.$store.getters.getUploaded('SANS1D');
       }
     },
     mounted() {
@@ -234,30 +249,30 @@ export default {
         },
         checkAll() {
             
-            let fetched = this.$store.getters.getFetched1D;
-            let uploaded = this.$store.getters.getUploaded1D;
+            let fetched = this.$store.getters.getFetched('SANS1D');
+            let uploaded = this.$store.getters.getUploaded('SANS1D');
 
-            for(let i = 0, len = fetched.length; i < len; i++) {
+            for (let i = 0, len = fetched.length; i < len; i++) {
                 let fname = fetched[i].filename;
 
-                if(this.filesToPlot.indexOf(fname) === -1) {
+                if (this.filesToPlot.indexOf(fname) === -1) {
                     this.filesToPlot.push(fname);
                 }
             }
             
-            for(let i = 0, len = uploaded.length; i < len; i++) {
+            for (let i = 0, len = uploaded.length; i < len; i++) {
                 let fname = uploaded[i].filename;
 
-                if(this.filesToPlot.indexOf(fname) === -1) {
+                if (this.filesToPlot.indexOf(fname) === -1) {
                     this.filesToPlot.push(fname);
                 }
             }
         },
-        removeFile(filename) {
+        remove1DFile(filename) {
 
             let vm = this;
 
-            this.remove1DFile(filename, function() {
+            this.removeFile('SANS1D', filename, function() {
                 if (vm.fileToFit === filename)    vm.fileToFit = null;
             })
         },
@@ -278,9 +293,10 @@ export default {
                 // If no data is selected to be plotted, then
                 // remove any elements previously plotted
                 // and reset to default values
-                console.log("Removing plot elements...");
-                d3.select(".chart-1D").remove();
-                d3.select("#tooltip-1D").remove();
+                // console.log("Removing plot elements...");
+
+                d3.select(".chart-SANS1D").remove();
+                d3.select("#tooltip-SANS1D").remove();
 
                 this.resetScales();
                 this.resetFileFitChoice();
@@ -290,7 +306,7 @@ export default {
             } else {
                 let tempSelect = [];
 
-                for(let i = 0, len = chosenData.length; i < len; i++) {
+                for (let i = 0, len = chosenData.length; i < len; i++) {
                     
                     let temp = chosenData[i].data;
                     let name = chosenData[i].filename;
@@ -331,11 +347,12 @@ export default {
             // Next tick is used to wait for all parameter changes to be updated
             // This is a to prevent the 'De-selecting' of all plotted data at once.
             this.$nextTick(function() {
-                if(this.selectedData.length > 0) {
+                if (this.selectedData.length > 0) {
                     // console.log("Setting parameters", this.selectedData);
+
                     this.$refs.plot_1D.setParameters({
                         data: this.prepData(this.selectedData),
-                        colorDomain: this.$store.getters.getColorDomain,
+                        colorDomain: this.$store.getters.getColorDomain('SANS1D'),
                         scales: this.scales,
                         fileToFit: this.fileToFit,
                         fitConfiguration: this.currentConfiguration,
@@ -347,8 +364,8 @@ export default {
                     });
                 } else {
                     // Remove any elements previously plotted
-                    d3.select(".chart-1D").remove();
-                    d3.select("#tooltip-1D").remove();
+                    d3.select(".chart-SANS1D").remove();
+                    d3.select("#tooltip-SANS1D").remove();
                 }
             })
         },
@@ -375,7 +392,7 @@ export default {
         scales: {
             handler() {
                 this.$nextTick(function() {
-                    if(this.selectedData.length > 0)    this.$refs.plot_1D.updateScales(this.scales);
+                    if (this.selectedData.length > 0)    this.$refs.plot_1D.updateScales(this.scales);
                 })
             },
             deep: true
@@ -384,7 +401,7 @@ export default {
             // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
             // If fileToFit is set to Null, don't transform anything and reset the fit to none
             // console.log("File is being fit:", this.fileToFit);
-            if(this.fileToFit === null) {
+            if (this.fileToFit === null) {
                 
                 this.$refs.fit_configurations.setFitBack();
                 this.setFitSettings(this.$store.getters.getFitSettings);
@@ -404,7 +421,7 @@ export default {
         currentConfiguration: {
             handler() {
                 // console.log("Current configurations changed!");
-                if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
+                if (this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                     this.selectedData.forEach( el => {
                         el.dataTransformed = fd.transformData(el.data, this.currentConfiguration);
                     });
@@ -428,17 +445,17 @@ export default {
                 var vm = this;
 
                 // If a file is unselected while it has a fit, unselect the fit
-                if(this.filesToPlot.indexOf(this.fileToFit) === -1) {
+                if (this.filesToPlot.indexOf(this.fileToFit) === -1) {
                     this.fileToFit = null;
                     this.fileFitChoice = [];
                 }
                 
-                if(this.filesToPlot.length === 0) {
+                if (this.filesToPlot.length === 0) {
                     // There should be nothing to plot or fit,
                     // so reset everything to defaults.
                     // Remove any elements previously plotted
-                    d3.select(".chart-1D").remove();
-                    d3.select("#tooltip-1D").remove();
+                    d3.select(".chart-SANS1D").remove();
+                    d3.select("#tooltip-SANS1D").remove();
 
                     // Reset disable to default 'true'
                     this.disable = true;
@@ -467,11 +484,10 @@ export default {
                     // First check if files to plot are in stored data
                     var tempData = this.filesToPlot.map(function(filename) {
                        
-
-                        var temp = vm.$store.getters.getSaved1D(filename);
+                        var temp = vm.$store.getters.getSavedFile('SANS1D', filename);
                     
                         // console.log("Here is the temp:", temp);
-                        if(temp === '999') {
+                        if (temp === '999') {
                             // console.log("Not in stored:", filename);
                             filesToFetch.push(filename);
                         } else {
@@ -481,10 +497,10 @@ export default {
                     }).filter(item => item !== undefined);
                     
                     // Next fetch the file URLs
-                    var fileURLs = this.getURLs(filesToFetch, "-Fetch1D");
+                    var fileURLs = this.$store.getters.getURLs(filesToFetch, 'SANS1D');
                     
-                    if(fileURLs.length > 0) {
-                        this.pull1DData(fileURLs, tempData);
+                    if (fileURLs.length > 0) {
+                        this.read1DData(fileURLs, tempData, 'SANS1D');
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }

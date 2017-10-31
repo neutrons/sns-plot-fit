@@ -8,7 +8,7 @@
                 <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
                 
                 <!-- <button class="btn btn-primary" @click="removeBrushes">Remove Brushes</button> -->
-                <div id="plot-stitch"></div>
+                <div :id="'plot-' + ID"></div>
                   
                   <!-- Fit Results Table to add fit results -->
               <div id="brush-selection-table" class="table table-condensed table-responsive" v-if="isBrushes">          
@@ -95,7 +95,7 @@ export default {
         tempData.stitchLineData = [];
         tempData.savedSelections = {};
         tempData.savedBrushes = [];
-        tempData.ID = 'stitch';
+        tempData.ID = 'Stitch';
 
         tempData.isError = false;
         tempData.isError = false;

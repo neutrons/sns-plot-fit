@@ -15,23 +15,19 @@
         <div class="collapse navbar-collapse" id="navbarElements">
           <ul id="menu-buttons" class="nav navbar-nav navbar-right">
             <li v-if="!isOffline">
-              <button class="btn btn-success navbar-btn" @click="fetchData">Fetch Data</button>
+              <button class="btn btn-success navbar-btn" @click="fetchFiles">Fetch Data</button>
             </li>
             <li>
-              <label class="btn btn-success navbar-btn">
-                <i class="fa fa-file" aria-hidden="true"></i> 
-                Load Files 
-                <input id="file-upload" type="file" style="display: none;" @change="uploadFile($event.target.files)" multiple>
-              </label>
+              <v-file-upload></v-file-upload>
             </li>
           </ul>
 
           <ul id="view-switches" class="nav navbar-nav navbar-right">
-            <li id="switch-1D">
-              <a href="#1D" @click="switchView('1D')">SANS 1D</a>
+            <li id="switch-SANS1D">
+              <a href="#SANS1D" @click="switchView('SANS1D')">SANS 1D</a>
             </li>
-            <li id="switch-2D">
-              <a href="#2D" @click="switchView('2D')">SANS 2D</a>
+            <li id="switch-SANS2D">
+              <a href="#SANS2D" @click="switchView('SANS2D')">SANS 2D</a>
             </li>
             <li id="switch-Stitch">
               <a href="#Stitch" @click="switchView('Stitch')">Stitch</a>
@@ -53,7 +49,11 @@
 //       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../assets/javascript/eventBus';
 
+/* Import Mixins */
 import { isOffline } from '../assets/javascript/mixins/isOffline.js';
+
+/* Import Components */
+import FileUpload from './BaseComponents/FileUpload/FileUpload.vue';
 
 // Use papa parse to parse csv/tsv files
 // Axios to handle HTTP requests
@@ -62,6 +62,9 @@ import axios from 'axios';
 
 export default {
   name: 'heading',
+  components: {
+    'v-file-upload': FileUpload,
+  },
   data: function() {
     return {
 
@@ -69,109 +72,103 @@ export default {
   },
   mounted() {
     // Event listener for when stitch lines are saved
-    eventBus.$on('fetch-data', this.fetchData);
-    eventBus.$on('upload-files', this.uploadFile);
+    eventBus.$on('fetch-files', this.fetchFiles);
+    eventBus.$on('upload-files', this.uploadFiles);
   },
-  mixins: [isOffline],
+  mixins: [
+    isOffline
+  ],
   methods: {
-    fetchData() {
+    fetchFiles() {
       console.log("Fetching data...");
+
+      let vm = this;
+
+      let temp = {
+        'SANS1D': [],
+        'SANS2D': [],
+        'TAS': [],
+        'Stitch': []
+      }
+
       // If data is not stored, fetch it, store it, and send data to be plotted
       axios.get('/external/fetch').then(response => {
 
-        var files = response.data;
-      
-        var temp1D = [];
-        var temp2D = [];
-        var vm = this;
+        let TD = response.data;
 
-        for (let i = 0, len = files.length; i < len; i++) {
-          var temp1DFiles = [];
-          var temp2DFiles = [];
-          var jobTitle = files[i].job_title;
-          var jobModified = files[i].date_modified;
+        TD.forEach(el => {
+          var jobTitle = el.job_title;
+          var jobModified = el.date_modified;
 
-          files[i].results.forEach(function(item) {
+          el.results.forEach(r => {
+            let key = r.type;
             
-            if (vm.dataType(item.url) === '1D') {
-              // console.log("1D Item", {url: url, group: group, fileName: name});
-              temp1D.push({
-                id: item.id,
-                filename: item.filename,
-                url: item.url,
+            if (key === 'SANS1D-Stitch') {
+              
+              temp.Stitch.push({
+                id: r.id,
+                filename: r.filename,
+                url: r.url,
                 jobTitle: jobTitle,
                 dateModified: jobModified
               });
 
-            } else if (vm.dataType(item.url) === '2D') {
-              // console.log("2D Item", {url: url, group: group, fileName: name});
-              temp2D.push({
-                id: item.id,
-                filename: item.filename,
-                url: item.url,
+              temp.SANS1D.push({
+                id: r.id,
+                filename: r.filename,
+                url: r.url,
                 jobTitle: jobTitle,
                 dateModified: jobModified
               });
 
             } else {
-              let errorMsg = "<strong>Error! </strong>" + item.url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
-              eventBus.$emit('error-message', errorMsg, 'danger');
+              temp[key].push({
+                id: r.id,
+                filename: r.filename,
+                url: r.url,
+                jobTitle: jobTitle,
+                dateModified: jobModified
+              });
             }
-          });
+          })
 
+        });
+
+        for (let key in temp) {
+          if (temp[key].length > 0) this.$store.commit('addFiles', { loadType: 'fetch', dataType: key, files: temp[key] });
         }
-
-        // Add Fetched File List(s) to Global Store
-        if (temp1D.length > 0) this.$store.commit('addFetched1DFiles', temp1D);
-        if (temp2D.length > 0) this.$store.commit('addFetched2DFiles', temp2D);
+      
       }).catch(function (err) {
           console.log(err.message);
           eventBus.$emit('error-message', err.message, 'danger');
       })
+
     },
-    uploadFile(files) {
+    uploadFiles(files) {
 
-      // CODE TO UPLOAD DATA FILES //
-      var vm = this;
-
-      var temp1D = [];
-      var temp2D = [];
-
-      for (var i = 0, len = files.length; i < len; i++) {
-        // loadFiles(files[i]);
-        let url = files[i].name;
-        let blob = files[i];
-
-        if (vm.dataType(url) === '1D') {
-          // console.log("1D Item", {url: url, group: group, fileName: name});
-          let filename = url.substr(0, url.lastIndexOf('.txt')) || url;
-          temp1D.push({
-            url: url,
-            filename: filename,
-            blob: blob
-          });
-
-        } else if (vm.dataType(url) === '2D') {
-          // console.log("2D Item", {url: url, group: group, fileName: name});
-          let filename = url.substr(0, url.lastIndexOf('.dat')) || url;
-          temp2D.push({
-            url: url,
-            filename: filename,
-            blob: blob
-          });
-
-        } else {
-          // error, don't read for now
-          let errorMsg = "<strong>Error! </strong>" + url + " is not a supported type.<br/>Make sure the file ends in <em>'Iq.txt'</em> or <em>'Iqxy.dat'</em>";
-          eventBus.$emit('error-message', errorMsg, 'danger');
-        }
+      let temp = {
+        'SANS1D': [],
+        'SANS2D': [],
+        'TAS': [],
+        'Stitch': []
       }
 
-      if (temp1D.length > 0) this.$store.commit('addUploaded1DFiles', temp1D);
-      if (temp2D.length > 0) this.$store.commit('addUploaded2DFiles', temp2D);
+      files.forEach( el => {
+        let key = el.type;
 
-      document.getElementById("file-upload").value = '';
-      // END OF CODE TO UPLOAD FILES //
+        if (key === 'SANS1D-Stitch') {
+          temp.Stitch.push(el);
+          temp.SANS1D.push(el);
+        } else {
+          temp[key].push(el);
+        }
+
+      })
+
+      for (let key in temp) {
+        this.$store.commit('addFiles', { loadType: 'upload', dataType: key, files: temp[key] });
+      }
+
     },
     dataType(fname) {
       if (/.*Iq.txt$/.exec(fname)) {
@@ -189,6 +186,7 @@ export default {
     },
     switchView(view) {
       var views = document.getElementById("view-switches").children;
+
       for (let i = 0, len = views.length; i < len; i++) {
         if (views[i].id === "switch-" + view) {
           views[i].classList.add('active');
