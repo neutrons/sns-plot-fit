@@ -16,7 +16,7 @@ export const getTASData = {
                 // Second - parse data
                 extractedData.data = vm.parseTAS(extractedData.data);
                 extractedData.filename = file.filename;
-                console.log("EXTRACTED:", extractedData);
+                // console.log("EXTRACTED:", extractedData);
 
                 // Third - store and set current data
                 vm.$store.commit('storeData', {dataType: 'TAS', data: extractedData, filename: file.filename});
@@ -67,7 +67,7 @@ export const readTASData = {
                 // Second - parse data
                 extractedData.data = vm.parseTAS(extractedData.data);
                 extractedData.filename = file.filename;
-                console.log("EXTRACTED:", extractedData);
+                // console.log("EXTRACTED:", extractedData);
 
                 // Third - store and set current data
                 vm.$store.commit('storeData', {dataType: 'TAS', data: extractedData, filename: file.filename});

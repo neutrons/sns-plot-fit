@@ -54,6 +54,15 @@
 
         <!-- Controls Main Panel  -->
         <v-panel-group MAINTITLE="Controls" PANELTYPE="primary">
+            <!-- Field Name Panel -->
+            <v-panel PANELTITLE="Field Names" PANELTYPE="success" :COLLAPSE="false">
+                <v-field-list 
+                    :current-data="currentData"
+                    @update-fields="updateFields"
+                    ref="fields"
+                >
+                </v-field-list>
+            </v-panel>
             <!-- Scales Panel  -->
             <!-- <v-panel PANELTITLE="Scales" PANELTYPE="success" :COLLAPSE="false">
 
@@ -115,6 +124,7 @@ import Scales from '../BaseComponents/Scales.vue';
 import Levenberg from '../BaseComponents/Levenberg.vue';
 import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
 import tasPlot from './tasPlot.vue';
+import FieldList from './components/FieldList.vue';
 
 /* Import Mixins */
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
@@ -138,6 +148,7 @@ export default {
         'v-levenberg': Levenberg,
         'v-fit-config': FitConfiguration,
         'v-plot-TAS': tasPlot,
+        'v-field-list': FieldList,
     },
     data: function () {
       return {
@@ -150,7 +161,7 @@ export default {
         filterBy: 'All',
         sortBy: 'ascending',
         disable: true,
-        currentData: [],
+        currentData: {},
         currentConfiguration: {
             fit: 'Linear',
             equation: 'm*x+b',
@@ -161,6 +172,16 @@ export default {
             xLabel: "Q",
             note: ""
         },
+        fields: {
+            x: 'pt.',
+            y: 'detector'
+        },
+        scales: {
+          x: d3.scaleLinear(),
+          xType: 'X',
+          y: d3.scaleLinear(),
+          yType: 'Y'
+        }
       }
     },
     mixins: [
@@ -204,23 +225,6 @@ export default {
             // Deep clone because if you change the equation later, the original fit config's equation would be altered as well
             this.currentConfiguration = _.cloneDeep(this.$store.getters.getFitConfigsByID(fitname));
         },
-        prepData(sd) {
-
-            // code here to prep data for plotting
-        },
-        setParameters() {
-            // Next tick is used to wait for all parameter changes to be updated
-            // This is a to prevent the 'De-selecting' of all plotted data at once.
-            this.$nextTick(function() {
-                if(this.selectedData.length > 0) {
-                    // Code here to plot data
-                } else {
-                    // Remove any elements previously plotted
-                    d3.select(".chart-" + this.$refs.plot_TAS.ID).remove();
-                    d3.select("#tooltip-" + this.$refs.plot_TAS.ID).remove();
-                }
-            })
-        },
         setFitSettings(options) {
             this.fitSettings = options;
         },
@@ -247,7 +251,40 @@ export default {
             d3.select(".tooltip-" + this.$refs.plot_TAS.ID).remove();
 
             this.$store.commit('removeFile', { filename: filename, dataType: 'TAS'});
-        }
+        },
+        updateFields(fields) {
+            //console.log("Changed field: " + type + " | To value = " + value);
+
+            this.fields = fields;
+        },
+        prepData(sd) {
+
+            // code here to prep data for plotting
+        },
+        setParameters() {
+            // Next tick is used to wait for all parameter changes to be updated
+            // This is a to prevent the 'De-selecting' of all plotted data at once.
+            this.$nextTick(function() {
+                if (this.currentData.data !== undefined) {
+                    // Code here to plot data
+                    this.$refs.plot_TAS.drawPlot({
+                        fields: this.fields,
+                        data: this.currentData,
+                        scales: this.scales,
+                        colorDomain: this.$store.getters.getColorDomain('TAS'),
+                        labels: {
+                            x: this.currentConfiguration.xTransformation,
+                            y: this.currentConfiguration.yTransformation
+                        }
+                    })
+                } else {
+                    console.log("no data to plot...");
+                    // Remove any elements previously plotted
+                    d3.select(".chart-" + this.$refs.plot_TAS.ID).remove();
+                    d3.select("#tooltip-" + this.$refs.plot_TAS.ID).remove();
+                }
+            })
+        },
     },
     watch: {
         scales: {
@@ -271,8 +308,9 @@ export default {
                 // });
             }
         },
-        selectedData: {
+        currentData: {
             handler() {
+                console.log("Current Data changed", this.currentData);
                 this.setParameters();
             },
             deep: true
@@ -331,11 +369,17 @@ export default {
                 }
             } else {               
                 console.log("No files selected...");
-                this.currentData = [];
+                this.currentData = {};
                 // Remove any current 2D plots
                 d3.select(".chart-" + vm.$refs.plot_TAS.ID).remove();
                 d3.select(".tooltip-" + vm.$refs.plot_TAS.ID).remove();
             }
+        },
+        fields: {
+            handler() {
+                this.setParameters();
+            },
+            deep: true
         }
     }
 }
