@@ -7,9 +7,6 @@ export const updatePlot = {
         updatePlot() {
             
             let vm = this;
-
-            // Then adjust scale's domain whenver new data is added
-            // vm.adjustDomains();
             
             // Then rescale to zoom's scale
             let t = d3.zoomTransform( vm.elements.zoom.select('.zoom').node());

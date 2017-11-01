@@ -29,7 +29,7 @@ export const drawPlot = {
                 return;
             }
 
-            console.log("Draw plot...");
+            // console.log("Draw plot...");
 
             vm.initDimensions();
 
