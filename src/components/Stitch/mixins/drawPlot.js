@@ -42,6 +42,7 @@ export const drawPlot = {
 
             // Set initial Elements
             vm.setElements();
+            vm.addLabels(true);
 
             // Generate a SVG group to keep brushes
             vm.brushObj.brushGroup = vm.elements.zoom.select("#zoom-Stitch").append('g')

@@ -56,24 +56,9 @@ export const setElements = {
                 .attr("transform", "translate(" + (vm.dimensions.lw) + ", 0)")
                 .attr("class", "legend-axis legend-axis-y");
 
-            // Add X Axis Label
-            vm.elements.svg.append("g").append("foreignObject")
-            .attr("transform", "translate(" + ((vm.dimensions.w + vm.margin.left+vm.margin.right)/2) + "," + (vm.dimensions.h + vm.margin.top + vm.margin.bottom/1.5) + ")")
-            .attr("id", "xLabel-" + vm.ID)
-            .html("`Qx`");
-
-            // Add Y Axis Label
-            vm.elements.svg.append("g").append("foreignObject")
-                .attr("transform", "translate(0," + (vm.dimensions.h / 2) + ") rotate(-90)")
-                .attr("id", "yLabel-" + vm.ID)
-                .html("`Qy`");
-
             // Enable zoom
             vm.zoom = d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", vm.zoomed)
             vm.elements.plot.call(vm.zoom);
-
-            // Call MathJax to make plot axis labels look pretty
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel-" + vm.ID, "yLabel-" + vm.ID]]);
         }
     }
 }

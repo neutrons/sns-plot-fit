@@ -34,6 +34,7 @@ export const drawPlot = {
 
             // Set plot area
             vm.setElements();
+            vm.addLabels(false);
 
             // set responsive
             vm.setResponsive();

@@ -51,7 +51,9 @@ export const setElements = {
                 .attr('height', vm.dimensions.h);
             
             //Add Group to Plot Line/Points
-            vm.elements.plot = vm.elements.g.append("g").attr("class", "chart");
+            vm.elements.plot = vm.elements.g.append("g")
+                .attr("clip-path", "url(#clip-" + vm.ID + ")")
+                .attr("class", "chart");
 
             // X Gridlines
             vm.elements.axis.append("g")
@@ -68,25 +70,6 @@ export const setElements = {
 
             // Add Y Axis
             vm.elements.axis.append("g").attr("class", "axis axis--y");
-            
-            // Add Y Axis Label
-            vm.elements.svg.append("g").append("foreignObject")
-                .attr("height", 100)
-                .attr("width", 200)
-                .attr("transform", "translate(0," + (vm.dimensions.h/2) + ") rotate(-90)")
-                .attr("id", "yLabel-" + vm.ID)
-                .html("`" + vm.labels.y + "`");
-
-            // Add X Axis Label
-            vm.elements.svg.append("g").append("foreignObject")
-                .attr("height", 100)
-                .attr("width", 200)
-                .attr("transform", "translate(" + ((vm.dimensions.w + vm.margin.left + vm.margin.right)/2) + "," + (vm.dimensions.h + vm.margin.bottom - 15) + ")")
-                .attr("id", "xLabel-" + vm.ID)
-                .html("`" + vm.labels.x + "`");
-
-            // Call MathJax to make plot axis labels look pretty 
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, ["xLabel-" + vm.ID, "yLabel-" + vm.ID]]);
 
             // Add the Legend
             vm.elements.legend = vm.elements.plot.append("g").attr("id", "legend-" + vm.ID);

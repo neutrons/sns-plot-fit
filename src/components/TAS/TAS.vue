@@ -137,6 +137,8 @@ import { parseTAS, readTASData, getTASData, extractMetadata } from '../../assets
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
 
+import getDefaultData from './mixins/getDefaultData.js';
+
 export default {
     name: 'TAS',
     components: {
@@ -150,40 +152,7 @@ export default {
         'v-plot-TAS': tasPlot,
         'v-field-list': FieldList,
     },
-    data: function () {
-      return {
-        msg: 'TAS Component!',
-        filesToPlot: [],
-        fileToPlot: null,
-        fileToFit: null,
-        fileFitChoice: [],
-        selectedData: [],
-        filterBy: 'All',
-        sortBy: 'ascending',
-        disable: true,
-        currentData: {},
-        currentConfiguration: {
-            fit: 'Linear',
-            equation: 'm*x+b',
-            yTransformation: 'y',
-            xTransformation: 'x',
-            eTransformation: "e",
-            yLabel: "I",
-            xLabel: "Q",
-            note: ""
-        },
-        fields: {
-            x: 'pt.',
-            y: 'detector'
-        },
-        scales: {
-          x: d3.scaleLinear(),
-          xType: 'X',
-          y: d3.scaleLinear(),
-          yType: 'Y'
-        }
-      }
-    },
+    data: getDefaultData,
     mixins: [
         fetchFiles, 
         setScales, 
@@ -198,13 +167,23 @@ export default {
     computed: {
         getUploaded() {
           return this.$store.getters.getUploaded('TAS');
-      },
-      metadata() {
-          return this.currentData.metadata;
-      }
+        },
+        metadata() {
+            return this.currentData.metadata;
+        }
     },
     methods: {
-         setFileToFit() {
+        resetData() {
+            this.removePlot();
+
+            Object.assign(this.$data, getDefaultData())
+
+        },
+        removePlot() {
+            d3.select(".chart-" + this.ID).remove();
+            d3.select(".tooltip-" + this.ID).remove();
+        },
+        setFileToFit() {
             if (this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
             this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
         },
@@ -247,15 +226,25 @@ export default {
                 }
             }
 
-            d3.select(".chart-" + this.$refs.plot_TAS.ID).remove();
-            d3.select(".tooltip-" + this.$refs.plot_TAS.ID).remove();
+            this.removePlot();
 
             this.$store.commit('removeFile', { filename: filename, dataType: 'TAS'});
         },
-        updateFields(fields) {
+        updateFields(choice, value) {
             //console.log("Changed field: " + type + " | To value = " + value);
 
-            this.fields = fields;
+            if (choice === 'x') {
+                this.fields.x = value;
+            } else if (choice === 'y') {
+                this.fields.y = value;
+            } else {
+                [this.fields.x, this.fields.y] = [this.fields.y, this.fields.x];
+            }
+            
+            d3.select('#xLabel-TAS').text(this.fields.x);
+            d3.select('#yLabel-TAS').text(this.fields.y);
+
+            this.setParameters();
         },
         prepData(sd) {
 
@@ -267,21 +256,24 @@ export default {
             this.$nextTick(function() {
                 if (this.currentData.data !== undefined) {
                     // Code here to plot data
+                    this.disable = false;
+
                     this.$refs.plot_TAS.drawPlot({
                         fields: this.fields,
                         data: this.currentData,
                         scales: this.scales,
                         colorDomain: this.$store.getters.getColorDomain('TAS'),
                         labels: {
-                            x: this.currentConfiguration.xTransformation,
-                            y: this.currentConfiguration.yTransformation
+                            x: this.fields.x,
+                            y: this.fields.y
                         }
                     })
                 } else {
                     console.log("no data to plot...");
                     // Remove any elements previously plotted
-                    d3.select(".chart-" + this.$refs.plot_TAS.ID).remove();
-                    d3.select("#tooltip-" + this.$refs.plot_TAS.ID).remove();
+                    this.resetData();
+
+                    this.$refs.fields.resetSelected();
                 }
             })
         },
@@ -308,13 +300,6 @@ export default {
                 // });
             }
         },
-        currentData: {
-            handler() {
-                console.log("Current Data changed", this.currentData);
-                this.setParameters();
-            },
-            deep: true
-        },
         currentConfiguration: {
             handler() {
                 // console.log("Current configurations changed!");
@@ -332,7 +317,7 @@ export default {
         },
         fitSettings: {
             handler: function() {
-                this.setParameters();
+                // this.setParameters();
             },
             deep: true
         },
@@ -350,36 +335,25 @@ export default {
 
                     if (inUploadTAS) {
                         // It's an uploaded file so read the data from blob
-                        // this.readTASData(inUploadTAS)
                         var file = this.$store.getters.getTASFile(this.fileToPlot, 'uploaded');
-                        console.log("In uploaded:", file);
+
                         this.readTASData(file);
 
                     } else {
                         // It's a fetched file so get file then get the data url
                         var file = this.$store.getters.getTASFile(this.fileToPlot, 'fetched');
-                        console.log("In fetch:", file);
+
                         this.getTASData(file);
                     }
                 } else {
                     // File is in saved, so let's plot it
                     this.currentData = dataTAS;
-                    console.log("Current Data:", this.currentData);
-                    // this.drawPlot(dataTAS);
+                    this.setParameters();
                 }
             } else {               
                 console.log("No files selected...");
-                this.currentData = {};
-                // Remove any current 2D plots
-                d3.select(".chart-" + vm.$refs.plot_TAS.ID).remove();
-                d3.select(".tooltip-" + vm.$refs.plot_TAS.ID).remove();
+                this.resetData();
             }
-        },
-        fields: {
-            handler() {
-                this.setParameters();
-            },
-            deep: true
         }
     }
 }

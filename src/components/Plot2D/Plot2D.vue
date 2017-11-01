@@ -118,6 +118,7 @@ import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsive.js';
+import { addLabels } from '../../assets/javascript/mixins/chart/addLabels.js';
 
 export default {
     name: 'Plot2D',
@@ -142,6 +143,9 @@ export default {
             intensityTransformation: 'Log',
             binSize: 15
         };
+
+        tempData.labels.x = 'Qx';
+        tempData.labels.y = 'Qy';
 
         tempData.currentData = [];
 
@@ -176,7 +180,8 @@ export default {
         zoomed,
         setResponsive,
         resetPlot,
-        isPlotted
+        isPlotted,
+        addLabels,
     ],
     methods: {
         resetSettings() {

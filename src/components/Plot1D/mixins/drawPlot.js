@@ -57,6 +57,7 @@ export const drawPlot = {
 
             // Set initial Elements
             vm.setElements();
+            vm.addLabels(true);
 
             vm.prevFit = vm.isFit;
 

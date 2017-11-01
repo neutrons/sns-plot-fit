@@ -22,6 +22,8 @@ export const getTASData = {
                 vm.$store.commit('storeData', {dataType: 'TAS', data: extractedData, filename: file.filename});
                 vm.currentData = extractedData;
 
+                vm.setParameters();
+
             }).catch(reason => { console.log(reason) });;
             
         }
@@ -72,6 +74,7 @@ export const readTASData = {
                 // Third - store and set current data
                 vm.$store.commit('storeData', {dataType: 'TAS', data: extractedData, filename: file.filename});
                 vm.currentData = extractedData;
+                vm.setParameters();
        
             }
             

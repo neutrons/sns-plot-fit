@@ -45,7 +45,6 @@ export const updatePlot = {
                     // Add line plot
                     vm.elements.plot.append("g").attr("id", "line-" + vm.ID + "-" + d.key)
                     .append("g")
-                    .attr("clip-path", "url(#clip-" + vm.ID + ")")
                     .append("path")
                         .data([d.values])
                         .attr("class", "pointlines")
@@ -58,7 +57,6 @@ export const updatePlot = {
                     // Add error lines
                     vm.elements.plot.append("g").attr("id", "error-" + vm.ID + "-" + d.key)
                         .append("g")
-                        .attr("clip-path", "url(#clip-" + vm.ID + ")")
                             .selectAll(".error-" + vm.ID)
                             .data(d.values)
                             .enter()
@@ -67,7 +65,6 @@ export const updatePlot = {
                     // Add error tick top
                     vm.elements.plot.append("g").attr("id", "error-" + vm.ID + "-top-" + d.key)
                         .append("g")
-                        .attr("clip-path", "url(#clip-" + vm.ID + ")")
                             .selectAll(".error-" + vm.ID + "-tick-top")
                             .data(d.values)
                             .enter()
@@ -76,7 +73,6 @@ export const updatePlot = {
                     // Add error tick bottom
                     vm.elements.plot.append("g").attr("id", "error-" + vm.ID + "-bottom-" + d.key)
                         .append("g")
-                        .attr("clip-path", "url(#clip-" + vm.ID + ")")
                             .selectAll(".error-" + vm.ID + "-tick-bottom")
                             .data(d.values)
                             .enter()
@@ -85,7 +81,6 @@ export const updatePlot = {
                     // Add Scatter plot
                     vm.elements.plot.append("g").attr("id", "scatter-" + vm.ID + "-" + d.key)
                         .append("g")
-                        .attr("clip-path", "url(#clip-" + vm.ID + ")")
                         .selectAll(".dot")
                         .data(d.values)
                             .enter()

@@ -1,3 +1,11 @@
+@import url('./plot-labels.css');
+
+.zoom {
+    cursor: move;
+    opacity: 0;
+    pointer-events: all;
+  }
+
 iframe.width-changed-TAS {
     width: 90%;
     display: block;

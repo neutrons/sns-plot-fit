@@ -71,6 +71,7 @@ import { setElements } from '../../assets/javascript/mixins/chart/setElements.js
 import { removeLines } from '../../assets/javascript/mixins/chart/removeLines.js';
 import { updatePlot } from '../../assets/javascript/mixins/chart/updatePlot.js';
 import { updateLabels } from '../../assets/javascript/mixins/chart/updateLabels.js';
+import { addLabels } from '../../assets/javascript/mixins/chart/addLabels.js';
 
 export default {
     name: 'StitchPlot',
@@ -148,7 +149,8 @@ export default {
         removeLines,
         updatePlot,
         updateLabels,
-        drawPlot
+        addLabels,
+        drawPlot,
     ],
     computed: {
         selections() {
