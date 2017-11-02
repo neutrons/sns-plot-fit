@@ -1,11 +1,11 @@
 <template>
   <div class="variable-list">
         <!-- X Variable Selection -->
-        <fieldset :disabled="Object.keys(currentData).length === 0">
+        <fieldset :disabled="currentFields.length === 0">
             <div class="input-group">
                 <span class="input-group-addon">X Variable</span>
                 <select ref='x_select' class="form-control" v-model="selected.x" @change="$emit('update-fields', 'x', $event.target.value)">
-                    <option v-for="field in fields">{{field}}</option>
+                    <option v-for="field in currentFields">{{field}}</option>
                 </select>
             </div>
 
@@ -13,7 +13,7 @@
             <div class="input-group">
                 <span class="input-group-addon">Y Variable</span>
                 <select ref='y_select' class="form-control" v-model="selected.y" @change="$emit('update-fields', 'y', $event.target.value)">
-                    <option v-for="field in fields">{{field}}</option>
+                    <option v-for="field in currentFields">{{field}}</option>
                 </select>
             </div>
 
@@ -29,7 +29,7 @@ import { eventBus } from '../../../assets/javascript/eventBus';
 export default {
     name: 'VariableList',
     props: {
-        currentData: {
+        currentFields: {
             required: true
         }
     },
@@ -48,15 +48,6 @@ export default {
                 y: 'detector'
             }
         }
-    },
-    computed: {
-        fields() {
-            let tempFields = Object.keys(this.currentData).length !== 0 ? Object.keys(this.currentData.data[0]) : [];
-            
-            tempFields.sort();
-
-            return tempFields;
-      }
     }
   }
 </script>

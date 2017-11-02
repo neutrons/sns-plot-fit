@@ -7,16 +7,7 @@
                 <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
                 
                 <div :id="'plot-' + ID"></div>
-
-                <div class="metadata" v-if="METADATA">
-                    <hr>
-                    <h3>Metadata</h3>
-                    <ul class="metadata-list">
-                        <li v-for="m in METADATA">
-                            {{m}}
-                        </li>
-                    </ul>
-                </div>
+                <slot></slot>
             </v-panel>
   </div>
 </template>
@@ -48,9 +39,18 @@ import { addLabels } from '../../assets/javascript/mixins/chart/addLabels.js';
 import { drawPlot } from './mixins/drawPlot.js';
 import { updatePlot } from './mixins/updatePlot.js';
 import { initDimensions } from './mixins/initDimensions.js';
-import { initScales } from './mixins/initScales.js';
-import { adjustDomains } from './mixins/adjustDomains.js';
-import { initFields, getFields } from './mixins/fields.js';
+// import { initScales } from './mixins/initScales.js';
+// import { adjustDomains } from './mixins/adjustDomains.js';
+// import { initFields, getFields } from './mixins/fields.js';
+
+import { adjustDomains } from '../../assets/javascript/mixins/chart/adjustDomains.js';
+import { changeScales } from '../../assets/javascript/mixins/chart/changeScales.js';
+import { updateLegend } from '../../assets/javascript/mixins/chart/updateLegend.js';
+import { initScales } from '../../assets/javascript/mixins/chart/initScales.js';
+// import { updatePlot } from '../../assets/javascript/mixins/chart/updatePlot.js';
+import { updateLabels } from '../../assets/javascript/mixins/chart/updateLabels.js';
+import { removeLines } from '../../assets/javascript/mixins/chart/removeLines.js';
+import { removePoint } from '../../assets/javascript/mixins/chart/removePoint.js';
 
 export default {
     name: 'PlotTAS',
@@ -62,9 +62,6 @@ export default {
         DISABLE: {
             type: Boolean,
             default: true
-        },
-        METADATA: {
-            type: Array
         }
     },
     data() {
@@ -93,9 +90,14 @@ export default {
         initScales,
         adjustDomains,
         initDimensions,
-        initFields,
-        getFields,
-        addLabels
+        changeScales,
+        updateLegend,
+        updateLabels,
+        // initFields,
+        // getFields,
+        addLabels,
+        removeLines,
+        removePoint
     ],
     methods: {
         zooming() {
@@ -150,17 +152,17 @@ export default {
 <style lang="less" scoped>
 @import '../../assets/styles/plot-TAS-styles.css';
 
-.metadata {
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    width: 95%;
-    margin-left: 10px;
+// .metadata {
+//     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+//     width: 95%;
+//     margin-left: 10px;
 
-    .metadata-list {
-        -webkit-column-count: 3; /* Chrome, Safari, Opera */
-        -moz-column-count: 3; /* Firefox */
-        column-count: 3;
+//     .metadata-list {
+//         -webkit-column-count: 3; /* Chrome, Safari, Opera */
+//         -moz-column-count: 3; /* Firefox */
+//         column-count: 3;
 
-        word-wrap: break-word;
-    }
-}
+//         word-wrap: break-word;
+//     }
+// }
 </style>

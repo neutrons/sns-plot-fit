@@ -164,10 +164,10 @@ export default {
       return {
         selectedData: [],
         scales: {
-          xScale: d3.scaleLinear(),
-          xScaleType: 'X',
-          yScale: d3.scaleLinear(),
-          yScaleType: 'Y'
+          x: d3.scaleLinear(),
+          xType: 'X',
+          y: d3.scaleLinear(),
+          yType: 'Y'
         },
         disable: true,
         plotParams: {},
@@ -229,7 +229,7 @@ export default {
     mounted() {
         let vm = this;
 
-        eventBus.$on('update-selected-data', vm.updateSelectedData);
+        eventBus.$on('update-selected-data-SANS1D', vm.updateSelectedData);
     },
     methods: {
         updateSelectedData(index, name) {

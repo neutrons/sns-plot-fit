@@ -171,10 +171,10 @@ export default {
     data: function () {
       return {
           scales: {
-              xScale: d3.scaleLinear(),
-              xScaleType: 'X',
-              yScale: d3.scaleLinear(),
-              yScaleType: 'Y'
+              x: d3.scaleLinear(),
+              xType: 'X',
+              y: d3.scaleLinear(),
+              yType: 'Y'
           },
           filterBy: 'All',
           sortBy: 'ascending',
@@ -196,7 +196,7 @@ export default {
             vm.isStitched = false;
         })
 
-        eventBus.$on('update-selected-data', this.updateSelectedData);
+        eventBus.$on('update-selected-data-Stitch', vm.updateSelectedData);
     },
     mixins: [
         fetchFiles,

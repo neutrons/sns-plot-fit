@@ -33,5 +33,6 @@ export default function getDefaultData() {
           yType: 'Y'
         },
         ID: 'TAS',
+        selectedData: [],
     }
 }

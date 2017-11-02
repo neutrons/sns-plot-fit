@@ -1,34 +1,137 @@
 import axios from 'axios';
 import pp from 'papaparse';
 
-/* Functions to Read and Parse 2D Files */
-export const getTASData = {
+/* Functions to Read and Parse 1D Data Files */
+export const readTASData= {
     methods: {
-        getTASData(file) {
-            var vm = this;
+        readTASData(fileURLs, tempData, dataType) {
+            // Next fetch unstored files
+                /*****************************************
+                 When a user selects data to be plotted,
+                it first must be fetched, either from
+                an HTTP request or FileReader. In order
+                to handle reading multiple files
+                asynchronously, JavaScript promises are used.
+                That way we can "wait" for all data
+                to be loaded asynchronously before moving on
+                to plotting the data.
+                *****************************************/
+                var vm = this;
+
+                // console.log("READ TAS FILES:", fileURLs);
+
+                var promises = fileURLs.map(function(url) {
+
+                    if (url.type === 'fetch') {
+                        // console.log("READ FROM FETCH...");
+                        return axios.get(url.url).then(function(response) {
+                            // console.log("axios response data", response);
+
+                            // let data = vm.parseTAS(response.data, url.filename);
+                    
+                            // vm.$store.commit('storeData', { filename: url.filename, data: data, dataType: dataType});
+
+                            // return data;
+
+                            // *****
+
+                            // First - extract metadata from data table
+                            let extractedData = vm.extractMetadata(response.data);
+                
+                            // Second - parse data
+                            extractedData.data = vm.parseTAS(extractedData.data, url.filename);
+                            extractedData.filename = url.filename;
+                            // console.log("EXTRACTED:", extractedData);
             
-            // If data is not stored, fetch it, store it, and send data to be plotted
-            axios.get(file.url).then(response => {
+                            // Third - store and set current data
+                            vm.$store.commit('storeData', { dataType: dataType, data: extractedData, filename: url.filename});
+                            
+                            return extractedData;
+                        });        
+                    } else if (url.type === 'upload') {
 
-                // First - extract metadata from data table
-                let extractedData = vm.extractMetadata(response.data);
+                        // Turn file reader into a promise in order to
+                        // wait on the async reading of files with Promise.all below
+                        return new Promise((resolve, reject) => {
+                            var reader = new FileReader();
+                            
+                            reader.onload = function (e) {  
+                                // Get file content
+                                // var content = e.target.result;
 
-                // Second - parse data
-                extractedData.data = vm.parseTAS(extractedData.data);
-                extractedData.filename = file.filename;
-                // console.log("EXTRACTED:", extractedData);
+                                // // Code to read Upload 2D file
+                                // let data = vm.parseTAS(content, url.filename);
 
-                // Third - store and set current data
-                vm.$store.commit('storeData', {dataType: 'TAS', data: extractedData, filename: file.filename});
-                vm.currentData = extractedData;
+                                // vm.$store.commit('storeData', { filename: url.filename, data: data, dataType: dataType});
+                                
+                                // resolve(data);
 
-                vm.setParameters();
+                                // ****
+                                // Get file content
+                                var content = e.target.result;
+                
+                                // First - extract metadata from data table
+                                let extractedData = vm.extractMetadata(content);
+                                
+                                // Second - parse data
+                                extractedData.data = vm.parseTAS(extractedData.data, url.filename);
+                                extractedData.filename = file.filename;
+                                // console.log("EXTRACTED:", extractedData);
+                
+                                // Third - store and resolve data
+                                vm.$store.commit('storeData', { filename: url.filename, data: extractedData, dataType: dataType});
+                                
+                                resolve(extractedData);
+                            }
+                            
+                            reader.readAsText(url.url, "UTF-8");
+                        });
+                    } else {
+                        console.log("Sorry, uknown type.");
+                    }
+                });
 
-            }).catch(reason => { console.log(reason) });;
-            
+                if (promises.length > 0) {
+ 
+                    Promise.all(promises).then(results => {
+                        let plotData = _.concat(tempData, results);
+                        
+                        vm.setCurrentData(plotData, vm.filesToPlot);
+
+                    }).catch(reason => { console.log(reason) });
+                }
         }
     }
 }
+
+/* Functions to Read and Parse 2D Files */
+// export const getTASData = {
+//     methods: {
+//         getTASData(file) {
+//             var vm = this;
+            
+//             // If data is not stored, fetch it, store it, and send data to be plotted
+//             axios.get(file.url).then(response => {
+
+//                 // First - extract metadata from data table
+//                 let extractedData = vm.extractMetadata(response.data);
+
+//                 // Second - parse data
+//                 extractedData.data = vm.parseTAS(extractedData.data);
+//                 extractedData.filename = file.filename;
+//                 // console.log("EXTRACTED:", extractedData);
+
+//                 // Third - store and set current data
+//                 vm.$store.commit('storeData', {dataType: 'TAS', data: extractedData, filename: file.filename});
+//                 vm.currentData = extractedData;
+
+//                 vm.setParameters();
+
+//             }).catch(reason => { console.log(reason) });;
+            
+//         }
+//     }
+// }
 
 export const extractMetadata = {
     methods: {
@@ -52,42 +155,42 @@ export const extractMetadata = {
     }
 }
 
-export const readTASData = {
-    methods: {
-        readTASData(file) {
-            var vm = this;
+// export const readTASData = {
+//     methods: {
+//         readTASData(file) {
+//             var vm = this;
 
-            var reader = new FileReader();
+//             var reader = new FileReader();
 
-            reader.onload = function (e) {  
-                // Get file content
-                var content = e.target.result;
+//             reader.onload = function (e) {  
+//                 // Get file content
+//                 var content = e.target.result;
 
-                // First - extract metadata from data table
-                let extractedData = vm.extractMetadata(content);
+//                 // First - extract metadata from data table
+//                 let extractedData = vm.extractMetadata(content);
                 
-                // Second - parse data
-                extractedData.data = vm.parseTAS(extractedData.data);
-                extractedData.filename = file.filename;
-                // console.log("EXTRACTED:", extractedData);
+//                 // Second - parse data
+//                 extractedData.data = vm.parseTAS(extractedData.data);
+//                 extractedData.filename = file.filename;
+//                 // console.log("EXTRACTED:", extractedData);
 
-                // Third - store and set current data
-                vm.$store.commit('storeData', {dataType: 'TAS', data: extractedData, filename: file.filename});
-                vm.currentData = extractedData;
-                vm.setParameters();
+//                 // Third - store and set current data
+//                 vm.$store.commit('storeData', {dataType: 'TAS', data: extractedData, filename: file.filename});
+//                 vm.currentData = extractedData;
+//                 vm.setParameters();
        
-            }
+//             }
             
-            reader.readAsText(file.blob, "UTF-8");
-        }
-    }
-}
+//             reader.readAsText(file.blob, "UTF-8");
+//         }
+//     }
+// }
 
 
 /* Function to Parse 2D Data Files */
 export const parseTAS = {
     methods: {
-        parseTAS(data) {
+        parseTAS(data, filename) {
         
             function beforeFirstChunkTAS(chunk) {
                 // Split the text into rows
@@ -126,8 +229,14 @@ export const parseTAS = {
                 beforeFirstChunk : beforeFirstChunkTAS
             }
 
-            var resultsTAS = pp.parse(data, configTAS).data;
+            // var resultsTAS = pp.parse(data, configTAS).data;
 
+            var resultsTAS = pp.parse(data, configTAS ).data;
+            
+            // Filter out any negative values
+            // console.log("PARSE:", resultsTAS, filename);
+            resultsTAS.forEach(row => row.name = filename);
+            
             return resultsTAS;
         }
     }
