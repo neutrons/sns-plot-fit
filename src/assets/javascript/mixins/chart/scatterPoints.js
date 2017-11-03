@@ -2,7 +2,6 @@ import * as d3 from 'd3';
 import tooltip from './tooltip.js';
 
 export default function(selection, x, y, vm) {
-    console.log("scatter points");
     selection.append("circle")
         .attr("class", "dot")
         .filter(function(d) {

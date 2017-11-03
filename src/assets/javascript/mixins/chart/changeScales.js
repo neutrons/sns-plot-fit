@@ -4,8 +4,7 @@ export const changeScales = {
     methods: {
         changeScales(values) {
             let vm = this;
-            console.log("Scales changed:", values);
-            
+                        
             vm.scale.x = values.x.copy();
             vm.scale.y = values.y.copy();
     
