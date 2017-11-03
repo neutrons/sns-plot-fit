@@ -1,6 +1,6 @@
 <template>
   <v-panel :PANELTITLE="'Metadata - ' + name" PANELTYPE="default" v-if="keys.length > 0">
-        <div class="button-group" slot="header-content">
+        <div class="button-group pull-left" slot="header-content">
             <button class='btn btn-default btn-xs btn-left' @click="next('left')"><i class="fa fa-caret-left" aria-hidden="true"></i></button>
             <button class='btn btn-default btn-xs btn-deselect' @click="highlightAll">Deselect</button>
             <button class='btn btn-default btn-xs btn-right' @click="next('right')"><i class="fa fa-caret-right" aria-hidden="true"></i></button>
@@ -131,21 +131,21 @@ export default {
     }
 }
   
-.btn-left {
-    position: absolute;
-    left: 5px;
+.btn-left, .btn-deselect, .btn-right {
+    position: relative;
     top: 0px;
 }
 
-.btn-deselect {
-    position: absolute;
-    left: 25px;
-    top: 0px;
-}
+.btn {
 
-.btn-right {
-    position: absolute;
-    left: 90px;
-    top: 0px;
+    @media screen and (min-width: 1441px) { font-size: 12px; }
+    
+    @media screen and (max-width: 1440px) and (min-width: 1200px) { font-size: 10px; }
+
+    @media screen and (max-width: 1199px) { font-size: 9px; }
+
+    &:active, &:target, &:focus {
+        outline: none;
+    }
 }
 </style>

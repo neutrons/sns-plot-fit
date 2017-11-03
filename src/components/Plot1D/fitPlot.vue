@@ -138,6 +138,7 @@ export default {
         tempData.fitLineData = [];
         tempData.prevFit = null;
         tempData.prevTransform = undefined;
+        tempData.isMathJax = true;
 
         tempData.zoom = d3.zoom().on("zoom", this.zooming);
 

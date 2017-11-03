@@ -72,6 +72,7 @@ export default {
         tempData.ID = 'TAS';
         tempData.fields = {x: null, y: null};
         tempData.zoom = d3.zoom().on("zoom", this.zooming);
+        tempData.isMathJax = false;
 
         return tempData;
 

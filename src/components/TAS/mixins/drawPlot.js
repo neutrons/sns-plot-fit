@@ -81,8 +81,6 @@ export const drawPlot = {
                 d3.select(".tooltip-" + this.ID).remove();
             }
 
-            console.log("Draw plot...", parameters);
-
             // Set plot dimensions
             vm.initDimensions();
 
@@ -91,7 +89,7 @@ export const drawPlot = {
 
             // Set initial Elements
             vm.setElements();
-            vm.addLabels(false);
+            vm.addLabels();
             
             // Set zoom on zoomWindow
             vm.elements.svg.select(".zoom").call(vm.zoom);

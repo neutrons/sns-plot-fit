@@ -105,6 +105,7 @@ export default {
         tempData.brushExtent = [];
         tempData.brushSelection = null;
         tempData.toggleChoice = 'zoom';
+        tempData.isMathJax = false;
 
         tempData.zoom = d3.zoom().on("zoom", this.zooming);
         

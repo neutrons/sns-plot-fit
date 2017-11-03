@@ -4,7 +4,7 @@
       <div class="col-md-2">
         <!-- Files Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
-                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success" v-if="!isOffline">
+                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
@@ -27,7 +27,7 @@
                     </div>
                 </v-panel>
 
-                <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success">
+                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
                     <div v-show="getUploaded.length > 0">
                      <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
                             <template>
@@ -157,6 +157,7 @@ export default {
         tempData.binSize = undefined;
         tempData.plotData = [];
         tempData.ID = 'SANS2D';
+        tempData.isMathJax = true;
 
         return tempData;
     },

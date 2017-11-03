@@ -273,8 +273,8 @@ export default {
                 [this.fields.x, this.fields.y] = [this.fields.y, this.fields.x];
             }
             
-            d3.select('#xLabel-TAS').text(this.fields.x);
-            d3.select('#yLabel-TAS').text(this.fields.y);
+            // d3.select('#xLabel-TAS').text(this.fields.x);
+            // d3.select('#yLabel-TAS').text(this.fields.y);
 
             this.setParameters();
         },
