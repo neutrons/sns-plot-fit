@@ -63,8 +63,9 @@
                 >
                 </v-field-list>
             </v-panel>
+
             <!-- Scales Panel  -->
-            <!-- <v-panel PANELTITLE="Scales" PANELTYPE="success" :COLLAPSE="false">
+            <v-panel PANELTITLE="Scales" PANELTYPE="success" :COLLAPSE="false">
 
                 <v-scales 
                     :DISABLE="disable"
@@ -73,7 +74,7 @@
                     ref="scales">
                 </v-scales>
 
-            </v-panel> -->
+            </v-panel>
 
             <!-- Fit Configuration Panel  -->
             <!-- <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
@@ -163,7 +164,6 @@ export default {
         isOffline,
         parseTAS,
         readTASData,
-        // getTASData,
         extractMetadata,
         prepPlotData
     ],
@@ -181,7 +181,7 @@ export default {
             let tm = {};
 
             this.selectedData.forEach(el => {
-                tm[el.filename] = el.metadata; //.push({name: el.filename, metadata: el.metadata});
+                tm[el.filename] = el.metadata;
             })
 
             return tm;
@@ -263,7 +263,6 @@ export default {
             this.$store.commit('removeFile', { filename: filename, dataType: 'TAS'});
         },
         updateFields(choice, value) {
-            //console.log("Changed field: " + type + " | To value = " + value);
 
             if (choice === 'x') {
                 this.fields.x = value;
@@ -272,9 +271,6 @@ export default {
             } else {
                 [this.fields.x, this.fields.y] = [this.fields.y, this.fields.x];
             }
-            
-            // d3.select('#xLabel-TAS').text(this.fields.x);
-            // d3.select('#yLabel-TAS').text(this.fields.y);
 
             this.setParameters();
         },
@@ -341,34 +337,6 @@ export default {
             return _.cloneDeep(tempData);
         },
         setParameters() {
-            // Next tick is used to wait for all parameter changes to be updated
-            // This is a to prevent the 'De-selecting' of all plotted data at once.
-            // this.$nextTick(function() {
-            //     if (this.currentData.data !== undefined) {
-            //         // Code here to plot data
-            //         this.disable = false;
-
-            //         this.$refs.plot_TAS.drawPlot({
-            //             fields: this.fields,
-            //             data: this.currentData,
-            //             scales: this.scales,
-            //             colorDomain: this.$store.getters.getColorDomain('TAS'),
-            //             labels: {
-            //                 x: this.fields.x,
-            //                 y: this.fields.y
-            //             }
-            //         })
-            //     } else {
-            //         console.log("no data to plot...");
-            //         // Remove any elements previously plotted
-            //         this.resetData();
-
-            //         this.$refs.fields.resetSelected();
-            //     }
-            // })
-
-            // Next tick is used to wait for all parameter changes to be updated
-            // This is a to prevent the 'De-selecting' of all plotted data at once.
             let vm = this;
 
             this.$nextTick(function() {
@@ -437,14 +405,6 @@ export default {
         }
     },
     watch: {
-        scales: {
-            handler() {
-                this.$nextTick(function() {
-                    // code to handle scale changes
-                })
-            },
-            deep: true
-        },
         fileToFit () {
             
             if (this.fileToFit === null) {
@@ -478,85 +438,7 @@ export default {
                 // this.setParameters();
             },
             deep: true
-        },
-        // filesToPlot: {
-        //     handler() {
-        //         var vm = this;
-
-        //         // If a file is unselected while it has a fit, unselect the fit
-        //         if (this.filesToPlot.indexOf(this.fileToFit) === -1) {
-        //             this.fileToFit = null;
-        //             this.fileFitChoice = [];
-        //         }
-                
-        //         if (this.filesToPlot.length === 0) {
-        //             console.log("No files to plot");
-        //             // this.resetData();
-        //         } else {
-        //             var filesToFetch = [];
-
-        //             // First check if files to plot are in stored data
-        //             var tempData = this.filesToPlot.map(function(filename) {
-                       
-        //                 var temp = vm.$store.getters.getSavedFile('TAS', filename);
-                    
-        //                 // console.log("Here is the temp:", temp);
-        //                 if (temp === '999') {
-        //                     console.log("Not in stored:", filename);
-        //                     filesToFetch.push(filename);
-        //                 } else {
-        //                     return temp;
-        //                 }
-
-        //             }).filter(item => item !== undefined);
-                    
-        //             // Next fetch the file URLs
-        //             var fileURLs = this.$store.getters.getURLs(filesToFetch, 'TAS');
-                    
-        //             if (fileURLs.length > 0) {
-        //                 this.readTASData(fileURLs, tempData, 'TAS');
-        //             } else {
-        //                 this.setCurrentData(tempData, this.filesToPlot);
-        //             }
-        //         }
-
-        //     },
-        //     deep: true
-        // },
-        // fileToPlot() {
-        //     let vm = this;
-
-        //     // Check if file is in the stored TAS list
-        //     // a value of '999' means no data is stored
-        //     if (this.fileToPlot !== null) {
-        //         let dataTAS = this.$store.getters.getSavedFile('TAS', this.fileToPlot);
-
-        //         // If not, Check if the file is in the Fetched list or Uploaded
-        //         if (dataTAS === '999') {
-        //             var inUploadTAS = this.$store.getters.inUploadedTAS(this.fileToPlot);
-
-        //             if (inUploadTAS) {
-        //                 // It's an uploaded file so read the data from blob
-        //                 var file = this.$store.getters.getTASFile(this.fileToPlot, 'uploaded');
-
-        //                 this.readTASData(file);
-
-        //             } else {
-        //                 // It's a fetched file so get file then get the data url
-        //                 var file = this.$store.getters.getTASFile(this.fileToPlot, 'fetched');
-
-        //                 this.getTASData(file);
-        //             }
-        //         } else {
-        //             // File is in saved, so let's plot it
-        //             this.currentData = dataTAS;
-        //             this.setParameters();
-        //         }
-        //     } else {               
-        //         console.log("No files selected...");
-        //         this.resetData();
-        //     }
-        // }
+        }
     }
 }
 </script>

@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import tooltip from './tooltip.js';
 
 export default function(selection, x, y, vm) {
+    console.log("scatter points");
     selection.append("circle")
         .attr("class", "dot")
         .filter(function(d) {
@@ -33,7 +34,6 @@ export default function(selection, x, y, vm) {
                 }
             };
 
-            // let htmlString = "Name: " + d.name + "<br/>" + "X: " + d.x.toFixed(6) + "<br/>" + "Y: " + d.y.toFixed(6) + "<br/>" + "Error: " + d.e.toFixed(6);
             tooltip.enter(d, htmlString, vm.elements.tooltip) 
         })
         .on("mouseout", function (d) { tooltip.exit(d, vm.elements.tooltip) })

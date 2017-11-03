@@ -86,7 +86,7 @@
         <!-- Plot Panel for Main Chart  -->
         <v-stitch-plot 
             :DISABLE="disable"
-            ref="stitchPlot">
+            ref="plot_Stitch">
         </v-stitch-plot>
 
         <!-- Modal for Saving a Line -->
@@ -183,7 +183,8 @@ export default {
           selectedData: [],
           isStitched: false,
           isMultipleLines: false,
-          isBrushesStored: false
+          isBrushesStored: false,
+          ID: 'Stitch',
       }
     },
     mounted() {
@@ -266,7 +267,7 @@ export default {
             this.$nextTick(function() {
                 if (this.selectedData.length > 0) {
 
-                    this.$refs.stitchPlot.setParameters({
+                    this.$refs.plot_Stitch.setParameters({
                         data: this.prepData(this.selectedData),
                         scales: this.scales,
                         colorDomain: this.$store.getters.getColorDomain('Stitch'),
@@ -279,30 +280,30 @@ export default {
                     d3.select(".chart-Stitch").remove();
                     d3.select("#tooltip-Stitch").remove();
 
-                    this.$refs.stitchPlot.resetDefaults();
+                    this.$refs.plot_Stitch.resetDefaults();
                     this.$refs.toggle.picked = true;
                     this.isStitched = false;
                 }
             })
         },
         stitchData() {
-            let result = this.$refs.stitchPlot.stitchData();
+            let result = this.$refs.plot_Stitch.stitchData();
 
             this.isStitched = result;
         },
         removeBrushes() {
-            this.$refs.stitchPlot.removeBrushes();
+            this.$refs.plot_Stitch.removeBrushes();
         },
         removeStitch() {
-            let result = this.$refs.stitchPlot.removeStitchLine();
+            let result = this.$refs.plot_Stitch.removeStitchLine();
 
             this.isStitched = result;
         },
         toggleEdit(choice) {
-            this.$refs.stitchPlot.toggleEdit(choice);
+            this.$refs.plot_Stitch.toggleEdit(choice);
         },
         saveStitchLine() {
-            this.$refs.stitchPlot.saveStitchLine();
+            this.$refs.plot_Stitch.saveStitchLine();
         },
         resetStitch() {
             this.disable = true;
@@ -318,20 +319,10 @@ export default {
 
         },
         drawBrushes() {
-            this.$refs.stitchPlot.drawSavedBrushes();
+            this.$refs.plot_Stitch.drawSavedBrushes();
         }
     },
     watch: {
-        scales: {
-            handler() {
-                this.$nextTick(function() {
-                    if (this.selectedData.length > 0) {
-                        this.$refs.stitchPlot.updateScales(this.scales);
-                    }
-                });
-            },
-            deep: true
-        },
         filesToPlot: {
             handler() {
                 var vm = this;
@@ -366,7 +357,7 @@ export default {
                         this.isStitched = false;
                         this.isMultipleLines = false;
                         this.$refs.toggle.picked = true;
-                        this.$refs.stitchPlot.resetToggle();
+                        this.$refs.plot_Stitch.resetToggle();
                     } else {
                         this.isMultipleLines = true;
                     }

@@ -11,6 +11,7 @@ export const initScales = {
             let yExtent = extent(vm.dataNest, 'y');
 
             vm.scale.x = vm.plotParameters.scales.x;
+            vm.scale.xType = vm.plotParameters.scales.xType;
             vm.scale.x.range([0,vm.dimensions.w]);
             vm.scale.x.domain(xExtent);
             

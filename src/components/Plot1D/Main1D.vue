@@ -111,7 +111,7 @@
         <v-plot-1D
             :DISABLE="disable"
             :SHOWTABLE="fileToFit !== null && $data.currentConfiguration.fit !== 'None'"
-            ref="plot_1D"
+            ref="plot_SANS1D"
         ></v-plot-1D>
 </div>
   </div>
@@ -200,8 +200,8 @@ export default {
           gradientDifference: 0.1,
           maxIterations: 100,
           errorTolerance: 0.001
-        }
-
+        },
+        ID: 'SANS1D',
       }
     },
     mixins: [
@@ -350,7 +350,7 @@ export default {
                 if (this.selectedData.length > 0) {
                     // console.log("Setting parameters", this.selectedData);
 
-                    this.$refs.plot_1D.setParameters({
+                    this.$refs.plot_SANS1D.setParameters({
                         data: this.prepData(this.selectedData),
                         colorDomain: this.$store.getters.getColorDomain('SANS1D'),
                         scales: this.scales,
@@ -389,14 +389,6 @@ export default {
         }
     },
     watch: {
-        scales: {
-            handler() {
-                this.$nextTick(function() {
-                    if (this.selectedData.length > 0)    this.$refs.plot_1D.updateScales(this.scales);
-                })
-            },
-            deep: true
-        },
         fileToFit () {
             // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
             // If fileToFit is set to Null, don't transform anything and reset the fit to none
