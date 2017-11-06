@@ -24,7 +24,7 @@ export const removePoint = {
                 $("#btn-no-delete").off();
                 $("#btn-yes-delete").off();
 
-                eventBus.$emit('update-selected-data', index, name);
+                eventBus.$emit('update-selected-data-' + vm.ID, index, name);
 
                 // Remove point from stored dataset
                 store.commit('removePoint', {name: name, index: index, dataType: vm.ID});

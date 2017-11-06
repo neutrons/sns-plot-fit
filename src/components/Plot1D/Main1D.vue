@@ -111,7 +111,7 @@
         <v-plot-1D
             :DISABLE="disable"
             :SHOWTABLE="fileToFit !== null && $data.currentConfiguration.fit !== 'None'"
-            ref="plot_1D"
+            ref="plot_SANS1D"
         ></v-plot-1D>
 </div>
   </div>
@@ -134,7 +134,9 @@ import Transformation from '../BaseComponents/Transformation.vue';
 import Plot1D from './fitPlot.vue';
 
 /* Import Shared Mixins */
-import { parse1D, read1DData } from '../../assets/javascript/mixins/readFiles/read1D.js';
+import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
+import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
+
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 import { removeFile } from '../../assets/javascript/mixins/removeFile.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
@@ -164,10 +166,10 @@ export default {
       return {
         selectedData: [],
         scales: {
-          xScale: d3.scaleLinear(),
-          xScaleType: 'X',
-          yScale: d3.scaleLinear(),
-          yScaleType: 'Y'
+          x: d3.scaleLinear(),
+          xType: 'X',
+          y: d3.scaleLinear(),
+          yType: 'Y'
         },
         disable: true,
         plotParams: {},
@@ -200,12 +202,11 @@ export default {
           gradientDifference: 0.1,
           maxIterations: 100,
           errorTolerance: 0.001
-        }
-
+        },
+        ID: 'SANS1D',
       }
     },
     mixins: [
-        parse1D,
         read1DData,
         fetchFiles,
         setScales,
@@ -229,7 +230,7 @@ export default {
     mounted() {
         let vm = this;
 
-        eventBus.$on('update-selected-data', vm.updateSelectedData);
+        eventBus.$on('update-selected-data-SANS1D', vm.updateSelectedData);
     },
     methods: {
         updateSelectedData(index, name) {
@@ -350,7 +351,7 @@ export default {
                 if (this.selectedData.length > 0) {
                     // console.log("Setting parameters", this.selectedData);
 
-                    this.$refs.plot_1D.setParameters({
+                    this.$refs.plot_SANS1D.setParameters({
                         data: this.prepData(this.selectedData),
                         colorDomain: this.$store.getters.getColorDomain('SANS1D'),
                         scales: this.scales,
@@ -389,14 +390,6 @@ export default {
         }
     },
     watch: {
-        scales: {
-            handler() {
-                this.$nextTick(function() {
-                    if (this.selectedData.length > 0)    this.$refs.plot_1D.updateScales(this.scales);
-                })
-            },
-            deep: true
-        },
         fileToFit () {
             // Watch if fileToFit changes, if so assign/re-assign selectedData.dataFitted       	
             // If fileToFit is set to Null, don't transform anything and reset the fit to none
@@ -500,7 +493,7 @@ export default {
                     var fileURLs = this.$store.getters.getURLs(filesToFetch, 'SANS1D');
                     
                     if (fileURLs.length > 0) {
-                        this.read1DData(fileURLs, tempData, 'SANS1D');
+                        this.read1DData(fileURLs, tempData, 'SANS1D', parseData);
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }

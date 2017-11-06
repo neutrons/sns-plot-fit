@@ -5,7 +5,7 @@
         <!-- Left Sidebar for Controls and File List  -->
         <div class="col-md-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
-                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success" v-if="!isOffline">
+                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
@@ -28,7 +28,7 @@
                     </div>
                 </v-panel>
 
-                <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success">
+                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
                     <div v-show="getUploaded.length > 0">
                      <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
                             <template>
@@ -86,7 +86,7 @@
         <!-- Plot Panel for Main Chart  -->
         <v-stitch-plot 
             :DISABLE="disable"
-            ref="stitchPlot">
+            ref="plot_Stitch">
         </v-stitch-plot>
 
         <!-- Modal for Saving a Line -->
@@ -147,7 +147,8 @@ import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
 /* Import Mixins */
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
-import { parse1D, read1DData } from '../../assets/javascript/mixins/readFiles/read1D.js';
+import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
+import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
 import { removeFile } from '../../assets/javascript/mixins/removeFile.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
@@ -171,10 +172,10 @@ export default {
     data: function () {
       return {
           scales: {
-              xScale: d3.scaleLinear(),
-              xScaleType: 'X',
-              yScale: d3.scaleLinear(),
-              yScaleType: 'Y'
+              x: d3.scaleLinear(),
+              xType: 'X',
+              y: d3.scaleLinear(),
+              yType: 'Y'
           },
           filterBy: 'All',
           sortBy: 'ascending',
@@ -183,7 +184,8 @@ export default {
           selectedData: [],
           isStitched: false,
           isMultipleLines: false,
-          isBrushesStored: false
+          isBrushesStored: false,
+          ID: 'Stitch',
       }
     },
     mounted() {
@@ -196,11 +198,10 @@ export default {
             vm.isStitched = false;
         })
 
-        eventBus.$on('update-selected-data', this.updateSelectedData);
+        eventBus.$on('update-selected-data-Stitch', vm.updateSelectedData);
     },
     mixins: [
         fetchFiles,
-        parse1D,
         read1DData,
         setScales,
         filterJobs,
@@ -266,7 +267,7 @@ export default {
             this.$nextTick(function() {
                 if (this.selectedData.length > 0) {
 
-                    this.$refs.stitchPlot.setParameters({
+                    this.$refs.plot_Stitch.setParameters({
                         data: this.prepData(this.selectedData),
                         scales: this.scales,
                         colorDomain: this.$store.getters.getColorDomain('Stitch'),
@@ -279,30 +280,30 @@ export default {
                     d3.select(".chart-Stitch").remove();
                     d3.select("#tooltip-Stitch").remove();
 
-                    this.$refs.stitchPlot.resetDefaults();
+                    this.$refs.plot_Stitch.resetDefaults();
                     this.$refs.toggle.picked = true;
                     this.isStitched = false;
                 }
             })
         },
         stitchData() {
-            let result = this.$refs.stitchPlot.stitchData();
+            let result = this.$refs.plot_Stitch.stitchData();
 
             this.isStitched = result;
         },
         removeBrushes() {
-            this.$refs.stitchPlot.removeBrushes();
+            this.$refs.plot_Stitch.removeBrushes();
         },
         removeStitch() {
-            let result = this.$refs.stitchPlot.removeStitchLine();
+            let result = this.$refs.plot_Stitch.removeStitchLine();
 
             this.isStitched = result;
         },
         toggleEdit(choice) {
-            this.$refs.stitchPlot.toggleEdit(choice);
+            this.$refs.plot_Stitch.toggleEdit(choice);
         },
         saveStitchLine() {
-            this.$refs.stitchPlot.saveStitchLine();
+            this.$refs.plot_Stitch.saveStitchLine();
         },
         resetStitch() {
             this.disable = true;
@@ -318,20 +319,10 @@ export default {
 
         },
         drawBrushes() {
-            this.$refs.stitchPlot.drawSavedBrushes();
+            this.$refs.plot_Stitch.drawSavedBrushes();
         }
     },
     watch: {
-        scales: {
-            handler() {
-                this.$nextTick(function() {
-                    if (this.selectedData.length > 0) {
-                        this.$refs.stitchPlot.updateScales(this.scales);
-                    }
-                });
-            },
-            deep: true
-        },
         filesToPlot: {
             handler() {
                 var vm = this;
@@ -366,7 +357,7 @@ export default {
                         this.isStitched = false;
                         this.isMultipleLines = false;
                         this.$refs.toggle.picked = true;
-                        this.$refs.stitchPlot.resetToggle();
+                        this.$refs.plot_Stitch.resetToggle();
                     } else {
                         this.isMultipleLines = true;
                     }
@@ -391,7 +382,7 @@ export default {
                     var fileURLs = this.$store.getters.getURLs(filesToFetch, 'Stitch');
 
                     if (fileURLs.length > 0) {
-                        this.read1DData(fileURLs, tempData, 'Stitch');
+                        this.read1DData(fileURLs, tempData, 'Stitch', parseData);
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }

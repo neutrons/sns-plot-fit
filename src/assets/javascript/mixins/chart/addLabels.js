@@ -1,10 +1,10 @@
 export const addLabels = {
     methods: {
-        addLabels(isMathJax) {
+        addLabels() {
             let vm = this;
 
             // If labels need rendering with mathjax
-            if (isMathJax) {
+            if (vm.isMathJax) {
                 // Add Y Axis Label
                 vm.elements.svg.append("g").append("foreignObject")
                     .attr("height", 100)

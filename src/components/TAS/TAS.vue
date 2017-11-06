@@ -22,7 +22,7 @@
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="f.filename + '-FetchTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
+                                        <td class="td-check"><input :id="f.filename + '-FetchTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFilesToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
                                         <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
@@ -41,7 +41,7 @@
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="f.filename + '-UploadTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
+                                        <td class="td-check"><input :id="f.filename + '-UploadTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFilesToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
                                         <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
@@ -57,14 +57,15 @@
             <!-- Field Name Panel -->
             <v-panel PANELTITLE="Field Names" PANELTYPE="success" :COLLAPSE="false">
                 <v-field-list 
-                    :current-data="currentData"
+                    :current-fields="currentFields"
                     @update-fields="updateFields"
                     ref="fields"
                 >
                 </v-field-list>
             </v-panel>
+
             <!-- Scales Panel  -->
-            <!-- <v-panel PANELTITLE="Scales" PANELTYPE="success" :COLLAPSE="false">
+            <v-panel PANELTITLE="Scales" PANELTYPE="success" :COLLAPSE="false">
 
                 <v-scales 
                     :DISABLE="disable"
@@ -73,7 +74,7 @@
                     ref="scales">
                 </v-scales>
 
-            </v-panel> -->
+            </v-panel>
 
             <!-- Fit Configuration Panel  -->
             <!-- <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
@@ -101,11 +102,9 @@
         </v-panel-group>
       </div>
     
-        <v-plot-TAS
-            :DISABLE="disable"
-            :METADATA="metadata"
-            ref="plot_TAS"
-        ></v-plot-TAS>
+        <v-plot-TAS :DISABLE="disable"  ref="plot_TAS">
+            <v-metadata :metadata="metadata" :ID="ID"></v-metadata>
+        </v-plot-TAS>
 </div>
   </div>
 </template>
@@ -125,6 +124,7 @@ import Levenberg from '../BaseComponents/Levenberg.vue';
 import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
 import tasPlot from './tasPlot.vue';
 import FieldList from './components/FieldList.vue';
+import Metadata from './components/Metadata.vue';
 
 /* Import Mixins */
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
@@ -132,7 +132,9 @@ import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
-import { parseTAS, readTASData, getTASData, extractMetadata } from '../../assets/javascript/mixins/readFiles/readTAS.js';
+import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
+import parseData from '../../assets/javascript/mixins/readFiles/parse/TAS.js';
+import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
@@ -151,6 +153,7 @@ export default {
         'v-fit-config': FitConfiguration,
         'v-plot-TAS': tasPlot,
         'v-field-list': FieldList,
+        'v-metadata': Metadata
     },
     data: getDefaultData,
     mixins: [
@@ -159,17 +162,43 @@ export default {
         filterJobs,
         isPlotted,
         isOffline,
-        parseTAS,
-        readTASData,
-        getTASData,
-        extractMetadata
+        read1DData,
+        prepPlotData
     ],
+    mounted() {
+        // Listen for event that stitch has been saved
+        let vm = this;
+
+        eventBus.$on('update-selected-data-TAS', vm.updateSelectedData);
+    },
     computed: {
         getUploaded() {
           return this.$store.getters.getUploaded('TAS');
         },
         metadata() {
-            return this.currentData.metadata;
+            let tm = {};
+
+            this.selectedData.forEach(el => {
+                tm[el.filename] = el.metadata;
+            })
+
+            return tm;
+        },
+        currentFields() {
+            let tf = [];
+
+            this.selectedData.forEach(el => {
+                let f = Object.keys(el.data[0]);
+                tf = tf.concat(f);
+            })
+
+            tf = _.chain(tf)
+                .uniq()
+                .remove((d) => { return d !== 'name'; })
+                .sort()
+                .value();
+
+            return tf;
         }
     },
     methods: {
@@ -183,14 +212,19 @@ export default {
             d3.select(".chart-" + this.ID).remove();
             d3.select(".tooltip-" + this.ID).remove();
         },
+        updateSelectedData(index, name) {
+            
+            this.selectedData.forEach(el => {
+
+                if (name === el.filename)   el.data.splice(index,1);
+                
+            })
+
+            this.setParameters();
+        },
         setFileToFit() {
             if (this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
             this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
-        },
-        setFileToPlot() {
-            if (this.filesToPlot.length > 0) this.filesToPlot = this.filesToPlot.slice(-1);
-            
-            this.fileToPlot = this.filesToPlot[0] ? this.filesToPlot[0] : null;
         },
         resetFileFitChoice() {
             this.fileFitChoice = [];
@@ -231,7 +265,6 @@ export default {
             this.$store.commit('removeFile', { filename: filename, dataType: 'TAS'});
         },
         updateFields(choice, value) {
-            //console.log("Changed field: " + type + " | To value = " + value);
 
             if (choice === 'x') {
                 this.fields.x = value;
@@ -240,53 +273,140 @@ export default {
             } else {
                 [this.fields.x, this.fields.y] = [this.fields.y, this.fields.x];
             }
-            
-            d3.select('#xLabel-TAS').text(this.fields.x);
-            d3.select('#yLabel-TAS').text(this.fields.y);
 
             this.setParameters();
         },
-        prepData(sd) {
+        setCurrentData(chosenData, checkList) {            
+            var vm = this;
 
-            // code here to prep data for plotting
+            chosenData = _.cloneDeep(chosenData);
+            
+            if (checkList.length == 0) {
+                this.resetData();
+            } else {
+                let tempSelect = [];
+
+                for (let i = 0, len = chosenData.length; i < len; i++) {
+                    
+                    let temp = chosenData[i].data;
+                    let name = chosenData[i].filename;
+                    let metadata = chosenData[i].metadata;
+
+                    tempSelect.push({filename: name, data: temp, metadata});
+
+                    // if (this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
+                    //     let dataTransformed = fd.transformData(temp, this.currentConfiguration);
+                        
+                    //     tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
+                    // } else {
+                    //     let dataTransformed = _.cloneDeep(temp);
+
+                    //     tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
+                    // }
+                }
+
+                this.selectedData = tempSelect;
+            }
+
+            // Always set parameters after new data is selected
+            this.setParameters();
+        },
+        prepData(sd) {    
+            let vm = this;
+
+            // Assign fields if none were provided yet
+            if (this.fields.x === null || this.fields.y === null) {
+                [this.fields.x, this.fields.y] = this.getFields();
+            }
+
+            // Filter out data for selected fields
+            sd.forEach(el => {
+
+                el.data = el.data.map(function(d) {
+                    return {x: d[vm.fields.x], y: d[vm.fields.y], name: d.name};
+                })
+            })
+
+            // console.log("SD:", sd);
+            let tempData = this.prepPlotData(sd, function() {
+                    let temp = [];
+
+                    for (let i = 0; i < sd.length; i++) temp.push(sd[i].data);
+
+                    return temp;
+            });
+
+            return _.cloneDeep(tempData);
         },
         setParameters() {
-            // Next tick is used to wait for all parameter changes to be updated
-            // This is a to prevent the 'De-selecting' of all plotted data at once.
+            let vm = this;
+
             this.$nextTick(function() {
-                if (this.currentData.data !== undefined) {
-                    // Code here to plot data
+                if (this.selectedData.length > 0) {
+                    // console.log("Setting parameters", this.selectedData);
                     this.disable = false;
 
                     this.$refs.plot_TAS.drawPlot({
-                        fields: this.fields,
-                        data: this.currentData,
-                        scales: this.scales,
-                        colorDomain: this.$store.getters.getColorDomain('TAS'),
+                        data: vm.prepData(_.cloneDeep(vm.selectedData)),
+                        colorDomain: vm.$store.getters.getColorDomain('TAS'),
+                        scales: vm.scales,
+                        fileToFit: vm.fileToFit,
+                        fitConfiguration: vm.currentConfiguration,
+                        fitSettings: vm.fitSettings,
                         labels: {
-                            x: this.fields.x,
-                            y: this.fields.y
+                            x: vm.fields.x,
+                            y: vm.fields.y
                         }
-                    })
+                    });
                 } else {
-                    console.log("no data to plot...");
-                    // Remove any elements previously plotted
                     this.resetData();
-
                     this.$refs.fields.resetSelected();
                 }
             })
         },
+        setFilesToPlot() {
+            var vm = this;
+
+                // If a file is unselected while it has a fit, unselect the fit
+                if (this.filesToPlot.indexOf(this.fileToFit) === -1) {
+                    this.fileToFit = null;
+                    this.fileFitChoice = [];
+                }
+                
+                if (this.filesToPlot.length === 0) {
+                    console.log("No files to plot");
+                    this.resetData();
+                    this.$refs.fields.resetSelected();
+                } else {
+                    var filesToFetch = [];
+
+                    // First check if files to plot are in stored data
+                    var tempData = this.filesToPlot.map(function(filename) {
+                       
+                        var temp = vm.$store.getters.getSavedFile('TAS', filename);
+                    
+                        // console.log("Here is the temp:", temp);
+                        if (temp === '999') {
+                            // console.log("Not in stored:", filename);
+                            filesToFetch.push(filename);
+                        } else {
+                            return temp;
+                        }
+
+                    }).filter(item => item !== undefined);
+                    
+                    // Next fetch the file URLs
+                    var fileURLs = this.$store.getters.getURLs(filesToFetch, 'TAS');
+                    
+                    if (fileURLs.length > 0) {
+                        this.read1DData(fileURLs, tempData, 'TAS', parseData);
+                    } else {
+                        this.setCurrentData(tempData, this.filesToPlot);
+                    }
+                }
+        }
     },
     watch: {
-        scales: {
-            handler() {
-                this.$nextTick(function() {
-                    // code to handle scale changes
-                })
-            },
-            deep: true
-        },
         fileToFit () {
             
             if (this.fileToFit === null) {
@@ -320,40 +440,6 @@ export default {
                 // this.setParameters();
             },
             deep: true
-        },
-        fileToPlot() {
-            let vm = this;
-
-            // Check if file is in the stored TAS list
-            // a value of '999' means no data is stored
-            if (this.fileToPlot !== null) {
-                let dataTAS = this.$store.getters.getSavedFile('TAS', this.fileToPlot);
-
-                // If not, Check if the file is in the Fetched list or Uploaded
-                if (dataTAS === '999') {
-                    var inUploadTAS = this.$store.getters.inUploadedTAS(this.fileToPlot);
-
-                    if (inUploadTAS) {
-                        // It's an uploaded file so read the data from blob
-                        var file = this.$store.getters.getTASFile(this.fileToPlot, 'uploaded');
-
-                        this.readTASData(file);
-
-                    } else {
-                        // It's a fetched file so get file then get the data url
-                        var file = this.$store.getters.getTASFile(this.fileToPlot, 'fetched');
-
-                        this.getTASData(file);
-                    }
-                } else {
-                    // File is in saved, so let's plot it
-                    this.currentData = dataTAS;
-                    this.setParameters();
-                }
-            } else {               
-                console.log("No files selected...");
-                this.resetData();
-            }
         }
     }
 }

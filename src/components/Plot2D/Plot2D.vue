@@ -4,7 +4,7 @@
       <div class="col-md-2">
         <!-- Files Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
-                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success" v-if="!isOffline">
+                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
@@ -27,7 +27,7 @@
                     </div>
                 </v-panel>
 
-                <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success">
+                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
                     <div v-show="getUploaded.length > 0">
                      <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
                             <template>
@@ -112,7 +112,7 @@ import { zoomed } from './mixins/zoomed.js';
 import { resetPlot } from './mixins/resetPlot.js';
 
 /* Import Shared Mixins */
-import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
+import { read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
@@ -157,6 +157,7 @@ export default {
         tempData.binSize = undefined;
         tempData.plotData = [];
         tempData.ID = 'SANS2D';
+        tempData.isMathJax = true;
 
         return tempData;
     },
@@ -166,7 +167,6 @@ export default {
       }
     },
     mixins: [
-        parse2D, 
         read2DData, 
         get2DData, 
         fetchFiles, 
