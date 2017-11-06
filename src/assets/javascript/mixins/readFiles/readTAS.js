@@ -75,7 +75,7 @@ export const readTASData= {
                                 
                                 // Second - parse data
                                 extractedData.data = vm.parseTAS(extractedData.data, url.filename);
-                                extractedData.filename = file.filename;
+                                extractedData.filename = url.filename;
                                 // console.log("EXTRACTED:", extractedData);
                 
                                 // Third - store and resolve data

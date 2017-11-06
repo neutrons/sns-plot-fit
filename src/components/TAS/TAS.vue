@@ -194,7 +194,11 @@ export default {
                 tf = tf.concat(f);
             })
 
-            tf = _.uniq(tf).sort();
+            tf = _.chain(tf)
+                .uniq()
+                .remove((d) => { return d !== 'name'; })
+                .sort()
+                .value();
 
             return tf;
         }
