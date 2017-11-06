@@ -147,7 +147,8 @@ import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
 /* Import Mixins */
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
-import { parse1D, read1DData } from '../../assets/javascript/mixins/readFiles/read1D.js';
+import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
+import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
 import { removeFile } from '../../assets/javascript/mixins/removeFile.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
@@ -201,7 +202,6 @@ export default {
     },
     mixins: [
         fetchFiles,
-        parse1D,
         read1DData,
         setScales,
         filterJobs,
@@ -382,7 +382,7 @@ export default {
                     var fileURLs = this.$store.getters.getURLs(filesToFetch, 'Stitch');
 
                     if (fileURLs.length > 0) {
-                        this.read1DData(fileURLs, tempData, 'Stitch');
+                        this.read1DData(fileURLs, tempData, 'Stitch', parseData);
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }

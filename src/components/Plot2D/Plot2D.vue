@@ -112,7 +112,7 @@ import { zoomed } from './mixins/zoomed.js';
 import { resetPlot } from './mixins/resetPlot.js';
 
 /* Import Shared Mixins */
-import { parse2D, read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
+import { read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
@@ -167,7 +167,6 @@ export default {
       }
     },
     mixins: [
-        parse2D, 
         read2DData, 
         get2DData, 
         fetchFiles, 

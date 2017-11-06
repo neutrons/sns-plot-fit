@@ -134,7 +134,9 @@ import Transformation from '../BaseComponents/Transformation.vue';
 import Plot1D from './fitPlot.vue';
 
 /* Import Shared Mixins */
-import { parse1D, read1DData } from '../../assets/javascript/mixins/readFiles/read1D.js';
+import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
+import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
+
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 import { removeFile } from '../../assets/javascript/mixins/removeFile.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
@@ -205,7 +207,6 @@ export default {
       }
     },
     mixins: [
-        parse1D,
         read1DData,
         fetchFiles,
         setScales,
@@ -492,7 +493,7 @@ export default {
                     var fileURLs = this.$store.getters.getURLs(filesToFetch, 'SANS1D');
                     
                     if (fileURLs.length > 0) {
-                        this.read1DData(fileURLs, tempData, 'SANS1D');
+                        this.read1DData(fileURLs, tempData, 'SANS1D', parseData);
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }

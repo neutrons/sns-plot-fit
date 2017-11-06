@@ -132,8 +132,8 @@ import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
-// import { parseTAS, readTASData, getTASData, extractMetadata } from '../../assets/javascript/mixins/readFiles/readTAS.js';
-import { parseTAS, readTASData, extractMetadata } from '../../assets/javascript/mixins/readFiles/readTAS.js';
+import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
+import parseData from '../../assets/javascript/mixins/readFiles/parse/TAS.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 
 // The eventBus serves as the means to communicating between components.
@@ -162,9 +162,7 @@ export default {
         filterJobs,
         isPlotted,
         isOffline,
-        parseTAS,
-        readTASData,
-        extractMetadata,
+        read1DData,
         prepPlotData
     ],
     mounted() {
@@ -401,7 +399,7 @@ export default {
                     var fileURLs = this.$store.getters.getURLs(filesToFetch, 'TAS');
                     
                     if (fileURLs.length > 0) {
-                        this.readTASData(fileURLs, tempData, 'TAS');
+                        this.read1DData(fileURLs, tempData, 'TAS', parseData);
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }
