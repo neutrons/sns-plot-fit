@@ -1,4 +1,4 @@
-@import url('./shared-1D-styles.css');
+@import url('../../../assets/styles/shared-1D-styles.css');
 
 /* Style for brush/slider handle bars */
 .brush-container .handle {

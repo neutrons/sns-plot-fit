@@ -1,24 +1,24 @@
 <template>
   <div id="plot-tas-col" class="col-md-10">
 
-            <!-- Plot Panel  -->
-            <v-panel PANELTITLE="TAS Plot" PANELTYPE="primary">
-                <!-- Plot reset button inserted into panel heading  -->
-                <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
-                
-                <div :id="'plot-' + ID"></div>
-                <slot></slot>
-            </v-panel>
+    <v-panel PANELTITLE="TAS Plot" PANELTYPE="primary">
+        <!-- Plot reset button inserted into panel heading  -->
+        <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
+        
+        <div :id="'plot-' + ID"></div>
+        <slot></slot>
+    </v-panel>
+
   </div>
 </template>
 
 <script>
 /* Import Event Bus */
-import { eventBus } from '../../assets/javascript/eventBus';
+import { eventBus } from '../../../assets/javascript/eventBus';
 
 /* Import Components */
-import Panel from '../BaseComponents/Panels/Panel.vue';
-import ResetButton from '../BaseComponents/ResetButton.vue';
+import Panel from '../../BaseComponents/Panels/Panel.vue';
+import ResetButton from '../../BaseComponents/ResetButton.vue';
 
 /* Import Libraries */
 import * as _ from 'lodash';
@@ -26,26 +26,26 @@ import * as d3 from 'd3';
 import $ from 'jquery';
 
 /* Import Common Data Variables */
-import chartElements from '../../assets/javascript/mixins/chart/chartElements.js';
+import chartElements from '../../../assets/javascript/mixins/chart/chartElements.js';
 
 /* Import Mixins */
-import { setElements } from '../../assets/javascript/mixins/chart/setElements.js';
-import { resetPlot } from '../../assets/javascript/mixins/chart/resetPlot.js';
-import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsive.js';
-import setLineGenerator from '../../assets/javascript/mixins/chart/setLineGenerator.js';
-import { addLabels } from '../../assets/javascript/mixins/chart/addLabels.js';
-import { adjustDomains } from '../../assets/javascript/mixins/chart/adjustDomains.js';
-import { changeScales } from '../../assets/javascript/mixins/chart/changeScales.js';
-import { updateLegend } from '../../assets/javascript/mixins/chart/updateLegend.js';
-import { initScales } from '../../assets/javascript/mixins/chart/initScales.js';
-import { updateLabels } from '../../assets/javascript/mixins/chart/updateLabels.js';
-import { removeLines } from '../../assets/javascript/mixins/chart/removeLines.js';
-import { removePoint } from '../../assets/javascript/mixins/chart/removePoint.js';
+import { setElements } from '../../../assets/javascript/mixins/chart/setElements.js';
+import { resetPlot } from '../../../assets/javascript/mixins/chart/resetPlot.js';
+import { setResponsive } from '../../../assets/javascript/mixins/chart/setResponsive.js';
+import setLineGenerator from '../../../assets/javascript/mixins/chart/setLineGenerator.js';
+import { addLabels } from '../../../assets/javascript/mixins/chart/addLabels.js';
+import { adjustDomains } from '../../../assets/javascript/mixins/chart/adjustDomains.js';
+import { changeScales } from '../../../assets/javascript/mixins/chart/changeScales.js';
+import { updateLegend } from '../../../assets/javascript/mixins/chart/updateLegend.js';
+import { initScales } from '../../../assets/javascript/mixins/chart/initScales.js';
+import { updateLabels } from '../../../assets/javascript/mixins/chart/updateLabels.js';
+import { removeLines } from '../../../assets/javascript/mixins/chart/removeLines.js';
+import { removePoint } from '../../../assets/javascript/mixins/chart/removePoint.js';
 
 /* Import local mixins */
-import { drawPlot } from './mixins/drawPlot.js';
-import { updatePlot } from './mixins/updatePlot.js';
-import { initDimensions } from './mixins/initDimensions.js';
+import { drawPlot } from '../mixins/drawPlot.js';
+import { updatePlot } from '../mixins/updatePlot.js';
+import { initDimensions } from '../mixins/initDimensions.js';
 
 export default {
     name: 'PlotTAS',
@@ -125,12 +125,10 @@ export default {
                 .duration(50)
                 .call(vm.axis.x.scale(new_xScale));
 
-            vm.elements.axis.select(".gridline--y").transition()
-                .duration(50)
+            vm.elements.axis.select(".gridline--y")
                 .call(vm.axis.yGrid.scale(new_yScale));
             
-            vm.elements.axis.select(".gridline--x").transition()
-                .duration(50)
+            vm.elements.axis.select(".gridline--x")
                 .call(vm.axis.xGrid.scale(new_xScale));
 
             // re-draw scatter plot;
@@ -150,5 +148,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import '../../assets/styles/plot-TAS-styles.css';
+@import '../style/plot-TAS-styles.css';
 </style>

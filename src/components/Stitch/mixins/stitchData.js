@@ -36,6 +36,7 @@ export const addStitch = {
     methods: {
         addStitch(line) {
             let vm = this;
+            vm.$emit('is-stitched');
 
             // First repackage data to an array of objects per points for d3 to work with
             let newData = [];

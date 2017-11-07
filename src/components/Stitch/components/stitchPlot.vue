@@ -41,37 +41,37 @@
 import * as d3 from 'd3';
 
 /* Import Components */
-import Panel from '../BaseComponents/Panels/Panel.vue';
-import ResetButton from '../BaseComponents/ResetButton.vue';
+import Panel from '../../BaseComponents/Panels/Panel.vue';
+import ResetButton from '../../BaseComponents/ResetButton.vue';
 
 /* Import Default Chart Elements */
-import chartElements from '../../assets/javascript/mixins/chart/chartElements.js';
+import chartElements from '../../../assets/javascript/mixins/chart/chartElements.js';
 
 /* Import Mixins */
-import { newBrush, drawBrushes, removeBrushes, sortBrushes, drawSavedBrushes} from './mixins/createBrushes.js';
-import { updateBrushScale } from './mixins/updateBrushScale.js';
-import { formatData } from './mixins/formatData.js';
-import { saveStitchLine, saveConfirm, isValidFilename } from './mixins/saveStitchLine.js';
-import { stitchData, addStitch, removeStitchLine, selectData } from './mixins/stitchData.js';
-import { updateStitchLine } from './mixins/updateStitchLine.js';
-import { toggleEdit, resetToggle} from './mixins/toggleEdit.js';
-import { validateBrushes, validateSelections } from './mixins/validateBrushes.js';
-import { initDimensions } from './mixins/initDimensions.js';
-import { drawPlot } from './mixins/drawPlot.js';
+import { newBrush, drawBrushes, removeBrushes, sortBrushes, drawSavedBrushes} from '../mixins/createBrushes.js';
+import { updateBrushScale } from '../mixins/updateBrushScale.js';
+import { formatData } from '../mixins/formatData.js';
+import { saveStitchLine, saveConfirm, isValidFilename } from '../mixins/saveStitchLine.js';
+import { stitchData, addStitch, removeStitchLine, selectData } from '../mixins/stitchData.js';
+import { updateStitchLine } from '../mixins/updateStitchLine.js';
+import { toggleEdit, resetToggle} from '../mixins/toggleEdit.js';
+import { validateBrushes, validateSelections } from '../mixins/validateBrushes.js';
+import { initDimensions } from '../mixins/initDimensions.js';
+import { drawPlot } from '../mixins/drawPlot.js';
 
-import { removePoint } from '../../assets/javascript/mixins/chart/removePoint.js';
-import { resetPlot } from '../../assets/javascript/mixins/chart/resetPlot.js';
-import { adjustDomains } from '../../assets/javascript/mixins/chart/adjustDomains.js';
-import { changeScales } from '../../assets/javascript/mixins/chart/changeScales.js';
-import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsive.js';
-import { updateLegend } from '../../assets/javascript/mixins/chart/updateLegend.js';
-import { zoomed } from '../../assets/javascript/mixins/chart/zoomed.js';
-import { initScales } from '../../assets/javascript/mixins/chart/initScales.js';
-import { setElements } from '../../assets/javascript/mixins/chart/setElements.js';
-import { removeLines } from '../../assets/javascript/mixins/chart/removeLines.js';
-import { updatePlot } from '../../assets/javascript/mixins/chart/updatePlot.js';
-import { updateLabels } from '../../assets/javascript/mixins/chart/updateLabels.js';
-import { addLabels } from '../../assets/javascript/mixins/chart/addLabels.js';
+import { removePoint } from '../../../assets/javascript/mixins/chart/removePoint.js';
+import { resetPlot } from '../../../assets/javascript/mixins/chart/resetPlot.js';
+import { adjustDomains } from '../../../assets/javascript/mixins/chart/adjustDomains.js';
+import { changeScales } from '../../../assets/javascript/mixins/chart/changeScales.js';
+import { setResponsive } from '../../../assets/javascript/mixins/chart/setResponsive.js';
+import { updateLegend } from '../../../assets/javascript/mixins/chart/updateLegend.js';
+import { zoomed } from '../../../assets/javascript/mixins/chart/zoomed.js';
+import { initScales } from '../../../assets/javascript/mixins/chart/initScales.js';
+import { setElements } from '../../../assets/javascript/mixins/chart/setElements.js';
+import { removeLines } from '../../../assets/javascript/mixins/chart/removeLines.js';
+import { updatePlot } from '../../../assets/javascript/mixins/chart/updatePlot.js';
+import { updateLabels } from '../../../assets/javascript/mixins/chart/updateLabels.js';
+import { addLabels } from '../../../assets/javascript/mixins/chart/addLabels.js';
 
 export default {
     name: 'StitchPlot',
@@ -242,5 +242,5 @@ export default {
 
 <style scoped>
 /* Anything that needs changing gets overidden here */
-@import '../../assets/styles/plot-stitch-styles.css';
+@import '../style/plot-stitch-styles.css';
 </style>

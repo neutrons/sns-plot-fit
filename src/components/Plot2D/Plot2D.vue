@@ -266,7 +266,7 @@ export default {
 </script>
 
 <style scoped>
-@import '../../assets/styles/plot-2D-styles.css';
+@import './style/plot-2D-styles.css';
 
 #Plot2D {
   position: absolute;

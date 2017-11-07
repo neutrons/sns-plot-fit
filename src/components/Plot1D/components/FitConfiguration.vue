@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { eventBus } from '../../assets/javascript/eventBus.js';
+import { eventBus } from '../../../assets/javascript/eventBus.js';
 
 export default {
     name: 'FitConfig',
@@ -97,7 +97,7 @@ export default {
     },
     watch: {
         fit() {
-            if(this.fit === 'None') this.coefficients = {};
+            if (this.fit === 'None') this.coefficients = {};
             this.$emit('set-fit', this.fit);
         }
     }

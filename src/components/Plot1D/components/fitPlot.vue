@@ -50,11 +50,11 @@
 
 <script>
 /* Import Event Bus */
-import { eventBus } from '../../assets/javascript/eventBus';
+import { eventBus } from '../../../assets/javascript/eventBus';
 
 /* Import Components */
-import Panel from '../BaseComponents/Panels/Panel.vue';
-import ResetButton from '../BaseComponents/ResetButton.vue';
+import Panel from '../../BaseComponents/Panels/Panel.vue';
+import ResetButton from '../../BaseComponents/ResetButton.vue';
 
 /* Import Libraries */
 import * as _ from 'lodash';
@@ -62,33 +62,33 @@ import * as d3 from 'd3';
 import $ from 'jquery';
 
 /* Import Common Data Variables */
-import chartElements from '../../assets/javascript/mixins/chart/chartElements.js';
+import chartElements from '../../../assets/javascript/mixins/chart/chartElements.js';
 
 /* Import Local Mixins */
-import { brushed } from './mixins/brushed.js';
-import { checkError } from './mixins/checkError.js';
-import { initDimensions } from './mixins/initDimensions.js';
-import { initFitLine } from './mixins/initFitLine.js';
-import { initSlider } from './mixins/initSlider.js';
-import { redrawFit } from './mixins/redrawFit.js';
-import { updateFitLine } from './mixins/updateFitLine.js';
-import { updateSlider } from './mixins/updateSlider.js';
-import { drawPlot } from './mixins/drawPlot.js';
+import { brushed } from '../mixins/brushed.js';
+import { checkError } from '../mixins/checkError.js';
+import { initDimensions } from '../mixins/initDimensions.js';
+import { initFitLine } from '../mixins/initFitLine.js';
+import { initSlider } from '../mixins/initSlider.js';
+import { redrawFit } from '../mixins/redrawFit.js';
+import { updateFitLine } from '../mixins/updateFitLine.js';
+import { updateSlider } from '../mixins/updateSlider.js';
+import { drawPlot } from '../mixins/drawPlot.js';
 
 /* Import Shared Mixins */
-import { resetPlot } from '../../assets/javascript/mixins/chart/resetPlot.js';
-import { adjustDomains } from '../../assets/javascript/mixins/chart/adjustDomains.js';
-import { changeScales } from '../../assets/javascript/mixins/chart/changeScales.js';
-import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsive.js';
-import { updateLegend } from '../../assets/javascript/mixins/chart/updateLegend.js';
-import { zoomed } from '../../assets/javascript/mixins/chart/zoomed.js';
-import { removePoint } from '../../assets/javascript/mixins/chart/removePoint.js';
-import { initScales } from '../../assets/javascript/mixins/chart/initScales.js';
-import { setElements } from '../../assets/javascript/mixins/chart/setElements.js';
-import { removeLines } from '../../assets/javascript/mixins/chart/removeLines.js';
-import { updatePlot } from '../../assets/javascript/mixins/chart/updatePlot.js';
-import { updateLabels } from '../../assets/javascript/mixins/chart/updateLabels.js';
-import { addLabels } from '../../assets/javascript/mixins/chart/addLabels.js';
+import { resetPlot } from '../../../assets/javascript/mixins/chart/resetPlot.js';
+import { adjustDomains } from '../../../assets/javascript/mixins/chart/adjustDomains.js';
+import { changeScales } from '../../../assets/javascript/mixins/chart/changeScales.js';
+import { setResponsive } from '../../../assets/javascript/mixins/chart/setResponsive.js';
+import { updateLegend } from '../../../assets/javascript/mixins/chart/updateLegend.js';
+import { zoomed } from '../../../assets/javascript/mixins/chart/zoomed.js';
+import { removePoint } from '../../../assets/javascript/mixins/chart/removePoint.js';
+import { initScales } from '../../../assets/javascript/mixins/chart/initScales.js';
+import { setElements } from '../../../assets/javascript/mixins/chart/setElements.js';
+import { removeLines } from '../../../assets/javascript/mixins/chart/removeLines.js';
+import { updatePlot } from '../../../assets/javascript/mixins/chart/updatePlot.js';
+import { updateLabels } from '../../../assets/javascript/mixins/chart/updateLabels.js';
+import { addLabels } from '../../../assets/javascript/mixins/chart/addLabels.js';
 
 export default {
     name: 'Plot1d',
@@ -231,7 +231,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import '../../assets/styles/plot-1D-styles.css';
+@import '../style/plot-1D-styles.css';
 
 #selection-error {
     position: absolute;

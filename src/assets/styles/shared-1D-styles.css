@@ -30,6 +30,7 @@
 }
 
 .gridline .tick line {
+  shape-rendering: crispEdges;
   stroke: gainsboro;
 }
 
@@ -83,7 +84,7 @@ circle {
 
 /* Override MathJax positioning for rendered elements */
 
-.MathJax_SVG {
+/* .MathJax_SVG {
   position: static !important;
   display: inline-block !important;
-}
+} */

@@ -120,9 +120,7 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
-import Levenberg from '../BaseComponents/Levenberg.vue';
-import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
-import tasPlot from './tasPlot.vue';
+import tasPlot from './components/tasPlot.vue';
 import FieldList from './components/FieldList.vue';
 import Metadata from './components/Metadata.vue';
 
@@ -149,8 +147,6 @@ export default {
         'v-table': Table,
         'v-filter': Filter,
         'v-scales': Scales,
-        'v-levenberg': Levenberg,
-        'v-fit-config': FitConfiguration,
         'v-plot-TAS': tasPlot,
         'v-field-list': FieldList,
         'v-metadata': Metadata

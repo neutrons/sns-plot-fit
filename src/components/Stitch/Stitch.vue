@@ -86,6 +86,7 @@
         <!-- Plot Panel for Main Chart  -->
         <v-stitch-plot 
             :DISABLE="disable"
+            @is-stitched="isStitched == true"
             ref="plot_Stitch">
         </v-stitch-plot>
 
@@ -141,8 +142,8 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Scales from '../BaseComponents/Scales.vue';
 import Table from '../BaseComponents/Table.vue';
 import TableFilter from '../BaseComponents/TableFilter.vue';
-import PlotStitch from './stitchPlot.vue';
 import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
+import PlotStitch from './components/stitchPlot.vue';
 
 /* Import Mixins */
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
