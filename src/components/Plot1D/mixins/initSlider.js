@@ -16,7 +16,7 @@ export const initSlider = {
             vm.dimensions.h2 = 25;
 
             // Set scales
-            vm.scale.x2 = vm.plotParameters.scales.xScale;
+            vm.scale.x2 = vm.plotParameters.scales.x;
 
             vm.scale.x2.range([0,vm.dimensions.w]);
             vm.scale.x2.domain(extent(vm.dataNest, 'x'));

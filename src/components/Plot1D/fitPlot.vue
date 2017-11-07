@@ -186,7 +186,7 @@ export default {
             
             // if theres a fit, update brush scale
             if (vm.isFit) {
-                vm.scale.x2 = s.xScale.copy();
+                vm.scale.x2 = s.x.copy();
                 vm.scale.x2.range([0, vm.dimensions.w]);
             }
             
