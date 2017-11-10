@@ -66,7 +66,7 @@
                     :DISABLE="disable"
                     @update-scales="setScales"
                     @reset-scales="resetScales"
-                    ref="scales">
+                    ref="scale">
                 </v-scales>
 
             </v-panel>
@@ -165,7 +165,7 @@ export default {
     data: function () {
       return {
         selectedData: [],
-        scales: {
+        scale: {
           x: d3.scaleLinear(),
           xType: 'X',
           y: d3.scaleLinear(),
@@ -354,11 +354,11 @@ export default {
                     this.$refs.plot_SANS1D.setParameters({
                         data: this.prepData(this.selectedData),
                         colorDomain: this.$store.getters.getColorDomain('SANS1D'),
-                        scales: this.scales,
+                        scale: this.scale,
                         fileToFit: this.fileToFit,
                         fitConfiguration: this.currentConfiguration,
                         fitSettings: this.fitSettings,
-                        labels: {
+                        label: {
                             x: this.currentConfiguration.xTransformation,
                             y: this.currentConfiguration.yTransformation
                         }

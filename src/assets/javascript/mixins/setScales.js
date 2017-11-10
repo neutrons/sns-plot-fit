@@ -4,31 +4,34 @@ export const setScales = {
             let vm = this;
 
             if (type === 'X') {
-                this.scales.xType = value;
-                this.scales.x = this.$store.getters.getXScaleByID(value);
+                this.scale.xType = value;
+                this.scale.x = this.$store.getters.getXScaleByID(value);
             } else {
-                this.scales.yType = value;
-                this.scales.y = this.$store.getters.getYScaleByID(value);
+                this.scale.yType = value;
+                this.scale.y = this.$store.getters.getYScaleByID(value);
             }
 
-            this.$nextTick(function() {
-                if (vm.selectedData.length > 0)    vm.$refs['plot_' + vm.ID].updateScales(vm.scales);
-            })
+            vm.updateScales();
         },
         resetScales() {
             let vm = this;
             
             // Reset the selected options to default scales
-            this.$refs.scales.$refs.y_select.value = 'Y';
-            this.$refs.scales.$refs.x_select.value = 'X';
+            this.$refs.scale.$refs.y_select.value = 'Y';
+            this.$refs.scale.$refs.x_select.value = 'X';
 
-            this.scales.xType = 'X';
-            this.scales.x = this.$store.getters.getXScaleByID('X');
-            this.scales.yType = 'Y';
-            this.scales.y = this.$store.getters.getYScaleByID('Y');
+            this.scale.xType = 'X';
+            this.scale.x = this.$store.getters.getXScaleByID('X');
+            this.scale.yType = 'Y';
+            this.scale.y = this.$store.getters.getYScaleByID('Y');
 
-            this.$nextTick(function() {
-                if (vm.selectedData.length > 0)    vm.$refs['plot_' + vm.ID].updateScales(vm.scales);
+            vm.updateScales();
+        },
+        updateScales() {
+            let vm = this;
+
+            this.$nextTick( () => {
+                if (vm.selectedData.length > 0)    vm.$refs['plot_' + vm.ID].updateScales(vm.scale);
             })
         }
     }

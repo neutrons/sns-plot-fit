@@ -4,9 +4,9 @@
             <!-- Plot Panel  -->
             <v-panel PANELTITLE="SANS 1D Plot" PANELTYPE="primary">
                 <!-- Plot reset button inserted into panel heading  -->
-                <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
+                <v-reset-button :onClick="resetChart" v-if="!DISABLE" slot="header-content">Reset Chart</v-reset-button>
                 
-                <div :id="'plot-' + ID"></div>
+                <div :id="'chart-' + ID"></div>
 
                 <!-- Fit Results Table to add fit results -->
               <div id="fit-results-table" class="table table-condensed table-responsive" v-show="SHOWTABLE && !isError">          
@@ -61,34 +61,35 @@ import * as _ from 'lodash';
 import * as d3 from 'd3';
 import $ from 'jquery';
 
-/* Import Common Data Variables */
-import chartElements from '../../../assets/javascript/mixins/chart/chartElements.js';
-
 /* Import Local Mixins */
-import { brushed } from '../mixins/brushed.js';
 import { checkError } from '../mixins/checkError.js';
-import { initDimensions } from '../mixins/initDimensions.js';
-import { initFitLine } from '../mixins/initFitLine.js';
-import { initSlider } from '../mixins/initSlider.js';
-import { redrawFit } from '../mixins/redrawFit.js';
-import { updateFitLine } from '../mixins/updateFitLine.js';
-import { updateSlider } from '../mixins/updateSlider.js';
-import { drawPlot } from '../mixins/drawPlot.js';
+import { drawChart } from '../mixins/drawChart.js';
+import { slider } from '../mixins/slider.js';
+import { fitLine } from '../mixins/fitLine.js';
+import { reviseFitTable } from '../mixins/reviseFitTable.js';
 
-/* Import Shared Mixins */
-import { resetPlot } from '../../../assets/javascript/mixins/chart/resetPlot.js';
-import { adjustDomains } from '../../../assets/javascript/mixins/chart/adjustDomains.js';
-import { changeScales } from '../../../assets/javascript/mixins/chart/changeScales.js';
-import { setResponsive } from '../../../assets/javascript/mixins/chart/setResponsive.js';
-import { updateLegend } from '../../../assets/javascript/mixins/chart/updateLegend.js';
-import { zoomed } from '../../../assets/javascript/mixins/chart/zoomed.js';
-import { removePoint } from '../../../assets/javascript/mixins/chart/removePoint.js';
-import { initScales } from '../../../assets/javascript/mixins/chart/initScales.js';
-import { setElements } from '../../../assets/javascript/mixins/chart/setElements.js';
-import { removeLines } from '../../../assets/javascript/mixins/chart/removeLines.js';
-import { updatePlot } from '../../../assets/javascript/mixins/chart/updatePlot.js';
-import { updateLabels } from '../../../assets/javascript/mixins/chart/updateLabels.js';
-import { addLabels } from '../../../assets/javascript/mixins/chart/addLabels.js';
+
+/* Import Chart Func Mixins */
+import { chartVariables } from '../../../assets/javascript/mixins/chartFuncs/chartVariables.js';
+import { setChartElements } from '../../../assets/javascript/mixins/chartFuncs/setChartElements.js';
+import { removePoint } from '../../../assets/javascript/mixins/chartFuncs/removePoint.js';
+import { removeElements } from '../../../assets/javascript/mixins/chartFuncs/removeElements.js';
+import { labels } from '../../../assets/javascript/mixins/chartFuncs/labels.js';
+import { adjustDomains } from '../../../assets/javascript/mixins/chartFuncs/adjustDomains.js';
+import { axes } from '../../../assets/javascript/mixins/chartFuncs/axes.js';
+import { grids } from '../../../assets/javascript/mixins/chartFuncs/grids.js';
+import { color } from '../../../assets/javascript/mixins/chartFuncs/color.js';
+import { legend } from '../../../assets/javascript/mixins/chartFuncs/legend.js';
+import { linePath } from '../../../assets/javascript/mixins/chartFuncs/linePath.js';
+import { scatter } from '../../../assets/javascript/mixins/chartFuncs/scatter.js';
+import { errorBars } from '../../../assets/javascript/mixins/chartFuncs/errorBars.js';
+import { scales } from '../../../assets/javascript/mixins/chartFuncs/scales.js';
+import { resetChart } from '../../../assets/javascript/mixins/chartFuncs/resetChart.js';
+import { setResponsive } from '../../../assets/javascript/mixins/chartFuncs/setResponsive.js';
+import { zoom } from '../../../assets/javascript/mixins/chartFuncs/zoom.js';
+import { updateChart } from '../../../assets/javascript/mixins/chartFuncs/updateChart.js';
+import { updateLineGenerator } from '../../../assets/javascript/mixins/chartFuncs/updateLineGenerator.js';
+import { initDimensions } from '../../../assets/javascript/mixins/chartFuncs/initDimensions.js';
 
 export default {
     name: 'Plot1d',
@@ -107,42 +108,41 @@ export default {
         }
     },
     data() {
-
-        let tempData = _.cloneDeep(chartElements);
-
-        // Extend onto chart elements' base data
-        tempData.elements.slider = undefined;
-        tempData.elements.fitline = undefined;
-        tempData.dimensions.h2 = undefined;
-        tempData.margin2 = {};
-        tempData.axis.x2 = undefined;
-        tempData.scale.x2 = undefined;
-        tempData.fitEquation = undefined;
-        tempData.fitResults = null;
-        tempData.fitData = null;
-        tempData.brushObj = {
-            brush: undefined,
-            brushSelection: [],
-            brushFile: undefined,
-            brushFit: undefined,
-            brushTransformation: undefined
-        };
-        tempData.ID = 'SANS1D';
-        tempData.dataToFit = undefined;
-        tempData.selLimits = [];
-        tempData.dataToFit = undefined;
-        tempData.isError = false;
-        tempData.coefficients = undefined;
-        tempData.fitError = undefined;
-        tempData.fitResults = undefined;
-        tempData.fitLineData = [];
-        tempData.prevFit = null;
-        tempData.prevTransform = undefined;
-        tempData.isMathJax = true;
-
-        tempData.zoom = d3.zoom().on("zoom", this.zooming);
-
-        return tempData;
+        return {
+            dimensions: {
+                h2: undefined
+            },
+            margin2: {},
+            axis: {
+                x2: undefined
+            },
+            scale: {
+                x2: undefined
+            },
+            fitEquation: undefined,
+            fitResults: null,
+            fitData: null,
+            brushObj: {
+                brush: undefined,
+                brushSelection: [],
+                brushFile: undefined,
+                brushFit: undefined,
+                brushTransformation: undefined
+            },
+            ID: 'SANS1D',
+            dataToFit: undefined,
+            selLimits: [],
+            dataToFit: undefined,
+            isError: false,
+            coefficients: undefined,
+            fitError: undefined,
+            fitResults: undefined,
+            fitLineData: [],
+            prevFit: null,
+            prevTransform: undefined,
+            isMathJax: true,
+            zoom: d3.zoom().on("zoom", this.zooming),
+        }
 
     },
     computed: {
@@ -150,29 +150,32 @@ export default {
             return this.plotParameters.fileToFit !== null && this.plotParameters.fitConfiguration.fit !== 'None';
         }
     },
-    mixins: [ 
-        brushed,
+    mixins: [
+        reviseFitTable,
         checkError,
         initDimensions,
-        initFitLine,
-        initSlider,
-        redrawFit,
-        resetPlot,
-        updateFitLine,
-        updateSlider,
-        updateLabels,
-        adjustDomains,
-        changeScales,
-        setResponsive,
-        updateLegend,
-        zoomed,
+        drawChart,
+        slider,
+        fitLine,
+        chartVariables,
+        setChartElements,
         removePoint,
-        initScales,
-        setElements,
-        removeLines,
-        updatePlot,
-        addLabels,
-        drawPlot
+        removeElements,
+        labels,
+        adjustDomains,
+        axes,
+        grids,
+        color,
+        legend,
+        linePath,
+        scatter,
+        errorBars,
+        scales,
+        resetChart,
+        setResponsive,
+        zoom,
+        updateChart,
+        updateLineGenerator
     ],
     methods: {
         setParameters(parameters) {
@@ -190,9 +193,13 @@ export default {
                 vm.scale.x2.range([0, vm.dimensions.w]);
             }
             
-            vm.updatePlot(vm.dataNest);
+            vm.updateChart(vm.dataNest);
+            
             // if a fit is selected add/update data
-            if (vm.isFit) { vm.updateSlider(); vm.updateFitLine(); }
+            if (vm.isFit) { 
+                vm.updateSlider(); 
+                vm.updateFitLine(); 
+            }
         },
         zooming() {
             let vm = this;
@@ -206,7 +213,7 @@ export default {
             
             if (vm.isFit) {
                 // Re-draw fitted line
-                vm.elements.plot.select(".fitted-line")
+                vm.chart.g.select(".fitted-line")
                     .attr("d", vm.line);
             }
         }
@@ -221,7 +228,7 @@ export default {
                 let vm = this;
 
                 this.$nextTick(function() { 
-                    this.drawPlot();
+                    this.drawChart();
                 });
             },
             deep: true

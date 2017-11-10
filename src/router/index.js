@@ -12,7 +12,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     { path: '/', 
-      redirect: '/TAS' 
+      redirect: '/SANS2D' 
     },
     {
       path: '/SANS1D',

@@ -17,7 +17,7 @@ export const get2DData = {
                 vm.currentData = results.data;
 
                 // Call plotting function
-                vm.drawPlot(results.data, vm.hexSettings);
+                vm.drawChart(results.data, vm.hexSettings);
             });
             
         }
@@ -47,7 +47,7 @@ export const read2DData = {
                 vm.currentData = results.data;
 
                 // Call plotting function
-                vm.drawPlot(results.data, vm.hexSettings);        
+                vm.drawChart(results.data, vm.hexSettings);        
             }
             reader.readAsText(file.blob, "UTF-8");
         }

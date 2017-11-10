@@ -1,16 +1,16 @@
-import getContainerWidth from '../../../assets/javascript/mixins/chart/getContainerWidth.js';
-import getViewHeight from '../../../assets/javascript/mixins/chart/getViewHeight.js';
+import getContainerWidth from '../../../assets/javascript/mixins/d3/getContainerWidth.js';
+import getViewHeight from '../../../assets/javascript/mixins/d3/getViewHeight.js';
 
 export const initDimensions = {
     methods: {
         initDimensions() {
             let vm = this;
             
-            var containerWidth = document.getElementById("plot-" + vm.ID).offsetWidth;
+            var containerWidth = document.getElementById("chart-" + vm.ID).offsetWidth;
             var viewHeight = containerWidth / (16/9);
 
-            var containerWidth = getContainerWidth(vm);
-            var viewHeight = getViewHeight(vm, containerWidth);
+            var containerWidth = getContainerWidth(vm.ID);
+            var viewHeight = getViewHeight(vm.dimensions.aspectW, vm.dimensions.aspectH, containerWidth);
 
             vm.dimensions.h = viewHeight - vm.margin.top - vm.margin.bottom;
             vm.dimensions.w = containerWidth - vm.margin.left - vm.margin.right;

@@ -5,10 +5,10 @@
             <v-panel PANELTITLE="Stitch Plot" PANELTYPE="primary">
                 <!-- Plot reset button inserted into panel heading  -->
                 <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
-                <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
+                <v-reset-button :onClick="resetChart" v-if="!DISABLE" slot="header-content">Reset Chart</v-reset-button>
                 
                 <!-- <button class="btn btn-primary" @click="removeBrushes">Remove Brushes</button> -->
-                <div :id="'plot-' + ID"></div>
+                <div :id="'chart-' + ID"></div>
                   
                   <!-- Fit Results Table to add fit results -->
               <div id="brush-selection-table" class="table table-condensed table-responsive" v-if="isBrushes">          
@@ -44,34 +44,35 @@ import * as d3 from 'd3';
 import Panel from '../../BaseComponents/Panels/Panel.vue';
 import ResetButton from '../../BaseComponents/ResetButton.vue';
 
-/* Import Default Chart Elements */
-import chartElements from '../../../assets/javascript/mixins/chart/chartElements.js';
-
-/* Import Mixins */
-import { newBrush, drawBrushes, removeBrushes, sortBrushes, drawSavedBrushes} from '../mixins/createBrushes.js';
-import { updateBrushScale } from '../mixins/updateBrushScale.js';
+/* Import Local Mixins */
+import { brush } from '../mixins/brush.js';
 import { formatData } from '../mixins/formatData.js';
-import { saveStitchLine, saveConfirm, isValidFilename } from '../mixins/saveStitchLine.js';
-import { stitchData, addStitch, removeStitchLine, selectData } from '../mixins/stitchData.js';
-import { updateStitchLine } from '../mixins/updateStitchLine.js';
-import { toggleEdit, resetToggle} from '../mixins/toggleEdit.js';
-import { validateBrushes, validateSelections } from '../mixins/validateBrushes.js';
-import { initDimensions } from '../mixins/initDimensions.js';
-import { drawPlot } from '../mixins/drawPlot.js';
+import { stitchline } from '../mixins/stitchline.js';
+import { toggleZoomBrush } from '../mixins/toggleZoomBrush.js';
+import { validate } from '../mixins/validate.js';
+import { drawChart } from '../mixins/drawChart.js';
 
-import { removePoint } from '../../../assets/javascript/mixins/chart/removePoint.js';
-import { resetPlot } from '../../../assets/javascript/mixins/chart/resetPlot.js';
-import { adjustDomains } from '../../../assets/javascript/mixins/chart/adjustDomains.js';
-import { changeScales } from '../../../assets/javascript/mixins/chart/changeScales.js';
-import { setResponsive } from '../../../assets/javascript/mixins/chart/setResponsive.js';
-import { updateLegend } from '../../../assets/javascript/mixins/chart/updateLegend.js';
-import { zoomed } from '../../../assets/javascript/mixins/chart/zoomed.js';
-import { initScales } from '../../../assets/javascript/mixins/chart/initScales.js';
-import { setElements } from '../../../assets/javascript/mixins/chart/setElements.js';
-import { removeLines } from '../../../assets/javascript/mixins/chart/removeLines.js';
-import { updatePlot } from '../../../assets/javascript/mixins/chart/updatePlot.js';
-import { updateLabels } from '../../../assets/javascript/mixins/chart/updateLabels.js';
-import { addLabels } from '../../../assets/javascript/mixins/chart/addLabels.js';
+/* Import Chart Func Mixins */
+import { chartVariables } from '../../../assets/javascript/mixins/chartFuncs/chartVariables.js';
+import { setChartElements } from '../../../assets/javascript/mixins/chartFuncs/setChartElements.js';
+import { removePoint } from '../../../assets/javascript/mixins/chartFuncs/removePoint.js';
+import { removeElements } from '../../../assets/javascript/mixins/chartFuncs/removeElements.js';
+import { labels } from '../../../assets/javascript/mixins/chartFuncs/labels.js';
+import { adjustDomains } from '../../../assets/javascript/mixins/chartFuncs/adjustDomains.js';
+import { axes } from '../../../assets/javascript/mixins/chartFuncs/axes.js';
+import { grids } from '../../../assets/javascript/mixins/chartFuncs/grids.js';
+import { color } from '../../../assets/javascript/mixins/chartFuncs/color.js';
+import { legend } from '../../../assets/javascript/mixins/chartFuncs/legend.js';
+import { linePath } from '../../../assets/javascript/mixins/chartFuncs/linePath.js';
+import { scatter } from '../../../assets/javascript/mixins/chartFuncs/scatter.js';
+import { errorBars } from '../../../assets/javascript/mixins/chartFuncs/errorBars.js';
+import { scales } from '../../../assets/javascript/mixins/chartFuncs/scales.js';
+import { resetChart } from '../../../assets/javascript/mixins/chartFuncs/resetChart.js';
+import { setResponsive } from '../../../assets/javascript/mixins/chartFuncs/setResponsive.js';
+import { zoom } from '../../../assets/javascript/mixins/chartFuncs/zoom.js';
+import { updateChart } from '../../../assets/javascript/mixins/chartFuncs/updateChart.js';
+import { updateLineGenerator } from '../../../assets/javascript/mixins/chartFuncs/updateLineGenerator.js';
+import { initDimensions } from '../../../assets/javascript/mixins/chartFuncs/initDimensions.js';
 
 export default {
     name: 'StitchPlot',
@@ -80,36 +81,31 @@ export default {
         'v-reset-button': ResetButton
     },
     data() {
-
-        let tempData = _.cloneDeep(chartElements);
-
-        // Extend conto chart elements' base data
-        tempData.scale.brushX = undefined;
-        tempData.elements.stitch = undefined;
-        tempData.margin = { top: 20, bottom: 55, left: 50, right: 25 };
-        tempData.brushObj = {
-            brushes: [],
-            brushCount: null,
-            brushSelections: {},
-            brushGroup: undefined
-        };
-        tempData.stitchLineData = [];
-        tempData.savedSelections = {};
-        tempData.savedBrushes = [];
-        tempData.ID = 'Stitch';
-
-        tempData.isError = false;
-        tempData.isError = false;
-        tempData.zoomEnabled = false;
-        tempData.brushEnabled = false;
-        tempData.brushExtent = [];
-        tempData.brushSelection = null;
-        tempData.toggleChoice = 'zoom';
-        tempData.isMathJax = false;
-
-        tempData.zoom = d3.zoom().on("zoom", this.zooming);
-        
-        return tempData;
+        return {
+            scale: {
+                brushX: undefined
+            },
+            margin: { top: 20, bottom: 55, left: 50, right: 25 },
+            brushObj: {
+                brushes: [],
+                brushCount: null,
+                brushSelections: {},
+                brushGroup: undefined
+            },
+            stitchLineData: [],
+            savedSelections: {},
+            savedBrushes: [],
+            ID: 'Stitch',
+            isError: false,
+            isError: false,
+            zoomEnabled: false,
+            brushEnabled: false,
+            brushExtent: [],
+            brushSelection: null,
+            toggleChoice: 'zoom',
+            isMathJax: false,
+            zoom: d3.zoom().on("zoom", this.zooming),
+        }
     },
     props: {
         DISABLE: {
@@ -118,40 +114,32 @@ export default {
         }    
     },
     mixins: [
-        newBrush,
-        drawBrushes,
-        removeBrushes,
-        sortBrushes,
-        drawSavedBrushes,
-        updateBrushScale,
+        brush,
         formatData,
-        saveStitchLine,
-        saveConfirm,
-        isValidFilename,
-        stitchData,
-        addStitch,
-        removeStitchLine,
-        selectData,
-        updateStitchLine,
-        toggleEdit,
-        resetToggle,
-        validateBrushes,
-        validateSelections,
+        stitchline,
+        toggleZoomBrush,
+        validate,
         initDimensions,
-        resetPlot,
-        adjustDomains,
-        changeScales,
-        setResponsive,
-        updateLegend,
-        zoomed,
+        drawChart,
+        chartVariables,
+        setChartElements,
         removePoint,
-        initScales,
-        setElements,
-        removeLines,
-        updatePlot,
-        updateLabels,
-        addLabels,
-        drawPlot,
+        removeElements,
+        labels,
+        adjustDomains,
+        axes,
+        grids,
+        color,
+        legend,
+        linePath,
+        scatter,
+        scales,
+        resetChart,
+        setResponsive,
+        zoom,
+        updateChart,
+        errorBars,
+        updateLineGenerator
     ],
     computed: {
         selections() {
@@ -186,7 +174,7 @@ export default {
         updateScales(s) {
             let vm = this;
             vm.changeScales(s);
-            vm.updatePlot(vm.dataNest);
+            vm.updateChart(vm.dataNest);
 
             // If there are brushes, re-adjust selections according to new scale
             // Update brushScale to reflect new zoomed scale
@@ -231,7 +219,7 @@ export default {
                 let vm = this;
 
                 this.$nextTick(function() { 
-                    vm.drawPlot();
+                    vm.drawChart();
                 });
             },
             deep: true

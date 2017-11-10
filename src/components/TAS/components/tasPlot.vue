@@ -3,9 +3,9 @@
 
     <v-panel PANELTITLE="TAS Plot" PANELTYPE="primary">
         <!-- Plot reset button inserted into panel heading  -->
-        <v-reset-button :onClick="resetPlot" v-if="!DISABLE" slot="header-content">Reset Plot</v-reset-button>
+        <v-reset-button :onClick="resetChart" v-if="!DISABLE" slot="header-content">Reset Chart</v-reset-button>
         
-        <div :id="'plot-' + ID"></div>
+        <div :id="'chart-' + ID"></div>
         <slot></slot>
     </v-panel>
 
@@ -25,27 +25,28 @@ import * as _ from 'lodash';
 import * as d3 from 'd3';
 import $ from 'jquery';
 
-/* Import Common Data Variables */
-import chartElements from '../../../assets/javascript/mixins/chart/chartElements.js';
-
-/* Import Mixins */
-import { setElements } from '../../../assets/javascript/mixins/chart/setElements.js';
-import { resetPlot } from '../../../assets/javascript/mixins/chart/resetPlot.js';
-import { setResponsive } from '../../../assets/javascript/mixins/chart/setResponsive.js';
-import setLineGenerator from '../../../assets/javascript/mixins/chart/setLineGenerator.js';
-import { addLabels } from '../../../assets/javascript/mixins/chart/addLabels.js';
-import { adjustDomains } from '../../../assets/javascript/mixins/chart/adjustDomains.js';
-import { changeScales } from '../../../assets/javascript/mixins/chart/changeScales.js';
-import { updateLegend } from '../../../assets/javascript/mixins/chart/updateLegend.js';
-import { initScales } from '../../../assets/javascript/mixins/chart/initScales.js';
-import { updateLabels } from '../../../assets/javascript/mixins/chart/updateLabels.js';
-import { removeLines } from '../../../assets/javascript/mixins/chart/removeLines.js';
-import { removePoint } from '../../../assets/javascript/mixins/chart/removePoint.js';
+/* Import Chart Func Mixins */
+import { setChartElements } from '../../../assets/javascript/mixins/chartFuncs/setChartElements.js';
+import { removePoint } from '../../../assets/javascript/mixins/chartFuncs/removePoint.js';
+import { removeElements } from '../../../assets/javascript/mixins/chartFuncs/removeElements.js';
+import { labels } from '../../../assets/javascript/mixins/chartFuncs/labels.js';
+import { adjustDomains } from '../../../assets/javascript/mixins/chartFuncs/adjustDomains.js';
+import { axes } from '../../../assets/javascript/mixins/chartFuncs/axes.js';
+import { grids } from '../../../assets/javascript/mixins/chartFuncs/grids.js';
+import { color } from '../../../assets/javascript/mixins/chartFuncs/color.js';
+import { legend } from '../../../assets/javascript/mixins/chartFuncs/legend.js';
+import { linePath } from '../../../assets/javascript/mixins/chartFuncs/linePath.js';
+import { scatter } from '../../../assets/javascript/mixins/chartFuncs/scatter.js';
+import { scales } from '../../../assets/javascript/mixins/chartFuncs/scales.js';
+import { chartVariables } from '../../../assets/javascript/mixins/chartFuncs/chartVariables.js';
+import { resetChart } from '../../../assets/javascript/mixins/chartFuncs/resetChart.js';
+import { setResponsive } from '../../../assets/javascript/mixins/chartFuncs/setResponsive.js';
+import { updateLineGenerator } from '../../../assets/javascript/mixins/chartFuncs/updateLineGenerator.js';
+import { initDimensions } from '../../../assets/javascript/mixins/chartFuncs/initDimensions.js';
 
 /* Import local mixins */
-import { drawPlot } from '../mixins/drawPlot.js';
-import { updatePlot } from '../mixins/updatePlot.js';
-import { initDimensions } from '../mixins/initDimensions.js';
+import { drawChart } from '../mixins/drawChart.js';
+import { updateChart } from '../mixins/updateChart.js';
 
 export default {
     name: 'PlotTAS',
@@ -60,45 +61,43 @@ export default {
         }
     },
     data() {
-
-        let tempData = _.cloneDeep(chartElements);
-
-        // Extend onto chart elements' base data
-        tempData.ID = 'TAS';
-        tempData.fields = {x: null, y: null};
-        tempData.zoom = d3.zoom().on("zoom", this.zooming);
-        tempData.isMathJax = false;
-
-        return tempData;
-
-    },
-    computed: {
-        isFit() {
-            return this.plotParameters.fileToFit !== null && this.plotParameters.fitConfiguration.fit !== 'None';
+        return {
+            ID: 'TAS',
+            field: {
+                x: null,
+                y: null,
+            },
+            zoom: d3.zoom().on('zoom', this.zooming),
+            isMathJax: false,
         }
     },
     mixins: [
-        setElements,
-        setResponsive,
-        resetPlot,
-        drawPlot,
-        updatePlot,
-        initScales,
+        removePoint,
+        removeElements,
+        labels,
         adjustDomains,
+        axes,
+        grids,
+        color,
+        legend,
+        linePath,
+        scatter,
+        scales,
+        chartVariables,
+        resetChart,
+        drawChart,
+        updateChart,
+        setChartElements,
         initDimensions,
-        changeScales,
-        updateLegend,
-        updateLabels,
-        addLabels,
-        removeLines,
-        removePoint
+        setResponsive,
+        updateLineGenerator
     ],
     methods: {
         updateScales(s) {
             let vm = this;
 
             vm.changeScales(s);
-            vm.updatePlot(vm.dataNest);
+            vm.updateChart(vm.dataNest);
         },
         zooming() {
             let vm = this;
@@ -113,35 +112,20 @@ export default {
         zoomed(new_yScale, new_xScale) {
             let vm = this;
 
-            // re-set line generator
-            setLineGenerator(vm, new_xScale, new_yScale);
-
-            // re-scale axes and gridlines during zoom
-            vm.elements.axis.select(".axis--y").transition()
-                .duration(50)
-                .call(vm.axis.y.scale(new_yScale));
-
-            vm.elements.axis.select(".axis--x").transition()
-                .duration(50)
-                .call(vm.axis.x.scale(new_xScale));
-
-            vm.elements.axis.select(".gridline--y")
-                .call(vm.axis.yGrid.scale(new_yScale));
-            
-            vm.elements.axis.select(".gridline--x")
-                .call(vm.axis.xGrid.scale(new_xScale));
+            // re-scale axes and grids
+            vm.updateAxes(new_xScale, new_yScale);
+            vm.updateGrids(new_xScale, new_yScale);
 
             // re-draw scatter plot;
-            vm.elements.plot.selectAll("circle")
-                .attr("cy", function (d) {
-                    return new_yScale(d.y);
-                })
-                .attr("cx", function (d) {
-                    return new_xScale(d.x);
-                });           
+            vm.chart.g.selectAll(".dot")
+                .call(vm.updateScatter, new_xScale, new_yScale);
 
-            vm.elements.plot.selectAll(".pointlines")
-                .attr("d", vm.line);
+            // re-set line generator
+            vm.updateLineGenerator(new_xScale, new_yScale);
+
+            // re-draw line paths
+            vm.chart.g.selectAll(".pointlines")
+                .call(vm.updateLine);
         }
     }
 }

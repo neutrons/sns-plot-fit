@@ -38,7 +38,7 @@ div.tooltip-SANS2D:before {
   margin-top: -10px;
 }
 
-#axis-SANS2D .tick line {
+.axis .tick line {
   stroke: black;
 }
 
