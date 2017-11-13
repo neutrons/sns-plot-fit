@@ -90,6 +90,8 @@ import { zoom } from '../../../assets/javascript/mixins/chartFuncs/zoom.js';
 import { updateChart } from '../../../assets/javascript/mixins/chartFuncs/updateChart.js';
 import { updateLineGenerator } from '../../../assets/javascript/mixins/chartFuncs/updateLineGenerator.js';
 import { initDimensions } from '../../../assets/javascript/mixins/chartFuncs/initDimensions.js';
+import { addClipPath } from '../../../assets/javascript/mixins/chartFuncs/addClipPath.js';
+import { addSVG } from '../../../assets/javascript/mixins/chartFuncs/addSVG.js';
 
 export default {
     name: 'Plot1d',
@@ -175,7 +177,9 @@ export default {
         setResponsive,
         zoom,
         updateChart,
-        updateLineGenerator
+        updateLineGenerator,
+        addClipPath,
+        addSVG
     ],
     methods: {
         setParameters(parameters) {

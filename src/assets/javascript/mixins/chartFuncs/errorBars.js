@@ -48,6 +48,13 @@ export const errorBars = {
             
             // EXIT
             selection.exit().remove();
+        },
+        addErrorGroup(selection) {
+            let vm = this;
+
+            selection.insert('g', ':first-child')
+                .attr('clip-path', 'url(#clip-' + vm.ID + ')')
+                .attr('id', 'error-' + vm.ID)
         }
     }
 }

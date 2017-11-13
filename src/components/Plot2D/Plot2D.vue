@@ -120,6 +120,8 @@ import { chartVariables } from '../../assets/javascript/mixins/chartFuncs/chartV
 import { labels } from '../../assets/javascript/mixins/chartFuncs/labels.js';
 import { read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
 import { setResponsive } from '../../assets/javascript/mixins/chartFuncs/setResponsive.js';
+import { addClipPath } from '../../assets/javascript/mixins/chartFuncs/addClipPath.js';
+import { addSVG } from '../../assets/javascript/mixins/chartFuncs/addSVG.js';
 
 export default {
     name: 'Plot2D',
@@ -184,7 +186,9 @@ export default {
         isPlotted,
         setResponsive,
         labels,
-        setChartElements
+        setChartElements,
+        addClipPath,
+        addSVG
     ],
     methods: {
         resetSettings() {

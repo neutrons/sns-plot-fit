@@ -43,6 +43,8 @@ import { resetChart } from '../../../assets/javascript/mixins/chartFuncs/resetCh
 import { setResponsive } from '../../../assets/javascript/mixins/chartFuncs/setResponsive.js';
 import { updateLineGenerator } from '../../../assets/javascript/mixins/chartFuncs/updateLineGenerator.js';
 import { initDimensions } from '../../../assets/javascript/mixins/chartFuncs/initDimensions.js';
+import { addClipPath } from '../../../assets/javascript/mixins/chartFuncs/addClipPath.js';
+import { addSVG } from '../../../assets/javascript/mixins/chartFuncs/addSVG.js';
 
 /* Import local mixins */
 import { drawChart } from '../mixins/drawChart.js';
@@ -90,7 +92,9 @@ export default {
         setChartElements,
         initDimensions,
         setResponsive,
-        updateLineGenerator
+        updateLineGenerator,
+        addClipPath,
+        addSVG
     ],
     methods: {
         updateScales(s) {

@@ -86,9 +86,7 @@ export const drawChart = {
             vm.setChartElements();
 
             // Add a group element for error bars
-            vm.chart.g.select('.chart-elements').insert('g', ':first-child')
-                .attr('clip-path', 'url(#clip-' + vm.ID + ')')
-                .attr('id', 'error-' + vm.ID)
+            vm.chart.g.select('.chart-elements').call(vm.addErrorGroup);
             
             vm.addLabels();
 

@@ -10,12 +10,7 @@ export const setChartElements = {
                 .attr("class", "tooltip-" + vm.ID)
                 .style("opacity", 0);
 
-            vm.chart.svg = d3.select("#chart-" + vm.ID).append("svg")
-                .attr("viewBox", vm.dimensions.viewbox)
-                .attr("perserveAspectRatio","xMidYMid meet")
-                .attr('class', 'chart-' + vm.ID)
-                .attr("width", vm.dimensions.w + vm.margin.left + vm.margin.right)
-                .attr("height", vm.dimensions.h + vm.margin.top + vm.margin.bottom);
+            vm.chart.svg = vm.addSVG();
     
             //Add clip path so hexagons do not exceed boundaries
             vm.chart.svg.append("defs").append("clipPath")

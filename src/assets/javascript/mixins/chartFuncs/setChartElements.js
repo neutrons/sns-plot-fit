@@ -15,19 +15,10 @@ export const setChartElements = {
                 .style('opacity', 0);
 
             // Add main chart area
-            vm.chart.svg = d3.select('#chart-' + vm.ID).append('svg')
-                .attr('viewBox', vm.dimensions.viewbox)
-                .attr('perserveAspectRatio','xMidYMid meet')
-                .attr('class', 'chart chart-' + vm.ID)
-                .attr('width', vm.dimensions.w + vm.margin.left + vm.margin.right)
-                .attr('height', vm.dimensions.h + vm.margin.top + vm.margin.bottom);
+            vm.chart.svg = vm.addSVG();
             
             // Add clip path so points/line do not exceed chart boundaries
-            vm.chart.svg.append('defs').append('clipPath')
-                .attr('id', 'clip-' + vm.ID)
-                .append('rect')
-                .attr('width', vm.dimensions.w)
-                .attr('height', vm.dimensions.h);
+            vm.chart.svg.call(vm.addClipPath);
 
             // Add chart area
             vm.chart.g = vm.chart.svg.append('g')
