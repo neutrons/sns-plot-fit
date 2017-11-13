@@ -11,28 +11,33 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
-    { path: '/', 
-      redirect: '/SANS2D' 
+    { 
+      path: '/', 
+      redirect: '/TAS',
     },
     {
       path: '/SANS1D',
       name: 'SANS1D',
-      component: SANS1D
+      component: SANS1D,
+      meta: {title: 'SANS1D'}
     },
     {
       path: '/SANS2D',
       name: 'SANS2D',
-      component: SANS2D
+      component: SANS2D,
+      meta: {title: 'SANS2D'}
     },
     {
       path: '/Stitch',
       name: 'Stitch',
-      component: Stitch
+      component: Stitch,
+      meta: {title: 'Stitch'}
     },
     {
       path: '/TAS',
       name: 'TAS',
-      component: TAS
+      component: TAS,
+      meta: {title: 'TAS'}
     }
   ],
   linkActiveClass: "active",

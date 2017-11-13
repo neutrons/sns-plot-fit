@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import fd from '../../../assets/javascript/fitData.js';
-import extent from '../../../assets/javascript/mixins/chart/extent.js';
+import extent from '../../../assets/javascript/mixins/chartFuncs/extent.js';
 
 /* Import Event Bus */
 import { eventBus } from '../../../assets/javascript/eventBus';

@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import * as d3hex from 'd3-hexbin';
-import tooltip from '../../../assets/javascript/mixins/d3/tooltip.js';
+import tooltip from '../../../assets/javascript/mixins/chartFuncs/tooltip.js';
 
 export const updateChart = {
     methods: {

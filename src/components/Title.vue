@@ -23,10 +23,11 @@
           </ul>
 
           <ul id="route-list" class="nav navbar-nav navbar-right">
-              <router-link to='/SANS1D' tag="li"><a>SANS1D</a></router-link>
-              <router-link to='/SANS2D' tag="li"><a>SANS2D</a></router-link>
-              <router-link to='/Stitch' tag="li"><a>Stitch</a></router-link>
-              <router-link to='/TAS' tag="li"><a>TAS</a></router-link>
+            <router-link v-for='(route, index) in routes' :key='index'
+              :to='route.path' tag='li'
+            >
+              <a>{{route.name}}</a>
+            </router-link>
           </ul>
 
         </div>
@@ -60,18 +61,26 @@ export default {
   },
   data: function() {
     return {
-
+      routes: [],
     }
   },
   mounted() {
     // Event listener for when stitch lines are saved
     eventBus.$on('fetch-files', this.fetchFiles);
     eventBus.$on('upload-files', this.uploadFiles);
+
+    // Add a list of links excluding the redirect path
+    this.routes = this.$router.options.routes.slice(1, this.$router.options.routes.length);
+    this.setDocTitle();
   },
   mixins: [
     isOffline
   ],
   methods: {
+    setDocTitle() {
+      // Set the document title to current route path
+      document.title = 'ORNL - ' + this.$route.meta.title;
+    },
     fetchFiles() {
       console.log("Fetching data...");
 
@@ -176,6 +185,12 @@ export default {
         // File doesn't match for either 1D or 2D, throw error message
         return false;
       }
+    }
+  },
+  watch: {
+    $route() {
+      // Anytime page changes update doc title
+      this.setDocTitle();
     }
   }
 }

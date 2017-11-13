@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 // import setLineGenerator from '../../../assets/javascript/mixins/chart/setLineGenerator.js';
-import tooltip from '../../../assets/javascript/mixins/chart/tooltip.js';
-import scatterPoints from '../../../assets/javascript/mixins/chart/scatterPoints.js';
+import tooltip from '../../../assets/javascript/mixins/chartFuncs/tooltip.js';
+import scatterPoints from '../../../assets/javascript/mixins/chartFuncs/scatter.js';
 
 import store from '../../../store/index.js';
 

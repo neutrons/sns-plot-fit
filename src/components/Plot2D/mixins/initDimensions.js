@@ -1,5 +1,5 @@
-import getContainerWidth from '../../../assets/javascript/mixins/d3/getContainerWidth.js';
-import getViewHeight from '../../../assets/javascript/mixins/d3/getViewHeight.js';
+import getContainerWidth from '../../../assets/javascript/mixins/chartFuncs/getContainerWidth.js';
+import getViewHeight from '../../../assets/javascript/mixins/chartFuncs/getViewHeight.js';
 
 export const initDimensions = {
     methods: {
