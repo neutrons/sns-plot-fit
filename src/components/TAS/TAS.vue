@@ -71,7 +71,7 @@
                     :DISABLE="disable"
                     @update-scales="setScales"
                     @reset-scales="resetScales"
-                    ref="scales">
+                    ref="scale">
                 </v-scales>
 
             </v-panel>
@@ -120,9 +120,7 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
-import Levenberg from '../BaseComponents/Levenberg.vue';
-import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
-import tasPlot from './tasPlot.vue';
+import tasPlot from './components/tasPlot.vue';
 import FieldList from './components/FieldList.vue';
 import Metadata from './components/Metadata.vue';
 
@@ -149,8 +147,6 @@ export default {
         'v-table': Table,
         'v-filter': Filter,
         'v-scales': Scales,
-        'v-levenberg': Levenberg,
-        'v-fit-config': FitConfiguration,
         'v-plot-TAS': tasPlot,
         'v-field-list': FieldList,
         'v-metadata': Metadata
@@ -210,7 +206,7 @@ export default {
         },
         removePlot() {
             d3.select(".chart-" + this.ID).remove();
-            d3.select(".tooltip-" + this.ID).remove();
+            d3.select("#tooltip-" + this.ID).remove();
         },
         updateSelectedData(index, name) {
             
@@ -267,11 +263,11 @@ export default {
         updateFields(choice, value) {
 
             if (choice === 'x') {
-                this.fields.x = value;
+                this.field.x = value;
             } else if (choice === 'y') {
-                this.fields.y = value;
+                this.field.y = value;
             } else {
-                [this.fields.x, this.fields.y] = [this.fields.y, this.fields.x];
+                [this.field.x, this.field.y] = [this.field.y, this.field.x];
             }
 
             this.setParameters();
@@ -315,15 +311,15 @@ export default {
             let vm = this;
 
             // Assign fields if none were provided yet
-            if (this.fields.x === null || this.fields.y === null) {
-                [this.fields.x, this.fields.y] = this.getFields();
+            if (this.field.x === null || this.field.y === null) {
+                [this.field.x, this.field.y] = this.getFields();
             }
 
             // Filter out data for selected fields
             sd.forEach(el => {
 
                 el.data = el.data.map(function(d) {
-                    return {x: d[vm.fields.x], y: d[vm.fields.y], name: d.name};
+                    return {x: d[vm.field.x], y: d[vm.field.y], name: d.name};
                 })
             })
 
@@ -346,16 +342,16 @@ export default {
                     // console.log("Setting parameters", this.selectedData);
                     this.disable = false;
 
-                    this.$refs.plot_TAS.drawPlot({
+                    this.$refs.plot_TAS.drawChart({
                         data: vm.prepData(_.cloneDeep(vm.selectedData)),
                         colorDomain: vm.$store.getters.getColorDomain('TAS'),
-                        scales: vm.scales,
+                        scale: vm.scale,
                         fileToFit: vm.fileToFit,
                         fitConfiguration: vm.currentConfiguration,
                         fitSettings: vm.fitSettings,
-                        labels: {
-                            x: vm.fields.x,
-                            y: vm.fields.y
+                        label: {
+                            x: vm.field.x,
+                            y: vm.field.y
                         }
                     });
                 } else {

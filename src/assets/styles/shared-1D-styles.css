@@ -10,17 +10,17 @@
   fill: none;
 }
 
-.error {
+.error-line {
   stroke-width: 2px;
   stroke-dasharray: 4, 4;
 }
 
-.error-tick-bottom,
-.error-tick-top {
+.error-cap-bottom,
+.error-cap-top {
   stroke-width: 1.5px;
 }
 
-.plotbg {
+.chartbg {
   fill: white;
   opacity: 1;
 }
@@ -29,7 +29,8 @@
   stroke: black;
 }
 
-.gridline .tick line {
+.grid .tick line {
+  shape-rendering: crispEdges;
   stroke: gainsboro;
 }
 
@@ -83,7 +84,7 @@ circle {
 
 /* Override MathJax positioning for rendered elements */
 
-.MathJax_SVG {
+/* .MathJax_SVG {
   position: static !important;
   display: inline-block !important;
-}
+} */

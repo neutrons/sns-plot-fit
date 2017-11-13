@@ -66,7 +66,7 @@
                     :DISABLE="disable"
                     @update-scales="setScales"
                     @reset-scales="resetScales"
-                    ref="scales">
+                    ref="scale">
                 </v-scales>
 
             </v-panel>
@@ -128,10 +128,10 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
-import Levenberg from '../BaseComponents/Levenberg.vue';
-import FitConfiguration from '../BaseComponents/FitConfiguration.vue';
-import Transformation from '../BaseComponents/Transformation.vue';
-import Plot1D from './fitPlot.vue';
+import Levenberg from './components/Levenberg.vue';
+import FitConfiguration from './components/FitConfiguration.vue';
+import Transformation from './components/Transformation.vue';
+import Plot1D from './components/fitPlot.vue';
 
 /* Import Shared Mixins */
 import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
@@ -165,7 +165,7 @@ export default {
     data: function () {
       return {
         selectedData: [],
-        scales: {
+        scale: {
           x: d3.scaleLinear(),
           xType: 'X',
           y: d3.scaleLinear(),
@@ -354,11 +354,11 @@ export default {
                     this.$refs.plot_SANS1D.setParameters({
                         data: this.prepData(this.selectedData),
                         colorDomain: this.$store.getters.getColorDomain('SANS1D'),
-                        scales: this.scales,
+                        scale: this.scale,
                         fileToFit: this.fileToFit,
                         fitConfiguration: this.currentConfiguration,
                         fitSettings: this.fitSettings,
-                        labels: {
+                        label: {
                             x: this.currentConfiguration.xTransformation,
                             y: this.currentConfiguration.yTransformation
                         }

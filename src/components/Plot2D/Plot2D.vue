@@ -78,9 +78,9 @@
       <div class="col-md-10" id="plot-2d-col">
         <v-panel PANELTITLE="SANS 2D Plot" PANELTYPE="primary">
             <!-- Plot reset button inserted into panel heading  -->
-            <v-reset-button :onClick="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</v-reset-button>
+            <v-reset-button :onClick="resetChart" v-if="currentData.length > 0" slot="header-content">Reset Chart</v-reset-button>
             
-            <div :id="'plot-' + ID"></div>
+            <div :id="'chart-' + ID"></div>
         </v-panel>
       </div>
 </div>
@@ -92,33 +92,34 @@
 import * as d3 from 'd3';
 import _ from 'lodash';
 
-/* Import Default Chart Elements */
-import chartElements from '../../assets/javascript/mixins/chart/chartElements.js';
-
 /* Import Components */
+import Filter from '../BaseComponents/TableFilter.vue';
 import Panel from '../BaseComponents/Panels/Panel.vue';
 import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
-import Table from '../BaseComponents/Table.vue';
-import Filter from '../BaseComponents/TableFilter.vue';
 import ResetButton from '../BaseComponents/ResetButton.vue';
+import Table from '../BaseComponents/Table.vue';
 
 /* Import Local Mixins */
-import { drawPlot } from './mixins/drawPlot.js';
-import { updatePlot } from './mixins/updatePlot.js';
+import { adjustDomains } from './mixins/adjustDomains.js';
+import { drawChart } from './mixins/drawChart.js';
 import { initDimensions } from './mixins/initDimensions.js';
 import { initScales } from './mixins/initScales.js';
-import { setElements } from './mixins/setElements.js';
+import { resetChart } from './mixins/resetChart.js';
+import { setChartElements } from './mixins/setChartElements.js';
+import { updateChart } from './mixins/updateChart.js';
 import { zoomed } from './mixins/zoomed.js';
-import { resetPlot } from './mixins/resetPlot.js';
 
 /* Import Shared Mixins */
-import { read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
-import { setResponsive } from '../../assets/javascript/mixins/chart/setResponsive.js';
-import { addLabels } from '../../assets/javascript/mixins/chart/addLabels.js';
+
+import { axes } from '../../assets/javascript/mixins/chartFuncs/axes.js';
+import { chartVariables } from '../../assets/javascript/mixins/chartFuncs/chartVariables.js';
+import { labels } from '../../assets/javascript/mixins/chartFuncs/labels.js';
+import { read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
+import { setResponsive } from '../../assets/javascript/mixins/chartFuncs/setResponsive.js';
 
 export default {
     name: 'Plot2D',
@@ -130,36 +131,35 @@ export default {
       'v-reset-button': ResetButton
     },
     data() {
-
-        let tempData = _.cloneDeep(chartElements);
-
-        tempData.filesToPlot = [];
-        tempData.fileToPlot = null;
-        tempData.filterBy = 'All';
-        tempData.sortBy = 'ascending';
-        tempData.tempBinSize = 15;
-        tempData.tempTransform = 'Log';
-        tempData.hexSettings = {
-            intensityTransformation: 'Log',
-            binSize: 15
-        };
-
-        tempData.labels.x = 'Qx';
-        tempData.labels.y = 'Qy';
-
-        tempData.currentData = [];
-
-        tempData.scale.l = undefined;
-
-        tempData.dimensions.lw = undefined;
-        tempData.dimensions.lh = undefined;
-
-        tempData.binSize = undefined;
-        tempData.plotData = [];
-        tempData.ID = 'SANS2D';
-        tempData.isMathJax = true;
-
-        return tempData;
+        return {
+            filesToPlot: [],
+            fileToPlot: null,
+            filterBy: 'All',
+            sortBy: 'ascending',
+            tempBinSize: 15,
+            tempTransform: 'Log',
+            hexSettings: {
+                intensityTransformation: 'Log',
+                binSize: 15
+            },
+            label: {
+                x: 'Qx',
+                y: 'Qy'
+            },
+            currentData: [],
+            scale: {
+                l: undefined,
+            },
+            dimensions: {
+                lw: undefined,
+                lh: undefined,
+            },
+            binSize: undefined,
+            plotData: [],
+            ID: 'SANS2D',
+            isMathJax: true,
+            zoom: d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", this.zoomed)
+        }
     },
     computed: {
       getUploaded() {
@@ -167,21 +167,24 @@ export default {
       }
     },
     mixins: [
-        read2DData, 
-        get2DData, 
-        fetchFiles, 
-        filterJobs, 
-        isOffline,
-        drawPlot,
-        updatePlot,
+        adjustDomains,
+        drawChart,
+        updateChart,
         initDimensions,
         initScales,
-        setElements,
         zoomed,
-        setResponsive,
-        resetPlot,
+        chartVariables,
+        resetChart,
+        axes,
+        read2DData,
+        get2DData,
+        fetchFiles,
+        filterJobs,
+        isOffline,
         isPlotted,
-        addLabels,
+        setResponsive,
+        labels,
+        setChartElements
     ],
     methods: {
         resetSettings() {
@@ -217,13 +220,18 @@ export default {
             d3.select(".chart-" + vm.ID).remove();
             d3.select(".tooltip-" + vm.ID).remove();
 
-            this.$store.commit('removeFile', { filename: filename, dataType: 'SANS2D'});
+            this.$store.commit('removeFile', 
+                { 
+                    filename: filename, 
+                    dataType: 'SANS2D'
+                }
+            );
         }
     },
     watch: {
         hexSettings: {
             handler() {
-                this.drawPlot(this.currentData, this.hexSettings);
+                this.drawChart(this.currentData, this.hexSettings);
             },
             deep: true
         },
@@ -251,7 +259,7 @@ export default {
                 } else {
                     // File is in saved, so let's plot it
                     this.currentData = data2D;
-                    this.drawPlot(data2D, this.hexSettings);
+                    this.drawChart(data2D, this.hexSettings);
                 }
             } else {
                 
@@ -266,7 +274,7 @@ export default {
 </script>
 
 <style scoped>
-@import '../../assets/styles/plot-2D-styles.css';
+@import './style/plot-2D-styles.css';
 
 #Plot2D {
   position: absolute;

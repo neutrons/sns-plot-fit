@@ -9,7 +9,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <img src="../assets/ornl_logo.png" class="navbar-brand">
+          <img src="../assets/images/ornl_logo.png" class="navbar-brand">
         </div>
 
         <div class="collapse navbar-collapse" id="navbarElements">
@@ -22,20 +22,14 @@
             </li>
           </ul>
 
-          <ul id="view-switches" class="nav navbar-nav navbar-right">
-            <li id="switch-SANS1D">
-              <a href="#SANS1D" @click="switchView('SANS1D')">SANS 1D</a>
-            </li>
-            <li id="switch-SANS2D">
-              <a href="#SANS2D" @click="switchView('SANS2D')">SANS 2D</a>
-            </li>
-            <li id="switch-Stitch">
-              <a href="#Stitch" @click="switchView('Stitch')">Stitch</a>
-            </li>
-            <li id="switch-TAS" class="active">
-              <a href="#TAS" @click="switchView('TAS')">TAS</a>
-            </li>
+          <ul id="route-list" class="nav navbar-nav navbar-right">
+            <router-link v-for='(route, index) in routes' :key='index'
+              :to='route.path' tag='li'
+            >
+              <a>{{route.name}}</a>
+            </router-link>
           </ul>
+
         </div>
       </div>
     </nav>
@@ -67,18 +61,26 @@ export default {
   },
   data: function() {
     return {
-
+      routes: [],
     }
   },
   mounted() {
     // Event listener for when stitch lines are saved
     eventBus.$on('fetch-files', this.fetchFiles);
     eventBus.$on('upload-files', this.uploadFiles);
+
+    // Add a list of links excluding the redirect path
+    this.routes = this.$router.options.routes.slice(1, this.$router.options.routes.length);
+    this.setDocTitle();
   },
   mixins: [
     isOffline
   ],
   methods: {
+    setDocTitle() {
+      // Set the document title to current route path
+      document.title = 'ORNL - ' + this.$route.meta.title;
+    },
     fetchFiles() {
       console.log("Fetching data...");
 
@@ -183,20 +185,12 @@ export default {
         // File doesn't match for either 1D or 2D, throw error message
         return false;
       }
-    },
-    switchView(view) {
-      var views = document.getElementById("view-switches").children;
-
-      for (let i = 0, len = views.length; i < len; i++) {
-        if (views[i].id === "switch-" + view) {
-          views[i].classList.add('active');
-        } else {
-          views[i].classList.remove('active');
-        }
-      }
-
-      // console.log("View switched to: ", view);
-      this.$emit('switch-plot-component', view);
+    }
+  },
+  watch: {
+    $route() {
+      // Anytime page changes update doc title
+      this.setDocTitle();
     }
   }
 }
@@ -209,25 +203,23 @@ export default {
   box-shadow: 0px 1px 10px gainsboro;
 }
 
-
 /* Link Styles for Switching Component Views */
-
-#view-switches li {
+#route-list li {
   margin: 0px;
   text-align: center;
 }
 
-#view-switches a {
+#route-list a {
   transition: all 0.5s ease;
   color: #00672c;
 }
 
-#view-switches a:hover {
+#route-list a:hover {
   background: #00672c;
   color: white;
 }
 
-#view-switches li.active a {
+#route-list li.active a {
   color: white;
 }
 

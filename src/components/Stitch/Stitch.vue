@@ -52,7 +52,7 @@
                         :DISABLE="disable"
                         @update-scales="setScales"
                         @reset-scales="resetScales"
-                        ref="scales"
+                        ref="scale"
                         >
                     </v-scales>
                 </v-panel>
@@ -77,7 +77,7 @@
                     <br>
                     <button id="save-stitch-btn" class="btn btn-primary btn-xs btn-block" :disabled="!isStitched" @click="saveStitchLine"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save Stitch</button>
                     <br>
-                    <button id="draw-brushes-btn" class="btn btn-primary btn-xs btn-block" v-if="isBrushesStored" @click="drawBrushes" :disabled="!isMultipleLines"><i class="fa fa-undo" aria-hidden="true"></i> Restore Brushes</button>
+                    <button id="draw-brushes-btn" class="btn btn-primary btn-xs btn-block" v-if="isBrushesStored" @click="drawBrushes" :disabled="!isMultipleLines"><i class="fa fa-undo" aria-hidden="true"></i> Restore Selections</button>
                 </v-panel>
 
             </v-panel-group>
@@ -86,6 +86,7 @@
         <!-- Plot Panel for Main Chart  -->
         <v-stitch-plot 
             :DISABLE="disable"
+            @is-stitched="isStitched == true"
             ref="plot_Stitch">
         </v-stitch-plot>
 
@@ -141,8 +142,8 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Scales from '../BaseComponents/Scales.vue';
 import Table from '../BaseComponents/Table.vue';
 import TableFilter from '../BaseComponents/TableFilter.vue';
-import PlotStitch from './stitchPlot.vue';
 import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
+import PlotStitch from './components/stitchPlot.vue';
 
 /* Import Mixins */
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
@@ -171,7 +172,7 @@ export default {
     },
     data: function () {
       return {
-          scales: {
+          scale: {
               x: d3.scaleLinear(),
               xType: 'X',
               y: d3.scaleLinear(),
@@ -269,10 +270,10 @@ export default {
 
                     this.$refs.plot_Stitch.setParameters({
                         data: this.prepData(this.selectedData),
-                        scales: this.scales,
+                        scale: this.scale,
                         colorDomain: this.$store.getters.getColorDomain('Stitch'),
                         brushCount: this.filesToPlot.length,
-                        labels: {x: 'q', y: 'I(q)'}
+                        label: {x: 'q', y: 'I(q)'}
                     });
 
                 } else {

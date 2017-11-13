@@ -22,11 +22,11 @@ export default function getDefaultData() {
             xLabel: "Q",
             note: ""
         },
-        fields: {
+        field: {
             x: 'pt.',
             y: 'detector'
         },
-        scales: {
+        scale: {
           x: d3.scaleLinear(),
           xType: 'X',
           y: d3.scaleLinear(),

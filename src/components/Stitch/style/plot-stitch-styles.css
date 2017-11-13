@@ -1,0 +1,34 @@
+@import url('../../../assets/styles/shared-1D-styles.css');
+
+/* Style for brush/slider handle bars */
+.brush-container .handle {
+    fill: none;
+}
+
+.brushes .selection {
+  fill: green;
+  stroke: black;
+  stroke-width: 1px;
+  stroke-dasharray: 3px 3px;
+}
+
+.brushes .handle {
+  fill: none;
+}
+
+.brushes text {
+  fill: white;
+  text-anchor: end;
+  letter-spacing: 1px;
+}
+
+.stitch-chart circle {
+  cursor: pointer;
+}
+
+iframe.width-changed-Stitch {
+  width: 90%;
+  display: block;
+  border: 0;
+  height: 0;
+}
