@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-// import setLineGenerator from '../../../assets/javascript/mixins/chart/setLineGenerator.js';
 import tooltip from '../../../assets/javascript/mixins/chartFuncs/tooltip.js';
 import scatterPoints from '../../../assets/javascript/mixins/chartFuncs/scatter.js';
 
@@ -30,7 +29,6 @@ export const updateChart = {
             vm.updateGrids(new_xScale, new_yScale, trans);
 
             //Add a Line path Function
-            // setLineGenerator(vm, new_xScale, new_yScale);
             vm.updateLineGenerator(new_xScale, new_yScale);
     
             // Add and update data
