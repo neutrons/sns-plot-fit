@@ -6,14 +6,25 @@ import SANS1D from '../components/Plot1D/Main1D.vue';
 import SANS2D from '../components/Plot2D/Plot2D.vue';
 import Stitch from '../components/Stitch/Stitch.vue';
 import TAS from '../components/TAS/TAS.vue';
+import ORNL404 from '../components/ORNL404.vue';
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     { 
-      path: '/', 
-      redirect: '/TAS',
+      path: '*', 
+      redirect: '/ORNL404',
+    },
+    {
+      path: '/',
+      redirect: '/SANS1D'
+    },
+    {
+      path: '/ORNL404',
+      name: 'ORNL404',
+      component: ORNL404,
+      meta: {title: 'ORNL404'}
     },
     {
       path: '/SANS1D',
@@ -38,7 +49,7 @@ export default new Router({
       name: 'TAS',
       component: TAS,
       meta: {title: 'TAS'}
-    }
+    },
   ],
   linkActiveClass: "active",
 })

@@ -70,7 +70,7 @@ export default {
     eventBus.$on('upload-files', this.uploadFiles);
 
     // Add a list of links excluding the redirect path
-    this.routes = this.$router.options.routes.slice(1, this.$router.options.routes.length);
+    this.routes = this.$router.options.routes.slice(3, this.$router.options.routes.length);
     this.setDocTitle();
   },
   mixins: [
