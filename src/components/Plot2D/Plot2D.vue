@@ -159,7 +159,7 @@ export default {
             binSize: undefined,
             plotData: [],
             ID: 'SANS2D',
-            isMathJax: true,
+            isMathJax: false,
             zoom: d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", this.zoomed)
         }
     },

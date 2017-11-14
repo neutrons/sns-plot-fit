@@ -13,11 +13,7 @@ export const setChartElements = {
             vm.chart.svg = vm.addSVG();
     
             //Add clip path so hexagons do not exceed boundaries
-            vm.chart.svg.append("defs").append("clipPath")
-                .attr("id", "clip-" + vm.ID)
-                .append("rect")
-                .attr("width", vm.dimensions.w)
-                .attr("height", vm.dimensions.h);
+            vm.addClipPath();
 
             // Create plot elements (plot area, axis, and color legend)
             vm.chart.g = vm.chart.svg.append("g")

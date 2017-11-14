@@ -18,7 +18,7 @@ export const setChartElements = {
             vm.chart.svg = vm.addSVG();
             
             // Add clip path so points/line do not exceed chart boundaries
-            vm.chart.svg.call(vm.addClipPath);
+            vm.addClipPath();
 
             // Add chart area
             vm.chart.g = vm.chart.svg.append('g')

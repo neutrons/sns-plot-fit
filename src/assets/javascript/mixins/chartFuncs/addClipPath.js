@@ -4,9 +4,9 @@ export const addClipPath = {
     methods: {
         addClipPath(selection) {
             let vm = this;
-            
-            selection.append('defs').append('clipPath')
-                .attr('id', 'clip-' + vm.ID)
+
+            let CP = vm.chart.svg.append('defs').append('clipPath');
+            CP.attr('id', 'clip-' + vm.ID)
                 .append('rect')
                 .attr('width', vm.dimensions.w)
                 .attr('height', vm.dimensions.h);

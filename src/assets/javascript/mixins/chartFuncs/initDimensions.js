@@ -3,7 +3,7 @@ import getViewHeight from './getViewHeight.js';
 
 export const initDimensions = {
     methods: {
-        initDimensions(callback = () => {}) {
+        initDimensions(callback = (viewHeight) => {vm.dimensions.h = viewHeight - vm.margin.top - vm.margin.bottom;}) {
             let vm = this;
             
             // Pull plot's parent container width, this will be used to scale the plot responsively
