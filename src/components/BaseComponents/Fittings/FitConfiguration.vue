@@ -3,7 +3,7 @@
     <!-- Fit Type Selections -->
     <div class="input-group">
         <span class="input-group-addon">Fit Type</span>
-        <select class="form-control" v-model="fit" :disabled="DISABLE">
+        <select class="form-control" :value='fit' @change='setFit($event.target.value)' :disabled="DISABLE">
             <option v-for="fit in fits">{{fit.fit}}</option>
         </select>
     </div>
@@ -91,16 +91,13 @@ export default {
         updateCoefficients(coeff) {
             this.coefficients = coeff;
         },
-        setFitBack() {
-            this.fit = 'Linear';
-        }
-    },
-    watch: {
-        fit() {
+        setFit(fit) {
+            this.fit = fit;
+
             if (this.fit === 'None') this.coefficients = {};
             this.$emit('set-fit', this.fit);
-        }
-    }
+        },
+    },
   }
 </script>
 

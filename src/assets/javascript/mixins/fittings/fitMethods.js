@@ -35,7 +35,7 @@ export const fitMethods = {
             // console.log("File is being fit:", this.fileToFit);
             if (this.fileToFit === null) {
                 
-                this.$refs.fit_configurations.setFitBack();
+                this.$refs.fit_configurations.setFit('Linear');
                 this.setFitSettings(this.$store.getters.getFitSettings);
                 this.setFit("Linear");
             } else {
@@ -57,10 +57,9 @@ export const fitMethods = {
         resetFileFitChoice() {
             this.fileFitChoice = [];
             this.fileToFit = null;
-            this.setParameters();
+            this.$refs.fit_configurations.setFit('Linear');
         },
         setFit(fitname) {
-            // console.log("Setting new fit configuration:", fitname);
             // Deep clone because if you change the equation later, the original fit config's equation would be altered as well
             this.currentConfiguration = _.cloneDeep(this.$store.getters.getFitConfigsByID(this.$route.name, fitname));
 

@@ -308,8 +308,7 @@ export default {
 
             // If a file is unselected while it has a fit, unselect the fit
             if (this.filesToPlot.indexOf(this.fileToFit) === -1) {
-                this.fileToFit = null;
-                this.fileFitChoice = [];
+                this.resetFileFitChoice();
             }
             
             if (this.filesToPlot.length === 0) {
