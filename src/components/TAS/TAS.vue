@@ -77,7 +77,7 @@
             </v-panel>
 
             <!-- Fit Configuration Panel  -->
-            <!-- <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
+            <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
                 <v-fit-config
                     :DISABLE="this.fileToFit === null"
                     :EQUATION="$data.currentConfiguration.equation"
@@ -87,23 +87,31 @@
                     @reset-file-fit-choice="resetFileFitChoice"
                     ref="fit_configurations"
                 ></v-fit-config>
-            </v-panel> -->
+            </v-panel>
 
             <!-- Fit Settings Panel  -->
-            <!-- <v-panel PANELTITLE="Levenberg–Marquardt Settings" PANELTYPE="info" :COLLAPSE="true">
+            <v-panel PANELTITLE="Levenberg–Marquardt Settings" PANELTYPE="info" :COLLAPSE="true">
                 <v-levenberg
                     :DISABLE="this.fileToFit === null"
                     @set-fit-settings="setFitSettings"
                     ref="fit_settings"
                 ></v-levenberg>
-            </v-panel> -->
+            </v-panel>
 
 
         </v-panel-group>
       </div>
     
         <v-plot-TAS :DISABLE="disable"  ref="plot_TAS">
-            <v-metadata :metadata="metadata" :ID="ID"></v-metadata>
+            <v-metadata :metadata="metadata" :ID="ID" v-if='filesToPlot.length > 0'></v-metadata>
+            <!-- Fit Results Table -->
+            <v-panel :PANELTITLE="'Fit Results'" PANELTYPE="default">
+                <fit-results-table 
+                    :show-table='fileToFit !== null'
+                    :is-error='false'
+                    :ID='ID'
+                ></fit-results-table>
+            </v-panel>
         </v-plot-TAS>
 </div>
   </div>
@@ -120,11 +128,16 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
+import Levenberg from '../BaseComponents/Fittings/Levenberg.vue';
+import FitConfiguration from '../BaseComponents/Fittings/FitConfiguration.vue';
 import tasPlot from './components/tasPlot.vue';
 import FieldList from './components/FieldList.vue';
 import Metadata from './components/Metadata.vue';
+import FitTable from '../BaseComponents/FitTable.vue';
 
-/* Import Mixins */
+/* Import Shared Mixins */
+import fd from '../../assets/javascript/mixins/fittings/fitData.js';
+import {fitMethods} from '../../assets/javascript/mixins/fittings/fitMethods.js';
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
@@ -134,10 +147,12 @@ import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js'
 import parseData from '../../assets/javascript/mixins/readFiles/parse/TAS.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 
+/* Import Local Mixins */
+// import getDefaultData from './mixins/getDefaultData.js';
+
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
 
-import getDefaultData from './mixins/getDefaultData.js';
 
 export default {
     name: 'TAS',
@@ -149,9 +164,38 @@ export default {
         'v-scales': Scales,
         'v-plot-TAS': tasPlot,
         'v-field-list': FieldList,
-        'v-metadata': Metadata
+        'v-metadata': Metadata,
+        'v-levenberg': Levenberg,
+        'v-fit-config': FitConfiguration,
+        'fit-results-table': FitTable,
     },
-    data: getDefaultData,
+    data() {
+        return {
+            msg: 'TAS Component!',
+            filesToPlot: [],
+            fileToPlot: null,
+            fileToFit: null,
+            fileFitChoice: [],
+            selectedData: [],
+            filterBy: 'All',
+            sortBy: 'ascending',
+            disable: true,
+            currentData: {},
+            field: {
+                x: 'pt',
+                y: 'detector'
+            },
+            scale: {
+            x: d3.scaleLinear(),
+            xType: 'X',
+            y: d3.scaleLinear(),
+            yType: 'Y'
+            },
+            ID: 'TAS',
+            selectedData: [],
+        };
+    },
+    // data: getDefaultData,
     mixins: [
         fetchFiles, 
         setScales, 
@@ -159,7 +203,8 @@ export default {
         isPlotted,
         isOffline,
         read1DData,
-        prepPlotData
+        prepPlotData,
+        fitMethods,
     ],
     mounted() {
         // Listen for event that stitch has been saved
@@ -200,9 +245,9 @@ export default {
     methods: {
         resetData() {
             this.removePlot();
-
-            Object.assign(this.$data, getDefaultData())
-
+            this.selectedData = [];
+            this.fileToFit = null;
+            //Object.assign(this.$data, getDefaultData())
         },
         removePlot() {
             d3.select(".chart-" + this.ID).remove();
@@ -217,28 +262,6 @@ export default {
             })
 
             this.setParameters();
-        },
-        setFileToFit() {
-            if (this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
-            this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
-        },
-        resetFileFitChoice() {
-            this.fileFitChoice = [];
-            this.fileToFit = null;
-        },
-        setFitFile(filename) {
-             this.fileToFit = filename;
-        },
-        setFit(fitname) {
-            // console.log("Setting new fit configuration:", fitname);
-            // Deep clone because if you change the equation later, the original fit config's equation would be altered as well
-            this.currentConfiguration = _.cloneDeep(this.$store.getters.getFitConfigsByID(fitname));
-        },
-        setFitSettings(options) {
-            this.fitSettings = options;
-        },
-        setEquation(eq) {
-            this.currentConfiguration.equation = eq;
         },
         removeFile(filename) {
             let vm = this;
@@ -288,17 +311,17 @@ export default {
                     let name = chosenData[i].filename;
                     let metadata = chosenData[i].metadata;
 
-                    tempSelect.push({filename: name, data: temp, metadata});
+                    // tempSelect.push({filename: name, data: temp, metadata});
 
-                    // if (this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
-                    //     let dataTransformed = fd.transformData(temp, this.currentConfiguration);
+                    if (this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
+                        let dataTransformed = fd.transformData(temp, this.currentConfiguration.transformations, this.field);
                         
-                    //     tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
-                    // } else {
-                    //     let dataTransformed = _.cloneDeep(temp);
+                        tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed, metadata });
+                    } else {
+                        let dataTransformed = _.cloneDeep(temp);
 
-                    //     tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed });
-                    // }
+                        tempSelect.push({filename: name, data: temp, dataTransformed: dataTransformed, metadata });
+                    }
                 }
 
                 this.selectedData = tempSelect;
@@ -400,45 +423,9 @@ export default {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }
                 }
-        }
+        },
     },
-    watch: {
-        fileToFit () {
-            
-            if (this.fileToFit === null) {
-                
-                // this.$refs.fit_configurations.setFitBack();
-                // this.setFitSettings(this.$store.getters.getFitSettings);
-                // this.setFit("Linear");
-            } else {
-                // this.selectedData.forEach( el => {
-                //     el.dataTransformed = fd.transformData(el.data, this.currentConfiguration);
-                // });
-            }
-        },
-        currentConfiguration: {
-            handler() {
-                // console.log("Current configurations changed!");
-                // if(this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
-                //     this.selectedData.forEach( el => {
-                //         el.dataTransformed = fd.transformData(el.data, this.currentConfiguration);
-                //     });
-                // } else {
-                //     this.selectedData.forEach( el => {
-                //         el.dataTransformed = _.cloneDeep(el.data);
-                //     });
-                // }
-            },
-            deep: true
-        },
-        fitSettings: {
-            handler: function() {
-                // this.setParameters();
-            },
-            deep: true
-        }
-    }
-}
+};
 </script>
 
 <style lang="less" scoped>

@@ -54,25 +54,51 @@ export const inUploadedSANS2D = state => (fname) => {
     return match;
 }
 
-export const getFitConfigs = state => {
-    return _.cloneDeep(state.fitConfigurations)
+/* NEW FIT GETTERS */
+export const getFitConfigs = state => (id) => {
+    return _.cloneDeep(state.fit[id])
 }
 
-export const getFitConfigsByID = state => (id) => {
-    return _.cloneDeep(state.fitConfigurations[id])
+export const getFitConfigsByID = state => (id, fit) => {
+    return _.cloneDeep(state.fit[id][fit])
 }
 
-export const getFitConfigsXTrans = state => (id) => {
-    return _.cloneDeep(state.fitConfigurations[id].xTransformation)
+export const getFitConfigsXTrans = state => (id, fit) => {
+    return _.cloneDeep(state.fit[id][fit].transformations.x)
 }
 
-export const getFitConfigsYTrans = state => (id) => {
-    return _.cloneDeep(state.fitConfigurations[id].yTransformation)
+export const getFitConfigsYTrans = state => (id, fit) => {
+    return _.cloneDeep(state.fit[id][fit].transformations.y)
 }
+
+// export const getFitConfigTrans = state => (id, fit) => {
+//     return [_.cloneDeep(state.fit[id][fit].yTransformation), _.cloneDeep(state.fit[id][fit].yTransformation)]
+// }
 
 export const getFitSettings = state => {
-    return _.cloneDeep(state.fitSettings)
+    return _.cloneDeep(state.fit.settings)
 }
+/* END OF FIT GETTERS */
+
+// export const getFitConfigs = state => {
+//     return _.cloneDeep(state.fitConfigurations)
+// }
+
+// export const getFitConfigsByID = state => (id) => {
+//     return _.cloneDeep(state.fitConfigurations[id])
+// }
+
+// export const getFitConfigsXTrans = state => (id) => {
+//     return _.cloneDeep(state.fitConfigurations[id].xTransformation)
+// }
+
+// export const getFitConfigsYTrans = state => (id) => {
+//     return _.cloneDeep(state.fitConfigurations[id].yTransformation)
+// }
+
+// export const getFitSettings = state => {
+//     return _.cloneDeep(state.fitSettings)
+// }
 
 export const getUploaded = state => (type) => {
     return _.cloneDeep(state.uploaded[type]);

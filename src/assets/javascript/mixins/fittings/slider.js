@@ -1,9 +1,9 @@
 import * as d3 from 'd3';
-import fd from '../../../assets/javascript/fitData.js';
-import extent from '../../../assets/javascript/mixins/chartFuncs/extent.js';
+import fd from './fitData.js';
+import extent from '../chartFuncs/extent.js';
 
 /* Import Event Bus */
-import { eventBus } from '../../../assets/javascript/eventBus';
+import { eventBus } from '../../eventBus';
 
 export const slider = {
     methods: {
@@ -38,7 +38,7 @@ export const slider = {
                 ]);
     
             // append scatter plot to brush chart area
-            slider.append("g").attr("id", "slider-lines")
+            slider.append("g").attr("class", "slider-lines")
     
             slider.append("g")
                 .attr("class", "brush")
@@ -68,15 +68,19 @@ export const slider = {
             // visually reflect the newly updated x axis
             vm.chart.svg.select('.slider').select('.axis--x').transition().duration(750).call(vm.axis.x2);
 
-            let selectSlider = vm.chart.svg.select('.slider').select("#slider-lines").selectAll("line").data(vm.dataToFit);
+            let selectSlider = vm.chart.svg.select('.slider').select(".slider-lines").selectAll("line").data(vm.dataToFit);
 
+            // EXIT old brush lines
+            selectSlider.exit().remove();
+            
+            // UPDATE brush lines
             selectSlider.transition().duration(750)
                 .attr("x1", function(d) { return new_xScale2(d.x); })
                 .attr("y1", vm.dimensions.h2)
                 .attr("x2", function(d) { return new_xScale2(d.x); })
                 .attr("y2", 0);
             
-            // enter new brush lines
+            // ENTER new brush lines
             selectSlider.enter()
                 .append("line")
                 .attr('class', 'dotslider')
@@ -86,22 +90,19 @@ export const slider = {
                 .attr("y2", 0)
                 .style("stroke", "slategray");
 
-            // remove any old brush lines
-            selectSlider.exit().remove();
-
             // Call brush
             vm.brushObj.brush.on("brush", vm.brushed);
 
             // set initial brushSelection
             let xExtent = d3.extent(vm.dataToFit, function(d) { return d.x;});
 
-            if (vm.brushObj.brushSelection.length === 0 || !(vm.plotParameters.fileToFit === vm.brushObj.brushFile) || !(vm.brushObj.brushTransformation === vm.plotParameters.fitConfiguration.xTransformation)) {
+            if (vm.brushObj.brushSelection.length === 0 || !(vm.plotParameters.fileToFit === vm.brushObj.brushFile) || !(vm.brushObj.brushTransformation === vm.plotParameters.fitConfiguration.transformations.x)) {
                 
                 setBrushLimits(xExtent, new_xScale2);
 
                 vm.brushObj.brushFit = vm.plotParameters.fitConfiguration.fit;
                 vm.brushObj.brushFile = vm.plotParameters.fileToFit;
-                vm.brushObj.brushTransformation = vm.plotParameters.fitConfiguration.xTransformation;
+                vm.brushObj.brushTransformation = vm.plotParameters.fitConfiguration.transformations.x;
 
             } else if (!(vm.brushObj.brushFit === vm.plotParameters.fitConfiguration.fit)) { // if same file to fit, but new fit transformation, change brush selections
 

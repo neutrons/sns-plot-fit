@@ -60,7 +60,7 @@ export default {
     },
     computed: {
         fits() {
-            return this.$store.getters.getFitConfigs;
+            return this.$store.getters.getFitConfigs(this.$route.name);
         },
         isCoefficients() {
           return Object.keys(this.coefficients).length > 0;

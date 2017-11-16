@@ -1,8 +1,8 @@
 /* Code to Transform Data Points Based on the Curve Fitting Chosen */
-
 import math from 'mathjs';
 import LM from 'ml-levenberg-marquardt';
 import * as _ from 'lodash';
+
 var fd = {};
 
 fd.isSymbols = function (expression) {
@@ -27,8 +27,8 @@ fd.isSymbols = function (expression) {
     return result > 0;
 }
 
-fd.transformData = function (data, configuration) {
-
+fd.transformData = function (data, transformations, fields = {x: 'x', y: 'y'}) {
+    transformations = _.cloneDeep(transformations);
     // Need to make a temp value of data, so as to not alter the original values
     // This is passing a value rather than a reference (using lodash to handle the cloning)
     // References: 
@@ -36,13 +36,43 @@ fd.transformData = function (data, configuration) {
     // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
     let t = _.cloneDeep(data);
     
-    var exp = [configuration.xTransformation, configuration.yTransformation, configuration.eTransformation];
+    // var exp = [configuration.xTransformation, configuration.yTransformation, configuration.eTransformation];
 
+    // First swap x,y for field names
+    let keys = Object.keys(transformations);
+
+    for (let key in fields) {
+        if (transformations[key] !== undefined) {
+            // console.log(`swap ${key} for ${fields[key]}`);
+        
+            let re = new RegExp(key, 'g');
+        
+            transformations[fields[key]] = transformations[key].replace(re, fields[key]);
+            
+            // if field key is not a transformation key, delete transform key
+            if (keys.indexOf(fields[key]) < 0) {
+                // console.log(`delete ${key} from transformations.`)
+                delete transformations[key];
+            }
+      }
+    }
+
+    // Then get transformations
+    let exp = [];
+    for (let key in transformations) {
+        exp.push(transformations[key]);
+    };
+
+    keys = Object.keys(transformations);
+    
     t.forEach((el) => {
         // Re-assign the transformed data to x and y
         // math.eval returns an array of transformed [x,y] values
         // so d.x = math.eval()[0], d.y = math.eval()[1]
-        [el.x, el.y, el.e] = math.eval(exp, el);
+        //[el.x, el.y, el.e] = math.eval(exp, el);
+
+        let [k0,k1,k2] = [...keys];
+        [el[k0], el[k1], el[k2]] = math.eval(exp, el);
     });
 
     return t; // returns transformed data array   
@@ -98,6 +128,8 @@ fd.fitData = function (data, equation, fitsettings) {
     var initialValues = parameter_names_to_fit.map(function (x, i) {
         return 1.0;
     });
+
+    console.log('initial values:', initialValues);
 
     // LM options. We might need to adapt some of these values
     tempSettings.initialValues = initialValues;

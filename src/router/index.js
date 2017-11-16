@@ -18,7 +18,7 @@ export default new Router({
     },
     {
       path: '/',
-      redirect: '/SANS1D'
+      redirect: '/TAS'
     },
     {
       path: '/ORNL404',

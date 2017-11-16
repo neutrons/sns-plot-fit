@@ -36,7 +36,7 @@ export default {
     data: function () {
       return {
           selected: {
-            x: 'pt.',
+            x: 'pt',
             y: 'detector'
           }
       }
@@ -44,7 +44,7 @@ export default {
     methods: {
         resetSelected() {
             this.selected = {
-                x: 'pt.',
+                x: 'pt',
                 y: 'detector'
             }
         }

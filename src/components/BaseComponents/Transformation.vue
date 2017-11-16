@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import fd from '../../../assets/javascript/fitData.js';
+import fd from '../../assets/javascript/mixins/fittings/fitData.js';
 
 export default {
     name: 'Transformation',

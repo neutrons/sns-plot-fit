@@ -50,6 +50,12 @@ import { addSVG } from '../../../assets/javascript/mixins/chartFuncs/addSVG.js';
 import { drawChart } from '../mixins/drawChart.js';
 import { updateChart } from '../mixins/updateChart.js';
 
+/* Import Fitting Mixins */
+import { checkError } from '../../../assets/javascript/mixins/fittings/checkError.js';
+import { slider } from '../../../assets/javascript/mixins/fittings/slider.js';
+import { fitLine } from '../../../assets/javascript/mixins/fittings/fitLine.js';
+import { reviseFitTable } from '../../../assets/javascript/mixins/fittings/reviseFitTable.js';
+
 export default {
     name: 'PlotTAS',
     components: {
@@ -71,6 +77,36 @@ export default {
             },
             zoom: d3.zoom().on('zoom', this.zooming),
             isMathJax: false,
+            dimensions: {
+                h2: undefined,
+            },
+            margin2: {},
+            axis: {
+                x2: undefined,
+            },
+            scale: {
+                x2: undefined,
+            },
+            fitEquation: undefined,
+            fitResults: null,
+            fitData: null,
+            brushObj: {
+                brush: undefined,
+                brushSelection: [],
+                brushFile: undefined,
+                brushFit: undefined,
+                brushTransformation: undefined,
+            },
+            dataToFit: undefined,
+            selLimits: [],
+            dataToFit: undefined,
+            isError: false,
+            coefficients: undefined,
+            fitError: undefined,
+            fitResults: undefined,
+            fitLineData: [],
+            prevFit: null,
+            prevTransform: undefined,
         }
     },
     mixins: [
@@ -94,8 +130,17 @@ export default {
         setResponsive,
         updateLineGenerator,
         addClipPath,
-        addSVG
+        addSVG,
+        checkError,
+        slider,
+        fitLine,
+        reviseFitTable,
     ],
+    computed: {
+        isFit() {
+            return this.plotParameters.fileToFit !== null && this.plotParameters.fitConfiguration.fit !== 'None';
+        }
+    },
     methods: {
         updateScales(s) {
             let vm = this;
@@ -112,6 +157,12 @@ export default {
 
             // Now call re-usable part of zoom
             vm.zoomed(new_yScale, new_xScale);
+
+            if (vm.isFit) {
+                // Re-draw fitted line
+                vm.chart.g.select(".fitted-line")
+                    .attr("d", vm.line);
+            }
         },
         zoomed(new_yScale, new_xScale) {
             let vm = this;

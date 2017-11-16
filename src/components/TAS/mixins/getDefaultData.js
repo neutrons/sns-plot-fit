@@ -12,16 +12,6 @@ export default function getDefaultData() {
         sortBy: 'ascending',
         disable: true,
         currentData: {},
-        currentConfiguration: {
-            fit: 'Linear',
-            equation: 'm*x+b',
-            yTransformation: 'y',
-            xTransformation: 'x',
-            eTransformation: "e",
-            yLabel: "I",
-            xLabel: "Q",
-            note: ""
-        },
         field: {
             x: 'pt.',
             y: 'detector'

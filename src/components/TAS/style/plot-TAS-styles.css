@@ -1,4 +1,6 @@
 @import url('../../../assets/styles/shared-1D-styles.css');
+@import url('../../../assets/styles/slider-styles.css');
+@import url('../../../assets/styles/fitted-line-styles.css');
 
 iframe.width-changed-TAS {
     width: 90%;

@@ -14,6 +14,9 @@ export default function(chunk) {
         header = header.split(/[\s,]+/).join(delimiter);
     }
 
+    // Remove punctuations from header names for readability
+    header = header.replace(/Pt./, 'pt');
+
     rows[0] = header.toLowerCase();
 
     rows = rows.map(function(el) {

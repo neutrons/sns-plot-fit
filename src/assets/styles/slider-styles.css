@@ -1,0 +1,5 @@
+/* Style for brush/slider handle bars */
+.handle {
+    fill: gray;
+    opacity: 0.75;
+}

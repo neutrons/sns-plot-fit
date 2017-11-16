@@ -8,42 +8,12 @@
                 
                 <div :id="'chart-' + ID"></div>
 
-                <!-- Fit Results Table to add fit results -->
-              <div id="fit-results-table" class="table table-condensed table-responsive" v-show="SHOWTABLE && !isError">          
-                    <table class="table table-bordered">
-                        <caption><h4>Fit Results:</h4></caption>
-                    
-                        <tbody>
-                        <tr>
-                            <td id="fit-file"></td>
-                            <td id="fit-type"></td>
-                            <td id="fit-points"></td>
-                            <td id="fit-range"></td>
-                            <td id="fit-error"></td>
-                        </tr>
-                        
-                            <tr>
-                            <td colspan="2" class="sub-heading">Fit Configuration:</td>
-                            <td colspan="2" class="sub-heading">Coefficients:</td>	
-                            <td colspan="1" class="sub-heading">Note:</td>
-                            </tr>
-                            <tr>
-                            <td colspan="2" id="fit-configs">
-                            <ul>
-                                    <li id="fit-damping"></li>
-                                    <li id="fit-iterations"></li>
-                                    <li id="fit-tolerance"></li>
-                                    <li id="fit-gradient"></li>
-                                </ul>
-                            </td>
-                            <td colspan="2" id="fit-coefficients">
-                            </td>
-                            <td colspan="1" id="fit-note">
-                            </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <!-- Fit Results Table -->
+                <fit-results-table 
+                    :show-table='SHOWTABLE'
+                    :is-error='isError'
+                    :ID='ID'
+                ></fit-results-table>
             </v-panel>
   </div>
 </template>
@@ -55,6 +25,7 @@ import { eventBus } from '../../../assets/javascript/eventBus';
 /* Import Components */
 import Panel from '../../BaseComponents/Panels/Panel.vue';
 import ResetButton from '../../BaseComponents/ResetButton.vue';
+import FitTable from '../../BaseComponents/FitTable.vue';
 
 /* Import Libraries */
 import * as _ from 'lodash';
@@ -62,12 +33,7 @@ import * as d3 from 'd3';
 import $ from 'jquery';
 
 /* Import Local Mixins */
-import { checkError } from '../mixins/checkError.js';
 import { drawChart } from '../mixins/drawChart.js';
-import { slider } from '../mixins/slider.js';
-import { fitLine } from '../mixins/fitLine.js';
-import { reviseFitTable } from '../mixins/reviseFitTable.js';
-
 
 /* Import Chart Func Mixins */
 import { chartVariables } from '../../../assets/javascript/mixins/chartFuncs/chartVariables.js';
@@ -93,11 +59,18 @@ import { initDimensions } from '../../../assets/javascript/mixins/chartFuncs/ini
 import { addClipPath } from '../../../assets/javascript/mixins/chartFuncs/addClipPath.js';
 import { addSVG } from '../../../assets/javascript/mixins/chartFuncs/addSVG.js';
 
+/* Import Fitting Mixins */
+import { checkError } from '../../../assets/javascript/mixins/fittings/checkError.js';
+import { slider } from '../../../assets/javascript/mixins/fittings/slider.js';
+import { fitLine } from '../../../assets/javascript/mixins/fittings/fitLine.js';
+import { reviseFitTable } from '../../../assets/javascript/mixins/fittings/reviseFitTable.js';
+
 export default {
     name: 'Plot1d',
     components: {
         'v-panel': Panel,
-        'v-reset-button': ResetButton
+        'v-reset-button': ResetButton,
+        'fit-results-table': FitTable,
     },
     props: {
         DISABLE: {
@@ -179,7 +152,7 @@ export default {
         updateChart,
         updateLineGenerator,
         addClipPath,
-        addSVG
+        addSVG,
     ],
     methods: {
         setParameters(parameters) {
