@@ -13,10 +13,10 @@ export const reviseFitTable = {
             table.select('td.fit-range').html(`<b>Fit Range:</b> (${e[0].toExponential(2)}, ${e[1].toExponential(2)})`);
             table.select('td.fit-error').html(`<b>Fit Error:</b> ${vm.fitError.toExponential(2)}`);
 
-            table.select('li.fit-damping').html(`<b>Damping: </b> ${vm.plotParameters.fitSettings.damping}`);
-            table.select('li.fit-iterations').html(`<b>No. Iterations: </b> ${vm.plotParameters.fitSettings.maxIterations}`);
-            table.select('li.fit-tolerance').html(`<b>Error Tolerance: </b> ${vm.plotParameters.fitSettings.errorTolerance}`);
-            table.select('li.fit-gradient').html(`<b>Gradient Difference: </b> ${vm.plotParameters.fitSettings.gradientDifference}`);
+            table.select('li.fit-damping').html(`<b>Damping: </b> ${vm.plotParameters.fitConfiguration.settings.parameters.damping.value}`);
+            table.select('li.fit-iterations').html(`<b>No. Iterations: </b> ${vm.plotParameters.fitConfiguration.settings.parameters.maxIterations.value}`);
+            table.select('li.fit-tolerance').html(`<b>Error Tolerance: </b> ${vm.plotParameters.fitConfiguration.settings.parameters.errorTolerance.value}`);
+            table.select('li.fit-gradient').html(`<b>Gradient Difference: </b> ${vm.plotParameters.fitConfiguration.settings.parameters.gradientDifference.value}`);
             table.select('.fit-note').html(vm.plotParameters.fitConfiguration.note);
             
             table.select('td.fit-coefficients').html(function() {

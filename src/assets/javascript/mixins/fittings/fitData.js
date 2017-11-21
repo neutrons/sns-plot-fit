@@ -35,15 +35,12 @@ fd.transformData = function (data, transformations, fields = {x: 'x', y: 'y'}) {
     // https://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-deep-clone-an-object-in-javascript
     // https://stackoverflow.com/questions/7574054/javascript-how-to-pass-object-by-value 
     let t = _.cloneDeep(data);
-    
-    // var exp = [configuration.xTransformation, configuration.yTransformation, configuration.eTransformation];
 
     // First swap x,y for field names
     let keys = Object.keys(transformations);
 
     for (let key in fields) {
         if (transformations[key] !== undefined) {
-            // console.log(`swap ${key} for ${fields[key]}`);
         
             let re = new RegExp(key, 'g');
         
@@ -80,7 +77,19 @@ fd.transformData = function (data, transformations, fields = {x: 'x', y: 'y'}) {
 
 fd.fitData = function (data, equation, fitsettings) {
     // Code to fit data on the transformed data
-    let tempSettings = _.cloneDeep(fitsettings);
+    // un-nest fitsettings
+    fitsettings = _.cloneDeep(fitsettings);
+
+    let tempSettings = {};
+    tempSettings = {
+        damping: fitsettings.parameters.damping.value,
+        gradientDifference: fitsettings.parameters.gradientDifference.value,
+        maxIterations: fitsettings.parameters.maxIterations.value,
+        errorTolerance: fitsettings.parameters.errorTolerance.value,
+        initialValues: fitsettings.initialValues,
+    }
+
+    // console.log("TEMP SETTINGS:", tempSettings);
 
     let temp = _.cloneDeep(data);
     let tempData = {
@@ -124,15 +133,20 @@ fd.fitData = function (data, equation, fitsettings) {
         }
     };
 
-    // array of initial parameter values for initial paramters to fit: all at 1
-    var initialValues = parameter_names_to_fit.map(function (x, i) {
-        return 1.0;
-    });
 
-    console.log('initial values:', initialValues);
+    /* Get Ordered Initial Values */
+    let tempIV = [];
+
+    for (let i = 0, L = parameter_names_to_fit.length; i < L; i++) {
+        let key = parameter_names_to_fit[i];
+
+        tempIV.push(tempSettings.initialValues[key]);
+    }
+    // console.log('Parameter Names:', parameter_names_to_fit);
+    // console.log('TEMP IV:', tempIV);
 
     // LM options. We might need to adapt some of these values
-    tempSettings.initialValues = initialValues;
+    tempSettings.initialValues = tempIV;
     const options = _.cloneDeep(tempSettings);
 
     // Fitting   

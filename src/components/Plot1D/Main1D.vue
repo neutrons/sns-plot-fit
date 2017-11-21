@@ -87,6 +87,7 @@
                 <v-fit-config
                     :DISABLE="this.fileToFit === null"
                     :EQUATION="$data.currentConfiguration.equation"
+                    :ID='ID'
                     @set-fit="setFit"
                     @set-fit-setting="setFitSettings"
                     @set-equation="setEquation"
@@ -97,11 +98,21 @@
 
             <!-- Fit Settings Panel  -->
             <v-panel PANELTITLE="Levenberg–Marquardt Settings" PANELTYPE="info" :COLLAPSE="true">
-                <v-levenberg
-                    :DISABLE="this.fileToFit === null"
-                    @set-fit-settings="setFitSettings"
-                    ref="fit_settings"
-                ></v-levenberg>
+                <v-fit-settings-panel
+                    :disable='this.fileToFit === null'
+                    :data='selectedData'
+                    :file-to-fit='fileToFit'
+                    :field='field'
+                    :parameters='currentConfiguration.settings.parameters'
+                    :initial-values='currentConfiguration.settings.initialValues'
+                    @update-parameters='updateConfigParameters'
+                    @update-initial-values='updateInitialValues'
+                >
+                    <button class='btn btn-warning btn-sm btn-block' 
+                        @click='resetFitSettings'>
+                        <i class='fa fa-refresh' aria-hidden='true'></i> Default Settings
+                    </button>
+                </v-fit-settings-panel>
             </v-panel>
 
 
@@ -129,15 +140,16 @@ import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
 import Transformation from '../BaseComponents/Transformation.vue';
-import Levenberg from '../BaseComponents/Fittings/Levenberg.vue';
 import FitConfiguration from '../BaseComponents/Fittings/FitConfiguration.vue';
 import Plot1D from './components/fitPlot.vue';
+import FitSettingsPanel from '../BaseComponents/Fittings/FitSettingsPanel.vue';
 
 /* Import Shared Mixins */
 import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
 import fd from '../../assets/javascript/mixins/fittings/fitData.js';
 import {fitMethods} from '../../assets/javascript/mixins/fittings/fitMethods.js';
 import {transformMethods} from '../../assets/javascript/mixins/transformMethods.js';
+import {fitInitialValues} from '../../assets/javascript/mixins/fittings/fitInitialValues.js';
 
 import {read1DData} from '../../assets/javascript/mixins/readFiles/default.js';
 import {isPlotted} from '../../assets/javascript/mixins/isPlotted.js';
@@ -159,10 +171,10 @@ export default {
       'v-table': Table,
       'v-filter': Filter,
       'v-scales': Scales,
-      'v-levenberg': Levenberg,
       'v-fit-config': FitConfiguration,
       'v-transformation': Transformation,
-      'v-plot-1D': Plot1D
+      'v-plot-1D': Plot1D,
+      'v-fit-settings-panel': FitSettingsPanel,
     },
     data: function () {
       return {
@@ -197,6 +209,7 @@ export default {
         prepPlotData,
         fitMethods,
         transformMethods,
+        fitInitialValues,
     ],
     computed: {
       isFiles() {
@@ -307,7 +320,7 @@ export default {
             var vm = this;
 
             // If a file is unselected while it has a fit, unselect the fit
-            if (this.filesToPlot.indexOf(this.fileToFit) === -1) {
+            if (this.fileToFit !== null && this.filesToPlot.indexOf(this.fileToFit) === -1) {
                 this.resetFileFitChoice();
             }
             
@@ -326,9 +339,6 @@ export default {
 
                 // Reset X & Y Transformations back to default
                 this.resetTransformations();
-
-                // Reset Levenberg Settings to default
-                this.$refs.fit_settings.resetSettings();
                 
                 // Reset coefficients to an empty object
                 this.$refs.fit_configurations.$data.coefficients = {};
@@ -389,8 +399,7 @@ export default {
                         colorDomain: this.$store.getters.getColorDomain('SANS1D'),
                         scale: this.scale,
                         fileToFit: this.fileToFit,
-                        fitConfiguration: this.currentConfiguration,
-                        fitSettings: this.fitSettings,
+                        fitConfiguration: this.fileToFit === null ? this.currentConfiguration : this.prepConfiguration(), //currentConfiguration,
                         label: {
                             x: this.currentConfiguration.transformations.x,
                             y: this.currentConfiguration.transformations.y

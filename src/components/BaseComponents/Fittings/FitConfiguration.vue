@@ -40,28 +40,30 @@ export default {
     props: {
         DISABLE: {
             type: Boolean,
-            default: false
+            default: false,
         },
         EQUATION: {
             type: String,
-            required: true
+            required: true,
+        },
+        ID: {
+            type: String,
+            required: true,
         }
     },
     data: function () {
       return {
         isFocus: false,
         coefficients: {},
-        fit: 'Linear'
-      }
+        fit: 'Linear',
+        fits: this.$store.getters.getFitConfigs(this.ID),
+      };
     },
     created() {
         // Listen to emit from plotCurrentData.js
         eventBus.$on('update-coefficients', this.updateCoefficients);
     },
     computed: {
-        fits() {
-            return this.$store.getters.getFitConfigs(this.$route.name);
-        },
         isCoefficients() {
           return Object.keys(this.coefficients).length > 0;
         }

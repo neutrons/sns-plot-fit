@@ -81,6 +81,7 @@
                 <v-fit-config
                     :DISABLE="this.fileToFit === null"
                     :EQUATION="$data.currentConfiguration.equation"
+                    :ID='ID'
                     @set-fit="setFit"
                     @set-fit-setting="setFitSettings"
                     @set-equation="setEquation"
@@ -91,11 +92,21 @@
 
             <!-- Fit Settings Panel  -->
             <v-panel PANELTITLE="Levenberg–Marquardt Settings" PANELTYPE="info" :COLLAPSE="true">
-                <v-levenberg
-                    :DISABLE="this.fileToFit === null"
-                    @set-fit-settings="setFitSettings"
-                    ref="fit_settings"
-                ></v-levenberg>
+                <v-fit-settings-panel
+                    :disable='this.fileToFit === null'
+                    :data='selectedData'
+                    :file-to-fit='fileToFit'
+                    :field='field'
+                    :parameters='currentConfiguration.settings.parameters'
+                    :initial-values='currentConfiguration.settings.initialValues'
+                    @update-parameters='updateConfigParameters'
+                    @update-initial-values='updateInitialValues'
+                >
+                    <button class='btn btn-warning btn-sm btn-block' 
+                        @click='resetFitSettings'>
+                        <i class='fa fa-refresh' aria-hidden='true'></i> Default Settings
+                    </button>
+                </v-fit-settings-panel>
             </v-panel>
 
 
@@ -128,12 +139,12 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
-import Levenberg from '../BaseComponents/Fittings/Levenberg.vue';
 import FitConfiguration from '../BaseComponents/Fittings/FitConfiguration.vue';
 import tasPlot from './components/tasPlot.vue';
 import FieldList from './components/FieldList.vue';
 import Metadata from './components/Metadata.vue';
 import FitTable from '../BaseComponents/FitTable.vue';
+import FitSettingsPanel from '../BaseComponents/Fittings/FitSettingsPanel.vue';
 
 /* Import Shared Mixins */
 import fd from '../../assets/javascript/mixins/fittings/fitData.js';
@@ -146,9 +157,7 @@ import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
 import parseData from '../../assets/javascript/mixins/readFiles/parse/TAS.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
-
-/* Import Local Mixins */
-// import getDefaultData from './mixins/getDefaultData.js';
+import {fitInitialValues} from '../../assets/javascript/mixins/fittings/fitInitialValues.js';
 
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
@@ -165,9 +174,9 @@ export default {
         'v-plot-TAS': tasPlot,
         'v-field-list': FieldList,
         'v-metadata': Metadata,
-        'v-levenberg': Levenberg,
         'v-fit-config': FitConfiguration,
         'fit-results-table': FitTable,
+        'v-fit-settings-panel': FitSettingsPanel,
     },
     data() {
         return {
@@ -195,7 +204,6 @@ export default {
             selectedData: [],
         };
     },
-    // data: getDefaultData,
     mixins: [
         fetchFiles, 
         setScales, 
@@ -205,6 +213,7 @@ export default {
         read1DData,
         prepPlotData,
         fitMethods,
+        fitInitialValues,
     ],
     mounted() {
         // Listen for event that stitch has been saved
@@ -247,7 +256,6 @@ export default {
             this.removePlot();
             this.selectedData = [];
             this.fileToFit = null;
-            //Object.assign(this.$data, getDefaultData())
         },
         removePlot() {
             d3.select(".chart-" + this.ID).remove();
@@ -311,8 +319,6 @@ export default {
                     let name = chosenData[i].filename;
                     let metadata = chosenData[i].metadata;
 
-                    // tempSelect.push({filename: name, data: temp, metadata});
-
                     if (this.currentConfiguration.xTransformation !== 'x' || this.currentConfiguration.yTransformation !== 'y') {
                         let dataTransformed = fd.transformData(temp, this.currentConfiguration.transformations, this.field);
                         
@@ -370,7 +376,7 @@ export default {
                         colorDomain: vm.$store.getters.getColorDomain('TAS'),
                         scale: vm.scale,
                         fileToFit: vm.fileToFit,
-                        fitConfiguration: vm.currentConfiguration,
+                        fitConfiguration: this.fileToFit === null ? this.currentConfiguration : this.prepConfiguration(), //currentConfiguration,
                         fitSettings: vm.fitSettings,
                         label: {
                             x: vm.field.x,
@@ -387,7 +393,7 @@ export default {
             var vm = this;
 
                 // If a file is unselected while it has a fit, unselect the fit
-                if (this.filesToPlot.indexOf(this.fileToFit) === -1) {
+                if (this.fileToFit !== null && this.filesToPlot.indexOf(this.fileToFit) === -1) {
                     this.resetFileFitChoice();
                 }
                 

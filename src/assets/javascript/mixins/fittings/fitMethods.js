@@ -3,30 +3,20 @@ import fd from './fitData.js';
 export const fitMethods = {
     data() {
         return {
-            currentConfiguration: {
-                fit: 'Linear',
-                equation: 'm*x+b',
-                transformations: {
-                    x: 'x',
-                    y: 'y',
-                    e: 'e',
-                },
-                yLabel: "I",
-                xLabel: "Q",
-                note: "",
-            },
-            fitSettings: {
-                damping: 0.001,
-                initialValues: [],
-                gradientDifference: 0.1,
-                maxIterations: 100,
-                errorTolerance: 0.001
-            },
+            currentConfiguration: {},
             fileFitChoice: [],
             fileToFit: null,
+            test: undefined,
         }
     },
+    created() {
+        // Initialize the current configuration upon mounting to Linear settings
+        this.currentConfiguration = this.initConfig();
+    },
     methods: {
+        initConfig() {
+            return this.$store.getters.getFirstConfig(this.ID);
+        },
         setFileToFit() {
             if (this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
             this.fileToFit = this.fileFitChoice[0] ? this.fileFitChoice[0] : null;
@@ -74,6 +64,18 @@ export const fitMethods = {
                 });
             }
 
+            this.setParameters();
+        },
+        resetFitSettings() {
+            this.currentConfiguration = _.cloneDeep(this.$store.getters.getFitConfigsByID(this.$route.name, this.currentConfiguration.fit));
+            this.setParameters();
+        },
+        updateInitialValues(v) {
+            this.currentConfiguration.settings.initialValues = _.cloneDeep(v);
+            this.setParameters();
+        },
+        updateConfigParameters(v) {
+            this.currentConfiguration.settings.parameters = _.cloneDeep(v);
             this.setParameters();
         },
     },

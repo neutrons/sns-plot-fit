@@ -9,7 +9,39 @@ export default {
       },
       yLabel: "I",
       xLabel: "Q",
-      note: ""
+      note: "",
+      settings: {
+        parameters: {
+          damping: {
+            value: 0.001,
+            min: 0.001,
+            max: 10,
+            increment: 0.001,
+          },
+          gradientDifference: {
+            value: 0.1,
+            min: 0.1,
+            max: 1,
+            increment: 0.1,
+          },
+          maxIterations: {
+            value: 100,
+            min: 100,
+            max: 10000,
+            increment: 100,
+          },
+          errorTolerance: {
+            value: 0.001,
+            min: 0.001,
+            max: 1,
+            increment: 0.001,
+          },
+        },
+        initialValues: {
+            x: 1,
+            y: 1,
+        },
+      },
     },
     'Linear': {
       fit: 'Linear',
@@ -21,7 +53,39 @@ export default {
       },
       yLabel: "I",
       xLabel: "Q",
-      note: ""
+      note: "",
+      settings: {
+        parameters: {
+          damping: {
+            value: 0.001,
+            min: 0.001,
+            max: 10,
+            increment: 0.001,
+          },
+          gradientDifference: {
+            value: 0.1,
+            min: 0.1,
+            max: 1,
+            increment: 0.1,
+          },
+          maxIterations: {
+            value: 100,
+            min: 100,
+            max: 10000,
+            increment: 100,
+          },
+          errorTolerance: {
+            value: 0.001,
+            min: 0.001,
+            max: 1,
+            increment: 0.001,
+          },
+        },
+        initialValues: {
+            m: 1,
+            b: 1,
+        },
+      },
     },
     'Guinier': {
       fit: 'Guinier',
@@ -33,7 +97,39 @@ export default {
       },
       yLabel: "Log(I(q))",
       xLabel: "q^2",
-      note: ""
+      note: "",
+      settings: {
+        parameters: {
+          damping: {
+            value: 0.001,
+            min: 0.001,
+            max: 10,
+            increment: 0.001,
+          },
+          gradientDifference: {
+            value: 0.1,
+            min: 0.1,
+            max: 1,
+            increment: 0.1,
+          },
+          maxIterations: {
+            value: 100,
+            min: 100,
+            max: 10000,
+            increment: 100,
+          },
+          errorTolerance: {
+            value: 0.001,
+            min: 0.001,
+            max: 1,
+            increment: 0.001,
+          },
+        },
+        initialValues: {
+            Rg: 1,
+            I0: 1,
+        },
+      },
     },
     // 'Low-Q Guinier': {
     //   fit: 'Low-Q Guinier',
@@ -75,7 +171,39 @@ export default {
       },
       yLabel: "I(q)",
       xLabel: "q",
-      note: "This is valid for high Q."
+      note: "This is valid for high Q.",
+      settings: {
+        parameters: {
+          damping: {
+            value: 0.001,
+            min: 0.001,
+            max: 10,
+            increment: 0.001,
+          },
+          gradientDifference: {
+            value: 0.1,
+            min: 0.1,
+            max: 1,
+            increment: 0.1,
+          },
+          maxIterations: {
+            value: 100,
+            min: 100,
+            max: 10000,
+            increment: 100,
+          },
+          errorTolerance: {
+            value: 0.001,
+            min: 0.001,
+            max: 1,
+            increment: 0.001,
+          },
+        },
+        initialValues: {
+            p0: 1,
+            p1: 1,
+        },
+      },
     },
     'Zimm': {
       fit: 'Zimm',
@@ -87,7 +215,40 @@ export default {
       },
       yLabel: "1/I(q)",
       xLabel: "q^2",
-      note: ""
+      note: "",
+      settings: {
+        parameters: {
+          damping: {
+            value: 0.001,
+            min: 0.001,
+            max: 10,
+            increment: 0.001,
+          },
+          gradientDifference: {
+            value: 0.1,
+            min: 0.1,
+            max: 1,
+            increment: 0.1,
+          },
+          maxIterations: {
+            value: 100,
+            min: 100,
+            max: 10000,
+            increment: 100,
+          },
+          errorTolerance: {
+            value: 0.001,
+            min: 0.001,
+            max: 1,
+            increment: 0.001,
+          },
+        },
+        initialValues: {
+            I0: 1,
+            Cl: 1,
+            I0: 1,
+        },
+      },
     },
     'Kratky': {
       fit: 'Kratky',
@@ -101,7 +262,39 @@ export default {
       },
       yLabel: "q^2 \times log(I)",
       xLabel: "q",
-      note: ""
+      note: "",
+      settings: {
+        parameters: {
+          damping: {
+            value: 0.001,
+            min: 0.001,
+            max: 10,
+            increment: 0.001,
+          },
+          gradientDifference: {
+            value: 0.1,
+            min: 0.1,
+            max: 1,
+            increment: 0.1,
+          },
+          maxIterations: {
+            value: 100,
+            min: 100,
+            max: 10000,
+            increment: 100,
+          },
+          errorTolerance: {
+            value: 0.001,
+            min: 0.001,
+            max: 1,
+            increment: 0.001,
+          },
+        },
+        initialValues: {
+            m: 1,
+            b: 1,
+        },
+      },
     },
     'Debye Beuche': {
       fit: 'Debye Beuche',
@@ -113,6 +306,38 @@ export default {
       },
       yLabel: "sqrt(I)",
       xLabel: "Q^2",
-      note: ""
+      note: "",
+      settings: {
+        parameters: {
+          damping: {
+            value: 0.001,
+            min: 0.001,
+            max: 10,
+            increment: 0.001,
+          },
+          gradientDifference: {
+            value: 0.1,
+            min: 0.1,
+            max: 1,
+            increment: 0.1,
+          },
+          maxIterations: {
+            value: 100,
+            min: 100,
+            max: 10000,
+            increment: 100,
+          },
+          errorTolerance: {
+            value: 0.001,
+            min: 0.001,
+            max: 1,
+            increment: 0.001,
+          },
+        },
+        initialValues: {
+            m: 1,
+            I0: 1,
+        },
+      },
     },
   }

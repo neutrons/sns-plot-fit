@@ -78,6 +78,14 @@ export const getFitConfigsYTrans = state => (id, fit) => {
 export const getFitSettings = state => {
     return _.cloneDeep(state.fit.settings)
 }
+
+export const getFirstConfig = state => (id) => {
+    return _.cloneDeep(state.fit[id].Linear);
+}
+
+export const getFirstConfigSettings = (state, getters) => (id) => {
+    return _.cloneDeep(getters.getFirstConfig(id).settings);
+}
 /* END OF FIT GETTERS */
 
 // export const getFitConfigs = state => {

@@ -54,7 +54,7 @@ export const slider = {
             
             vm.dataToFit = vm.dataNest.filter(el => { if (el.key === vm.plotParameters.fileToFit)  return el.values; })[0].values;
             
-            vm.fitResults = fd.fitData(vm.dataToFit, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitSettings);
+            vm.fitResults = fd.fitData(vm.dataToFit, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitConfiguration.settings);
             vm.coefficients = vm.fitResults.coefficients;
             vm.fitData = vm.fitResults.fittedData;
             vm.fitError = vm.fitResults.error;
@@ -151,7 +151,7 @@ export const slider = {
                         }
                     })
         
-                vm.fitResults = fd.fitData(selectedData, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitSettings);
+                vm.fitResults = fd.fitData(selectedData, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitConfiguration.settings);
                 vm.coefficients = vm.fitResults.coefficients;
                 vm.fitData = vm.fitResults.fittedData;
                 vm.fitError = vm.fitResults.error;
