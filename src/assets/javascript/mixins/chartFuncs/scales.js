@@ -32,6 +32,39 @@ export const scales = {
             
             vm.scale.x.range([0, vm.dimensions.w]);
             vm.scale.y.range([vm.dimensions.h, 0]);
+        },
+        filterZeros(choice) {
+
+            let temp = _.cloneDeep(this.dataNest);
+
+            temp.forEach(el => {
+                if (choice === 'both') {
+                    el.values = el.values.filter(d => {
+                        return d.x > 0 && d.y > 0;
+                    });
+                } else {
+                    el.values = el.values.filter(d => {
+                        return d[choice] > 0;
+                    })
+                };
+            });
+
+            return temp;
+        },
+        checkScaleType() {
+            let temp = [];
+
+            if (this.scale.xType === 'Log(X)' && this.scale.yType === 'Log(Y)') {
+                temp = this.filterZeros('both');
+            } else if (this.scale.xType === 'Log(X)') {
+                temp = this.filterZeros('x');
+            } else if (this.scale.yType === 'Log(Y)') {
+                temp = this.filterZeros('y');
+            } else {
+                temp = _.cloneDeep(this.dataNest);
+            }
+
+            return temp;
         }
     }
 }

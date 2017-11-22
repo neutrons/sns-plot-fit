@@ -2,11 +2,11 @@ import * as d3 from 'd3';
 
 export const removeElements = {
     methods: {
-        removeElements() {
+        removeElements(data) {
             let vm = this;
 
             let newKeys = [];
-            vm.dataNest.forEach(el => {
+            data.forEach(el => {
                 let keyIndex = newKeys.indexOf(el.key);
                 
                 if( keyIndex === -1) {

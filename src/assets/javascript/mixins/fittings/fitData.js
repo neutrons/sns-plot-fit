@@ -2,6 +2,7 @@
 import math from 'mathjs';
 import LM from 'ml-levenberg-marquardt';
 import * as _ from 'lodash';
+import { eventBus } from '../../eventBus.js';
 
 var fd = {};
 
@@ -139,9 +140,11 @@ fd.fitData = function (data, equation, fitsettings) {
 
     for (let i = 0, L = parameter_names_to_fit.length; i < L; i++) {
         let key = parameter_names_to_fit[i];
+        let temp = tempSettings.initialValues[key];
 
-        tempIV.push(tempSettings.initialValues[key]);
+        tempIV.push( temp === undefined ? 1 : temp);
     }
+
     // console.log('Parameter Names:', parameter_names_to_fit);
     // console.log('TEMP IV:', tempIV);
 
@@ -152,6 +155,7 @@ fd.fitData = function (data, equation, fitsettings) {
     // Fitting   
     var fitted_params = LM(tempData, fit_function, options);
 
+    // console.log('Fitted params:', fitted_params);
     // Get's the fitted function from the fitted parameters
     // only coefficients are set! Remember it returns a function!)
     // console.log("fitted_params.parameterValues = ", fitted_params.parameterValues);
@@ -177,6 +181,8 @@ fd.fitData = function (data, equation, fitsettings) {
     for (let i = 0; i < parameter_names_to_fit.length; i++) {
         coeff[parameter_names_to_fit[i]] = fitted_params.parameterValues[i];
     }
+
+    eventBus.$emit('revise-initial-values', _.cloneDeep(coeff));
 
     return {
         fittedData: fittedPoints,

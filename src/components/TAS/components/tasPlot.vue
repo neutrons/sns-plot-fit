@@ -181,8 +181,12 @@ export default {
             // re-draw line paths
             vm.chart.g.selectAll(".pointlines")
                 .call(vm.updateLine);
-        }
-    }
+        },
+    },
+    created() {
+        // Listen for cofficient changes
+        eventBus.$on("coefficients-updated", this.redrawFit);
+    },
 }
 </script>
 

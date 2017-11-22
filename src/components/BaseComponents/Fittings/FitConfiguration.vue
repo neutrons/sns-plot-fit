@@ -11,18 +11,16 @@
     <!-- Equation Input/Editer-->
     <div class="input-group">
         <span class="input-group-addon">Equation</span>
-        <input type="text" class="form-control" id="fit-equation" :value="EQUATION" @keyup.enter="enterEquation" :disabled="DISABLE || fit === 'None'" @focus="isFocus = !isFocus" @blur="isFocus = !isFocus">
+        <input type="text" class="form-control" id="fit-equation" data-toggle='tooltip' title='Press [Enter] to submit equation.' :value="EQUATION" @keyup.enter="enterEquation" :disabled="DISABLE || fit === 'None'">
     </div>
-
-    <p class="equation-title" v-if="isFocus">Press <strong>[enter]</strong> to change equation</p>
 
     <!-- Coefficients Input/Editer-->
     <fieldset :disabled="DISABLE">
         <div v-if="isCoefficients">
             <h5>Coefficients:</h5>
-            <div class="coefficients-input input-group" v-for="(coef, key) in coefficients">
+            <div class="coefficients-input input-group" v-for="(coef, key) in coefficients" :key='key'>
                 <span class="input-group-addon">{{ key }}</span>
-                <input type="text" class="form-control" :id="key + '-input'" :value="coef" @keyup.enter="enterCoefficients">
+                <input type="text" class="form-control" :id="key + '-input'" :value="coef" @keyup.enter="enterCoefficients" data-toggle='tooltip' title='Press [Enter] to submit coefficient.'>
             </div>
         </div>
 
@@ -53,7 +51,6 @@ export default {
     },
     data: function () {
       return {
-        isFocus: false,
         coefficients: {},
         fit: 'Linear',
         fits: this.$store.getters.getFitConfigs(this.ID),
@@ -83,12 +80,21 @@ export default {
         },
         enterCoefficients() {
             let c = {};
-            for(let key in this.coefficients) {
-                let val = document.getElementById(key+"-input").value;
-                c[key] = +val;
+            let flag = 1;
+            for (let key in this.coefficients) {
+                let val = document.getElementById(`${key}-input`).value;
+
+                if (isNaN(parseFloat(+val))) {
+                    eventBus.$emit('error-message', 'Please enter a valid number for coefficients.', 'warning');
+                    flag = 0;
+                } else {
+                    c[key] = +val;
+                }
             }
 
-            eventBus.$emit("coefficients-updated", _.cloneDeep(c));
+            if (flag) {
+                eventBus.$emit("coefficients-updated", _.cloneDeep(c));
+            }
         },
         updateCoefficients(coeff) {
             this.coefficients = coeff;

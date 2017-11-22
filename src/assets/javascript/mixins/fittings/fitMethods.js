@@ -1,4 +1,5 @@
 import fd from './fitData.js';
+import { eventBus } from '../../eventBus.js';
 
 export const fitMethods = {
     data() {
@@ -12,6 +13,8 @@ export const fitMethods = {
     created() {
         // Initialize the current configuration upon mounting to Linear settings
         this.currentConfiguration = this.initConfig();
+
+        eventBus.$on('revise-initial-values', this.reviseInitialValues);
     },
     methods: {
         initConfig() {
@@ -71,8 +74,13 @@ export const fitMethods = {
             this.setParameters();
         },
         updateInitialValues(v) {
+            // Function to accept user inputs of intial values
             this.currentConfiguration.settings.initialValues = _.cloneDeep(v);
             this.setParameters();
+        },
+        reviseInitialValues(v) {
+            // Function to simply update intial values after fitting
+            this.currentConfiguration.settings.initialValues = _.cloneDeep(v);
         },
         updateConfigParameters(v) {
             this.currentConfiguration.settings.parameters = _.cloneDeep(v);

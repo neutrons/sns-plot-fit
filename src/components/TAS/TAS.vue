@@ -266,6 +266,13 @@ export default {
             this.removePlot();
             this.selectedData = [];
             this.fileToFit = null;
+            this.field = {
+                x: 'pt',
+                y: 'detector',
+            };
+
+            this.resetScales();
+            this.disable = true;
         },
         removePlot() {
             d3.select(".chart-" + this.ID).remove();

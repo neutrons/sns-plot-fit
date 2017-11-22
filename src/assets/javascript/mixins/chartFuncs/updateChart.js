@@ -10,9 +10,15 @@ export const updateChart = {
 
             // First update plot data to new data
             vm.dataNest = newData;
+
+            /*  If scales are LOG, filter out any values <= 0; else return a copy of dataNest
+                This is to prevent altering plot data in order to revert back to entire
+                dataset whenever zero values are not being filtered out.
+            */
+            let ARR = this.checkScaleType();
     
             // Then adjust scale's domain whenver new data is added
-            vm.adjustDomains();           
+            vm.adjustDomains(ARR);           
     
             // Then rescale to zoom's scale
             let t = d3.zoomTransform( vm.chart.g.select('.zoom').node());
@@ -27,7 +33,7 @@ export const updateChart = {
             vm.updateLineGenerator(new_xScale, new_yScale);
 
             // Add and update data
-            vm.dataNest.forEach(function (d, i) {
+            ARR.forEach(function (d, i) {
 
                 // Add new elements if nothing exists
                 if (d3.select("#line-" + vm.ID + "-" + d.key).empty()) {
@@ -102,13 +108,13 @@ export const updateChart = {
             });
 
             // Update legend
-            vm.updateLegend();
+            vm.updateLegend(ARR);
             
             // Update Labels
-            vm.updateLabels();
+            vm.updateLabels(ARR);
     
             // Add keys
-            vm.removeElements();
+            vm.removeElements(ARR);
         }
     }
 }

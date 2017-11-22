@@ -55,6 +55,7 @@ export const slider = {
             vm.dataToFit = vm.dataNest.filter(el => { if (el.key === vm.plotParameters.fileToFit)  return el.values; })[0].values;
             
             vm.fitResults = fd.fitData(vm.dataToFit, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitConfiguration.settings);
+            vm.plotParameters.fitConfiguration.settings.initialValues = _.cloneDeep(vm.fitResults.coefficients);
             vm.coefficients = vm.fitResults.coefficients;
             vm.fitData = vm.fitResults.fittedData;
             vm.fitError = vm.fitResults.error;

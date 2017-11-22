@@ -49,6 +49,8 @@ export default {
         enterTransformations() {
             let newXTrans = document.getElementById('x-transform').value;
             let newYTrans = document.getElementById('y-transform').value;
+            
+            console.log('transformation entering...', newXTrans, newYTrans);
 
             if (fd.isSymbols([newXTrans, newYTrans])) {
                 // console.log("Invalid entry!");

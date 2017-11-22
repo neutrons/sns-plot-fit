@@ -2,11 +2,11 @@ import * as d3 from 'd3';
 
 export const legend = {
     methods: {
-        updateLegend() {
+        updateLegend(data) {
             let vm = this;
             
             let keys = [];
-            vm.dataNest.forEach(el => { keys.push(el.key); });
+            data.forEach(el => { keys.push(el.key); });
 
             let w = document.getElementById('chart-' + vm.ID).offsetWidth;
             
