@@ -1,14 +1,14 @@
 <template>
-  <v-panel :PANELTITLE="'Metadata - ' + name" PANELTYPE="default">
-        <div class="button-group pull-left" slot="header-content">
-            <button class='btn btn-default btn-xs btn-left' @click="next('left')"><i class="fa fa-caret-left" aria-hidden="true"></i></button>
-            <button class='btn btn-default btn-xs btn-deselect' @click="highlightAll">Deselect</button>
-            <button class='btn btn-default btn-xs btn-right' @click="next('right')"><i class="fa fa-caret-right" aria-hidden="true"></i></button>
+  <v-panel :PANELTITLE='`Metadata - ${name}`' PANELTYPE='default'>
+        <div class='button-group pull-left' slot='header-content'>
+            <button class='btn btn-default btn-xs btn-left' @click='next("left")'><i class='fa fa-caret-left' aria-hidden='true'></i></button>
+            <button class='btn btn-default btn-xs btn-deselect' @click='highlightAll'>Deselect</button>
+            <button class='btn btn-default btn-xs btn-right' @click='next("right")'><i class='fa fa-caret-right' aria-hidden='true'></i></button>
         </div>
 
-        <div class="metadata">
-            <ul class="metadata-list">
-                <li v-for="c in choice">{{c}}</li>
+        <div class='metadata'>
+            <ul class='metadata-list'>
+                <li v-for='c in choice'>{{c}}</li>
             </ul>
         </div>
   </v-panel>
@@ -33,7 +33,8 @@ export default {
         },
         ID: {
             type: String
-        }
+        },
+        fileToFit: [String, null],
     },
     data() {
         return {
@@ -75,13 +76,21 @@ export default {
                 let key = tempKeys[i];
 
                 // Lower opacity for scatters & lines not selected
-                // console.log("KEY: " + key + " | NAME: " + name);
+                // console.log('KEY: ' + key + ' | NAME: ' + name + ' | ' + this.fileToFit);
                 if (key !== name) {
-                    d3.select('#scatter-' + vm.ID + '-' + key).selectAll('circle').style('opacity', 0.10);
-                    d3.select('#line-' + vm.ID + '-' + key).select('path').style('opacity', 0.10);
+                    d3.select(`#scatter-${this.ID}-${key}`).selectAll('circle').style('opacity', 0.10);
+                    d3.select(`#line-${this.ID}-${key}`).select('path').style('opacity', 0.10);
+
+                    if (name !== this.fileToFit && this.fileToFit !== null) {
+                        d3.select(`#fit-line-${this.ID}`).select('.fitted-line').style('opacity', 0.10);
+                    }
                 } else {
-                    d3.select('#scatter-' + vm.ID + '-' + key).selectAll('circle').style('opacity', 1);
-                    d3.select('#line-' + vm.ID + '-' + key).select('path').style('opacity', 1);
+                    d3.select(`#scatter-${this.ID}-${key}`).selectAll('circle').style('opacity', 1);
+                    d3.select(`#line-${this.ID}-${key}`).select('path').style('opacity', 1);
+
+                    if (name === this.fileToFit && this.fileToFit !== null) {
+                        d3.select(`#fit-line-${this.ID}`).select('.fitted-line').style('opacity', 1);
+                    }
                 }
             }
         },
@@ -93,15 +102,19 @@ export default {
 
             for (let i = 0, L = tempKeys.length; i < L; i++) {
                 let key = tempKeys[i];
-                d3.select('#scatter-' + vm.ID + '-' + key).selectAll('circle').style('opacity', 1);
-                d3.select('#line-' + vm.ID + '-' + key).select('path').style('opacity', 1);
+                d3.select(`#scatter-${this.ID}-${key}`).selectAll('circle').style('opacity', 1);
+                d3.select(`#line-${this.ID}-${key}`).select('path').style('opacity', 1);
+            }
+
+            if (this.fileToFit !== null) {
+                d3.select(`#fit-line-${this.ID}`).select('.fitted-line').style('opacity', 1);
             }
         }
     },
     watch: {
         metadata: {
             handler() {
-                // console.log("Metadata updated...", this.metadata);
+                // console.log('Metadata updated...', this.metadata);
                 let tname = this.name;
 
                 this.name = this.keys.indexOf(tname) === -1 ? this.keys[0] : this.name;
@@ -115,7 +128,7 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 .metadata {
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     position: relative;

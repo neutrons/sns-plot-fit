@@ -114,9 +114,19 @@
       </div>
     
         <v-plot-TAS :DISABLE="disable"  ref="plot_TAS">
-            <v-metadata :metadata="metadata" :ID="ID" v-if='filesToPlot.length > 0'></v-metadata>
+            <v-metadata
+                :metadata="metadata"
+                :ID="ID"
+                :file-to-fit='fileToFit'
+                v-if='filesToPlot.length > 0'
+            ></v-metadata>
+
             <!-- Fit Results Table -->
-            <v-panel :PANELTITLE="'Fit Results'" PANELTYPE="default">
+            <v-panel
+                PANELTITLE="Fit Results"
+                PANELTYPE="default" 
+                v-if='fileToFit !== null && currentConfiguration.fit !== "None"'
+            >
                 <fit-results-table 
                     :show-table='fileToFit !== null'
                     :is-error='false'

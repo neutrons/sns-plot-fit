@@ -1,6 +1,6 @@
 <template>
   <div id='FitSettingsPanel'>
-    <fieldset :disabled='disable' :class='disable ? "disabled" : ""'>
+    <fieldset :disabled='disable'>
         <h5 class='text-center'>Initial Values:</h5>
         <v-initial-values-input
             v-for='(value, key) in initValues'
@@ -81,7 +81,5 @@ export default {
 </script>
 
 <style lang='less' scoped>
-.disabled {
-    opacity: 0.75;
-}
+
 </style>

@@ -4,36 +4,32 @@ import { eventBus } from '../../eventBus';
 export const fitLine = {
     methods: {
         initFitLine() {
-            let vm = this;
             
             // Add fitted line
-            vm.chart.g.append("g")
-                .attr("id", "fit-line")
-                .append("path")
-                .attr("clip-path", "url(#clip-" + vm.ID + ")")
-                .attr("class", "fitted-line");
+            this.chart.g.append('g')
+                .attr('id', `fit-line-${this.ID}`)
+                .append('path')
+                .attr('clip-path', `url(#clip-${this.ID})`)
+                .attr('class', 'fitted-line');
         },
         updateFitLine() {
-            let vm = this;
 
             // Re-draw plot lines with new data            
-            let selectFitLine = vm.chart.g.select("#fit-line").select("path").data([vm.fitData]);
+            let selectFitLine = this.chart.g.select(`#fit-line-${this.ID}`).select('path').data([this.fitData]);
 
             selectFitLine.transition().duration(750)
-                .attr("d", vm.line)
-                .style("fill", "none")
-                .style("stroke", vm.color(vm.plotParameters.fileToFit));
+                .attr('d', this.line)
+                .style('fill', 'none')
+                .style('stroke', this.color(this.plotParameters.fileToFit));
 
             // Update Fit Table
-            var e = d3.extent(vm.dataToFit, function(d) { return d.x });
+            var e = d3.extent(this.dataToFit, function(d) { return d.x });
 
-            vm.reviseFitTable(e, vm.dataToFit.length)
+            this.reviseFitTable(e, this.dataToFit.length)
         },
-        redrawFit(c) {
-            let vm = this;
-            
-            // console.log("Coefficients are:", c);
-            let temp = vm.chart.g.select(".fitted-line").datum();
+        redrawFit(c) {           
+            // console.log('Coefficients are:', c);
+            let temp = this.chart.g.select('.fitted-line').datum();
             let tempX = [];
 
             // Grab x variables
@@ -49,7 +45,7 @@ export const fitLine = {
             }
 
             // Re-fit equation with new coefficients
-            let newFitEq = vm.fitEquation(tempCoefficients);
+            let newFitEq = this.fitEquation(tempCoefficients);
 
             // Re-fit line with updated fit equation
             let y_fitted = tempX.map(function(el) {
@@ -67,11 +63,11 @@ export const fitLine = {
             }
 
             // Update fit line with newly fitted coordinates
-            vm.chart.g.select(".fitted-line").data([fittedPoints])
-                .attr("d", vm.line);
+            this.chart.g.select('.fitted-line').data([fittedPoints])
+                .attr('d', this.line);
 
             // Update coefficient values in results table
-            let table = d3.select('#fit-results-table-' + vm.ID);
+            let table = d3.select(`#fit-results-table-${this.ID}`);
 
             table.select('td.fit-coefficients').html(function() {
                 let coeffString = '<ul>';
