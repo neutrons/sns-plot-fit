@@ -2,11 +2,11 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import App from '../App.vue'
 
-import SANS1D from '../components/Plot1D/Main1D.vue';
-import SANS2D from '../components/Plot2D/Plot2D.vue';
-import Stitch from '../components/Stitch/Stitch.vue';
-import TAS from '../components/TAS/TAS.vue';
-import ORNL404 from '../components/ORNL404.vue';
+const SANS1D = resolve => require(['../components/Plot1D/Main1D.vue'], resolve)
+const SANS2D = resolve => require(['../components/Plot2D/Plot2D.vue'], resolve)
+const Stitch = resolve => require(['../components/Stitch/Stitch.vue'], resolve)
+const TAS = resolve => require(['../components/TAS/TAS.vue'], resolve)
+const ORNL404 = resolve => require(['../components/ORNL404.vue'], resolve)
 
 Vue.use(Router)
 
