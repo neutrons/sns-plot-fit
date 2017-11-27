@@ -17,6 +17,13 @@ export default {
 </script>
 
 <style lang='less' scoped>
+.ORNL404 {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: 0px;
+}
+
 h1 {
     color: green;
 }
