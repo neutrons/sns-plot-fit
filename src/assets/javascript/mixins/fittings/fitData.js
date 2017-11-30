@@ -80,6 +80,8 @@ fd.fitData = function (data, equation, fitsettings) {
     // Code to fit data on the transformed data
     // un-nest fitsettings
     fitsettings = _.cloneDeep(fitsettings);
+    let initValues = _.cloneDeep(fitsettings.initialValues);
+    console.log("INIT VALUES:", initValues);
 
     let tempSettings = {};
     tempSettings = {
@@ -110,18 +112,21 @@ fd.fitData = function (data, equation, fitsettings) {
 
     // Getting all variables to fit and remove x!
     var nodes_to_fit = n_parsed.filter(function (node) {
-        return node.isSymbolNode && node.name != 'x';
+        return node.isSymbolNode && node.name !== 'x';
     });
 
     var parameter_names_to_fit = nodes_to_fit.map(function (node) {
         return node.name;
     });
 
+    // console.log('param names:', parameter_names_to_fit);
+
     // need to compile before evaluating
     var n_compiled = n_parsed.compile();
 
     var fit_function = function ([...args]) {
         var scope = {};
+        // console.log('ARGS', args);
 
         for (let i = 0; i < args.length; i++) {
             scope[parameter_names_to_fit[i]] = args[i];
@@ -135,18 +140,12 @@ fd.fitData = function (data, equation, fitsettings) {
     };
 
 
-    /* Get Ordered Initial Values */
+    /* Get Initial Values only */
     let tempIV = [];
 
-    for (let i = 0, L = parameter_names_to_fit.length; i < L; i++) {
-        let key = parameter_names_to_fit[i];
-        let temp = tempSettings.initialValues[key];
-
-        tempIV.push( temp === undefined ? 1 : temp);
-    }
-
-    // console.log('Parameter Names:', parameter_names_to_fit);
-    // console.log('TEMP IV:', tempIV);
+    for (let i = 0, L = tempSettings.initialValues.length; i < L; i++) {
+        tempIV.push(tempSettings.initialValues[i][1]);
+    };
 
     // LM options. We might need to adapt some of these values
     tempSettings.initialValues = tempIV;
@@ -182,13 +181,15 @@ fd.fitData = function (data, equation, fitsettings) {
         coeff[parameter_names_to_fit[i]] = fitted_params.parameterValues[i];
     }
 
-    eventBus.$emit('revise-initial-values', _.cloneDeep(coeff));
+    // eventBus.$emit('revise-initial-values', _.cloneDeep(coeff));
+    eventBus.$emit('revise-initial-values', _.cloneDeep(fitted_params.parameterValues));
 
     return {
         fittedData: fittedPoints,
         coefficients: coeff,
         error: fitted_params.parameterError,
-        fitEquation: fit_function
+        fitEquation: fit_function,
+        paramVals: _.cloneDeep(fitted_params.parameterValues),
     }; // Return fit data array
 }
 

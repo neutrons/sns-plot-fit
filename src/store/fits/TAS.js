@@ -36,10 +36,10 @@ export default {
               increment: 0.001,
             },
           },
-          initialValues: {
-            x: 1,
-            y: 1,
-          },
+          initialValues: [
+            ['x', 1], // x
+            ['y', 1], // y
+          ],
         },
       },
       'Linear': {
@@ -79,10 +79,10 @@ export default {
               increment: 0.001,
             },
           },
-          initialValues: {
-              m: 1,
-              b: 1,
-          },
+          initialValues: [
+            ['m', 1], //m
+            ['b', 1], //b
+          ]
         },
       },
     'Gaussian': {
@@ -98,7 +98,7 @@ export default {
 
       */
         fit: 'Gaussian',
-        equation: 'a*exp(-(x-x0)^2/(2*sigma^2))+c',
+        equation: `A/(sqrt(2*${Math.PI})*W)*exp(-(x-C)^2/(2*W^2))`,
         // equation: 'a*exp(-1*((x-b)^2)/(2*c^2))',
         transformations: {
           x: 'x',
@@ -134,12 +134,25 @@ export default {
               increment: 0.001,
             },
           },
-          initialValues: {
-            a: 'max(y)',
-            x0: 'mean(x)',
-            sigma: 'sqrt(abs(sum((mean(x)^2*y))/sum(y)))',
-            c: '-max(y)'
-          },
+          // initialValues: [
+          //   'max(y)', // A
+          //   'sqrt(abs(sum((mean(x)^2*y))/sum(y)))', // W
+          //   'mean(x)', // C
+          //   'sqrt(abs(sum((mean(x)^2*y))/sum(y)))', // W
+
+          // ],
+          initialValues: [
+            ['A', 'max(y)'],
+            ['W', 0.6],
+            ['C', 'mean(x)'],
+            ['W', 0.6],
+          ],
+          // initialValues: [
+          //   ['A', 50000], // A
+          //   ['W', 3], // W
+          //   ['C', 21], // C
+          //   ['W', 3], // W
+          // ],
         },
       },
 };

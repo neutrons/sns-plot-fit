@@ -71,19 +71,28 @@ export const fitMethods = {
         },
         resetFitSettings() {
             this.currentConfiguration = _.cloneDeep(this.$store.getters.getFitConfigsByID(this.$route.name, this.currentConfiguration.fit));
+
             this.setParameters();
         },
         updateInitialValues(v) {
             // Function to accept user inputs of intial values
             this.currentConfiguration.settings.initialValues = _.cloneDeep(v);
+
             this.setParameters();
         },
         reviseInitialValues(v) {
             // Function to simply update intial values after fitting
-            this.currentConfiguration.settings.initialValues = _.cloneDeep(v);
+            let tempIV = [];
+
+            for (let i = 0, L = this.currentConfiguration.settings.initialValues.length; i < L; i++) {
+                tempIV.push([this.currentConfiguration.settings.initialValues[i][0],v[i]]);
+            }
+
+            this.currentConfiguration.settings.initialValues = _.cloneDeep(tempIV);
         },
         updateConfigParameters(v) {
             this.currentConfiguration.settings.parameters = _.cloneDeep(v);
+
             this.setParameters();
         },
     },

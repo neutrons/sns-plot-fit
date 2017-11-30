@@ -102,7 +102,8 @@ export default {
                 brushSelection: [],
                 brushFile: undefined,
                 brushFit: undefined,
-                brushTransformation: undefined
+                brushTransformation: undefined,
+                prevExtent: [],
             },
             ID: 'SANS1D',
             dataToFit: undefined,
@@ -158,6 +159,9 @@ export default {
         setParameters(parameters) {
             // Check data is valid prior to plotting
             this.plotParameters = _.cloneDeep(parameters);
+            this.$nextTick(function() {
+                this.drawChart();
+            })
         },
         updateScales(s) {
             let vm = this;
@@ -199,18 +203,6 @@ export default {
         // Listen for cofficient changes
         eventBus.$on("coefficients-updated", this.redrawFit);
     },
-    watch: {
-        plotParameters: {
-            handler() {
-                let vm = this;
-
-                this.$nextTick(function() { 
-                    this.drawChart();
-                });
-            },
-            deep: true
-        }
-    }
 }
 </script>
 
