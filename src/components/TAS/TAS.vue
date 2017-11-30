@@ -1,10 +1,24 @@
 <template>
   <div id="TAS" class="col-md-12">
       <div class="container-fluid">
+
+      <v-modal @close='showModal = false' v-if='showModal' header='Stitch Previewer'>
+            <v-quick-plot
+                :id='ID'
+                slot='body'
+                :uploaded-files='getUploaded'
+                :fetched-files='fetchFiles("TAS", sortBy, filterBy)'
+            ></v-quick-plot>
+        </v-modal>
+
       <div class="col-md-2">
         
         <!-- Files Main Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
+        <button class='btn btn-success btn-xs pull-left'
+            @click='showModal = true' slot='title-content'
+            v-if='isFilesAvailable'
+        >Quick Plot</button>
 
             <!-- Fetched Data Panel  -->
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
@@ -155,6 +169,8 @@ import FieldList from './components/FieldList.vue';
 import Metadata from './components/Metadata.vue';
 import FitTable from '../BaseComponents/FitTable.vue';
 import FitSettingsPanel from '../BaseComponents/Fittings/FitSettingsPanel.vue';
+import Modal from '../BaseComponents/Modal.vue';
+import QuickPlot from '../BaseComponents/QuickPlot/QuickPlot.vue';
 
 /* Import Shared Mixins */
 import fd from '../../assets/javascript/mixins/fittings/fitData.js';
@@ -187,6 +203,8 @@ export default {
         'v-fit-config': FitConfiguration,
         'fit-results-table': FitTable,
         'v-fit-settings-panel': FitSettingsPanel,
+        'v-modal': Modal,
+        'v-quick-plot': QuickPlot,
     },
     data() {
         return {
@@ -212,6 +230,7 @@ export default {
             },
             ID: 'TAS',
             selectedData: [],
+            showModal: false,
         };
     },
     mixins: [
@@ -232,6 +251,12 @@ export default {
         eventBus.$on('update-selected-data-TAS', vm.updateSelectedData);
     },
     computed: {
+        isFilesAvailable() {
+            let fetchKeys = Object.keys(this.fetchFiles('SANS1D', this.sortBy, this.filterBy));
+            let uploadKeys = Object.keys(this.getUploaded);
+
+            return fetchKeys.length > 0 || uploadKeys.length > 0;
+        },
         getUploaded() {
           return this.$store.getters.getUploaded('TAS');
         },

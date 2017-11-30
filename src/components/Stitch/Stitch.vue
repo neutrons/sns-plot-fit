@@ -1,10 +1,23 @@
 <template>
   <div id="Stitch" class="col-md-12">
     <div class="container-fluid">
+        <v-modal @close='showModal = false' v-if='showModal' header='Stitch Previewer'>
+            <v-quick-plot
+                :id='ID'
+                slot='body'
+                :uploaded-files='getUploaded'
+                :fetched-files='fetchFiles("Stitch", sortBy, filterBy)'
+            ></v-quick-plot>
+        </v-modal>
 
         <!-- Left Sidebar for Controls and File List  -->
         <div class="col-md-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
+            <button class='btn btn-success btn-xs pull-left'
+                @click='showModal = true' slot='title-content'
+                v-if='isFilesAvailable'
+            >Quick Plot</button>
+
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
@@ -144,6 +157,8 @@ import Table from '../BaseComponents/Table.vue';
 import TableFilter from '../BaseComponents/TableFilter.vue';
 import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
 import PlotStitch from './components/stitchPlot.vue';
+import Modal from '../BaseComponents/Modal.vue';
+import QuickPlot from '../BaseComponents/QuickPlot/QuickPlot.vue';
 
 /* Import Mixins */
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
@@ -168,7 +183,9 @@ export default {
       'v-table': Table,
       'v-filter': TableFilter,
       'v-stitch-plot': PlotStitch,
-      'v-switch': ToggleSwitch
+      'v-switch': ToggleSwitch,
+      'v-modal': Modal,
+      'v-quick-plot': QuickPlot,
     },
     data: function () {
       return {
@@ -187,6 +204,7 @@ export default {
           isMultipleLines: false,
           isBrushesStored: false,
           ID: 'Stitch',
+          showModal: false,
       }
     },
     mounted() {
@@ -212,15 +230,15 @@ export default {
         prepPlotData
         ],
     computed: {
-      xScales() {
-        return this.$store.getters.getXScales;
-      },
-      yScales() {
-        return this.$store.getters.getYScales;
-      },
-      getUploaded() {
-          return this.$store.getters.getUploaded('Stitch');
-      }
+        isFilesAvailable() {
+            let fetchKeys = Object.keys(this.fetchFiles('SANS1D', this.sortBy, this.filterBy));
+            let uploadKeys = Object.keys(this.getUploaded);
+
+            return fetchKeys.length > 0 || uploadKeys.length > 0;
+        },
+        getUploaded() {
+            return this.$store.getters.getUploaded('Stitch');
+        }
     },
     methods: {
         updateSelectedData(index, name) {

@@ -6,6 +6,9 @@
             <div :class="'panel panel-' + PANELTYPE">
                 <div class="panel-heading">
                     <div class="panel-title">
+                    
+                        <slot name='title-content'></slot>
+
                         <div class="collapser" @click="isCollapsed = !isCollapsed">
                             <span>{{MAINTITLE}} </span>
                             <span class="collapser-icon" v-if="isCollapsed"><i class="fa fa-plus-square" aria-hidden="true"></i></span>

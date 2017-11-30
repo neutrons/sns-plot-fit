@@ -1,10 +1,23 @@
 <template>
   <div id="Main1D" class="col-md-12">
       <div class="container-fluid">
+      <v-modal @close='showModal = false' v-if='showModal' header='SANS1D Previewer'>
+        <v-quick-plot
+            :id='ID'
+            slot='body'
+            :uploaded-files='getUploaded'
+            :fetched-files='fetchFiles("SANS1D", sortBy, filterBy)'
+        ></v-quick-plot>
+      </v-modal>
       <div class="col-md-2">
         
         <!-- Files Main Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
+        <button class='btn btn-success btn-xs pull-left'
+            @click='showModal = true' slot='title-content'
+            v-if='isFilesAvailable'
+        >Quick Plot</button>
+        
 
             <!-- Fetched Data Panel  -->
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
@@ -143,6 +156,8 @@ import Transformation from '../BaseComponents/Transformation.vue';
 import FitConfiguration from '../BaseComponents/Fittings/FitConfiguration.vue';
 import Plot1D from './components/fitPlot.vue';
 import FitSettingsPanel from '../BaseComponents/Fittings/FitSettingsPanel.vue';
+import Modal from '../BaseComponents/Modal.vue';
+import QuickPlot from '../BaseComponents/QuickPlot/QuickPlot.vue';
 
 /* Import Shared Mixins */
 import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
@@ -175,6 +190,8 @@ export default {
       'v-transformation': Transformation,
       'v-plot-1D': Plot1D,
       'v-fit-settings-panel': FitSettingsPanel,
+      'v-modal': Modal,
+      'v-quick-plot': QuickPlot,
     },
     data: function () {
       return {
@@ -196,6 +213,7 @@ export default {
             x: 'x',
             y: 'y',
         },
+        showModal: false,
       };
     },
     mixins: [
@@ -212,15 +230,21 @@ export default {
         fitInitialValues,
     ],
     computed: {
-      isFiles() {
-          let fetchLength = this.$store.getters.getFetched('SANS1D').length;
-          let uploadLength = this.$store.getters.getUploaded('SANS1D').length;
-          
-          return fetchLength > 0 || uploadLength > 0 ? true : false;
-      },
-      getUploaded() {
-          return this.$store.getters.getUploaded('SANS1D');
-      }
+        isFilesAvailable() {
+            let fetchKeys = Object.keys(this.fetchFiles('SANS1D', this.sortBy, this.filterBy));
+            let uploadKeys = Object.keys(this.getUploaded);
+
+            return fetchKeys.length > 0 || uploadKeys.length > 0;
+        },
+        isFiles() {
+            let fetchLength = this.$store.getters.getFetched('SANS1D').length;
+            let uploadLength = this.$store.getters.getUploaded('SANS1D').length;
+            
+            return fetchLength > 0 || uploadLength > 0 ? true : false;
+        },
+        getUploaded() {
+            return this.$store.getters.getUploaded('SANS1D');
+        }
     },
     mounted() {
         let vm = this;
