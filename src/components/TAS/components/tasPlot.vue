@@ -96,6 +96,7 @@ export default {
                 brushFile: undefined,
                 brushFit: undefined,
                 brushTransformation: undefined,
+                prevExtent: [],
             },
             dataToFit: undefined,
             selLimits: [],

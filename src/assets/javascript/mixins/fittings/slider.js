@@ -55,10 +55,7 @@ export const slider = {
             vm.dataToFit = vm.dataNest.filter(el => { if (el.key === vm.plotParameters.fileToFit)  return el.values; })[0].values;
             
             vm.fitResults = fd.fitData(vm.dataToFit, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitConfiguration.settings);
-            vm.plotParameters.fitConfiguration.settings.initialValues = _.cloneDeep(vm.fitResults.coefficients);
-            vm.coefficients = vm.fitResults.coefficients;
-            vm.fitData = vm.fitResults.fittedData;
-            vm.fitError = vm.fitResults.error;
+            this.updateFitResults();
 
             vm.scale.x2.domain( extent(vm.dataNest, 'x') ).nice();
             let new_xScale2 = vm.scale.x2.copy();
@@ -97,10 +94,11 @@ export const slider = {
             // set initial brushSelection
             let xExtent = d3.extent(vm.dataToFit, function(d) { return d.x;});
 
-            if (vm.brushObj.brushSelection.length === 0 || !(vm.plotParameters.fileToFit === vm.brushObj.brushFile) || !(vm.brushObj.brushTransformation === vm.plotParameters.fitConfiguration.transformations.x)) {
-                
+            if (vm.brushObj.brushSelection.length === 0 || !_.isEqual(xExtent, vm.brushObj.prevExtent) || !(vm.plotParameters.fileToFit === vm.brushObj.brushFile) || !(vm.brushObj.brushTransformation === vm.plotParameters.fitConfiguration.transformations.x)) {
+
                 setBrushLimits(xExtent, new_xScale2);
 
+                vm.brushObj.prevExtent = xExtent;
                 vm.brushObj.brushFit = vm.plotParameters.fitConfiguration.fit;
                 vm.brushObj.brushFile = vm.plotParameters.fileToFit;
                 vm.brushObj.brushTransformation = vm.plotParameters.fitConfiguration.transformations.x;
@@ -110,6 +108,7 @@ export const slider = {
                 setBrushLimits(xExtent, new_xScale2)
                 vm.brushObj.brushFit = vm.plotParameters.fitConfiguration.fit;   
             } else { // if same file to fit after update and same fit transformation, simply update brush selection to current selection
+
                 setBrushLimits(vm.selLimits, new_xScale2);
             }
 
@@ -153,9 +152,7 @@ export const slider = {
                     })
         
                 vm.fitResults = fd.fitData(selectedData, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitConfiguration.settings);
-                vm.coefficients = vm.fitResults.coefficients;
-                vm.fitData = vm.fitResults.fittedData;
-                vm.fitError = vm.fitResults.error;
+                this.updateFitResults();
 
                 // Re-assign updated fit equation and fitline function
                 vm.fitEquation = vm.fitResults.fitEquation;
@@ -184,6 +181,19 @@ export const slider = {
                     eventBus.$emit('error-message', errorMsg, 'danger');
                 }
             }
+        },
+        updateFitResults() {
+            let tempIV = [];
+            
+            for (let i = 0, L = this.plotParameters.fitConfiguration.settings.initialValues.length; i < L; i++) {
+                tempIV.push([this.plotParameters.fitConfiguration.settings.initialValues[i][0], this.fitResults.paramVals[i]]);
+            }
+
+            this.plotParameters.fitConfiguration.settings.initialValues = _.cloneDeep(tempIV);
+
+            this.coefficients = this.fitResults.coefficients;
+            this.fitData = this.fitResults.fittedData;
+            this.fitError = this.fitResults.error;
         }
     }
 }

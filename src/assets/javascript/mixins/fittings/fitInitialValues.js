@@ -9,7 +9,32 @@ import { eventBus } from '../../eventBus';
 
 export const fitInitialValues = {
     methods: {
-        enterInitialValue(exp, key) {
+        // enterInitialValue(exp, key) {
+        //     let result = '';
+
+        //     try {
+        //         // console.log(`Entered value '${exp}'`);
+        //         let code = math.compile(exp);
+
+        //         // First convert x,y fields to single arrays
+        //         let obj = this.identifyFields();
+                
+        //         result = exp === '' ? 1 : code.eval(obj);
+                
+        //         // Catch that result is not an array for cases when user enters 'x+1'
+        //         // Math.JS treats that as operating on an array, so there isn't a reduced value
+        //         if (Array.isArray(result)) {
+        //             throw 'Function must return a single value, not an array.';
+        //         } else {
+        //             this.currentConfiguration.settings.initialValues[key] = result;
+        //         }
+                
+        //     } catch (error) {
+        //         // If an error occurs when altering initial values send it to error function
+        //         eventBus.$emit('error-message', error, 'danger');
+        //     }
+        // },
+        enterInitialValue(exp, i) {
             let result = '';
 
             try {
@@ -26,7 +51,7 @@ export const fitInitialValues = {
                 if (Array.isArray(result)) {
                     throw 'Function must return a single value, not an array.';
                 } else {
-                    this.currentConfiguration.settings.initialValues[key] = result;
+                    this.currentConfiguration.settings.initialValues[i][1] = result;
                 }
                 
             } catch (error) {
@@ -49,9 +74,14 @@ export const fitInitialValues = {
         },
         prepConfiguration() {
             // function to calculate initial value functions if the fit settings include them
-            for (let key in this.currentConfiguration.settings.initialValues) {
-                if (typeof this.currentConfiguration.settings.initialValues[key] === 'string') {
-                    this.enterInitialValue(this.currentConfiguration.settings.initialValues[key], key);
+            // for (let key in this.currentConfiguration.settings.initialValues) {
+            //     if (typeof this.currentConfiguration.settings.initialValues[key] === 'string') {
+            //         this.enterInitialValue(this.currentConfiguration.settings.initialValues[key], key);
+            //     }
+            // };
+            for (let i = 0, L = this.currentConfiguration.settings.initialValues.length; i < L; i++) {
+                if (typeof this.currentConfiguration.settings.initialValues[i][1] === 'string') {
+                    this.enterInitialValue(this.currentConfiguration.settings.initialValues[i][1], i);
                 }
             };
 

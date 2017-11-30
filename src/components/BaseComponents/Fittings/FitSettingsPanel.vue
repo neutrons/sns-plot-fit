@@ -3,11 +3,11 @@
     <fieldset :disabled='disable'>
         <h5 class='text-center'>Initial Values:</h5>
         <v-initial-values-input
-            v-for='(value, key) in initValues'
-            :key='key'
-            :name='key'
+            v-for='(value, index) in initValues'
+            :key='index'
+            :name='value[0]'
             :disable='disable'
-            :value.sync='initValues[key]'
+            :value.sync='initValues[index][1]'
             :field='field'
             :data='data'
             :file-to-fit='fileToFit'
@@ -50,7 +50,7 @@ export default {
             type: Object,
         },
         initialValues: {
-            type: Object,
+            type: Array,
         },
         disable: {
             type: Boolean,

@@ -37,10 +37,10 @@ export default {
             increment: 0.001,
           },
         },
-        initialValues: {
-            x: 1,
-            y: 1,
-        },
+        initialValues: [
+            ['x', 1], // x
+            ['y', 1], // y
+        ],
       },
     },
     'Linear': {
@@ -81,10 +81,10 @@ export default {
             increment: 0.001,
           },
         },
-        initialValues: {
-            m: 1,
-            b: 1,
-        },
+        initialValues: [
+            ['m', 1], // m
+            ['b', 1], // b
+        ],
       },
     },
     'Guinier': {
@@ -125,10 +125,10 @@ export default {
             increment: 0.001,
           },
         },
-        initialValues: {
-            Rg: 1,
-            I0: 1,
-        },
+        initialValues: [
+            ['Rg', 1], // Rg
+            ['I0', 1], // I0
+        ],
       },
     },
     // 'Low-Q Guinier': {
@@ -199,10 +199,10 @@ export default {
             increment: 0.001,
           },
         },
-        initialValues: {
-            p0: 1,
-            p1: 1,
-        },
+        initialValues: [
+            ['p0', 1], // p0
+            ['p1', 1], // p1
+        ],
       },
     },
     'Zimm': {
@@ -243,11 +243,11 @@ export default {
             increment: 0.001,
           },
         },
-        initialValues: {
-            I0: 1,
-            Cl: 1,
-            I0: 1,
-        },
+        initialValues: [
+            ['I0', 1], // I0
+            ['Cl', 1], // Cl
+            ['I0', 1], // I0
+        ],
       },
     },
     'Kratky': {
@@ -290,10 +290,10 @@ export default {
             increment: 0.001,
           },
         },
-        initialValues: {
-            m: 1,
-            b: 1,
-        },
+        initialValues: [
+            ['m', 1], // m
+            ['b', 1], // b
+        ],
       },
     },
     'Debye Beuche': {
@@ -334,10 +334,10 @@ export default {
             increment: 0.001,
           },
         },
-        initialValues: {
-            m: 1,
-            I0: 1,
-        },
+        initialValues: [
+            ['m', 1], // m
+            ['I0', 1], // I0
+        ],
       },
     },
   }
