@@ -7,6 +7,7 @@
             slot='body'
             :uploaded-files='getUploaded'
             :fetched-files='fetchFiles("SANS1D", sortBy, filterBy)'
+            sub-component='DataPicker1D'
         ></v-quick-plot>
       </v-modal>
       <div class="col-md-2">

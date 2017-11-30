@@ -2,12 +2,13 @@
   <div id="TAS" class="col-md-12">
       <div class="container-fluid">
 
-      <v-modal @close='showModal = false' v-if='showModal' header='Stitch Previewer'>
+      <v-modal @close='showModal = false' v-if='showModal' header='TAS Previewer'>
             <v-quick-plot
                 :id='ID'
                 slot='body'
                 :uploaded-files='getUploaded'
                 :fetched-files='fetchFiles("TAS", sortBy, filterBy)'
+                sub-component='DataPickerTAS'
             ></v-quick-plot>
         </v-modal>
 

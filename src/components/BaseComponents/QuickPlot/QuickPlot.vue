@@ -1,8 +1,12 @@
 <template>
 <div :id='"chart-preview-" + id'>
-
   <v-chart :id='id' :data='pickedData'></v-chart>
-  <v-data-picker :id='id' :file-list='fileList' @picked='myPick'></v-data-picker>
+  
+  <component :is='subComponent'
+    :id='id'
+    :file-list='fileList'
+    @picked='myPick'
+  ></component>
 </div>
 </template>
 
@@ -11,13 +15,15 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 
 import Chart from './Chart.vue';
-import DataPicker from './DataPicker.vue';
+import DataPicker1D from './DataPicker1D.vue';
+import DataPickerTAS from './DataPickerTAS.vue';
 
 export default {
   name: "QuickPlot",
   components: {
     'v-chart': Chart,
-    'v-data-picker': DataPicker,
+    DataPicker1D,
+    DataPickerTAS,
   },
   props: {
       id: {
@@ -30,6 +36,10 @@ export default {
       fetchedFiles: {
         type: Array,
       },
+      subComponent: {
+        type: String,
+        default: 'DataPicker1D',
+      }
   },
   data() {
     return {

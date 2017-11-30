@@ -1,4 +1,5 @@
 <script>
+import axios from 'axios';
 import DataPicker from './DataPicker.vue';
 import parseData from '../../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
 
@@ -62,7 +63,6 @@ export default {
 
                 Promise.all(promises).then(results => {
                     
-                    console.log('results', results);
                     vm.$emit('picked', results[0].data);
 
                 }).catch(reason => { console.log(reason) });
