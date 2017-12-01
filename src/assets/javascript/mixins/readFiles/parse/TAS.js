@@ -20,17 +20,36 @@ function extractMetadata(data) {
     
     
 /* Function to Parse TAS Data Files */
-export default function (data, filename) {
+// export default function (data, filename) {
 
-    // First - extract metadata from data table
-    let extractedData = extractMetadata(data);
+//     // First - extract metadata from data table
+//     let extractedData = extractMetadata(data);
     
-    // Second - parse data
-    extractedData.data = pp.parse(extractedData.data, config).data;
-    extractedData.data.forEach(row => row.name = filename);
+//     // Second - parse data
+//     extractedData.data = pp.parse(extractedData.data, config).data;
+//     extractedData.data.forEach(row => row.name = filename);
 
-    extractedData.filename = filename;
+//     extractedData.filename = filename;
 
     
-    return extractedData;
-}
+//     return extractedData;
+// }
+
+export const parseData = {
+    methods: {
+        parseData(data, filename) {
+    
+            // First - extract metadata from data table
+            let extractedData = extractMetadata(data);
+            
+            // Second - parse data
+            extractedData.data = pp.parse(extractedData.data, config).data;
+            extractedData.data.forEach(row => row.name = filename);
+
+            extractedData.filename = filename;
+
+            
+            return extractedData;
+        },
+    },
+};

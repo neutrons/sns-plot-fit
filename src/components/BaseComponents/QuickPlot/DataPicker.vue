@@ -81,6 +81,10 @@ export default {
 </script>
 
 <style lang='less' scoped>
+.data-picker {
+  margin-bottom: 5px;
+}
+
 select {
   text-align-last: center;
 }

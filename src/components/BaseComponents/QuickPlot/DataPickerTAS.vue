@@ -1,79 +1,68 @@
 <script>
-import axios from 'axios';
 import DataPicker from './DataPicker.vue';
-import parseData from '../../../assets/javascript/mixins/readFiles/parse/TAS.js';
+import { parseData } from '../../../assets/javascript/mixins/readFiles/parse/TAS.js';
+import { emitpick } from './emitpick.js';
+import _ from 'lodash';
 
 export default {
-    name: 'TasDataPicker',
+    name: 'DataPickerTAS',
     extends: DataPicker,
+    mixins: [parseData, emitpick],
     methods: {
-        emitpick() {
-            let vm = this;
-            // code to read file
-
-            let url = this.fileList[this.picked];
-
-            var temp = this.$store.getters.getSavedFile(this.id, url.filename);
-                    
-            // console.log("Here is the temp:", temp);
-            if (temp !== '999') {
-                this.$emit('picked', temp.data);
-                return;
-            }
+        callback(results) {
+            let defaults = this.extractDefaults(results.metadata);
+            let data = this.swapDefaults(defaults, results.data);
             
-            var promises = [url].map(function(url) {
+            // emit metadata
+            this.$emit('update-metadata', results.metadata);
 
-                if (url.type === 'fetch') {
-                    return axios.get(url.url).then(function(response) {
-                        // console.log("axios response data", response);
+            // extract default x,y from metadata
+            // substitute those for quick plot data
+            this.$emit('picked', data);
+        },
+        extractDefaults(md) {
+            let temp = [...md];
+            let obj = {x: 'x', y:'y'};
 
-                        let data = parseData(response.data, url.filename);
-                
-                        vm.$store.commit('storeData', { filename: url.filename, data: data, dataType: vm.id});
+            temp.forEach(el => {
+                let item = [];
 
-                        return data;
-                    });        
-                } else if (url.type === 'upload') {
-
-                    // Turn file reader into a promise in order to
-                    // wait on the async reading of files with Promise.all below
-                    return new Promise((resolve, reject) => {
-                        var reader = new FileReader();
-                        
-                        reader.onload = function (e) {  
-                            // Get file content
-                            var content = e.target.result;
-
-                            // Code to read Upload 2D file
-                            let data = parseData(content, url.filename);
-
-                            vm.$store.commit('storeData', { filename: url.filename, data: data, dataType: vm.id});
-                            
-                            resolve(data);    
-                        }
-                        
-                        reader.readAsText(url.url, "UTF-8");
-                    });
-                } else {
-                    console.log("Sorry, uknown type.");
+                if (el.search('def_x') > -1) {
+                    item = el.trim().split(' = ');
+                    obj.x = item[1];    
+                } else if (el.search('def_y') > -1) {
+                    item = el.trim().split(' = ');
+                    obj.y = item[1];
                 }
+            })
+
+            return obj;
+        },
+        swapDefaults(def, data) {
+            data = _.cloneDeep(data);
+            let temp = [];
+
+            data.forEach(el => {
+                let keys = Object.keys(el);
+                let obj = {};
+
+                keys.forEach(k => {
+                    if (def.x === k) {
+                        obj.x = el[k];
+                    } else if (def.y === k) {
+                        obj.y = el[k];
+                    } else {
+                        obj[k] = el[k];
+                    }
+                });
+
+                temp.push(obj);
             });
 
-            if (promises.length > 0) {
-
-                Promise.all(promises).then(results => {
-                    
-                    console.log('results', results);
-                    // emit metadata
-                    //vm.$emit('metadata', results[0].metadata);
-
-                    // extract default x,y from metadata
-                    // substitute those for quick plot data
-                    vm.$emit('picked', results[0].data);
-
-                }).catch(reason => { console.log(reason) });
-            }
+            return temp;
         },
+
+        
     }
 }
 </script>

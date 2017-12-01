@@ -1,5 +1,4 @@
 import axios from 'axios';
-import parseData from './parse/SANS2D.js';
 
 /* Functions to Read and Parse 2D Files */
 export const get2DData = {
@@ -10,7 +9,7 @@ export const get2DData = {
             // If data is not stored, fetch it, store it, and send data to be plotted
             axios.get(file.url).then(response => {
 
-                let results = parseData(response.data);
+                let results = vm.parseData(response.data);
 
                 vm.$store.commit('storeData', { filename: file.filename, data: results.data, dataType: 'SANS2D' });
 
@@ -36,7 +35,7 @@ export const read2DData = {
                 var content = e.target.result;
 
                 // Code to read Upload 2D file
-                let results = parseData(content);
+                let results = vm.parseData(content);
                 
                 // console.log("results", results);
                 results.data.forEach(el => el.name = file.filename);

@@ -4,7 +4,7 @@ import axios from 'axios';
 /* Functions to Read and Parse 1D Data Files */
 export const read1DData = {
     methods: {
-        read1DData(fileURLs, tempData, dataType, parseFunc) {
+        read1DData(fileURLs, tempData, dataType) {
             // Next fetch unstored files
                 /*****************************************
                  When a user selects data to be plotted,
@@ -24,7 +24,7 @@ export const read1DData = {
                         return axios.get(url.url).then(function(response) {
                             // console.log("axios response data", response);
 
-                            let data = parseFunc(response.data, url.filename);
+                            let data = vm.parseData(response.data, url.filename);
                     
                             vm.$store.commit('storeData', { filename: url.filename, data: data, dataType: dataType});
 
@@ -42,7 +42,7 @@ export const read1DData = {
                                 var content = e.target.result;
 
                                 // Code to read Upload 2D file
-                                let data = parseFunc(content, url.filename);
+                                let data = vm.parseData(content, url.filename);
 
                                 vm.$store.commit('storeData', { filename: url.filename, data: data, dataType: dataType});
                                 

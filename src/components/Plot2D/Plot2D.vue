@@ -118,6 +118,7 @@ import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 import { axes } from '../../assets/javascript/mixins/chartFuncs/axes.js';
 import { chartVariables } from '../../assets/javascript/mixins/chartFuncs/chartVariables.js';
 import { labels } from '../../assets/javascript/mixins/chartFuncs/labels.js';
+import { parseData } from '../../assets/javascript/mixins/readFiles/parse/SANS2D.js';
 import { read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
 import { setResponsive } from '../../assets/javascript/mixins/chartFuncs/setResponsive.js';
 import { addClipPath } from '../../assets/javascript/mixins/chartFuncs/addClipPath.js';
@@ -169,6 +170,7 @@ export default {
       }
     },
     mixins: [
+        parseData,
         adjustDomains,
         drawChart,
         updateChart,

@@ -6,9 +6,10 @@
             <v-quick-plot
                 :id='ID'
                 slot='body'
+                :is-metadata='true'
                 :uploaded-files='getUploaded'
                 :fetched-files='fetchFiles("TAS", sortBy, filterBy)'
-                sub-component='DataPickerTAS'
+                data-picker='DataPickerTAS'
             ></v-quick-plot>
         </v-modal>
 
@@ -182,7 +183,7 @@ import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
-import parseData from '../../assets/javascript/mixins/readFiles/parse/TAS.js';
+import { parseData } from '../../assets/javascript/mixins/readFiles/parse/TAS.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import {fitInitialValues} from '../../assets/javascript/mixins/fittings/fitInitialValues.js';
 
@@ -235,6 +236,7 @@ export default {
         };
     },
     mixins: [
+        parseData,
         fetchFiles, 
         setScales, 
         filterJobs,
@@ -466,7 +468,7 @@ export default {
                     var fileURLs = this.$store.getters.getURLs(filesToFetch, 'TAS');
                     
                     if (fileURLs.length > 0) {
-                        this.read1DData(fileURLs, tempData, 'TAS', parseData);
+                        this.read1DData(fileURLs, tempData, 'TAS');
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }

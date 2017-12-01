@@ -7,7 +7,7 @@
             slot='body'
             :uploaded-files='getUploaded'
             :fetched-files='fetchFiles("SANS1D", sortBy, filterBy)'
-            sub-component='DataPicker1D'
+            data-picker='DataPicker1D'
         ></v-quick-plot>
       </v-modal>
       <div class="col-md-2">
@@ -161,7 +161,7 @@ import Modal from '../BaseComponents/Modal.vue';
 import QuickPlot from '../BaseComponents/QuickPlot/QuickPlot.vue';
 
 /* Import Shared Mixins */
-import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
+import { parseData } from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
 import fd from '../../assets/javascript/mixins/fittings/fitData.js';
 import {fitMethods} from '../../assets/javascript/mixins/fittings/fitMethods.js';
 import {transformMethods} from '../../assets/javascript/mixins/transformMethods.js';
@@ -218,6 +218,7 @@ export default {
       };
     },
     mixins: [
+        parseData,
         read1DData,
         fetchFiles,
         setScales,
@@ -396,7 +397,7 @@ export default {
                 var fileURLs = this.$store.getters.getURLs(filesToFetch, 'SANS1D');
                 
                 if (fileURLs.length > 0) {
-                    this.read1DData(fileURLs, tempData, 'SANS1D', parseData);
+                    this.read1DData(fileURLs, tempData, 'SANS1D');
                 } else {
                     this.setCurrentData(tempData, this.filesToPlot);
                 }

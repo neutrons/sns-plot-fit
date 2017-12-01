@@ -164,7 +164,7 @@ import QuickPlot from '../BaseComponents/QuickPlot/QuickPlot.vue';
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
-import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
+import { parseData } from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
 import { removeFile } from '../../assets/javascript/mixins/removeFile.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
@@ -220,6 +220,7 @@ export default {
         eventBus.$on('update-selected-data-Stitch', vm.updateSelectedData);
     },
     mixins: [
+        parseData,
         fetchFiles,
         read1DData,
         setScales,
@@ -401,7 +402,7 @@ export default {
                     var fileURLs = this.$store.getters.getURLs(filesToFetch, 'Stitch');
 
                     if (fileURLs.length > 0) {
-                        this.read1DData(fileURLs, tempData, 'Stitch', parseData);
+                        this.read1DData(fileURLs, tempData, 'Stitch');
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }

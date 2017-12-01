@@ -27,7 +27,7 @@ export default {
     ],
     data() {
         return {
-            margin: {top:25, right:25, bottom:25, left:50},
+            margin: {top:5, right:25, bottom:25, left:50},
             height: 600,
             width: 960,
             svg: undefined,
