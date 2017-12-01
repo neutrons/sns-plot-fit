@@ -1,32 +1,6 @@
 import _ from 'lodash';
 import * as d3 from 'd3';
 
-export const get1DFiles = state => {
-
-}
-
-export const get2DFile = state => (id) => {
-    var temp = null;
-
-    for (let i = 0, len = state.fetched2DFiles.length; i < len; i++) {
-        let tempFile = state.fetched2DFiles[i];
-        if (id === tempFile.filename) {
-            temp = tempFile;
-            break;
-        }
-    }
-
-    return temp;
-}
-
-export const getColorDomain = state => {
-    return _.cloneDeep(state.colorDomain);
-}
-
-export const getDataType = state => {
-
-}
-
 export const getXScales = state => {
     return state.xScales
 }
@@ -43,71 +17,34 @@ export const getYScaleByID = state => (id) => {
     return state.yScales[id].copy() // copy is used to prevent scales being changed from another plot
 }
 
-export const getFetched1D = state => {
-    return state.fetched1DFiles
-}
-
-export const getFetched2D = state => {
-    return state.fetched2DFiles
-}
-
-export const getUploaded1D = state => {
-    return state.uploaded1DFiles
-}
-
-export const getUploaded2D = state => {
-    return state.uploaded2DFiles
-}
-
 export const getGroups = state => (type) => {
-
-    if (type === '1D') {
-        return state.fetched1DFiles.map(el => el.jobTitle)
-    } else {
-        return state.fetched2DFiles.map(el => el.jobTitle)
-    }
-
+    return state.fetched[type].map(el => el.jobTitle);
 }
 
-export const getSaved1D = state => (file) => {
-    let temp = state.saved1DData[file];
+export const getSANS2DFile = state => (id) => {
+    let temp = null;
 
-    if (temp === undefined) {
-        return '999'
-    } else {
-        return _.cloneDeep(temp)
-    }
-}
+    for (let i = 0, len = state.fetched.SANS2D.length; i < len; i++) {
 
-export const getSaved2D = state => (file) => {
-    let temp = state.saved2DData[file];
+        let tempFile = state.fetched.SANS2D[i];
 
-    if (temp === undefined) {
-        return '999'
-    } else {
-        return _.cloneDeep(temp)
-    }
-}
-
-export const inUploaded1D = state => (fname) => {
-    var match = false
-
-    for (let i = 0, len = state.uploaded1DFiles.length; i < len; i++) {
-        var temp = state.uploaded1[i]
-        if (fname === temp.filename) {
-            match = true
-            break
+        if (id === tempFile.filename) {
+            temp = tempFile;
+            break;
         }
     }
 
-    return match;
+    return temp;
 }
 
-export const inUploaded2D = state => (fname) => {
-    var match = null
+export const inUploadedSANS2D = state => (fname) => {
+    let match = null
+    let uploaded = state.uploaded.SANS2D;
 
-    for (let i = 0, len = state.uploaded2DFiles.length; i < len; i++) {
-        var temp = state.uploaded2DFiles[i]
+    for (let i = 0, len = uploaded.length; i < len; i++) {
+
+        let temp = uploaded[i]
+
         if (fname === temp.filename) {
             match = temp;
             break;
@@ -117,48 +54,132 @@ export const inUploaded2D = state => (fname) => {
     return match;
 }
 
-export const getFitConfigs = state => {
-    return _.cloneDeep(state.fitConfigurations)
+/* NEW FIT GETTERS */
+export const getFitConfigs = state => (id) => {
+    return _.cloneDeep(state.fit[id])
 }
 
-export const getFitConfigsByID = state => (id) => {
-    return _.cloneDeep(state.fitConfigurations[id])
+export const getFitConfigsByID = state => (id, fit) => {
+    return _.cloneDeep(state.fit[id][fit])
 }
 
-export const getFitConfigsXTrans = state => (id) => {
-    return _.cloneDeep(state.fitConfigurations[id].xTransformation)
+export const getFitConfigsXTrans = state => (id, fit) => {
+    return _.cloneDeep(state.fit[id][fit].transformations.x)
 }
 
-export const getFitConfigsYTrans = state => (id) => {
-    return _.cloneDeep(state.fitConfigurations[id].yTransformation)
+export const getFitConfigsYTrans = state => (id, fit) => {
+    return _.cloneDeep(state.fit[id][fit].transformations.y)
 }
+
+// export const getFitConfigTrans = state => (id, fit) => {
+//     return [_.cloneDeep(state.fit[id][fit].yTransformation), _.cloneDeep(state.fit[id][fit].yTransformation)]
+// }
 
 export const getFitSettings = state => {
-    return _.cloneDeep(state.fitSettings)
+    return _.cloneDeep(state.fit.settings)
 }
 
+export const getFirstConfig = state => (id) => {
+    return _.cloneDeep(state.fit[id].Linear);
+}
 
-export const get1DURL = state => (type, files) => {
-    var temp = []
+export const getFirstConfigSettings = (state, getters) => (id) => {
+    return _.cloneDeep(getters.getFirstConfig(id).settings);
+}
+/* END OF FIT GETTERS */
 
-    if(type === 'fetch') {
-        for(let i = 0, len = state.fetched1DFiles.length; i < len; i++) {
-            let t = state.fetched1DFiles[i];
+// export const getFitConfigs = state => {
+//     return _.cloneDeep(state.fitConfigurations)
+// }
 
-            if(files.indexOf(t.filename) > -1) {
-                temp.push({type: 'fetch', url: t.url, filename: t.filename});
-            }
-        }
+// export const getFitConfigsByID = state => (id) => {
+//     return _.cloneDeep(state.fitConfigurations[id])
+// }
+
+// export const getFitConfigsXTrans = state => (id) => {
+//     return _.cloneDeep(state.fitConfigurations[id].xTransformation)
+// }
+
+// export const getFitConfigsYTrans = state => (id) => {
+//     return _.cloneDeep(state.fitConfigurations[id].yTransformation)
+// }
+
+// export const getFitSettings = state => {
+//     return _.cloneDeep(state.fitSettings)
+// }
+
+export const getUploaded = state => (type) => {
+    return _.cloneDeep(state.uploaded[type]);
+}
+
+export const getFetched = state => (type) => {
+    return _.cloneDeep(state.fetched[type]);
+}
+
+export const getSaved = state => (type) => {
+    return _.cloneDeep(state.saved[type]);
+}
+
+export const getColorDomain = state => (type) => {
+    return _.cloneDeep(state.colorDomain[type]);
+}
+
+export const getSavedFile = state => (type, file) => {
+    let temp = state.saved[type][file];
+
+    if (temp === undefined) {
+        return '999'
     } else {
-        for(let i = 0, len = state.uploaded1DFiles.length; i < len; i++) {
+        return _.cloneDeep(temp)
+    }
+}
 
-            let t = state.uploaded1DFiles[i];
+// Finding urls for SANS1D, Stitch, and TAS files
+export const getURLs = (state) => (files, type) => {
 
-            if(files.indexOf(t.filename) > -1) {
-                temp.push({type: 'upload', url: t.blob, filename: t.filename});
-            }
+    let tempURLs = [], 
+        fetchList = [], 
+        uploadList = [];
+
+    let fetchedFiles = state.fetched[type];
+    let uploadedFiles = state.uploaded[type];
+
+    for (let i = 0, len = files.length; i < len; i++) {
+        let fname = files[i];
+
+        let inFetch = fetchedFiles.find(el => { return el.filename === fname; });
+
+        if (inFetch !== undefined) {
+            fetchList.push(files[i]);
+        } else {
+            uploadList.push(files[i]);
         }
     }
 
-    return temp;
+    if (fetchList.length > 0) {
+        
+        for (let i = 0, len = fetchedFiles.length; i < len; i++) {
+            let t = fetchedFiles[i];
+
+            if (fetchList.indexOf(t.filename) > -1) {
+                tempURLs.push({type: 'fetch', url: t.url, filename: t.filename});
+            }
+        }
+
+    } 
+    
+    if (uploadList.length > 0) {
+
+        for (let i = 0, len = uploadedFiles.length; i < len; i++) {
+
+            let t = uploadedFiles[i];
+
+            if (uploadList.indexOf(t.filename) > -1) {
+                tempURLs.push({type: 'upload', url: t.blob, filename: t.filename});
+            }
+        }
+
+    }
+
+    return tempURLs;
 }

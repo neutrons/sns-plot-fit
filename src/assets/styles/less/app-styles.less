@@ -1,0 +1,47 @@
+body {
+    background: #fff;
+    margin:0;
+    padding:0;
+    transition: 0.5s;
+    .fluid-type(font-size, 300px, 2000px, 8px, 16px);
+}
+  
+.input-group {
+  margin-bottom: 10px;
+
+    > * {
+      .fluid-type(font-size, 300px, 2000px, 8px, 14px);
+      padding: 0px 5px;
+      transition: 0.5s;
+    }
+}
+
+.container-fluid {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.form-control {
+  text-align-last: center;
+}
+
+/* Transition effects for Sliding  */
+.fade-enter-active, .fade-leave-active {
+  transition: all 1.0s ease;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+/* Error Message Styles  */
+#error-container {
+  position: fixed;
+  z-index: 9999;
+  bottom: 25px;
+  right: 25px;
+}
+
+#myModal {
+  display: none;
+}

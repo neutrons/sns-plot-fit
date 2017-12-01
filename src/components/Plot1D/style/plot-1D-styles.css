@@ -1,0 +1,17 @@
+@import url('../../../assets/styles/shared-1D-styles.css');
+@import url('../../../assets/styles/slider-styles.css');
+@import url('../../../assets/styles/fitted-line-styles.css');
+
+#plot-1D {
+  position: relative;
+  padding: 0 10px;
+  margin: 0 auto;
+  min-width: 400px;
+}
+
+iframe.width-changed-SANS1D {
+  width: 90%;
+  display: block;
+  border: 0;
+  height: 0;
+}

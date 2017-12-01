@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import fd from '../../assets/javascript/fitData.js';
+import fd from '../../assets/javascript/mixins/fittings/fitData.js';
 
 export default {
     name: 'Transformation',
@@ -49,8 +49,10 @@ export default {
         enterTransformations() {
             let newXTrans = document.getElementById('x-transform').value;
             let newYTrans = document.getElementById('y-transform').value;
+            
+            console.log('transformation entering...', newXTrans, newYTrans);
 
-            if(fd.isSymbols([newXTrans, newYTrans])) {
+            if (fd.isSymbols([newXTrans, newYTrans])) {
                 // console.log("Invalid entry!");
                 // Generate error message for invalid transformation
                 document.getElementById('transformation-error').innerHTML = 

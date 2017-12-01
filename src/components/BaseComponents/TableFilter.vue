@@ -3,9 +3,9 @@
     <div class="filter-selection input-group">
         <span class="select-tag input-group-addon"><i class="fa fa-filter" aria-hidden="true"></i> Filter:</span>
         <select class="group-selection form-control input-sm" v-model="filterChoice">
-                                <option>All</option>
-                                <option v-for="job in jobs">{{ job }}</option>
-                                </select>
+            <option>All</option>
+            <option v-for="job in jobs">{{ job }}</option>
+        </select>
     </div>
 
     <button class="btn-sort btn btn-sm btn-default" v-if="sortToggle" @click="sortByDate('descending')"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> Date Modified</button>
@@ -17,7 +17,11 @@
 
 export default {
   props: {
-
+      groupType: {
+          type: String,
+          default: 'SANS1D',
+          required: true
+      }
   },
   data: function() {
     return {
@@ -27,7 +31,7 @@ export default {
   },
   computed: {
     jobs() {
-        var jobs = this.$store.getters.getGroups('1D');
+        var jobs = this.$store.getters.getGroups(this.groupType);
 
         return jobs.reduce(function(prev, cur) {
                 if (prev.indexOf(cur) < 0) prev.push(cur);

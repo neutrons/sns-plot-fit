@@ -1,20 +1,22 @@
 <template>
   <div id="Stitch" class="col-md-12">
     <div class="container-fluid">
+
         <!-- Left Sidebar for Controls and File List  -->
         <div class="col-md-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
-                <v-panel PANELTITLE="Fetched Data" PANELTYPE="success" v-if="!isOffline">
+                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show="fetchFiles.length > 0">
                         <div>
                             <v-filter 
+                                group-type="Stitch"
                                 @filter-job="filterJob"
                                 @sort-by-date="sortByDate"
                             ></v-filter>
                         </div>
                         <v-table :fieldNames="['Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles('1D', sortBy, filterBy)">
+                                <tr v-for="f in fetchFiles('Stitch', sortBy, filterBy)" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input :id="f.filename + '-FetchStitch'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
@@ -26,15 +28,15 @@
                     </div>
                 </v-panel>
 
-                <v-panel PANELTITLE="Uploaded Data" PANELTYPE="success">
-                    <div v-show="uploadFiles.length > 0">
+                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
+                    <div v-show="getUploaded.length > 0">
                      <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in uploadFiles">
+                                <tr v-for="f in getUploaded" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile('Stitch', f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -46,32 +48,36 @@
             <v-panel-group MAINTITLE="Controls" PANELTYPE="primary">
 
                 <v-panel PANELTITLE="Scales" PANELTYPE="success">
-                    <!-- Add Items to a single panel  -->
                     <v-scales 
                         :DISABLE="disable"
                         @update-scales="setScales"
                         @reset-scales="resetScales"
-                        ref="scales"
+                        ref="scale"
                         >
                     </v-scales>
                 </v-panel>
 
                 <v-panel PANELTITLE="Edit Tools" PANELTYPE="info">
-                     <v-switch leftID="zoom" rightID="brush" :DISABLE="disable" ref="toggle"
-                     @switchChange="toggleEdit"
+                     <v-switch 
+                        leftID="zoom" 
+                        rightID="brush" 
+                        :DISABLE="disable" 
+                        ref="toggle"
+                        @switchChange="toggleEdit"
                      >
                         <span slot="left-label"><i class="fa fa-search-plus"></i> Zoom</span>
-                        <span slot="right-label"><i class="fa fa-square-o"></i> Brush</span>
+                        <span slot="right-label"><i class="fa fa-square-o"></i> Select</span>
                     </v-switch> 
-                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" v-if="isMultipleLines" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Brushes</button>
+
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" :disabled="!isMultipleLines" @click="removeBrushes"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Selections</button>
                     <br>
-                    <button id="stitch-btn" class="btn btn-success btn-xs btn-block" v-if="isMultipleLines" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
+                    <button id="stitch-btn" class="btn btn-success btn-xs btn-block" :disabled="!isMultipleLines" @click="stitchData"><i class="fa fa-line-chart" aria-hidden="true"></i> Stitch</button>
                     <br>
-                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" @click="removeStitch" v-if="isStitched"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Stitch</button>
+                    <button id="remove-brushes-btn" class="btn btn-danger btn-xs btn-block" @click="removeStitch" :disabled="!isStitched"><i class="fa fa-times-circle" aria-hidden="true"></i> Remove Stitch</button>
                     <br>
-                    <button id="save-stitch-btn" class="btn btn-primary btn-xs btn-block" v-if="isStitched" @click="saveStitchLine"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save Stitch</button>
+                    <button id="save-stitch-btn" class="btn btn-primary btn-xs btn-block" :disabled="!isStitched" @click="saveStitchLine"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save Stitch</button>
                     <br>
-                    <button id="draw-brushes-btn" class="btn btn-primary btn-xs btn-block" v-if="isBrushesStored" @click="drawBrushes" :disabled="!isMultipleLines"><i class="fa fa-undo" aria-hidden="true"></i> Restore Brushes</button>
+                    <button id="draw-brushes-btn" class="btn btn-primary btn-xs btn-block" v-if="isBrushesStored" @click="drawBrushes" :disabled="!isMultipleLines"><i class="fa fa-undo" aria-hidden="true"></i> Restore Selections</button>
                 </v-panel>
 
             </v-panel-group>
@@ -80,7 +86,8 @@
         <!-- Plot Panel for Main Chart  -->
         <v-stitch-plot 
             :DISABLE="disable"
-            ref="stitchPlot">
+            @is-stitched="isStitched == true"
+            ref="plot_Stitch">
         </v-stitch-plot>
 
         <!-- Modal for Saving a Line -->
@@ -135,16 +142,19 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Scales from '../BaseComponents/Scales.vue';
 import Table from '../BaseComponents/Table.vue';
 import TableFilter from '../BaseComponents/TableFilter.vue';
-import PlotStitch from './stitchPlot.vue';
 import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
+import PlotStitch from './components/stitchPlot.vue';
 
 /* Import Mixins */
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
-import { parse1D, pull1DData } from '../../assets/javascript/mixins/readData.js';
+import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
+import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
+import { removeFile } from '../../assets/javascript/mixins/removeFile.js';
+import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
-import { getURLs } from '../../assets/javascript/mixins/getURLs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
+import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
@@ -162,11 +172,11 @@ export default {
     },
     data: function () {
       return {
-          scales: {
-              xScale: d3.scaleLinear(),
-              xScaleType: 'X',
-              yScale: d3.scaleLinear(),
-              yScaleType: 'Y'
+          scale: {
+              x: d3.scaleLinear(),
+              xType: 'X',
+              y: d3.scaleLinear(),
+              yType: 'Y'
           },
           filterBy: 'All',
           sortBy: 'ascending',
@@ -175,7 +185,8 @@ export default {
           selectedData: [],
           isStitched: false,
           isMultipleLines: false,
-          isBrushesStored: false
+          isBrushesStored: false,
+          ID: 'Stitch',
       }
     },
     mounted() {
@@ -183,11 +194,23 @@ export default {
         let vm = this;
 
         eventBus.$on('reset-stitch', this.resetStitch);
+
         eventBus.$on('reset-is-stitched', function() {
             vm.isStitched = false;
         })
+
+        eventBus.$on('update-selected-data-Stitch', vm.updateSelectedData);
     },
-    mixins: [fetchFiles, parse1D, pull1DData, setScales, filterJobs, getURLs, isOffline],
+    mixins: [
+        fetchFiles,
+        read1DData,
+        setScales,
+        filterJobs,
+        isOffline,
+        isPlotted,
+        removeFile,
+        prepPlotData
+        ],
     computed: {
       xScales() {
         return this.$store.getters.getXScales;
@@ -195,108 +218,93 @@ export default {
       yScales() {
         return this.$store.getters.getYScales;
       },
-      uploadFiles() {
-          return _.cloneDeep(this.$store.getters.getUploaded1D);
+      getUploaded() {
+          return this.$store.getters.getUploaded('Stitch');
       }
     },
     methods: {
-        removeFile(filename) {
-  
-            let index = this.filesToPlot.indexOf(filename);
-            if(this.filesToPlot.indexOf(filename) > -1) {
+        updateSelectedData(index, name) {
 
-                this.filesToPlot.splice(index,1);
-            }
+            this.selectedData.forEach(el => {
 
-            this.$store.commit('remove1DFile', filename);
-            this.$store.commit('removeColor', filename);
+                if (name === el.filename)   el.data.splice(index,1);
+                
+            })
         },
         setCurrentData(chosenData, checkList) {
             
             var vm = this;
+
             chosenData = _.cloneDeep(chosenData);
             
             if (checkList.length == 0) {
                 // If no data is selected to be plotted, then
                 // remove any elements previously plotted
                 // and reset to default values
-                console.log("Removing plot elements...");
-                d3.select(".chart-stitch").remove();
-                d3.select("#tooltip-stitch").remove();
+                // console.log("Removing plot elements...");
+
+                d3.select(".chart-Stitch").remove();
+                d3.select("#tooltip-Stitch").remove();
 
                 this.selectedData = [];
             } else {
-                var toFilter = [];
-                
-                // Remove any instances where checked file isn't in selected
-                this.selectedData = this.selectedData.filter(function(item) { 
-                    var match = checkList.indexOf(item.filename);
 
-                    if(match > -1) {
-                        toFilter.push(checkList[match]);
-                    }
-
-                    return checkList.indexOf(item.filename) > -1;
-                });
-
-                // Filter out data that doesn't need to be added and keep the rest
-                checkList.filter(el => toFilter.indexOf(el) < 0).map(function(fname) {
-
-                    let temp = chosenData.find(el => el.filename === fname);
-                    
-                    vm.selectedData.push(temp);
-                });
+                this.selectedData = _.cloneDeep(chosenData);
 
             }
         },
         prepData(sd) {
-            let temp = [];
-           
-            for (let i = 0; i < sd.length; i++) {
-                temp.push(sd[i].data);
-            }
-            
-            // Flatten out any nested arrays
-            return _.flatten(temp);
+
+            return this.prepPlotData(sd, function() {
+                    let temp = [];
+
+                    for (let i = 0; i < sd.length; i++) temp.push(sd[i].data);
+
+                    return temp;
+                });
         },
         setParameters() {
+
             this.$nextTick(function() {
-                if(this.selectedData.length > 0) {
-                    this.$refs.stitchPlot.setParameters({
+                if (this.selectedData.length > 0) {
+
+                    this.$refs.plot_Stitch.setParameters({
                         data: this.prepData(this.selectedData),
-                        scales: this.scales,
-                        colorDomain: this.$store.getters.getColorDomain,
-                        brushCount: this.filesToPlot.length
+                        scale: this.scale,
+                        colorDomain: this.$store.getters.getColorDomain('Stitch'),
+                        brushCount: this.filesToPlot.length,
+                        label: {x: 'q', y: 'I(q)'}
                     });
 
                 } else {
                     // console.log("No data to plot...");
-                    d3.select(".chart-stitch").remove();
-                    d3.select("#tooltip-stitch").remove();
-                    this.$refs.stitchPlot.resetDefaults();
+                    d3.select(".chart-Stitch").remove();
+                    d3.select("#tooltip-Stitch").remove();
+
+                    this.$refs.plot_Stitch.resetDefaults();
                     this.$refs.toggle.picked = true;
                     this.isStitched = false;
                 }
             })
         },
         stitchData() {
-            let result = this.$refs.stitchPlot.stitchData();
+            let result = this.$refs.plot_Stitch.stitchData();
 
             this.isStitched = result;
         },
         removeBrushes() {
-            this.$refs.stitchPlot.removeBrushes();
+            this.$refs.plot_Stitch.removeBrushes();
         },
         removeStitch() {
-            let result = this.$refs.stitchPlot.removeStitchLine();
+            let result = this.$refs.plot_Stitch.removeStitchLine();
 
             this.isStitched = result;
         },
         toggleEdit(choice) {
-            this.$refs.stitchPlot.toggleEdit(choice);
+            this.$refs.plot_Stitch.toggleEdit(choice);
         },
         saveStitchLine() {
-            this.$refs.stitchPlot.saveStitchLine();
+            this.$refs.plot_Stitch.saveStitchLine();
         },
         resetStitch() {
             this.disable = true;
@@ -307,35 +315,25 @@ export default {
             this.isBrushesStored = true;
             this.resetScales();
 
-            d3.select(".chart-stitch").remove();
-            d3.select("#tooltip-stitch").remove();
+            d3.select(".chart-Stitch").remove();
+            d3.select("#tooltip-Stitch").remove();
 
         },
         drawBrushes() {
-            this.$refs.stitchPlot.drawSavedBrushes();
+            this.$refs.plot_Stitch.drawSavedBrushes();
         }
     },
     watch: {
-        scales: {
-            handler() {
-                this.$nextTick(function() {
-                    if (this.selectedData.length > 0) {
-                        this.$refs.stitchPlot.updateScales(this.scales);
-                    }
-                });
-            },
-            deep: true
-        },
         filesToPlot: {
             handler() {
                 var vm = this;
                 
-                if(this.filesToPlot.length === 0) {
+                if (this.filesToPlot.length === 0) {
                     // There should be nothing to plot or fit,
                     // so reset everything to defaults.
                     // Remove any elements previously plotted
-                    d3.select(".chart-stitch").remove();
-                    d3.select("#tooltip-stitch").remove();
+                    d3.select(".chart-Stitch").remove();
+                    d3.select("#tooltip-Stitch").remove();
 
                     // Reset disable to default 'true'
                     this.disable = true;
@@ -356,11 +354,11 @@ export default {
                     
                     // If one file is being plotted, hide any buttons related to stitch line
                     // Toggle back to zoom
-                    if(this.filesToPlot.length < 2) {
+                    if (this.filesToPlot.length < 2) {
                         this.isStitched = false;
                         this.isMultipleLines = false;
                         this.$refs.toggle.picked = true;
-                        this.$refs.stitchPlot.resetToggle();
+                        this.$refs.plot_Stitch.resetToggle();
                     } else {
                         this.isMultipleLines = true;
                     }
@@ -369,10 +367,10 @@ export default {
 
                     // First check if files to plot are in stored data
                     var tempData = this.filesToPlot.map(function(filename) {
-                        var temp = vm.$store.getters.getSaved1D(filename);
+                        var temp = vm.$store.getters.getSavedFile('Stitch', filename);
                     
                         // console.log("Here is the temp:", temp);
-                        if(temp === '999') {
+                        if (temp === '999') {
                             // console.log("Not in stored:", filename);
                             filesToFetch.push(filename);
                         } else {
@@ -382,11 +380,10 @@ export default {
                     }).filter(item => item !== undefined);
                     
                     // Next fetch the file URLs
-                    var fileURLs = this.getURLs(filesToFetch, "-FetchStitch");
+                    var fileURLs = this.$store.getters.getURLs(filesToFetch, 'Stitch');
 
-                    // console.log("Got dem fileURLs", fileURLs);
-                    if(fileURLs.length > 0) {
-                        this.pull1DData(fileURLs, tempData);
+                    if (fileURLs.length > 0) {
+                        this.read1DData(fileURLs, tempData, 'Stitch', parseData);
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }

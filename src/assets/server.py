@@ -30,23 +30,39 @@ data = [
         "results": [
             {
                 "id": "1",
+                "type": "SANS1D",
                 "filename": "A1_m_Iq",
                 "url": "/external/files/sans1d/A1_m_Iq.txt"
             },
             {
                 "id": "2",
+                "type": "SANS1D",
                 "filename": "aC3_6_T12hS90_w_Iq",
                 "url": "/external/files/sans1d/aC3_6_T12hS90_w_Iq.txt"
             },
             {
                 "id": "3",
+                "type": "SANS1D-Stitch",
                 "filename": "A3_m_Iq",
                 "url": "/external/files/sans1d/A3_m_Iq.txt"
             },
             {
                 "id": "4",
+                "type": "SANS2D",
                 "filename": "A1_m_Iqxy",
                 "url": "/external/files/sans2d/A1_m_Iqxy.dat"
+            },
+            {
+                "id": "5",
+                "type": "TAS",
+                "filename": "CG1B_exp0298_scan0009",
+                "url": "/external/files/tas/CG1B_exp0298_scan0009.dat"
+            },
+            {
+                "id": "6",
+                "type": "TAS",
+                "filename": "CG1B_exp0298_scan0010",
+                "url": "/external/files/tas/CG1B_exp0298_scan0010.dat"
             }
         ]
     },
@@ -57,18 +73,27 @@ data = [
         "results": [
             {
                 "id": "1",
+                "type": "SANS1D-Stitch",
                 "filename": "A4_m_Iq",
                 "url": "/external/files/sans1d/A3_m_Iq.txt"
             },
             {
                 "id": "2",
+                "type": "SANS1D-Stitch",
                 "filename": "A3_w_Iq",
                 "url": "/external/files/sans1d/A3_w_Iq.txt"
             },
             {
                 "id": "3",
+                "type": "SANS2D",
                 "filename": "A2_m_Iqxy",
                 "url": "/external/files/sans2d/A2_m_Iqxy.dat"
+            },
+            {
+                "id": "4",
+                "type": "TAS",
+                "filename": "CG1B_exp0298_scan0012",
+                "url": "/external/files/tas/CG1B_exp0298_scan0012.dat"
             }
         ]
     }
