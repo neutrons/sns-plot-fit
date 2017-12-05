@@ -20,7 +20,7 @@ export const read1DData = {
 
                 var promises = fileURLs.map(function(url) {
 
-                    if (url.type === 'fetch') {
+                    if (url.type === 'fetched') {
                         return axios.get(url.url).then(function(response) {
                             // console.log("axios response data", response);
 
@@ -30,7 +30,7 @@ export const read1DData = {
 
                             return data;
                         });        
-                    } else if (url.type === 'upload') {
+                    } else if (url.type === 'uploaded') {
 
                         // Turn file reader into a promise in order to
                         // wait on the async reading of files with Promise.all below

@@ -1,18 +1,20 @@
 export const removeFile = {
     methods: {
-        removeFile(type, filename, callback) {
-            let vm = this;
+        removeFile(type, filename, callback = function() { return; }) {
+            this.$store.commit('removeFile', {dataType: type, filename: filename});
+            this.$store.commit('removeColor', {dataType: type, filename: filename});
 
-            callback = callback || function() { return; };
-
-            let index = vm.filesToPlot.indexOf(filename);
-
-            if (index > -1) vm.filesToPlot.splice(index,1);
+            let index = this.filesToPlot.indexOf(filename);
 
             callback();
 
-            vm.$store.commit('removeFile', {dataType: type, filename: filename});
-            vm.$store.commit('removeColor', {dataType: type, filename: filename});
+            if (index > -1) {
+                this.filesToPlot.splice(index, 1);
+
+                this.$nextTick(function() {
+                    this.setFilesToPlot();
+                });
+            }
         }
     }
 }

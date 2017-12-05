@@ -5,17 +5,10 @@
         <!-- Files Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
-                    <div v-show="fetchFiles.length > 0">
-                        <div>
-                            <v-filter 
-                                group-type="SANS2D"
-                                @filter-job="filterJob"
-                                @sort-by-date="sortByDate"
-                            ></v-filter>
-                        </div>
+                    <div v-show="Object.keys(getFetched).length > 0">
                         <v-table :fieldNames="['Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles('SANS2D', sortBy, filterBy)" :class="isPlotted(f.filename)">
+                                <tr v-for="f in getFetched" :class="isPlotted(f.filename)">
                                     <template>
                                         <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
                                         <td class="td-name">{{f.filename}}</td>

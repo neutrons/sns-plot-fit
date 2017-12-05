@@ -87,18 +87,18 @@ export default {
       let vm = this;
 
       let temp = {
-        'SANS1D': [],
-        'SANS2D': [],
-        'TAS': [],
-        'Stitch': []
-      }
+        'SANS1D': {},
+        'SANS2D': {},
+        'TAS': {},
+        'Stitch': {},
+      };
 
       // If data is not stored, fetch it, store it, and send data to be plotted
       axios.get('/external/fetch').then(response => {
 
-        let TD = response.data;
+        let data = response.data;
 
-        TD.forEach(el => {
+        data.forEach(el => {
           var jobTitle = el.job_title;
           var jobModified = el.date_modified;
 
@@ -106,38 +106,52 @@ export default {
             let key = r.type;
             
             if (key === 'SANS1D-Stitch') {
-              
-              temp.Stitch.push({
+
+              temp.Stitch[r.filename] = {
                 id: r.id,
                 filename: r.filename,
                 url: r.url,
                 jobTitle: jobTitle,
-                dateModified: jobModified
-              });
+                dateModified: jobModified,
+                tags: [],
+                loadType: 'fetched',
+              };
 
-              temp.SANS1D.push({
+              temp.SANS1D[r.filename] = {
                 id: r.id,
                 filename: r.filename,
                 url: r.url,
                 jobTitle: jobTitle,
-                dateModified: jobModified
-              });
-
+                dateModified: jobModified,
+                tags: [],
+                loadType: 'fetched',
+              };
             } else {
-              temp[key].push({
+              temp[key][r.filename] = {
                 id: r.id,
                 filename: r.filename,
                 url: r.url,
                 jobTitle: jobTitle,
-                dateModified: jobModified
-              });
+                dateModified: jobModified,
+                tags: [],
+                loadType: 'fetched',
+              };
             }
           })
 
         });
 
         for (let key in temp) {
-          if (temp[key].length > 0) this.$store.commit('addFiles', { loadType: 'fetch', dataType: key, files: temp[key] });
+
+          if (Object.keys(temp[key]).length > 0) {
+
+            this.$store.commit('addFiles', 
+              {
+                loadType: 'fetched',
+                dataType: key, 
+                files: temp[key] 
+              });
+          }
         }
       
       }).catch(function (err) {
@@ -149,43 +163,41 @@ export default {
     uploadFiles(files) {
 
       let temp = {
-        'SANS1D': [],
-        'SANS2D': [],
-        'TAS': [],
-        'Stitch': []
+        'SANS1D': {},
+        'SANS2D': {},
+        'TAS': {},
+        'Stitch': {}
       }
 
       files.forEach( el => {
         let key = el.type;
+        let fname = el.filename;
+
+        el.tags = [];
+        el.loadType = 'uploaded';
 
         if (key === 'SANS1D-Stitch') {
-          temp.Stitch.push(el);
-          temp.SANS1D.push(el);
+          temp.Stitch[fname] = el;
+          temp.SANS1D[fname] = el;
         } else {
-          temp[key].push(el);
+          temp[key][fname] = el;
         }
 
       })
 
       for (let key in temp) {
-        this.$store.commit('addFiles', { loadType: 'upload', dataType: key, files: temp[key] });
+        if (Object.keys(temp[key]).length > 0) {
+
+            this.$store.commit('addFiles', 
+              {
+                loadType: 'uploaded',
+                dataType: key, 
+                files: temp[key] 
+              });
+          }
       }
 
     },
-    dataType(fname) {
-      if (/.*Iq.txt$/.exec(fname)) {
-        // File matches 1D data
-        // console.log("Is 1D:", fname);
-        return '1D';
-      } else if (/.*.dat$/.exec(fname)) {
-        // File matches for 2D data
-        // console.log("Is 2d:", fname);
-        return '2D';
-      } else {
-        // File doesn't match for either 1D or 2D, throw error message
-        return false;
-      }
-    }
   },
   watch: {
     $route() {
