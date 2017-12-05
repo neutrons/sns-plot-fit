@@ -3,10 +3,7 @@
       <div class="container-fluid">
       <v-modal @close='showModal = false' v-if='showModal' header='SANS1D Previewer'>
         <v-quick-plot
-            :id='ID'
             slot='body'
-            :uploaded-files='getUploaded'
-            :fetched-files='fetchFiles("SANS1D", sortBy, filterBy)'
             data-picker='DataPicker1D'
         ></v-quick-plot>
       </v-modal>
@@ -18,26 +15,20 @@
             @click='showModal = true' slot='title-content'
             v-if='isFilesAvailable'
         >Quick Plot</button>
-        
 
+        <v-filter :id='ID' @update-filter='updateFilters'></v-filter>
+    
             <!-- Fetched Data Panel  -->
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
-                    <div v-show="fetchFiles.length > 0">
-                        <div>
-                            <v-filter
-                                group-type="SANS1D"
-                                @filter-job="filterJob"
-                                @sort-by-date="sortByDate"
-                            ></v-filter>
-                        </div>
+                    <div v-show="Object.keys(getFetched).length > 0">
                         <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles('SANS1D', sortBy, filterBy)" :class="isPlotted(f.filename)">
+                                <tr v-for='(f, key) in filteredFetch' :key='key'>
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
+                                        <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled=" (isPlotted(key) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="f.filename + '-Fetch1D'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change='setFilesToPlot'></td>
-                                        <td class="td-name">{{f.filename}}</td>
+                                        <td class="td-check"><input :id="key + '-Fetch1D'" type="checkbox" :value="key" v-model="filesToPlot" @change='setFilesToPlot'></td>
+                                        <td class="td-name">{{key}}</td>
                                         <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
                                 </tr>
@@ -48,16 +39,16 @@
 
             <!-- Uploaded Data Panel  -->
                 <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show="getUploaded.length > 0">
+                    <div v-show='Object.keys(getUploaded).length > 0'>
                      <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in getUploaded" :class="isPlotted(f.filename)">
+                                <tr v-for='(f, key) in filteredUpload' :key='key' :class='isPlotted(key)'>
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled="(isPlotted(f.filename) == 'success' ? false : true)"
+                                        <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled="(isPlotted(key) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="f.filename + '-Upload1D'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change='setFilesToPlot'></td>
-                                        <td class="td-name">{{f.filename}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="remove1DFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td class="td-check"><input :id="key + '-Upload1D'" type="checkbox" :value="key" v-model="filesToPlot" @change='setFilesToPlot'></td>
+                                        <td class="td-name">{{key}}</td>
+                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="remove1DFile(key)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -173,6 +164,7 @@ import {removeFile} from '../../assets/javascript/mixins/removeFile.js';
 import {prepPlotData} from '../../assets/javascript/mixins/prepPlotData.js';
 import {setScales} from '../../assets/javascript/mixins/setScales.js';
 import {fetchFiles} from '../../assets/javascript/mixins/fetchFiles.js';
+import {uploadFiles} from '../../assets/javascript/mixins/uploadFiles.js';
 import {filterJobs} from '../../assets/javascript/mixins/filterJobs.js';
 import {isOffline} from '../../assets/javascript/mixins/isOffline.js';
 
@@ -215,12 +207,14 @@ export default {
             y: 'y',
         },
         showModal: false,
+        selected: 'All',
       };
     },
     mixins: [
         parseData,
         read1DData,
         fetchFiles,
+        uploadFiles,
         setScales,
         filterJobs,
         isOffline,
@@ -233,20 +227,17 @@ export default {
     ],
     computed: {
         isFilesAvailable() {
-            let fetchKeys = Object.keys(this.fetchFiles('SANS1D', this.sortBy, this.filterBy));
+            let fetchKeys = Object.keys(this.getFetched);
             let uploadKeys = Object.keys(this.getUploaded);
 
             return fetchKeys.length > 0 || uploadKeys.length > 0;
         },
         isFiles() {
-            let fetchLength = this.$store.getters.getFetched('SANS1D').length;
-            let uploadLength = this.$store.getters.getUploaded('SANS1D').length;
+            let fetchLength = Object.keys(this.getUploaded).length;
+            let uploadLength = Object.keys(this.getFetched).length;
             
-            return fetchLength > 0 || uploadLength > 0 ? true : false;
+            return fetchLength > 0 || uploadLength > 0;
         },
-        getUploaded() {
-            return this.$store.getters.getUploaded('SANS1D');
-        }
     },
     mounted() {
         let vm = this;
@@ -263,20 +254,23 @@ export default {
                     el.data.splice(index,1); 
                     el.dataTransformed.splice(index, 1); 
                 };
-            })
+            });
+
+            this.setParameters();
         },
         clearSelected() {
             this.fileFitChoice = [];
             this.filesToPlot = [];
             this.fileToFit = null;
+            this.setFilesToPlot();
         },
         checkAll() {
             
-            let fetched = this.$store.getters.getFetched('SANS1D');
-            let uploaded = this.$store.getters.getUploaded('SANS1D');
+            let fetched = Object.keys(this.getFetched);
+            let uploaded = Object.keys(this.getUploaded);
 
             for (let i = 0, len = fetched.length; i < len; i++) {
-                let fname = fetched[i].filename;
+                let fname = fetched[i];
 
                 if (this.filesToPlot.indexOf(fname) === -1) {
                     this.filesToPlot.push(fname);
@@ -284,19 +278,25 @@ export default {
             }
             
             for (let i = 0, len = uploaded.length; i < len; i++) {
-                let fname = uploaded[i].filename;
+                let fname = uploaded[i];
 
                 if (this.filesToPlot.indexOf(fname) === -1) {
                     this.filesToPlot.push(fname);
                 }
             }
+
+            this.setFilesToPlot();
         },
         remove1DFile(filename) {
-
+            
             let vm = this;
 
             this.removeFile('SANS1D', filename, function() {
-                if (vm.fileToFit === filename)    vm.fileToFit = null;
+                if (vm.fileToFit === filename) {
+                    vm.fileFitChoice = [];
+                    vm.fileToFit = null;
+                    vm.setFileToFit;
+                }
             })
         },
         setCurrentData(chosenData, checkList) {           

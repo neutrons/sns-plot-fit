@@ -15,16 +15,16 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
       fetched: {
-        'SANS1D': [],
-        'SANS2D': [],
-        'TAS': [],
-        'Stitch': []
+        'SANS1D': {},
+        'SANS2D': {},
+        'TAS': {},
+        'Stitch': {},
       },
       uploaded: {
-        'SANS1D': [],
-        'SANS2D': [],
-        'TAS': [],
-        'Stitch': []
+        'SANS1D': {},
+        'SANS2D': {},
+        'TAS': {},
+        'Stitch': {},
       },
       colorDomain: {
         'SANS1D': [],
@@ -32,10 +32,10 @@ export default new Vuex.Store({
         'Stitch': []
       },
       saved: {
-        'SANS1D': [],
-        'SANS2D': [],
-        'TAS': [],
-        'Stitch': []
+        'SANS1D': {},
+        'SANS2D': {},
+        'TAS': {},
+        'Stitch': {}
       },
       xScales: {
         'X': d3.scaleLinear(),

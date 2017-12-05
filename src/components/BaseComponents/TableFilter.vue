@@ -1,67 +1,77 @@
 <template>
 <div>
-    <div class="filter-selection input-group">
-        <span class="select-tag input-group-addon"><i class="fa fa-filter" aria-hidden="true"></i> Filter:</span>
-        <select class="group-selection form-control input-sm" v-model="filterChoice">
-            <option>All</option>
-            <option v-for="job in jobs">{{ job }}</option>
-        </select>
+    <div class='input-group'>
+      <span class='input-group-addon'>Filter By:</span>
+        <multiselect
+            selectLabel=''
+            selectedLabel=''
+            :limit='1'
+            :limitText='count => { return "+" + count + " more"; }'
+            v-model='value'
+            :options='tags'
+            :multiple='true'
+            :close-on-select='false'
+            @input='onInput'
+        ></multiselect>
     </div>
-
-    <button class="btn-sort btn btn-sm btn-default" v-if="sortToggle" @click="sortByDate('descending')"><i class="fa fa-sort-amount-asc" aria-hidden="true"></i> Date Modified</button>
-    <button class="btn-sort btn btn-sm btn-default" v-else @click="sortByDate('ascending')"><i class="fa fa-sort-amount-desc" aria-hidden="true"></i> Date Modified</button>
 </div>
 </template>
 
 <script>
+import Multiselect from 'vue-multiselect';
 
 export default {
-  props: {
-      groupType: {
-          type: String,
-          default: 'SANS1D',
-          required: true
-      }
-  },
-  data: function() {
-    return {
-        filterChoice: 'All',
-        sortToggle: true
-    }
-  },
-  computed: {
-    jobs() {
-        var jobs = this.$store.getters.getGroups(this.groupType);
+    name: 'TableFilter',
+    components: {
+        Multiselect,
+    },
+    props: {
+        id: String,
+    },
+    data() {
+        return {
+            value: [],
+        };
+    },
+    methods: {
+        onInput(tag) {
+            this.$emit('update-filter', this.value);
+        }
+    },
+    computed: {
+        getUploaded() {
+            return this.$store.getters.getUploaded(this.id);
+        },
+        getFetched() {
+            return this.$store.getters.getFetched(this.id);
+        },
+        mergedList() {
+            return Object.assign({}, this.getUploaded, this.getFetched);
+        },
+        filenames() {
+            return Object.keys(this.mergedList);
+        },
+        tags() {
+            let temp = [];
 
-        return jobs.reduce(function(prev, cur) {
-                if (prev.indexOf(cur) < 0) prev.push(cur);
-                
-                return prev;
-            }, []);
-    }
-  },
-  methods: {
-    sortByDate(direction) {
-        this.sortToggle = !this.sortToggle;
-        this.$emit('sort-by-date', direction);
-    }
-  },
-  watch: {
-      filterChoice() {
-          this.$emit('filter-job', this.filterChoice);
-      }
-  }
+            this.filenames.forEach(name => {
+                this.mergedList[name].tags.forEach(tag => {
+                    if (temp.indexOf(tag) === -1) {
+                        temp.push(tag);
+                    }
+                })
+            });
+
+            return temp;
+        },
+    },
 }
 </script>
 
-<style scoped>
-.filter-selection {
-    width: 100%;
-    margin-bottom: 5px
-}
+<style lang='less' scoped>
+@import '../../../node_modules/vue-multiselect/dist/vue-multiselect.min.css';
 
-.btn-sort {
-    width: 100%;
-    margin-bottom: 5px;
+.multiselect {
+    padding-left: 0px;
 }
 </style>

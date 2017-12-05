@@ -14,9 +14,6 @@ import { scatter } from '../../../assets/javascript/mixins/chartFuncs/scatter.js
 export default {
     name: 'QuickChart',
     props: {
-        id: {
-            type: String,
-        },
         data: {
             type: Array,
         }
@@ -72,6 +69,9 @@ export default {
         this.g.append('g').attr('class', 'scatter');
     },
     computed: {
+        id() {
+            return this.$route.name;
+        },
         xAxis() {
             return d3.axisBottom(this.xScale);
         },
