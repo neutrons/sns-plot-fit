@@ -5,7 +5,7 @@ export default {
       transformations: {
         x: 'x',
         y: 'y',
-        e: 'e',
+        error: 'error',
       },
       yLabel: "I",
       xLabel: "Q",
@@ -49,7 +49,7 @@ export default {
       transformations: {
         x: 'x',
         y: 'y',
-        e: 'e',
+        error: 'error',
       },
       yLabel: "I",
       xLabel: "Q",
@@ -93,7 +93,7 @@ export default {
       transformations: {
         x: 'x^2',
         y: 'log(y)',
-        e: '((1/y)*e)^2',
+        error: '((1/y)*error)^2',
       },
       yLabel: "Log(I(q))",
       xLabel: "q^2",
@@ -167,7 +167,7 @@ export default {
       transformations: {
         x: 'x',
         y: 'y',
-        e: 'e',
+        error: 'error',
       },
       yLabel: "I(q)",
       xLabel: "q",
@@ -211,7 +211,7 @@ export default {
       transformations: {
         x: 'x^2',
         y: '1/y',
-        e: '((-1/y^2)*e)^2',
+        error: '((-1/y^2)*error)^2',
       },
       yLabel: "1/I(q)",
       xLabel: "q^2",
@@ -258,7 +258,7 @@ export default {
         y: 'x^2*log(y)',
         // because there's no error for X I'm doing e(x) = 0.1
         // e(x) = sqrt(x) is annoying for high x
-        e: '(x^2/y * e)^2 + (2*x*log(y) * 0.1)^2',
+        error: '(x^2/y * error)^2 + (2*x*log(y) * 0.1)^2',
       },
       yLabel: "q^2 \times log(I)",
       xLabel: "q",
@@ -302,7 +302,7 @@ export default {
       transformations: {
         x: 'x^2',
         y: 'sqrt(y)',
-        e: '(1/(2*sqrt(y))*e)^2',
+        error: '(1/(2*sqrt(y))*error)^2',
       },
       yLabel: "sqrt(I)",
       xLabel: "Q^2",

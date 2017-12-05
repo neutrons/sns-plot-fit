@@ -47,6 +47,26 @@ export const updateChart = {
                             .selectAll('path')
                             .data([d.values])
                             .call(vm.updateLine, trans, d.key);
+
+                    // Add error lines
+                    let error = vm.chart.g.select('#error-' + vm.ID);
+                    
+                    error.append("g").attr("id", "error-" + vm.ID + "-" + d.key)
+                        .selectAll('.error-line')
+                        .data(d.values)
+                        .call(vm.errorbarLine, new_xScale, new_yScale);
+                    
+                    // Add error cap top
+                   error.append("g").attr("id", "error-cap-top-" + vm.ID + '-' + d.key)
+                            .selectAll(".error-cap-top")
+                            .data(d.values)
+                            .call(vm.errorCaps, 'top', new_xScale, new_yScale);
+                    
+                    // Add error cap bottom
+                    error.append("g").attr("id", "error-cap-bottom-" + vm.ID + '-' + d.key)
+                            .selectAll(".error-cap-bottom")
+                            .data(d.values)
+                            .call(vm.errorCaps, 'bottom', new_xScale, new_yScale);
     
                     // Add scatter points
                     vm.chart.g.select('#scatter-' + vm.ID)
@@ -62,11 +82,30 @@ export const updateChart = {
                         .data([d.values])
                         .call(vm.updateLine, trans);
 
+                    // Update error Line
+                    vm.chart.g.select('#error-' + vm.ID + '-' + d.key)
+                        .selectAll('.error-line')
+                        .data(d.values)
+                        .call(vm.updateErrorLine, vm.scale.yType, new_xScale, new_yScale, trans);
+
+                    // Update error cap Top
+                    vm.chart.g.select("#error-cap-top-" + vm.ID + "-" + d.key)
+                        .selectAll("line")
+                        .data(d.values)
+                        .call(vm.updateErrorCaps, 'top', new_xScale, new_yScale, trans)
+
+                    // Update error cap bottom
+                    vm.chart.g.select("#error-cap-bottom-" + vm.ID + "-" + d.key)
+                        .selectAll("line")
+                        .data(d.values)
+                        .call(vm.updateErrorCaps, 'bottom', new_xScale, new_yScale, trans)
+
                     // Update scatter
                     vm.chart.g.select('#scatter-' + vm.ID + '-' + d.key)
                         .selectAll('circle')
                         .data(d.values)
-                        .call(vm.updateScatter, new_xScale, new_yScale, trans);  
+                        .call(vm.updateScatter, new_xScale, new_yScale, trans);
+                        
                 }
             });
 

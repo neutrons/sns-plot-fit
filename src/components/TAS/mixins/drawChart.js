@@ -71,6 +71,10 @@ export const drawChart = {
 
             // Set initial Elements
             vm.setChartElements();
+
+            // Add a group element for error bars
+            vm.chart.g.select('.chart-elements').call(vm.addErrorGroup);
+            
             vm.addLabels();
 
             vm.prevFit = vm.isFit;

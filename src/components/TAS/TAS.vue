@@ -369,6 +369,19 @@ export default {
             // Always set parameters after new data is selected
             this.setParameters();
         },
+        addErrors(data) {
+            data = _.cloneDeep(data);
+
+            data.forEach(d => {
+                d.values.forEach(item => {
+                    let error = Math.sqrt(item.y);
+
+                    item.error = Number.isFinite(error) ? error : 0;
+                })
+            })
+            
+            return data;
+        },
         prepData(sd) {    
             let vm = this;
 
@@ -379,7 +392,6 @@ export default {
 
             // Filter out data for selected fields
             sd.forEach(el => {
-
                 el.data = el.data.map(function(d) {
                     return {x: d[vm.field.x], y: d[vm.field.y], name: d.name};
                 })
@@ -393,6 +405,8 @@ export default {
 
                     return temp;
             });
+
+            tempData = this.addErrors(tempData);
 
             return _.cloneDeep(tempData);
         },

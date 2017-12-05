@@ -12,6 +12,7 @@ export default {
         callback(results) {
             let defaults = this.extractDefaults(results.metadata);
             let data = this.swapDefaults(defaults, results.data);
+            data = this.addErrors(data);
             
             // emit metadata
             this.$emit('update-metadata', results.metadata);
@@ -61,8 +62,16 @@ export default {
 
             return temp;
         },
+        addErrors(data) {
+            data = _.cloneDeep(data);
 
-        
+            data.forEach(d => {
+                let error = Math.sqrt(d.y);
+                d.error = Number.isFinite(error) ? error : 0;
+            })
+            
+            return data;
+        }
     }
 }
 </script>

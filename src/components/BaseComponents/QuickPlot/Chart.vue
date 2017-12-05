@@ -65,6 +65,9 @@ export default {
         
         axis.append('g').attr('class', 'axis--y');
         
+        this.g.append('g').attr('class', 'scatter-error-line');
+        this.g.append('g').attr('class', 'scatter-error-top');
+        this.g.append('g').attr('class', 'scatter-error-bottom');
         this.g.append('g').attr('class', 'scatter-line');
         this.g.append('g').attr('class', 'scatter');
     },
@@ -113,20 +116,21 @@ export default {
                 this.updateGrids();
                 this.updateScatterLine(choice);
                 this.updateScatter(choice);
+                this.updateErrorLine(choice);
+                this.updateErrorTop(choice);
+                this.updateErrorBottom(choice);
             })
         },
         adjustDomains(choice) {
             this.xScale.range([0, this.width])
                 .domain(d3.extent(choice, (d) => { return d.x }));
-            
+
             this.yScale.range([this.height, 0])
-                .domain(d3.extent(choice, (d) => { return d.y }));
+                .domain(d3.extent(choice, (d) => { return d.y; }));
             
             this.line
                 .x((d) => { return this.xScale(d.x) })
                 .y((d) => { return this.yScale(d.y) });
-            
-            let yMin = d3.min(choice, (d) => { return d.y; });
         },
         updateAxes(choice) {
             
@@ -188,10 +192,83 @@ export default {
                 .append('circle')
                 .attr('cx', (d) => { return this.xScale(d.x) })
                 .attr('cy', (d) => { return this.yScale(d.y) })
-                .attr('r', 4)
+                .attr('r', 3)
                 .style('fill', 'white')
                 .style('stroke', 'green');
         },
+        updateErrorLine(choice) {
+            let errorSelect = this.g.select('.scatter-error-line')
+                .selectAll('line')
+                .data(choice);
+
+            // EXIT
+            errorSelect.exit().remove();
+
+            // UPDATE
+            errorSelect.transition().duration(750)
+                .attr('x1', (d) => { return this.xScale(d.x)})
+                .attr('x2', (d) => { return this.xScale(d.x)})
+                .attr('y1', (d) => { return this.yScale(d.y + d.error)})
+                .attr('y2', (d) => { return this.yScale(d.y - d.error)});
+
+            // ENTER
+            errorSelect.enter()
+                .append('line')
+                .attr('x1', (d) => { return this.xScale(d.x)})
+                .attr('x2', (d) => { return this.xScale(d.x)})
+                .attr('y1', (d) => { return this.yScale(d.y + d.error)})
+                .attr('y2', (d) => { return this.yScale(d.y - d.error)})
+                .style('stroke', 'brown')
+                .style('stroke-width', '1px');
+        },
+        updateErrorTop(choice) {
+            let errorSelect = this.g.select('.scatter-error-top')
+                .selectAll('line')
+                .data(choice);
+
+            // EXIT
+            errorSelect.exit().remove();
+
+            // UPDATE
+            errorSelect.transition().duration(750)
+                .attr('x1', (d) => { return this.xScale(d.x) - 4})
+                .attr('x2', (d) => { return this.xScale(d.x) + 4})
+                .attr('y1', (d) => { return this.yScale(d.y + d.error);})
+                .attr('y2', (d) => { return this.yScale(d.y + d.error);});
+
+            // ENTER
+            errorSelect.enter().append('line')
+                .attr('x1', (d) => { return this.xScale(d.x) - 4})
+                .attr('x2', (d) => { return this.xScale(d.x) + 4})
+                .attr('y1', (d) => { return this.yScale(d.y + d.error);})
+                .attr('y2', (d) => { return this.yScale(d.y + d.error);})
+                .style('stroke', 'brown')
+                .style('stroke-width', '1px');
+        },
+        updateErrorBottom(choice) {
+            let errorSelect = this.g.select('.scatter-error-bottom')
+                .selectAll('line')
+                .data(choice);
+
+            // EXIT
+            errorSelect.exit().remove();
+
+            // UPDATE
+            errorSelect.transition().duration(750)
+                .attr('x1', (d) => { return this.xScale(d.x) - 4})
+                .attr('x2', (d) => { return this.xScale(d.x) + 4})
+                .attr('y1', (d) => { return this.yScale(d.y - d.error);})
+                .attr('y2', (d) => { return this.yScale(d.y - d.error);});
+
+            // ENTER
+            errorSelect.enter().append('line')
+                .attr('x1', (d) => { return this.xScale(d.x) - 4})
+                .attr('x2', (d) => { return this.xScale(d.x) + 4})
+                .attr('y1', (d) => { return this.yScale(d.y - d.error);})
+                .attr('y2', (d) => { return this.yScale(d.y - d.error);})
+                .style('stroke', 'brown')
+                .style('stroke-width', '1px');
+        }
     },
     watch: {
         data() {
