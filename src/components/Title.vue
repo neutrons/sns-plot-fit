@@ -15,7 +15,7 @@
         <div class="collapse navbar-collapse" id="navbarElements">
           <ul id="menu-buttons" class="nav navbar-nav navbar-right">
             <li v-if="!isOffline">
-              <button class="btn btn-success navbar-btn" @click="fetchFiles">Fetch Data</button>
+              <v-fetch-button></v-fetch-button>
             </li>
             <li>
               <v-file-upload></v-file-upload>
@@ -48,6 +48,7 @@ import { isOffline } from '../assets/javascript/mixins/isOffline.js';
 
 /* Import Components */
 import FileUpload from './BaseComponents/FileUpload/FileUpload.vue';
+import FetchButton from './BaseComponents/FetchButton.vue';
 
 // Use papa parse to parse csv/tsv files
 // Axios to handle HTTP requests
@@ -58,6 +59,7 @@ export default {
   name: 'heading',
   components: {
     'v-file-upload': FileUpload,
+    'v-fetch-button': FetchButton,
   },
   data: function() {
     return {
@@ -66,7 +68,7 @@ export default {
   },
   mounted() {
     // Event listener for when stitch lines are saved
-    eventBus.$on('fetch-files', this.fetchFiles);
+    // eventBus.$on('fetch-files', this.fetchFiles);
     eventBus.$on('upload-files', this.uploadFiles);
 
     // Add a list of links excluding the redirect path
@@ -80,85 +82,6 @@ export default {
     setDocTitle() {
       // Set the document title to current route path
       document.title = 'ORNL - ' + this.$route.meta.title;
-    },
-    fetchFiles() {
-      console.log("Fetching data...");
-
-      let vm = this;
-
-      let temp = {
-        'SANS1D': {},
-        'SANS2D': {},
-        'TAS': {},
-        'Stitch': {},
-      };
-
-      // If data is not stored, fetch it, store it, and send data to be plotted
-      axios.get('/external/fetch').then(response => {
-
-        let data = response.data;
-
-        data.forEach(el => {
-          var jobTitle = el.job_title;
-          var jobModified = el.date_modified;
-
-          el.results.forEach(r => {
-            let key = r.type;
-            
-            if (key === 'SANS1D-Stitch') {
-
-              temp.Stitch[r.filename] = {
-                id: r.id,
-                filename: r.filename,
-                url: r.url,
-                jobTitle: jobTitle,
-                dateModified: jobModified,
-                tags: [],
-                loadType: 'fetched',
-              };
-
-              temp.SANS1D[r.filename] = {
-                id: r.id,
-                filename: r.filename,
-                url: r.url,
-                jobTitle: jobTitle,
-                dateModified: jobModified,
-                tags: [],
-                loadType: 'fetched',
-              };
-            } else {
-              temp[key][r.filename] = {
-                id: r.id,
-                filename: r.filename,
-                url: r.url,
-                jobTitle: jobTitle,
-                dateModified: jobModified,
-                tags: [],
-                loadType: 'fetched',
-              };
-            }
-          })
-
-        });
-
-        for (let key in temp) {
-
-          if (Object.keys(temp[key]).length > 0) {
-
-            this.$store.commit('addFiles', 
-              {
-                loadType: 'fetched',
-                dataType: key, 
-                files: temp[key] 
-              });
-          }
-        }
-      
-      }).catch(function (err) {
-          console.log(err.message);
-          eventBus.$emit('error-message', err.message, 'danger');
-      })
-
     },
     uploadFiles(files) {
 

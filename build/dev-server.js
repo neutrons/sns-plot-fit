@@ -1,6 +1,8 @@
 'use strict'
 require('./check-versions')()
-require('dotenv').load()
+
+const path = require('path')
+const dotenv = require('dotenv').config({path: path.join(process.env.PWD, '.env')})
 
 const config = require('../config')
 if (!process.env.NODE_ENV) {
@@ -8,7 +10,6 @@ if (!process.env.NODE_ENV) {
 }
 
 const opn = require('opn')
-const path = require('path')
 const express = require('express')
 const webpack = require('webpack')
 const proxyMiddleware = require('http-proxy-middleware')

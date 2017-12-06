@@ -24,7 +24,7 @@
             <!-- Fetched Data Panel  -->
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
                     <div v-show='Object.keys(getFetched).length > 0'>
-                        <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
+                        <v-table :fieldNames="['Fit', 'Plot', 'Filename']">
                             <template>
                                 <tr v-for='(f,key) in filteredFetch' :key='key' :class="isPlotted(key)">
                                     <template>
@@ -32,7 +32,6 @@
                             @change="setFileToFit"></td>
                                         <td class="td-check"><input :id="key + '-FetchTAS'" type="checkbox" :value="key" v-model="filesToPlot" @change="setFilesToPlot"></td>
                                         <td class="td-name">{{key}}</td>
-                                        <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
                                 </tr>
                             </template>
@@ -183,7 +182,6 @@ import {removeFile} from '../../assets/javascript/mixins/removeFile.js';
 
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
-
 
 export default {
     name: 'TAS',
