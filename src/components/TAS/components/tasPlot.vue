@@ -47,10 +47,10 @@ import { addClipPath } from '../../../assets/javascript/mixins/chartFuncs/addCli
 import { addSVG } from '../../../assets/javascript/mixins/chartFuncs/addSVG.js';
 import { errorBars } from '../../../assets/javascript/mixins/chartFuncs/errorBars.js';
 import { zoom } from '../../../assets/javascript/mixins/chartFuncs/zoom.js';
+import { updateChart } from '../../../assets/javascript/mixins/chartFuncs/updateChart.js';
 
 /* Import local mixins */
 import { drawChart } from '../mixins/drawChart.js';
-import { updateChart } from '../mixins/updateChart.js';
 
 /* Import Fitting Mixins */
 import { checkError } from '../../../assets/javascript/mixins/fittings/checkError.js';
