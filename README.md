@@ -37,8 +37,8 @@ pip install Flask --user
 To launch the server:
 
 ```bash
-cd src/assets
-python server.py
+cd server/
+python3 server.py
 ```
 
 Or in a different host / port:
@@ -55,7 +55,12 @@ optional arguments:
 ```
 
 The server can be tested with:
-http://localhost:8000/files/sans1d/A1_m_Iq_wedge_0.txt
+
+- http://localhost:8000/
+- http://localhost:8000/fetch/sans
+- http://localhost:8000/files/sans1d/aC3_6_T12hS90_w_Iq.txt
+- http://localhost:8000/fetch/tas
+- http://localhost:8000/files/tas/HB3_exp0600_scan0001.dat
 
 
 ## Build Setup
