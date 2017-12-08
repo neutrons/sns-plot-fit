@@ -1,30 +1,37 @@
 <template>
   <div id="TAS" class="col-md-12">
       <div class="container-fluid">
+
+        <v-modal @close='showModal = false' v-if='showModal' header='TAS Previewer'>
+            <v-quick-plot
+                slot='body'
+                :is-metadata='true'
+                data-picker='DataPickerTAS'
+            ></v-quick-plot>
+        </v-modal>
+
       <div class="col-md-2">
         
         <!-- Files Main Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
+        <button class='btn btn-success btn-xs pull-left'
+            @click='showModal = true' slot='title-content'
+            v-if='isFilesAvailable'
+        >Quick Plot</button>
+
+        <v-filter :id='ID' @update-filter='updateFilters'></v-filter>
 
             <!-- Fetched Data Panel  -->
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
-                    <div v-show="fetchFiles.length > 0">
-                        <div>
-                            <v-filter
-                                group-type="TAS"
-                                @filter-job="filterJob"
-                                @sort-by-date="sortByDate"
-                            ></v-filter>
-                        </div>
-                        <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
+                    <div v-show='Object.keys(getFetched).length > 0'>
+                        <v-table :fieldNames="['Fit', 'Plot', 'Filename']">
                             <template>
-                                <tr v-for="f in fetchFiles('TAS', sortBy, filterBy)" :class="isPlotted(f.filename)">
+                                <tr v-for='(f,key) in filteredFetch' :key='key' :class="isPlotted(key)">
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
+                                        <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled=" (isPlotted(key) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="f.filename + '-FetchTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFilesToPlot"></td>
-                                        <td class="td-name">{{f.filename}}</td>
-                                        <td class="td-name">{{f.jobTitle}}</td>
+                                        <td class="td-check"><input :id="key + '-FetchTAS'" type="checkbox" :value="key" v-model="filesToPlot" @change="setFilesToPlot"></td>
+                                        <td class="td-name">{{key}}</td>
                                     </template>
                                 </tr>
                             </template>
@@ -34,16 +41,16 @@
 
             <!-- Uploaded Data Panel  -->
                 <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show="getUploaded.length > 0">
+                    <div v-show='Object.keys(getUploaded).length > 0'>
                      <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in getUploaded" :class="isPlotted(f.filename)">
+                                <tr v-for='(f,key) in filteredUpload' :key='key' :class="isPlotted(key)">
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="fileFitChoice" :disabled=" (isPlotted(f.filename) == 'success' ? false : true)"
+                                        <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled=" (isPlotted(key) == 'success' ? false : true)"
                             @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="f.filename + '-UploadTAS'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFilesToPlot"></td>
-                                        <td class="td-name">{{f.filename}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td class="td-check"><input :id="key + '-UploadTAS'" type="checkbox" :value="key" v-model="filesToPlot" @change="setFilesToPlot"></td>
+                                        <td class="td-name">{{key}}</td>
+                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="remove1DFile(key)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -155,6 +162,8 @@ import FieldList from './components/FieldList.vue';
 import Metadata from './components/Metadata.vue';
 import FitTable from '../BaseComponents/FitTable.vue';
 import FitSettingsPanel from '../BaseComponents/Fittings/FitSettingsPanel.vue';
+import Modal from '../BaseComponents/Modal.vue';
+import QuickPlot from '../BaseComponents/QuickPlot/QuickPlot.vue';
 
 /* Import Shared Mixins */
 import fd from '../../assets/javascript/mixins/fittings/fitData.js';
@@ -162,16 +171,17 @@ import {fitMethods} from '../../assets/javascript/mixins/fittings/fitMethods.js'
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
+import { uploadFiles } from '../../assets/javascript/mixins/uploadFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
-import parseData from '../../assets/javascript/mixins/readFiles/parse/TAS.js';
+import { parseData } from '../../assets/javascript/mixins/readFiles/parse/TAS.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import {fitInitialValues} from '../../assets/javascript/mixins/fittings/fitInitialValues.js';
+import {removeFile} from '../../assets/javascript/mixins/removeFile.js';
 
 // The eventBus serves as the means to communicating between components.
 import { eventBus } from '../../assets/javascript/eventBus';
-
 
 export default {
     name: 'TAS',
@@ -187,6 +197,8 @@ export default {
         'v-fit-config': FitConfiguration,
         'fit-results-table': FitTable,
         'v-fit-settings-panel': FitSettingsPanel,
+        'v-modal': Modal,
+        'v-quick-plot': QuickPlot,
     },
     data() {
         return {
@@ -212,11 +224,14 @@ export default {
             },
             ID: 'TAS',
             selectedData: [],
+            showModal: false,
         };
     },
     mixins: [
-        fetchFiles, 
-        setScales, 
+        parseData,
+        fetchFiles,
+        uploadFiles,
+        setScales,
         filterJobs,
         isPlotted,
         isOffline,
@@ -224,6 +239,7 @@ export default {
         prepPlotData,
         fitMethods,
         fitInitialValues,
+        removeFile,
     ],
     mounted() {
         // Listen for event that stitch has been saved
@@ -232,6 +248,12 @@ export default {
         eventBus.$on('update-selected-data-TAS', vm.updateSelectedData);
     },
     computed: {
+        isFilesAvailable() {
+            let fetchKeys = Object.keys(this.getFetched);
+            let uploadKeys = Object.keys(this.getUploaded);
+
+            return fetchKeys.length > 0 || uploadKeys.length > 0;
+        },
         getUploaded() {
           return this.$store.getters.getUploaded('TAS');
         },
@@ -288,25 +310,17 @@ export default {
 
             this.setParameters();
         },
-        removeFile(filename) {
+        remove1DFile(filename) {
+            
             let vm = this;
 
-            // If file is in fileToPlot or filesToPlot, remove it
-            // and remove plot elements
-            if (this.fileToPlot === filename) {
-                this.fileToPlot = null;
-                this.filesToPlot = [];
-
-                // If file is also being fit, reset to defaults
-                if (this.fileToFit === filename) {
-                    this.fileToFit = null;
-                    this.fileFitChoice = [];
+            this.removeFile('TAS', filename, function() {
+                if (vm.fileToFit === filename) {
+                    vm.fileFitChoice = [];
+                    vm.fileToFit = null;
+                    vm.setFileToFit;
                 }
-            }
-
-            this.removePlot();
-
-            this.$store.commit('removeFile', { filename: filename, dataType: 'TAS'});
+            })
         },
         updateFields(choice, value) {
 
@@ -353,6 +367,19 @@ export default {
             // Always set parameters after new data is selected
             this.setParameters();
         },
+        addErrors(data) {
+            data = _.cloneDeep(data);
+
+            data.forEach(d => {
+                d.values.forEach(item => {
+                    let error = Math.sqrt(item.y);
+
+                    item.error = Number.isFinite(error) ? error : 0;
+                })
+            })
+            
+            return data;
+        },
         prepData(sd) {    
             let vm = this;
 
@@ -363,7 +390,6 @@ export default {
 
             // Filter out data for selected fields
             sd.forEach(el => {
-
                 el.data = el.data.map(function(d) {
                     return {x: d[vm.field.x], y: d[vm.field.y], name: d.name};
                 })
@@ -377,6 +403,8 @@ export default {
 
                     return temp;
             });
+
+            tempData = this.addErrors(tempData);
 
             return _.cloneDeep(tempData);
         },
@@ -440,7 +468,7 @@ export default {
                     var fileURLs = this.$store.getters.getURLs(filesToFetch, 'TAS');
                     
                     if (fileURLs.length > 0) {
-                        this.read1DData(fileURLs, tempData, 'TAS', parseData);
+                        this.read1DData(fileURLs, tempData, 'TAS');
                     } else {
                         this.setCurrentData(tempData, this.filesToPlot);
                     }

@@ -4,21 +4,16 @@
       <div class="col-md-2">
         <!-- Files Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
+            <v-filter :id='ID' @update-filter='updateFilters'></v-filter>
+
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
-                    <div v-show="fetchFiles.length > 0">
-                        <div>
-                            <v-filter 
-                                group-type="SANS2D"
-                                @filter-job="filterJob"
-                                @sort-by-date="sortByDate"
-                            ></v-filter>
-                        </div>
+                    <div v-show="Object.keys(getFetched).length > 0">
                         <v-table :fieldNames="['Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles('SANS2D', sortBy, filterBy)" :class="isPlotted(f.filename)">
+                                <tr v-for='(f, key) in filteredFetch' :key='key' :class="isPlotted(key)">
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
-                                        <td class="td-name">{{f.filename}}</td>
+                                        <td class="td-check"><input type="checkbox" :value="key" v-model="filesToPlot" @change="setFileToPlot"></td>
+                                        <td class="td-name">{{key}}</td>
                                         <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
                                 </tr>
@@ -28,14 +23,14 @@
                 </v-panel>
 
                 <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show="getUploaded.length > 0">
+                    <div v-show='Object.keys(getUploaded).length > 0'>
                      <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in getUploaded" :class="isPlotted(f.filename)">
+                                <tr v-for='(f, key) in filteredUpload' :key='key' :class='isPlotted(key)'>
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change="setFileToPlot"></td>
-                                        <td class="td-name">{{f.filename}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                        <td class="td-check"><input type="checkbox" :value="key" v-model="filesToPlot" @change="setFileToPlot"></td>
+                                        <td class="td-name">{{key}}</td>
+                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(key)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
                                 </tr>
                             </template>
@@ -110,15 +105,17 @@ import { updateChart } from './mixins/updateChart.js';
 import { zoomed } from './mixins/zoomed.js';
 
 /* Import Shared Mixins */
-import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
 import { isOffline } from '../../assets/javascript/mixins/isOffline.js';
 import { isPlotted } from '../../assets/javascript/mixins/isPlotted.js';
+import {fetchFiles} from '../../assets/javascript/mixins/fetchFiles.js';
+import {uploadFiles} from '../../assets/javascript/mixins/uploadFiles.js';
 
 import { axes } from '../../assets/javascript/mixins/chartFuncs/axes.js';
 import { chartVariables } from '../../assets/javascript/mixins/chartFuncs/chartVariables.js';
 import { labels } from '../../assets/javascript/mixins/chartFuncs/labels.js';
-import { read2DData, get2DData } from '../../assets/javascript/mixins/readFiles/read2D.js';
+import { parseData } from '../../assets/javascript/mixins/readFiles/parse/SANS2D.js';
+import { readSANS2D} from '../../assets/javascript/mixins/readFiles/readSANS2D.js';
 import { setResponsive } from '../../assets/javascript/mixins/chartFuncs/setResponsive.js';
 import { addClipPath } from '../../assets/javascript/mixins/chartFuncs/addClipPath.js';
 import { addSVG } from '../../assets/javascript/mixins/chartFuncs/addSVG.js';
@@ -163,12 +160,8 @@ export default {
             zoom: d3.zoom().scaleExtent([1 / 2, 4]).on("zoom", this.zoomed)
         }
     },
-    computed: {
-      getUploaded() {
-          return _.cloneDeep(this.$store.getters.getUploaded('SANS2D'));
-      }
-    },
     mixins: [
+        parseData,
         adjustDomains,
         drawChart,
         updateChart,
@@ -178,9 +171,9 @@ export default {
         chartVariables,
         resetChart,
         axes,
-        read2DData,
-        get2DData,
+        readSANS2D,
         fetchFiles,
+        uploadFiles,
         filterJobs,
         isOffline,
         isPlotted,
@@ -254,7 +247,6 @@ export default {
                     if (inUpload2D) {
                         // It's an uploaded file so read the data from blob
                         this.read2DData(inUpload2D)
-
                     } else {
                         // It's a fetched file so get file then get the data url
                         var file = this.$store.getters.getSANS2DFile(this.fileToPlot);

@@ -1,10 +1,10 @@
 import axios from 'axios';
-// import parseData from './parse/SANS1D.js';
+import { eventBus } from '../../eventBus';
 
 /* Functions to Read and Parse 1D Data Files */
 export const read1DData = {
     methods: {
-        read1DData(fileURLs, tempData, dataType, parseFunc) {
+        read1DData(fileURLs, tempData, dataType) {
             // Next fetch unstored files
                 /*****************************************
                  When a user selects data to be plotted,
@@ -16,33 +16,33 @@ export const read1DData = {
                 to be loaded asynchronously before moving on
                 to plotting the data.
                 *****************************************/
-                var vm = this;
+                let vm = this;
 
-                var promises = fileURLs.map(function(url) {
+                let promises = fileURLs.map(function(url) {
 
-                    if (url.type === 'fetch') {
+                    if (url.type === 'fetched') {
                         return axios.get(url.url).then(function(response) {
                             // console.log("axios response data", response);
 
-                            let data = parseFunc(response.data, url.filename);
+                            let data = vm.parseData(response.data, url.filename);
                     
                             vm.$store.commit('storeData', { filename: url.filename, data: data, dataType: dataType});
 
                             return data;
                         });        
-                    } else if (url.type === 'upload') {
+                    } else if (url.type === 'uploaded') {
 
                         // Turn file reader into a promise in order to
                         // wait on the async reading of files with Promise.all below
                         return new Promise((resolve, reject) => {
-                            var reader = new FileReader();
+                            let reader = new FileReader();
                             
                             reader.onload = function (e) {  
                                 // Get file content
-                                var content = e.target.result;
+                                let content = e.target.result;
 
                                 // Code to read Upload 2D file
-                                let data = parseFunc(content, url.filename);
+                                let data = vm.parseData(content, url.filename);
 
                                 vm.$store.commit('storeData', { filename: url.filename, data: data, dataType: dataType});
                                 
@@ -63,7 +63,11 @@ export const read1DData = {
                         
                         vm.setCurrentData(plotData, vm.filesToPlot);
 
-                    }).catch(reason => { console.log(reason) });
+                    }).catch(reason => {
+                        let errorMsg = `Error! ${reason}`;
+                        eventBus.$emit('error-message', errorMsg, 'danger');
+                        console.log(reason) 
+                    });
                 }
         }
     }

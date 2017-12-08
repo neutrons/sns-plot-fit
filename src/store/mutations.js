@@ -1,74 +1,89 @@
+import Vue from 'vue'
+
 export const removePoint = (state, payload) => {
     let name = payload.name;
     let index = payload.index;
     let type = payload.dataType;
 
     state.saved[type][name].data.splice(index,1);
-}
+};
 
 export const removeFile = (state, payload) => {
-    let index = 0;
     let type = payload.dataType;
-    let uploaded = state.uploaded[type];
     let filename = payload.filename;
 
-    for (let len = uploaded.length; index < len; index++) {
-
-        let temp = uploaded[index];
-
-        if (filename === temp.filename) break;
-    }
-
     // Remove from Uploads list
-    state.uploaded[type].splice(index, 1);
+    // delete state.uploaded[type][filename];
+    Vue.delete(state.uploaded[type], filename);
 
     // Delete from stored list if present
     delete state.saved[type][filename];
-}
+};
 
 export const removeColor = (state, payload) => {
-    let index = 0;
     let type = payload.dataType;
-    let colors = state.colorDomain[type];
     let filename = payload.filename;
+    let pos = state.colorDomain[type].indexOf(filename);
 
-    for (let len = colors.length; index < len; index++) {
-        let temp = colors[index];
-
-        if (filename === temp) break;
+    if (pos > -1) {
+        state.colorDomain[type].splice(pos, 1);
     }
-
-    state.colorDomain[type].splice(index, 1);
-}
+};
 
 export const addFiles = (state, payload) => {
+    let loadType = payload.loadType;
     let type = payload.dataType;
     let files = payload.files;
+    let keys = Object.keys(files);
+    let matchKeys = Object.keys(state[loadType][type]);
 
-    if (payload.loadType === 'upload') {
-        state.uploaded[type] = state.uploaded[type].concat(files)
-    } else {
-        state.fetched[type] = files;
+    for (let i = 0, L = keys.length; i < L; i++) {
+        let fname = keys[i];
+
+        if (matchKeys.indexOf(fname) === -1) {
+            // state[loadType][type][fname] = files[fname];
+            Vue.set(state[loadType][type], fname, files[fname]);
+        }
     }
     
     // Add to color domain if file is 'Stitch' '1D' or 'TAS' data
     if (type === 'SANS1D' || type === 'Stitch' || type === 'TAS') {
         
-        for (let i = 0, len = files.length; i < len; i++) {
-            let fname = files[i].filename;
+        for (let key in files) {
             let color = state.colorDomain[type];
 
-            if (color.indexOf(fname) === -1)   color.push(fname);
-        }
+            if (color.indexOf(key) === -1) {
+                color.push(key);
+            }
+        };
     }
-
-}
+};
 
 export const storeData = (state, payload) => {
-    let tempName = payload.filename;
-    let tempData = payload.data;
+    let filename = payload.filename;
+    let data = payload.data;
     let type = payload.dataType;
         
-    // console.log("Storing data:", tempName, tempData, type);
-    state.saved[type][tempName] = tempData
-}
+    // console.log("Storing data:", filename, data, type);
+    state.saved[type][filename] = data;
+};
+
+export const addTag = (state, payload) => {
+    let id = payload.id;
+    let loadType = payload.loadType;
+    let file = payload.file;
+    let tag = payload.tag;
+    
+    state[loadType][id][file].tags.push(tag);
+};
+
+export const removeTag = (state, payload) => {
+    let id = payload.id;
+    let loadType = payload.loadType;
+    let file = payload.file;
+    let tag = payload.tag;
+
+    let index = state[loadType][id][file].tags.indexOf(tag);
+    
+    state[loadType][id][file].tags.splice(index, 1);
+};

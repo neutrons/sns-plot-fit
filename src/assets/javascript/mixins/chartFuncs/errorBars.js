@@ -20,8 +20,8 @@ export const errorBars = {
             selection.transition(t)
                     .attr('x1', (d) => { return x(d.x) - 4})
                     .attr('x2', (d) => { return x(d.x) + 4})
-                    .attr('y1', (d) => { return direction === 'top' ? y(d.y + d.e) : y(d.y - d.e)})
-                    .attr('y2', (d) => { return direction === 'top' ? y(d.y + d.e) : y(d.y - d.e)});
+                    .attr('y1', (d) => { return direction === 'top' ? y(d.y + d.error) : y(d.y - d.error)})
+                    .attr('y2', (d) => { return direction === 'top' ? y(d.y + d.error) : y(d.y - d.error)});
 
             // EXIT
             selection.exit().remove();
@@ -43,7 +43,7 @@ export const errorBars = {
             selection.transition(t)
                 .attr('x1', (d) => { return x(d.x)})
                 .attr('x2', (d) => { return x(d.x)})
-                .attr('y1', (d) => { return y(d.y + d.e)})
+                .attr('y1', (d) => { return y(d.y + d.error)})
                 .attr('y2', (d) => { return errorBottomY(d, yType, y)});
             
             // EXIT
@@ -61,7 +61,7 @@ export const errorBars = {
 
 function checkYType (d, yType) {
     if (yType === "Log(Y)") {
-        return d.y - d.e > 0;
+        return d.y - d.error > 0;
     } else {
         return true;
     }

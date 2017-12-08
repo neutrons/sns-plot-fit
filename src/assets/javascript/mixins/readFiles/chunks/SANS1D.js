@@ -13,6 +13,9 @@ export default function (chunk) {
         header = header.split(/[\s,]+/).join(delimiter);
     }
 
+    // Rename error for common name scheme throughout
+    header = header.replace(/E/, 'error');
+
     rows[0] = header.toLowerCase();
 
     // Remove the 2nd row if it's not data

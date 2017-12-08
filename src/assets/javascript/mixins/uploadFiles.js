@@ -1,7 +1,7 @@
 /* Function to get fetch file names to sort */
 import _ from 'lodash'
 
-export const fetchFiles = {
+export const uploadFiles = {
     data() {
         return {
             filters: [],
@@ -13,23 +13,23 @@ export const fetchFiles = {
         },
     },
     computed: {
-        getFetched() {
-            return this.$store.getters.getFetched(this.ID);
+        getUploaded() {
+            return this.$store.getters.getUploaded(this.ID);
         },
-        filteredFetch() {
+        filteredUpload() {
             let vm = this;
             
             if (this.filters.length === 0) {
-              return this.getFetched;
+              return this.getUploaded;
             };
             
             let temp = {};
-            let filenames = Object.keys(this.getFetched);
+            let filenames = Object.keys(this.getUploaded);
             
             this.filters.forEach(tag => {
               filenames.forEach(name => {
-                if (this.getFetched[name].tags.indexOf(tag) > -1) {
-                  temp[name] = this.getFetched[name];
+                if (this.getUploaded[name].tags.indexOf(tag) > -1) {
+                  temp[name] = this.getUploaded[name];
                 }
               })
             })

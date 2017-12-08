@@ -80,6 +80,9 @@ export default {
                 if (key !== name) {
                     d3.select(`#scatter-${this.ID}-${key}`).selectAll('circle').style('opacity', 0.10);
                     d3.select(`#line-${this.ID}-${key}`).select('path').style('opacity', 0.10);
+                    d3.select(`#error-cap-bottom-${this.ID}-${key}`).selectAll('line').style('opacity', 0.10);
+                    d3.select(`#error-cap-top-${this.ID}-${key}`).selectAll('line').style('opacity', 0.10);
+                    d3.select(`#error-${this.ID}-${key}`).selectAll('line').style('opacity', 0.10);
 
                     if (name !== this.fileToFit && this.fileToFit !== null) {
                         d3.select(`#fit-line-${this.ID}`).select('.fitted-line').style('opacity', 0.10);
@@ -87,6 +90,9 @@ export default {
                 } else {
                     d3.select(`#scatter-${this.ID}-${key}`).selectAll('circle').style('opacity', 1);
                     d3.select(`#line-${this.ID}-${key}`).select('path').style('opacity', 1);
+                    d3.select(`#error-cap-bottom-${this.ID}-${key}`).selectAll('line').style('opacity', 1);
+                    d3.select(`#error-cap-top-${this.ID}-${key}`).selectAll('line').style('opacity', 1);
+                    d3.select(`#error-${this.ID}-${key}`).selectAll('line').style('opacity', 1);
 
                     if (name === this.fileToFit && this.fileToFit !== null) {
                         d3.select(`#fit-line-${this.ID}`).select('.fitted-line').style('opacity', 1);

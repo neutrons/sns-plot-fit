@@ -45,10 +45,12 @@ import { updateLineGenerator } from '../../../assets/javascript/mixins/chartFunc
 import { initDimensions } from '../../../assets/javascript/mixins/chartFuncs/initDimensions.js';
 import { addClipPath } from '../../../assets/javascript/mixins/chartFuncs/addClipPath.js';
 import { addSVG } from '../../../assets/javascript/mixins/chartFuncs/addSVG.js';
+import { errorBars } from '../../../assets/javascript/mixins/chartFuncs/errorBars.js';
+import { zoom } from '../../../assets/javascript/mixins/chartFuncs/zoom.js';
+import { updateChart } from '../../../assets/javascript/mixins/chartFuncs/updateChart.js';
 
 /* Import local mixins */
 import { drawChart } from '../mixins/drawChart.js';
-import { updateChart } from '../mixins/updateChart.js';
 
 /* Import Fitting Mixins */
 import { checkError } from '../../../assets/javascript/mixins/fittings/checkError.js';
@@ -111,6 +113,8 @@ export default {
         }
     },
     mixins: [
+        zoom,
+        errorBars,
         removePoint,
         removeElements,
         labels,
@@ -164,24 +168,6 @@ export default {
                 vm.chart.g.select(".fitted-line")
                     .attr("d", vm.line);
             }
-        },
-        zoomed(new_yScale, new_xScale) {
-            let vm = this;
-
-            // re-scale axes and grids
-            vm.updateAxes(new_xScale, new_yScale);
-            vm.updateGrids(new_xScale, new_yScale);
-
-            // re-draw scatter plot;
-            vm.chart.g.selectAll(".dot")
-                .call(vm.updateScatter, new_xScale, new_yScale);
-
-            // re-set line generator
-            vm.updateLineGenerator(new_xScale, new_yScale);
-
-            // re-draw line paths
-            vm.chart.g.selectAll(".pointlines")
-                .call(vm.updateLine);
         },
     },
     created() {

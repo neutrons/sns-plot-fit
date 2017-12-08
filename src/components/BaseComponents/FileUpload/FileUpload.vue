@@ -1,18 +1,15 @@
 <template>
-  <div id="file-upload">
+  <div id='file-upload'>
 
-    <button class="btn btn-success navbar-btn" @click="loadPopup"><i class="fa fa-file" aria-hidden="true"></i> Load Files</button>
+    <label id='file-load-btn' class='btn btn-success navbar-btn'>
+        Add Files 
+        <input id='file-upload-input' type='file' style='display: none;' @change='validateFiles($event.target.files)' multiple>
+    </label>
 
     <!-- File Drop Zone -->
     <v-dropzone
-        @drag-files="dragFiles"
+        @drag-files='validateFiles'
     ></v-dropzone>
-
-    <!-- Modal Upload Form -->
-    <v-upload-form 
-        ref="upload_form"
-    ></v-upload-form>
-
   </div>
 </template>
 
@@ -22,40 +19,85 @@
 //       and the event is then 'caught' in 'Main.vue'
 import { eventBus } from '../../../assets/javascript/eventBus';
 
+/* Import Components */
 import Dropzone from './Dropzone.vue';
-import UploadForm from './UploadForm.vue';
 
 export default {
     name: 'file-upload',
     components: {
         'v-dropzone': Dropzone,
-        'v-upload-form': UploadForm,
     },
     data() {
         return {
-            
+            extensionMatch: ['TAS', 'SANS2D'],
         }
     },
     mounted() {
         
     },
     methods: {
-        loadPopup() {
-            let vm = this;
+        validateFiles(files) {
+            let fileList = [];
 
-            // console.log("Removing point: ", index, name);
-            $("#file-upload-form").modal('show')
-    
+            for (var i = 0, len = files.length; i < len; i++) {
+                // loadFiles(files[i]);
+                let url = files[i].name;
+                let blob = files[i];
+                
+                let re = this.extensionMatch.indexOf(this.$route.name) > -1 ? /.dat/g : /.txt/g;
+                let match = url.search(re);
+                let filename = url.slice(0, match);
+
+                if (match > 0) {
+                    
+                    fileList.push({
+                        url,
+                        blob,
+                        filename,
+                    })
+                } else {
+                    // error, don't read for now
+                    let errorMsg = `<strong>Error! </strong> ${url} is not a supported type.<br/>Make sure the file ends in <em>${this.extensionMatch.indexOf(this.$route.name) > -1 ?  '.dat' : '.txt'}.</em>`
+                    eventBus.$emit('error-message', errorMsg, 'danger');
+                }
+            }
+            
+            if (fileList.length > 0) {
+                this.uploadFiles(fileList);
+            }
+
+            document.getElementById('file-upload-input').value = '';
         },
-        dragFiles(files) {
-            this.$refs.upload_form.setFileList(files);
-            $("#file-upload-form").modal('show')
-        }
+        uploadFiles(files) {
+            // console.log(`Upload files for ${this.$route.name}`, files);
+
+            let temp = {};
+
+            files.forEach( el => {
+                let fname = el.filename;
+
+                el.tags = [];
+                el.loadType = 'uploaded';
+                
+                temp[fname] = el;
+            })
+
+            if (Object.keys(temp).length > 0) {
+
+                this.$store.commit('addFiles', 
+                {
+                    loadType: 'uploaded',
+                    dataType: this.$route.name, 
+                    files: temp
+                });
+            }
+
+        },
     }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 .btn {
   border-radius: 0px;
   margin-right: 10px;

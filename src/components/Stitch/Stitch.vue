@@ -1,24 +1,29 @@
 <template>
   <div id="Stitch" class="col-md-12">
     <div class="container-fluid">
+        <v-modal @close='showModal = false' v-if='showModal' header='Stitch Previewer'>
+            <v-quick-plot
+                slot='body'
+            ></v-quick-plot>
+        </v-modal>
 
         <!-- Left Sidebar for Controls and File List  -->
         <div class="col-md-2">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
+            <button class='btn btn-success btn-xs pull-left'
+                @click='showModal = true' slot='title-content'
+                v-if='isFilesAvailable'
+            >Quick Plot</button>
+
+            <v-filter :id='ID' @update-filter='updateFilters'></v-filter>
+
                 <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
-                    <div v-show="fetchFiles.length > 0">
-                        <div>
-                            <v-filter 
-                                group-type="Stitch"
-                                @filter-job="filterJob"
-                                @sort-by-date="sortByDate"
-                            ></v-filter>
-                        </div>
+                    <div v-show='Object.keys(getFetched).length > 0'>
                         <v-table :fieldNames="['Plot', 'Filename', 'Group']">
                             <template>
-                                <tr v-for="f in fetchFiles('Stitch', sortBy, filterBy)" :class="isPlotted(f.filename)">
+                                <tr v-for='(f, index) in filteredFetch' :key='index' :class="isPlotted(f.filename)">
                                     <template>
-                                        <td class="td-check"><input :id="f.filename + '-FetchStitch'" type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
+                                        <td class="td-check"><input :id="f.filename + '-FetchStitch'" type="checkbox" :value="f.filename" v-model="filesToPlot" @change='setFilesToPlot'></td>
                                         <td class="td-name">{{f.filename}}</td>
                                         <td class="td-name">{{f.jobTitle}}</td>
                                     </template>
@@ -29,12 +34,12 @@
                 </v-panel>
 
                 <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show="getUploaded.length > 0">
+                    <div v-show='Object.keys(getUploaded).length > 0'>
                      <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
                             <template>
-                                <tr v-for="f in getUploaded" :class="isPlotted(f.filename)">
+                                <tr v-for="(f, index) in filteredUpload" :key='index' :class="isPlotted(f.filename)">
                                     <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot"></td>
+                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change='setFilesToPlot'></td>
                                         <td class="td-name">{{f.filename}}</td>
                                         <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile('Stitch', f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
                                     </template>
@@ -144,12 +149,15 @@ import Table from '../BaseComponents/Table.vue';
 import TableFilter from '../BaseComponents/TableFilter.vue';
 import ToggleSwitch from '../BaseComponents/ToggleSwitch.vue';
 import PlotStitch from './components/stitchPlot.vue';
+import Modal from '../BaseComponents/Modal.vue';
+import QuickPlot from '../BaseComponents/QuickPlot/QuickPlot.vue';
 
 /* Import Mixins */
 import { setScales } from '../../assets/javascript/mixins/setScales.js';
 import { fetchFiles } from '../../assets/javascript/mixins/fetchFiles.js';
+import { uploadFiles } from '../../assets/javascript/mixins/uploadFiles.js';
 import { read1DData } from '../../assets/javascript/mixins/readFiles/default.js';
-import parseData from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
+import { parseData } from '../../assets/javascript/mixins/readFiles/parse/SANS1D.js';
 import { removeFile } from '../../assets/javascript/mixins/removeFile.js';
 import { prepPlotData } from '../../assets/javascript/mixins/prepPlotData.js';
 import { filterJobs } from '../../assets/javascript/mixins/filterJobs.js';
@@ -168,7 +176,9 @@ export default {
       'v-table': Table,
       'v-filter': TableFilter,
       'v-stitch-plot': PlotStitch,
-      'v-switch': ToggleSwitch
+      'v-switch': ToggleSwitch,
+      'v-modal': Modal,
+      'v-quick-plot': QuickPlot,
     },
     data: function () {
       return {
@@ -187,6 +197,7 @@ export default {
           isMultipleLines: false,
           isBrushesStored: false,
           ID: 'Stitch',
+          showModal: false,
       }
     },
     mounted() {
@@ -202,7 +213,9 @@ export default {
         eventBus.$on('update-selected-data-Stitch', vm.updateSelectedData);
     },
     mixins: [
+        parseData,
         fetchFiles,
+        uploadFiles,
         read1DData,
         setScales,
         filterJobs,
@@ -212,17 +225,80 @@ export default {
         prepPlotData
         ],
     computed: {
-      xScales() {
-        return this.$store.getters.getXScales;
-      },
-      yScales() {
-        return this.$store.getters.getYScales;
-      },
-      getUploaded() {
-          return this.$store.getters.getUploaded('Stitch');
-      }
+        isFilesAvailable() {
+            let fetchKeys = Object.keys(this.getFetched);
+            let uploadKeys = Object.keys(this.getUploaded);
+
+            return fetchKeys.length > 0 || uploadKeys.length > 0;
+        },
     },
     methods: {
+        setFilesToPlot() {
+            var vm = this;
+                
+                if (this.filesToPlot.length === 0) {
+                    // There should be nothing to plot or fit,
+                    // so reset everything to defaults.
+                    // Remove any elements previously plotted
+                    d3.select(".chart-Stitch").remove();
+                    d3.select("#tooltip-Stitch").remove();
+
+                    // Reset disable to default 'true'
+                    this.disable = true;
+                    
+                    // Reset X & Y Scales back to default
+                    this.resetScales();
+
+                    this.isStitched = false;
+                    this.isMultipleLines = false;
+                    
+                    // Reset selected data to an empty array
+                    this.selectedData = [];
+                    
+                    // console.log("No files to plot");
+
+                } else {
+                    this.disable = false;
+                    
+                    // If one file is being plotted, hide any buttons related to stitch line
+                    // Toggle back to zoom
+                    if (this.filesToPlot.length < 2) {
+                        this.isStitched = false;
+                        this.isMultipleLines = false;
+                        this.$refs.toggle.picked = true;
+                        this.$refs.plot_Stitch.resetToggle();
+                    } else {
+                        this.isMultipleLines = true;
+                    }
+
+                    var filesToFetch = [];
+
+                    // First check if files to plot are in stored data
+                    var tempData = this.filesToPlot.map(function(filename) {
+                        var temp = vm.$store.getters.getSavedFile('Stitch', filename);
+                    
+                        // console.log("Here is the temp:", temp);
+                        if (temp === '999') {
+                            // console.log("Not in stored:", filename);
+                            filesToFetch.push(filename);
+                        } else {
+                            return temp;
+                        }
+
+                    }).filter(item => item !== undefined);
+                    
+                    // Next fetch the file URLs
+                    var fileURLs = this.$store.getters.getURLs(filesToFetch, 'Stitch');
+
+                    if (fileURLs.length > 0) {
+                        this.read1DData(fileURLs, tempData, 'Stitch');
+                    } else {
+                        this.setCurrentData(tempData, this.filesToPlot);
+                    }
+                }
+
+                this.setParameters();
+        },
         updateSelectedData(index, name) {
 
             this.selectedData.forEach(el => {
@@ -230,6 +306,8 @@ export default {
                 if (name === el.filename)   el.data.splice(index,1);
                 
             })
+
+            this.setParameters();
         },
         setCurrentData(chosenData, checkList) {
             
@@ -248,10 +326,10 @@ export default {
 
                 this.selectedData = [];
             } else {
-
                 this.selectedData = _.cloneDeep(chosenData);
-
             }
+
+            this.setParameters();
         },
         prepData(sd) {
 
@@ -323,81 +401,6 @@ export default {
             this.$refs.plot_Stitch.drawSavedBrushes();
         }
     },
-    watch: {
-        filesToPlot: {
-            handler() {
-                var vm = this;
-                
-                if (this.filesToPlot.length === 0) {
-                    // There should be nothing to plot or fit,
-                    // so reset everything to defaults.
-                    // Remove any elements previously plotted
-                    d3.select(".chart-Stitch").remove();
-                    d3.select("#tooltip-Stitch").remove();
-
-                    // Reset disable to default 'true'
-                    this.disable = true;
-                    
-                    // Reset X & Y Scales back to default
-                    this.resetScales();
-
-                    this.isStitched = false;
-                    this.isMultipleLines = false;
-                    
-                    // Reset selected data to an empty array
-                    this.selectedData = [];
-                    
-                    // console.log("No files to plot");
-
-                } else {
-                    this.disable = false;
-                    
-                    // If one file is being plotted, hide any buttons related to stitch line
-                    // Toggle back to zoom
-                    if (this.filesToPlot.length < 2) {
-                        this.isStitched = false;
-                        this.isMultipleLines = false;
-                        this.$refs.toggle.picked = true;
-                        this.$refs.plot_Stitch.resetToggle();
-                    } else {
-                        this.isMultipleLines = true;
-                    }
-
-                    var filesToFetch = [];
-
-                    // First check if files to plot are in stored data
-                    var tempData = this.filesToPlot.map(function(filename) {
-                        var temp = vm.$store.getters.getSavedFile('Stitch', filename);
-                    
-                        // console.log("Here is the temp:", temp);
-                        if (temp === '999') {
-                            // console.log("Not in stored:", filename);
-                            filesToFetch.push(filename);
-                        } else {
-                            return temp;
-                        }
-
-                    }).filter(item => item !== undefined);
-                    
-                    // Next fetch the file URLs
-                    var fileURLs = this.$store.getters.getURLs(filesToFetch, 'Stitch');
-
-                    if (fileURLs.length > 0) {
-                        this.read1DData(fileURLs, tempData, 'Stitch', parseData);
-                    } else {
-                        this.setCurrentData(tempData, this.filesToPlot);
-                    }
-                }
-            },
-            deep: true
-        },
-        selectedData: {
-            handler() {
-                this.setParameters();
-            },
-            deep: true
-        }
-    }
   }
 </script>
 
