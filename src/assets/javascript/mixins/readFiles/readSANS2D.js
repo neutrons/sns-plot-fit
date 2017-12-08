@@ -1,14 +1,14 @@
 import axios from 'axios';
+import { eventBus } from '../../eventBus';
 
 /* Functions to Read and Parse 2D Files */
-export const get2DData = {
+export const readSANS2D = {
     methods: {
         get2DData(file) {
-            var vm = this;
-            
+            let vm = this;
+
             // If data is not stored, fetch it, store it, and send data to be plotted
             axios.get(file.url).then(response => {
-
                 let results = vm.parseData(response.data);
 
                 vm.$store.commit('storeData', { filename: file.filename, data: results.data, dataType: 'SANS2D' });
@@ -17,22 +17,20 @@ export const get2DData = {
 
                 // Call plotting function
                 vm.drawChart(results.data, vm.hexSettings);
+            }).catch(reason => { 
+                let errorMsg = `Error! ${reason}`;
+                eventBus.$emit('error-message', errorMsg, 'danger');
+                console.log(reason) 
             });
             
-        }
-    }
-}
-
-export const read2DData = {
-    methods: {
+        },
         read2DData(file) {
-            var vm = this;
-
-            var reader = new FileReader();
+            let vm = this;
+            let reader = new FileReader();
 
             reader.onload = function (e) {  
                 // Get file content
-                var content = e.target.result;
+                let content = e.target.result;
 
                 // Code to read Upload 2D file
                 let results = vm.parseData(content);
@@ -49,6 +47,6 @@ export const read2DData = {
                 vm.drawChart(results.data, vm.hexSettings);        
             }
             reader.readAsText(file.blob, "UTF-8");
-        }
-    }
-}
+        },
+    },
+};

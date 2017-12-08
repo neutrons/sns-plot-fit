@@ -83,44 +83,6 @@ export default {
       // Set the document title to current route path
       document.title = 'ORNL - ' + this.$route.meta.title;
     },
-    uploadFiles(files) {
-
-      let temp = {
-        'SANS1D': {},
-        'SANS2D': {},
-        'TAS': {},
-        'Stitch': {}
-      }
-
-      files.forEach( el => {
-        let key = el.type;
-        let fname = el.filename;
-
-        el.tags = [];
-        el.loadType = 'uploaded';
-
-        if (key === 'SANS1D-Stitch') {
-          temp.Stitch[fname] = el;
-          temp.SANS1D[fname] = el;
-        } else {
-          temp[key][fname] = el;
-        }
-
-      })
-
-      for (let key in temp) {
-        if (Object.keys(temp[key]).length > 0) {
-
-            this.$store.commit('addFiles', 
-              {
-                loadType: 'uploaded',
-                dataType: key, 
-                files: temp[key] 
-              });
-          }
-      }
-
-    },
   },
   watch: {
     $route() {

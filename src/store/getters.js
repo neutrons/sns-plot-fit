@@ -26,7 +26,8 @@ export const getSANS2DFile = state => (id) => {
 }
 
 export const inUploadedSANS2D = state => (fname) => {
-    return Object.keys(state.uploaded.SANS2D).indexOf(fname) > -1;
+    let temp = state.uploaded.SANS2D[fname];
+    return temp === undefined ? false : temp;
 }
 
 export const getFitConfigs = state => (id) => {
