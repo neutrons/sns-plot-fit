@@ -11,15 +11,15 @@ export const formatData = {
                 let tempData = data[i].values;
                 let tempName = data[i].key;
 
-                let x = [], y = [], e = [];
+                let x = [], y = [], error = [];
 
                 tempData.forEach(el => { 
                     x.push(el.x);
                     y.push(el.y);
-                    e.push(el.e);
+                    error.push(el.error);
                 })
 
-                formatted.push( [ tempName, {x:x, y:y, e:e}]);
+                formatted.push( [ tempName, {x, y, error}]);
             }
 
             // Sort curves form least to greatest

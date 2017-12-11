@@ -78,12 +78,12 @@ var interpolate = (function(everpolate, LM, _) {
             // Concatenate and sort the arrays
             let xFinal = base.x.concat(nonBase.x);
             let yFinal = base.y.concat(yNonBaseScaled);
-            let eFinal = base.e.concat(nonBase.e);
+            let eFinal = base.error.concat(nonBase.error);
 
             // 1) combine the arrays:
             var list = [];
             for (let i = 0, len = xFinal.length; i < len; i++) 
-                list.push({'x': xFinal[i], 'y': yFinal[i], 'e': eFinal[i]});
+                list.push({'x': xFinal[i], 'y': yFinal[i], 'error': eFinal[i]});
 
             // 2) sort:
             list.sort(function(a, b) {
@@ -94,10 +94,10 @@ var interpolate = (function(everpolate, LM, _) {
             for (let i = 0, len = list.length; i < len; i++) {
                 xFinal[i] = list[i].x;
                 yFinal[i] = list[i].y;
-                eFinal[i] = list[i].e;
+                eFinal[i] = list[i].error;
             }
 
-            let interpCurve = {x: xFinal, y: yFinal, e: eFinal};
+            let interpCurve = {x: xFinal, y: yFinal, error: eFinal};
 
             // First shift all curves for proceeding brushes
             selected = shiftCurves(selected, i, k);
@@ -191,20 +191,20 @@ var interpolate = (function(everpolate, LM, _) {
     */
     function sliceCurve(data, direction, cutoff) {
         
-        let temp = {x:[], y:[], e:[]};
+        let temp = {x:[], y:[], error:[]};
 
         for( let i = 0, len = data.x.length; i < len; i++) {
 
             if ( direction === 'right' ? data.x[i] > cutoff : direction === 'left' ? data.x[i] < cutoff : false) {
                 temp.x.push(data.x[i]);
                 temp.y.push(data.y[i]);
-                temp.e.push(data.e[i]);
+                temp.error.push(data.error[i]);
             }
 
             // if ( direction === 'left' && data.x[i] < cutoff) {
             //     temp.x.push(data.x[i]);
             //     temp.y.push(data.y[i]);
-            //     temp.e.push(data.e[i]);
+            //     temp.error.push(data.error[i]);
             // }
         }
 
@@ -218,7 +218,7 @@ var interpolate = (function(everpolate, LM, _) {
     */
 
     function mergeSegs(s1, s2, s3) {
-        let merged = {x:[], y:[], e:[]};
+        let merged = {x:[], y:[], error:[]};
 
         merged.x.push(s1.x);
         merged.x.push(s2.x);
@@ -230,10 +230,10 @@ var interpolate = (function(everpolate, LM, _) {
         merged.y.push(s3.y);
         merged.y = _.flatten(merged.y);
 
-        merged.e.push(s1.e);
-        merged.e.push(s2.e);
-        merged.e.push(s3.e);
-        merged.e = _.flatten(merged.e);
+        merged.error.push(s1.error);
+        merged.error.push(s2.error);
+        merged.error.push(s3.error);
+        merged.error = _.flatten(merged.error);
 
         return merged;
     }

@@ -18,8 +18,8 @@ export const errorBars = {
             
             // UPDATE
             selection.transition(t)
-                    .attr('x1', (d) => { return x(d.x) - 4})
-                    .attr('x2', (d) => { return x(d.x) + 4})
+                    .attr('x1', (d) => { return x(d.x) - 3.5})
+                    .attr('x2', (d) => { return x(d.x)  + 3.5})
                     .attr('y1', (d) => { return direction === 'top' ? y(d.y + d.error) : y(d.y - d.error)})
                     .attr('y2', (d) => { return direction === 'top' ? y(d.y + d.error) : y(d.y - d.error)});
 

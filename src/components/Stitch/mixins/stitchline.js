@@ -45,6 +45,8 @@ export const stitchline = {
                         // }
     
                         // Then reset plot for next iteration of stitching
+                        vm.brushObj.brushSelections = {};
+                        vm.brushObj.brushes = [];
                         eventBus.$emit("reset-stitch");
     
                         // Then fetch data to include the saved stitch file
@@ -111,7 +113,6 @@ export const stitchline = {
             let vm = this;
 
             let selectedData = vm.selectData();
-            // console.log("Selected:", selectedData);
     
             //Run tests to check if appropriate brush selections are made
             if( selectedData.length === 0 ) {
@@ -135,6 +136,7 @@ export const stitchline = {
         addStitch(line) {
             let vm = this;
             vm.$emit('is-stitched');
+            // console.log('Line', line);
 
             // First repackage data to an array of objects per points for d3 to work with
             let newData = [];
@@ -144,46 +146,82 @@ export const stitchline = {
                 newData.push({
                     x: line.x[i],
                     y: line.y[i],
-                    e: line.e[i]
+                    error: line.error[i]
                 });
             }
 
             vm.stitchLineData = _.cloneDeep(newData);
 
             // If first time plotting stitch line, draw path with animation from start to end
+            let t = d3.zoomTransform( vm.chart.g.select('.zoom').node());
+            let new_yScale = t.rescaleY(vm.scale.y); 
+            let new_xScale = t.rescaleX(vm.scale.x);
+
             if (vm.chart.g.select("#stitched-line").empty()) {
                 
-                let stitch = vm.chart.g.append('g')
+                let stitch = vm.chart.g.select('.chart-elements').insert('g', ':first-child')
                     .attr('clip-path', 'url(#clip-' + vm.ID + ')')
-                    .attr('id', 'stitched-line') 
-                    .append('path')
-                        .data([newData])
-                        .attr("class", "pointlines")
-                        .attr("d", vm.line)
-                        .style("fill", "none")
-                        .style("stroke", "red")
-                        .style("stroke-width", "2px");
+                    .attr('id', 'stitched-line');
 
-                var totalLength = stitch.node().getTotalLength();
+                let stitchLine = stitch.append('path')
+                    .data([newData])
+                    .attr("class", "pointlines stitch-path")
+                    .attr("d", vm.line)
+                    .style("fill", "none")
+                    .style("stroke", "red")
+                    .style("stroke-dasharray", "4,4");
+
+                // Add error lines
+                let error = stitch.append('g').attr('id', '#stitch-error-' + vm.ID);
                 
-                stitch.attr("stroke-dasharray", totalLength + " " + totalLength)
-                        .attr("stroke-dashoffset", totalLength)
-                        .transition()
-                            .duration(4000)
-                            .ease(d3.easePolyInOut)
-                            .attr("stroke-dashoffset", 0)
-                            .on('end', function() {
-                                // vm.chart.g.select('#stitched-line').attr("stroke-dasharray", "4,4")
-                                d3.select(this).attr("stroke-dasharray", "4,4")
-                            }); // Change to dash line one finished drawing path
+                error.append("g").attr("id", "stitch-error-line")
+                    .selectAll('.error-line')
+                    .data(newData)
+                    .call(vm.errorbarLine, new_xScale, new_yScale);
+                
+                // Add error cap top
+               error.append("g").attr("id", "stitch-error-cap-top")
+                        .selectAll(".error-cap-top")
+                        .data(newData)
+                        .call(vm.errorCaps, 'top', new_xScale, new_yScale);
+                
+                // Add error cap bottom
+                error.append("g").attr("id", "stitch-error-cap-bottom")
+                        .selectAll(".error-cap-bottom")
+                        .data(newData)
+                        .call(vm.errorCaps, 'bottom', new_xScale, new_yScale);
+
+                error.selectAll('.error-cap-top').style('stroke', 'red');
+                error.selectAll('.error-cap-bottom').style('stroke', 'red');
+                error.selectAll('.error-line').style('stroke', 'red');
 
             } else {
-                // if updating current stitched line, simply transition to new path, no animate start to end
-                let stitch = vm.chart.g.select('#stitched-line').select('path');
+                let t = d3.transition().duration(1000);
 
-                stitch.data([newData])
-                    .transition().duration(1500)
-                    .attr("d", vm.line);
+                // if updating current stitched line, simply transition to new path, no animate start to end
+                let stitch = vm.chart.g.select('#stitched-line');
+
+                stitch.select('.stitch-path').data([newData])
+                    .transition(t)
+                    .attr('d', vm.line);
+
+                // Update error Line
+                stitch.select('#stitch-error-line')
+                    .selectAll('.error-line')
+                    .data(newData)
+                    .call(vm.updateErrorLine, vm.scale.yType, new_xScale, new_yScale, t);
+
+                // Update error cap Top
+                stitch.select("#stitch-error-cap-top")
+                    .selectAll("line")
+                    .data(newData)
+                    .call(vm.updateErrorCaps, 'top', new_xScale, new_yScale, t)
+
+                // Update error cap bottom
+                stitch.select("#stitch-error-cap-bottom")
+                    .selectAll("line")
+                    .data(newData)
+                    .call(vm.updateErrorCaps, 'bottom', new_xScale, new_yScale, t)
             }
 
         },
@@ -227,7 +265,7 @@ export const stitchline = {
                     // console.log("Check: " + tempName, firstValue <= end && lastValue >= start);
                     if ( firstValue <= end && lastValue >= start ) {
                         let tempSelCurve = [tempName];
-                        let tempSel = {x:[], y:[], e:[]};
+                        let tempSel = {x:[], y:[], error:[]};
 
                         for( let z = 0, len = tempData.x.length; z < len; z++ ) {
                             //let convertedX = scale.brushXScale(tempData.x[z]);
@@ -239,7 +277,7 @@ export const stitchline = {
                                 // Add the x,y,e values to selection object
                                 tempSel.x.push(tempData.x[z]);
                                 tempSel.y.push(tempData.y[z]);
-                                tempSel.e.push(tempData.e[z]);
+                                tempSel.error.push(tempData.error[z]);
                             }
                         }
 
