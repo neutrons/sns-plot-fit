@@ -23,7 +23,7 @@ export const scatter = {
                 })
                 .attr("cx", (d) => { return x(d.x) })
                 .attr("cy", (d) => { return y(d.y) })
-                .attr("r", 4)
+                .attr("r", 3.5)
                 .style("fill", (d) => { return d.color = vm.color(d.name)})
                 .on("mouseover", (d) => {        
                     tooltip.enter(d, vm.chart.tooltip) 
