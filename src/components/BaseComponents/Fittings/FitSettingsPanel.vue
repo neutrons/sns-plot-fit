@@ -1,19 +1,6 @@
 <template>
   <div id='FitSettingsPanel'>
     <fieldset :disabled='disable'>
-        <h5 class='text-center'>Initial Values:</h5>
-        <v-initial-values-input
-            v-for='(value, index) in initValues'
-            :key='index'
-            :name='value[0]'
-            :disable='disable'
-            :value.sync='initValues[index][1]'
-            :field='field'
-            :data='data'
-            :file-to-fit='fileToFit'
-            @input='$emit("update-initial-values", initValues)'
-        ></v-initial-values-input>
-
         <h5 class='text-center'>Parameters:</h5>
         <v-range-slider
             v-for='(param, key) in params'
@@ -27,13 +14,15 @@
             @input='$emit("update-parameters", params)'
         ></v-range-slider>
         <br>
-        <slot></slot>
+        <button class='btn btn-warning btn-sm btn-block' 
+            @click='$emit("reset-fit-settings")'>
+            <i class='fa fa-refresh' aria-hidden='true'></i> Default Settings
+        </button>
     </fieldset>
 </div>
 </template>
 
 <script>
-import InitialValuesInput from './InitialValuesInput';
 import RangeSlider from '../RangeSlider';
 import _ from 'lodash';
 
@@ -61,7 +50,6 @@ export default {
         },
     },
     components: {
-        'v-initial-values-input': InitialValuesInput,
         'v-range-slider': RangeSlider,
     },
     computed: {
@@ -72,11 +60,6 @@ export default {
             return _.cloneDeep(this.parameters);
         }
     },
-    methods: {
-        resetSettings() {
-
-        }
-    }
 };
 </script>
 

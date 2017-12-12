@@ -7,6 +7,21 @@
         
         <div :id="'chart-' + ID"></div>
         <slot></slot>
+
+        <!-- Fit Results Table -->
+        <v-panel
+            PANELTITLE="Fit Results"
+            PANELTYPE="default" 
+            v-if='SHOWTABLE'
+        >
+            <fit-results-table v-if='SHOWTABLE'
+                :ID='ID'
+                :plot-parameters='plotParameters'
+                :fit-range='fitRange'
+                :fit-count='fitCount'
+                :fit-error='fitError'
+            ></fit-results-table>
+        </v-panel>
     </v-panel>
 
   </div>
@@ -19,6 +34,7 @@ import { eventBus } from '../../../assets/javascript/eventBus';
 /* Import Components */
 import Panel from '../../BaseComponents/Panels/Panel.vue';
 import ResetButton from '../../BaseComponents/ResetButton.vue';
+import FitTable from '../../BaseComponents/FitTable.vue';
 
 /* Import Libraries */
 import * as _ from 'lodash';
@@ -56,15 +72,19 @@ import { drawChart } from '../mixins/drawChart.js';
 import { checkError } from '../../../assets/javascript/mixins/fittings/checkError.js';
 import { slider } from '../../../assets/javascript/mixins/fittings/slider.js';
 import { fitLine } from '../../../assets/javascript/mixins/fittings/fitLine.js';
-import { reviseFitTable } from '../../../assets/javascript/mixins/fittings/reviseFitTable.js';
 
 export default {
     name: 'PlotTAS',
     components: {
         'v-panel': Panel,
-        'v-reset-button': ResetButton
+        'v-reset-button': ResetButton,
+        'fit-results-table': FitTable,
     },
     props: {
+        SHOWTABLE: {
+            type: Boolean,
+            default: false,
+        },
         DISABLE: {
             type: Boolean,
             default: true
@@ -89,7 +109,6 @@ export default {
             scale: {
                 x2: undefined,
             },
-            fitEquation: undefined,
             fitResults: null,
             fitData: null,
             brushObj: {
@@ -104,7 +123,6 @@ export default {
             selLimits: [],
             dataToFit: undefined,
             isError: false,
-            coefficients: undefined,
             fitError: undefined,
             fitResults: undefined,
             fitLineData: [],
@@ -139,9 +157,14 @@ export default {
         checkError,
         slider,
         fitLine,
-        reviseFitTable,
     ],
     computed: {
+        fitCount() {
+            return this.fitData === null ? 0 : this.fitData.length;
+        },
+        fitRange() {
+            return this.fitData === null ? [0,0] : d3.extent(this.fitData, (d) => { return d.x; });
+        },
         isFit() {
             return this.plotParameters.fileToFit !== null && this.plotParameters.fitConfiguration.fit !== 'None';
         }
@@ -152,6 +175,14 @@ export default {
 
             vm.changeScales(s);
             vm.updateChart(vm.dataNest);
+
+            // if theres a fit, update brush scale
+            if (vm.isFit) {
+                vm.scale.x2 = s.x.copy();
+                vm.scale.x2.range([0, vm.dimensions.w]);
+
+                vm.updateSlider();
+            }
         },
         zooming() {
             let vm = this;
@@ -169,10 +200,6 @@ export default {
                     .attr("d", vm.line);
             }
         },
-    },
-    created() {
-        // Listen for cofficient changes
-        eventBus.$on("coefficients-updated", this.redrawFit);
     },
 }
 </script>

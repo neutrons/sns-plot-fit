@@ -78,22 +78,6 @@ fd.transformData = function (data, transformations, fields = {x: 'x', y: 'y'}) {
 
 fd.fitData = function (data, equation, fitsettings) {
     // Code to fit data on the transformed data
-    // un-nest fitsettings
-    fitsettings = _.cloneDeep(fitsettings);
-    let initValues = _.cloneDeep(fitsettings.initialValues);
-    console.log("INIT VALUES:", initValues);
-
-    let tempSettings = {};
-    tempSettings = {
-        damping: fitsettings.parameters.damping.value,
-        gradientDifference: fitsettings.parameters.gradientDifference.value,
-        maxIterations: fitsettings.parameters.maxIterations.value,
-        errorTolerance: fitsettings.parameters.errorTolerance.value,
-        initialValues: fitsettings.initialValues,
-    }
-
-    // console.log("TEMP SETTINGS:", tempSettings);
-
     let temp = _.cloneDeep(data);
     let tempData = {
         x: [],
@@ -107,9 +91,28 @@ fd.fitData = function (data, equation, fitsettings) {
 
     // console.log("temp data:", tempData);
 
+    // First, grab initial values and check for constants and swap them out in equation
+    fitsettings = _.cloneDeep(fitsettings);
+
+    let initValues = _.cloneDeep(fitsettings.initialValues);
+    // console.log("INIT VALUES:", initValues);
+
+    initValues.forEach(iv => {
+        if (iv[2]) {
+            equation = equation.replace(iv[0], iv[1]);
+        }
+    })
+    
+    // console.log('Equation = ', equation);
+    
+    // Second, parse and compile equation
     // Parse the string. We might need some validation here
     var n_parsed = math.parse(equation);
+    // console.log('n_parsed = ', n_parsed);
 
+    // need to compile before evaluating
+    var n_compiled = n_parsed.compile();
+    
     // Getting all variables to fit and remove x!
     var nodes_to_fit = n_parsed.filter(function (node) {
         return node.isSymbolNode && node.name !== 'x';
@@ -118,11 +121,38 @@ fd.fitData = function (data, equation, fitsettings) {
     var parameter_names_to_fit = nodes_to_fit.map(function (node) {
         return node.name;
     });
-
+    
     // console.log('param names:', parameter_names_to_fit);
 
-    // need to compile before evaluating
-    var n_compiled = n_parsed.compile();
+    // If parameter names is an empty array, then all values are constant
+    // Just evaluate with mathjs and return values
+    if (parameter_names_to_fit.length === 0) {
+        let constant_fitted = tempData.x.map((el) => {
+            return n_compiled.eval({x: el})
+        });
+            
+        // console.log('test fitted = ', constant_fitted);
+
+        // Since all constants return and don't proceed with rest of function
+        return {
+            fittedData: fd.fittedPoints(constant_fitted, tempData.x),
+            error: null,
+            paramVals: _.cloneDeep(initValues),
+        }; // Return fit data array
+    }
+
+    // If not all constants, set up parameters for levenberg-marquardt fitting
+    let tempSettings = {};
+
+    tempSettings = {
+        damping: fitsettings.parameters.damping.value,
+        gradientDifference: fitsettings.parameters.gradientDifference.value,
+        maxIterations: fitsettings.parameters.maxIterations.value,
+        errorTolerance: fitsettings.parameters.errorTolerance.value,
+        initialValues: fitsettings.initialValues,
+    }
+
+    // console.log("TEMP SETTINGS:", tempSettings);
 
     var fit_function = function ([...args]) {
         var scope = {};
@@ -139,19 +169,21 @@ fd.fitData = function (data, equation, fitsettings) {
         }
     };
 
-
     /* Get Initial Values only */
     let tempIV = [];
 
     for (let i = 0, L = tempSettings.initialValues.length; i < L; i++) {
-        tempIV.push(tempSettings.initialValues[i][1]);
+        if (!tempSettings.initialValues[i][2]) {
+            tempIV.push(tempSettings.initialValues[i][1]);
+        }
     };
 
     // LM options. We might need to adapt some of these values
     tempSettings.initialValues = tempIV;
     const options = _.cloneDeep(tempSettings);
 
-    // Fitting   
+    // Fitting
+    // console.log('Options', options);
     var fitted_params = LM(tempData, fit_function, options);
 
     // console.log('Fitted params:', fitted_params);
@@ -165,32 +197,38 @@ fd.fitData = function (data, equation, fitsettings) {
     });
 
     // console.log('y_fitted =', y_fitted);
+    
+    for (let i = 0, count = 0, L = initValues.length; i < L; i++) {
+        if (!initValues[i][2]) {
+            initValues[i][1] = fitted_params.parameterValues[count];
+            count++;
+        }
 
+        initValues[i][1] = +initValues[i][1].toFixed(4);
+    }
+
+    // console.log('Final IV', initValues);
+    eventBus.$emit('revise-initial-values', _.cloneDeep(initValues));
+
+    return {
+        fittedData: fd.fittedPoints(y_fitted, tempData.x),
+        error: fitted_params.parameterError,
+        paramVals: _.cloneDeep(initValues),
+    }; // Return fit data array
+}
+
+fd.fittedPoints = function(fittedY, tempX) {
     // Return the fitted values
-    var fittedPoints = [];
-
-    for (let i = 0; i < y_fitted.length; i++) {
+    let fittedPoints = [];
+    
+    for (let i = 0; i < fittedY.length; i++) {
         fittedPoints.push({
-            x: tempData.x[i],
-            y: y_fitted[i]
+            x: tempX[i],
+            y: fittedY[i]
         });
     }
 
-    var coeff = {};
-    for (let i = 0; i < parameter_names_to_fit.length; i++) {
-        coeff[parameter_names_to_fit[i]] = fitted_params.parameterValues[i];
-    }
-
-    // eventBus.$emit('revise-initial-values', _.cloneDeep(coeff));
-    eventBus.$emit('revise-initial-values', _.cloneDeep(fitted_params.parameterValues));
-
-    return {
-        fittedData: fittedPoints,
-        coefficients: coeff,
-        error: fitted_params.parameterError,
-        fitEquation: fit_function,
-        paramVals: _.cloneDeep(fitted_params.parameterValues),
-    }; // Return fit data array
+    return fittedPoints;
 }
 
 export default fd;

@@ -86,13 +86,20 @@
             <!-- Fit Configuration Panel  -->
             <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
                 <v-fit-config
-                    :DISABLE="this.fileToFit === null"
-                    :EQUATION="$data.currentConfiguration.equation"
-                    :ID='ID'
+                    :disable="this.fileToFit === null"
+                    :equation="$data.currentConfiguration.equation"
+                    :initial-values='currentConfiguration.settings.initialValues'
+                    :data='selectedData'
+                    :file-to-fit='fileToFit'
+                    :field='field'
+                    :parameters='currentConfiguration.settings.parameters'
+                    :id='ID'
                     @set-fit="setFit"
                     @set-fit-setting="setFitSettings"
+                    @refit='setParameters'
                     @set-equation="setEquation"
                     @reset-file-fit-choice="resetFileFitChoice"
+                    @update-initial-values='updateInitialValues'
                     ref="fit_configurations"
                 ></v-fit-config>
             </v-panel>
@@ -108,38 +115,25 @@
                     :initial-values='currentConfiguration.settings.initialValues'
                     @update-parameters='updateConfigParameters'
                     @update-initial-values='updateInitialValues'
+                    @reset-fit-settings='resetFitSettings'
                 >
-                    <button class='btn btn-warning btn-sm btn-block' 
-                        @click='resetFitSettings'>
-                        <i class='fa fa-refresh' aria-hidden='true'></i> Default Settings
-                    </button>
                 </v-fit-settings-panel>
             </v-panel>
-
 
         </v-panel-group>
       </div>
     
-        <v-plot-TAS :DISABLE="disable"  ref="plot_TAS">
+        <v-plot-TAS
+            :DISABLE="disable"
+            :SHOWTABLE='fileToFit !== null && currentConfiguration.fit !== "None"'
+            ref="plot_TAS">
+
             <v-metadata
                 :metadata="metadata"
                 :ID="ID"
                 :file-to-fit='fileToFit'
                 v-if='filesToPlot.length > 0'
             ></v-metadata>
-
-            <!-- Fit Results Table -->
-            <v-panel
-                PANELTITLE="Fit Results"
-                PANELTYPE="default" 
-                v-if='fileToFit !== null && currentConfiguration.fit !== "None"'
-            >
-                <fit-results-table 
-                    :show-table='fileToFit !== null'
-                    :is-error='false'
-                    :ID='ID'
-                ></fit-results-table>
-            </v-panel>
         </v-plot-TAS>
 </div>
   </div>
@@ -156,7 +150,7 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
-import FitConfiguration from '../BaseComponents/Fittings/FitConfiguration.vue';
+import FitConfiguration from '../BaseComponents/Fittings/FitConfigPanel.vue';
 import tasPlot from './components/tasPlot.vue';
 import FieldList from './components/FieldList.vue';
 import Metadata from './components/Metadata.vue';

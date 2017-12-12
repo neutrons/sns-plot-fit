@@ -1,20 +1,23 @@
 <template>
   <div id="plot-1d-col" class="col-md-10">
+    <!-- Plot Panel  -->
+    <v-panel PANELTITLE="SANS 1D Plot" PANELTYPE="primary">
+        <!-- Plot reset button inserted into panel heading  -->
+        <v-reset-button :onClick="resetChart" v-if="!DISABLE" slot="header-content">Reset Chart</v-reset-button>
+        
+        <div :id="'chart-' + ID"></div>
 
-            <!-- Plot Panel  -->
-            <v-panel PANELTITLE="SANS 1D Plot" PANELTYPE="primary">
-                <!-- Plot reset button inserted into panel heading  -->
-                <v-reset-button :onClick="resetChart" v-if="!DISABLE" slot="header-content">Reset Chart</v-reset-button>
-                
-                <div :id="'chart-' + ID"></div>
-
-                <!-- Fit Results Table -->
-                <fit-results-table 
-                    :show-table='SHOWTABLE'
-                    :is-error='isError'
-                    :ID='ID'
-                ></fit-results-table>
-            </v-panel>
+        <!-- Fit Results Table -->
+        <fit-results-table v-if='SHOWTABLE'
+            :ID='ID'
+            :plot-parameters='plotParameters'
+            :fit-range='fitRange'
+            :fit-count='fitCount'
+            :fit-error='fitError'
+            :x-scale='scale.x'
+            :x-brush-selection='brushObj.brushSelection[1]'
+        ></fit-results-table>
+    </v-panel>
   </div>
 </template>
 
@@ -63,7 +66,6 @@ import { addSVG } from '../../../assets/javascript/mixins/chartFuncs/addSVG.js';
 import { checkError } from '../../../assets/javascript/mixins/fittings/checkError.js';
 import { slider } from '../../../assets/javascript/mixins/fittings/slider.js';
 import { fitLine } from '../../../assets/javascript/mixins/fittings/fitLine.js';
-import { reviseFitTable } from '../../../assets/javascript/mixins/fittings/reviseFitTable.js';
 
 export default {
     name: 'Plot1d',
@@ -94,7 +96,6 @@ export default {
             scale: {
                 x2: undefined
             },
-            fitEquation: undefined,
             fitResults: null,
             fitData: null,
             brushObj: {
@@ -106,11 +107,9 @@ export default {
                 prevExtent: [],
             },
             ID: 'SANS1D',
-            dataToFit: undefined,
             selLimits: [],
             dataToFit: undefined,
             isError: false,
-            coefficients: undefined,
             fitError: undefined,
             fitResults: undefined,
             fitLineData: [],
@@ -122,12 +121,17 @@ export default {
 
     },
     computed: {
+        fitCount() {
+            return this.fitData === null ? 0 : this.fitData.length;
+        },
+        fitRange() {
+            return this.fitData === null ? [0,0] : d3.extent(this.fitData, (d) => { return d.x; });
+        },
         isFit() {
             return this.plotParameters.fileToFit !== null && this.plotParameters.fitConfiguration.fit !== 'None';
         }
     },
     mixins: [
-        reviseFitTable,
         checkError,
         initDimensions,
         drawChart,
@@ -167,19 +171,14 @@ export default {
             let vm = this;
 
             vm.changeScales(s);
+            vm.updateChart(vm.dataNest);
             
             // if theres a fit, update brush scale
             if (vm.isFit) {
                 vm.scale.x2 = s.x.copy();
                 vm.scale.x2.range([0, vm.dimensions.w]);
-            }
-            
-            vm.updateChart(vm.dataNest);
-            
-            // if a fit is selected add/update data
-            if (vm.isFit) { 
-                vm.updateSlider(); 
-                vm.updateFitLine(); 
+
+                vm.updateSlider();
             }
         },
         zooming() {
@@ -198,10 +197,6 @@ export default {
                     .attr("d", vm.line);
             }
         }
-    },
-    created() {
-        // Listen for cofficient changes
-        eventBus.$on("coefficients-updated", this.redrawFit);
     },
 }
 </script>
