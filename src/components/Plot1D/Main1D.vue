@@ -90,13 +90,20 @@
             <!-- Fit Configuration Panel  -->
             <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
                 <v-fit-config
-                    :DISABLE="this.fileToFit === null"
-                    :EQUATION="$data.currentConfiguration.equation"
-                    :ID='ID'
+                    :disable="this.fileToFit === null"
+                    :equation="$data.currentConfiguration.equation"
+                    :initial-values='currentConfiguration.settings.initialValues'
+                    :data='selectedData'
+                    :file-to-fit='fileToFit'
+                    :field='field'
+                    :parameters='currentConfiguration.settings.parameters'
+                    :id='ID'
                     @set-fit="setFit"
                     @set-fit-setting="setFitSettings"
+                    @refit='setParameters'
                     @set-equation="setEquation"
                     @reset-file-fit-choice="resetFileFitChoice"
+                    @update-initial-values='updateInitialValues'
                     ref="fit_configurations"
                 ></v-fit-config>
             </v-panel>
@@ -112,14 +119,10 @@
                     :initial-values='currentConfiguration.settings.initialValues'
                     @update-parameters='updateConfigParameters'
                     @update-initial-values='updateInitialValues'
+                    @reset-fit-settings='resetFitSettings'
                 >
-                    <button class='btn btn-warning btn-sm btn-block' 
-                        @click='resetFitSettings'>
-                        <i class='fa fa-refresh' aria-hidden='true'></i> Default Settings
-                    </button>
                 </v-fit-settings-panel>
             </v-panel>
-
 
         </v-panel-group>
       </div>
@@ -145,7 +148,7 @@ import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
 import Transformation from '../BaseComponents/Transformation.vue';
-import FitConfiguration from '../BaseComponents/Fittings/FitConfiguration.vue';
+import FitConfiguration from '../BaseComponents/Fittings/FitConfigPanel.vue';
 import Plot1D from './components/fitPlot.vue';
 import FitSettingsPanel from '../BaseComponents/Fittings/FitSettingsPanel.vue';
 import Modal from '../BaseComponents/Modal.vue';
@@ -365,9 +368,6 @@ export default {
 
                 // Reset X & Y Transformations back to default
                 this.resetTransformations();
-                
-                // Reset coefficients to an empty object
-                this.$refs.fit_configurations.$data.coefficients = {};
                 
                 // Reset selected data to an empty array
                 this.selectedData = [];

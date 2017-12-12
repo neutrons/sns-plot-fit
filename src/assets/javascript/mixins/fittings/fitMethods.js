@@ -76,19 +76,15 @@ export const fitMethods = {
         },
         updateInitialValues(v) {
             // Function to accept user inputs of intial values
+            // console.log('update initial values', v);
             this.currentConfiguration.settings.initialValues = _.cloneDeep(v);
 
             this.setParameters();
         },
         reviseInitialValues(v) {
             // Function to simply update intial values after fitting
-            let tempIV = [];
-
-            for (let i = 0, L = this.currentConfiguration.settings.initialValues.length; i < L; i++) {
-                tempIV.push([this.currentConfiguration.settings.initialValues[i][0],v[i]]);
-            }
-
-            this.currentConfiguration.settings.initialValues = _.cloneDeep(tempIV);
+            // console.log('Changing init values', v);
+            this.currentConfiguration.settings.initialValues = _.cloneDeep(v);
         },
         updateConfigParameters(v) {
             this.currentConfiguration.settings.parameters = _.cloneDeep(v);

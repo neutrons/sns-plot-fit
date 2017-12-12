@@ -154,26 +154,17 @@ export const slider = {
                 vm.fitResults = fd.fitData(selectedData, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitConfiguration.settings);
                 this.updateFitResults();
 
-                // Re-assign updated fit equation and fitline function
-                vm.fitEquation = vm.fitResults.fitEquation;
-
                 if(vm.fitData.length <= 0) {
                     if(vm.checkError()) {
                         let errorMsg = "<strong>Error!</strong> Fitted y-values < 0, thus no fit-line to display.";
                         eventBus.$emit('error-message', errorMsg, 'danger');
                     }
                 }
-                // Emit coefficients to controls panel
-                eventBus.$emit('update-coefficients', vm.coefficients);
 
                 // Add line plot
                 vm.chart.g.select(".fitted-line").data([vm.fitData])
                     .attr("d", vm.line);
 
-                // Revise fit results below chart
-                let limits = d3.extent(selectedData, function(d) { return d.x; });
-                
-                vm.reviseFitTable(limits, selectedData.length);
             } else {
                 // Notify user that more data needs to be selected for the fit
                 if (vm.checkError()) {
@@ -184,14 +175,9 @@ export const slider = {
         },
         updateFitResults() {
             let tempIV = [];
-            
-            for (let i = 0, L = this.plotParameters.fitConfiguration.settings.initialValues.length; i < L; i++) {
-                tempIV.push([this.plotParameters.fitConfiguration.settings.initialValues[i][0], this.fitResults.paramVals[i]]);
-            }
 
-            this.plotParameters.fitConfiguration.settings.initialValues = _.cloneDeep(tempIV);
-
-            this.coefficients = this.fitResults.coefficients;
+            // console.log('updateFitResults', this.fitResults.paramVals);
+            this.plotParameters.fitConfiguration.settings.initialValues = _.cloneDeep(this.fitResults.paramVals);
             this.fitData = this.fitResults.fittedData;
             this.fitError = this.fitResults.error;
         }

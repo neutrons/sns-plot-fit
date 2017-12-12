@@ -38,8 +38,8 @@ export default {
           },
         },
         initialValues: [
-            ['x', 1], // x
-            ['y', 1], // y
+            ['x', 1, false], // x
+            ['y', 1, false], // y
         ],
       },
     },
@@ -82,8 +82,8 @@ export default {
           },
         },
         initialValues: [
-            ['m', 1], // m
-            ['b', 1], // b
+            ['m', 1, false], // m
+            ['b', 1, false], // b
         ],
       },
     },
@@ -126,8 +126,8 @@ export default {
           },
         },
         initialValues: [
-            ['Rg', 1], // Rg
-            ['I0', 1], // I0
+            ['Rg', 1, false], // Rg
+            ['I0', 1, false], // I0
         ],
       },
     },
@@ -200,8 +200,8 @@ export default {
           },
         },
         initialValues: [
-            ['p0', 1], // p0
-            ['p1', 1], // p1
+            ['p0', 1, false], // p0
+            ['p1', 1, false], // p1
         ],
       },
     },
@@ -244,9 +244,9 @@ export default {
           },
         },
         initialValues: [
-            ['I0', 1], // I0
-            ['Cl', 1], // Cl
-            ['I0', 1], // I0
+            ['I0', 1, false], // I0
+            ['Cl', 1, false], // Cl
+            ['I0', 1, false], // I0
         ],
       },
     },
@@ -291,8 +291,8 @@ export default {
           },
         },
         initialValues: [
-            ['m', 1], // m
-            ['b', 1], // b
+            ['m', 1, false], // m
+            ['b', 1, false], // b
         ],
       },
     },
@@ -335,8 +335,8 @@ export default {
           },
         },
         initialValues: [
-            ['m', 1], // m
-            ['I0', 1], // I0
+            ['m', 1, false], // m
+            ['I0', 1, false], // I0
         ],
       },
     },
