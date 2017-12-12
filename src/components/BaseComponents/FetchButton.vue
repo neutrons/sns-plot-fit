@@ -53,6 +53,7 @@ export default {
                     scan: file.scan,
                     scanTitle: file.scan_title,
                     tags: [],
+                    loadType: 'fetched',
                 };
             });
 

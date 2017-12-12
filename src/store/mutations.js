@@ -73,6 +73,8 @@ export const addTag = (state, payload) => {
     let loadType = payload.loadType;
     let file = payload.file;
     let tag = payload.tag;
+
+    console.log('Add tag', id, loadType, file, tag);
     
     state[loadType][id][file].tags.push(tag);
 };
