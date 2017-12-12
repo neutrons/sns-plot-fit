@@ -3,7 +3,8 @@
   <div class='input-group'>
     <span class='input-group-addon'>{{name}}</span>
     <input class='form-control' 
-        type='text'
+        type='number'
+        step='0.35'
         :disabled='disable'
         v-model.lazy='initialValue'
     />
@@ -58,57 +59,15 @@ export default {
       },
       initialValue: {
         get: function getInitialValue() {
-            return this.value;
+            return typeof this.value === 'string' ? 1 : this.value;
         },
         set: function setInitialValue(newVal) {
-            this.validateValue(newVal);
+            // console.log('set initial value', newVal);
+            this.$emit('update:value', newVal);
+            this.$emit('setInitialValues');
         }
       },
-      splitFields() {
-        let obj = {x:[], y:[]};
-
-        this.data.forEach( (d) => {
-            if (d.filename === this.fileToFit) {
-                for (let key in this.field) {
-                    obj[key] = d.dataTransformed.map((el) => { return el[this.field[key]]; });
-                }
-            }
-        })
-        
-        return obj;
-      }
-    },
-    methods: {
-        validateValue(newVal) {
-            let result = '';
-
-            try {
-                // console.log(`Entered value '${exp}'`);
-                let code = math.compile(newVal);
-                
-                result = newVal === '' ? 1 : code.eval(this.splitFields);
-                
-                // Catch that result is not an array for cases when user enters 'x+1'
-                // Math.JS treats that as operating on an array, so there isn't a reduced value
-                if (Array.isArray(result)) {
-                    throw 'Function must return a single value, not an array.';
-                }
-
-                // console.log('Entered Result', result);
-                // console.log('New Value', newVal);
-                // Emit input if entered value is not the same as previous entry
-                if (result !== this.value) {
-                    // console.log('Updating with new value', this.value, newVal)
-                    this.$emit('update:value', +result);
-                    this.$emit('setInitialValues');
-                }
-                
-            } catch (error) {
-                // If an error occurs when altering initial values send it to error function
-                eventBus.$emit('error-message', error, 'danger');
-            }
-        },
-    },
+    }
   };
 </script>
 

@@ -120,7 +120,6 @@ export default {
     watch: {
         metadata: {
             handler() {
-                // console.log('Metadata updated...', this.metadata);
                 let tname = this.name;
 
                 this.name = this.keys.indexOf(tname) === -1 ? this.keys[0] : this.name;
@@ -129,6 +128,11 @@ export default {
                 this.$nextTick(function() { this.highlight(this.name) });
             },
             deep: true
+        },
+        fileToFit() {
+            this.name = this.fileToFit === null ? this.name : this.fileToFit;
+            this.choice = this.metadata[this.name];
+            this.$nextTick(function() { this.highlight(this.name) });
         }
     }
 }
