@@ -103,10 +103,27 @@ export const stitchline = {
             let vm = this;
 
             if (!d3.select("#stitched-line").empty()) {
+                let t = d3.transition().duration(750);
+                let stitch = vm.chart.g.select('#stitched-line');
                 
-                    d3.select("#stitched-line").select("path")
-                        .transition().duration(750)
-                        .attr("d", vm.line);       
+                stitch.select('.stitch-path')
+                    .transition(t)
+                    .attr('d', vm.line);
+
+                // Update error Line
+                stitch.select('#stitch-error-line')
+                    .selectAll('.error-line')
+                    .call(vm.updateErrorLine, vm.scale.yType, vm.scale.x, vm.scale.y, t);
+
+                // Update error cap Top
+                stitch.select("#stitch-error-cap-top")
+                    .selectAll("line")
+                    .call(vm.updateErrorCaps, 'top', vm.scale.x, vm.scale.y, t)
+
+                // Update error cap bottom
+                stitch.select("#stitch-error-cap-bottom")
+                    .selectAll("line")
+                    .call(vm.updateErrorCaps, 'bottom', vm.scale.x, vm.scale.y, t)
             }
         },
         stitchData() {
