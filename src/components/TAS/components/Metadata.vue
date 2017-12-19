@@ -1,5 +1,5 @@
 <template>
-  <v-panel :PANELTITLE='`Metadata - ${name}`' PANELTYPE='default'>
+  <v-panel :PANELTITLE='`Metadata - ${name}`' PANELTYPE='default' :COLLAPSE='collapse'>
         <div class='button-group pull-left' slot='header-content'>
             <button class='btn btn-default btn-xs btn-left' @click='next("left")'><i class='fa fa-caret-left' aria-hidden='true'></i></button>
             <button class='btn btn-default btn-xs btn-deselect' @click='highlightAll'>Deselect</button>
@@ -35,6 +35,10 @@ export default {
             type: String
         },
         fileToFit: [String, null],
+        collapse: {
+            type: Boolean,
+            default: false,
+        }
     },
     data() {
         return {

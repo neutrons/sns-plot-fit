@@ -6,7 +6,7 @@
         type='number'
         step='0.35'
         :disabled='disable'
-        v-model.lazy='initialValue'
+        v-model.number.lazy='initialValue'
     />
 
     <label class='input-group-addon'>

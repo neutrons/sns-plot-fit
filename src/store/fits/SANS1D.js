@@ -1,48 +1,4 @@
 export default {
-    'None': {
-      fit: 'None',
-      equation: '',
-      transformations: {
-        x: 'x',
-        y: 'y',
-        error: 'error',
-      },
-      yLabel: "I",
-      xLabel: "Q",
-      note: "",
-      settings: {
-        parameters: {
-          damping: {
-            value: 0.001,
-            min: 0.001,
-            max: 10,
-            increment: 0.001,
-          },
-          gradientDifference: {
-            value: 0.1,
-            min: 0.1,
-            max: 1,
-            increment: 0.1,
-          },
-          maxIterations: {
-            value: 100,
-            min: 100,
-            max: 10000,
-            increment: 100,
-          },
-          errorTolerance: {
-            value: 0.001,
-            min: 0.001,
-            max: 1,
-            increment: 0.001,
-          },
-        },
-        initialValues: [
-            ['x', 1, false], // x
-            ['y', 1, false], // y
-        ],
-      },
-    },
     'Linear': {
       fit: 'Linear',
       equation: 'm*x+b',
@@ -54,38 +10,10 @@ export default {
       yLabel: "I",
       xLabel: "Q",
       note: "",
-      settings: {
-        parameters: {
-          damping: {
-            value: 0.001,
-            min: 0.001,
-            max: 10,
-            increment: 0.001,
-          },
-          gradientDifference: {
-            value: 0.1,
-            min: 0.1,
-            max: 1,
-            increment: 0.1,
-          },
-          maxIterations: {
-            value: 100,
-            min: 100,
-            max: 10000,
-            increment: 100,
-          },
-          errorTolerance: {
-            value: 0.001,
-            min: 0.001,
-            max: 1,
-            increment: 0.001,
-          },
-        },
-        initialValues: [
-            ['m', 1, false], // m
-            ['b', 1, false], // b
-        ],
-      },
+      initialValues: [
+          ['m', 1, false],
+          ['b', 1, false],
+      ],
     },
     'Guinier': {
       fit: 'Guinier',
@@ -98,38 +26,10 @@ export default {
       yLabel: "Log(I(q))",
       xLabel: "q^2",
       note: "",
-      settings: {
-        parameters: {
-          damping: {
-            value: 0.001,
-            min: 0.001,
-            max: 10,
-            increment: 0.001,
-          },
-          gradientDifference: {
-            value: 0.1,
-            min: 0.1,
-            max: 1,
-            increment: 0.1,
-          },
-          maxIterations: {
-            value: 100,
-            min: 100,
-            max: 10000,
-            increment: 100,
-          },
-          errorTolerance: {
-            value: 0.001,
-            min: 0.001,
-            max: 1,
-            increment: 0.001,
-          },
-        },
-        initialValues: [
-            ['Rg', 1, false], // Rg
-            ['I0', 1, false], // I0
-        ],
-      },
+      initialValues: [
+          ['Rg', 1, false],
+          ['I0', 1, false],
+      ],
     },
     // 'Low-Q Guinier': {
     //   fit: 'Low-Q Guinier',
@@ -172,38 +72,10 @@ export default {
       yLabel: "I(q)",
       xLabel: "q",
       note: "This is valid for high Q.",
-      settings: {
-        parameters: {
-          damping: {
-            value: 0.001,
-            min: 0.001,
-            max: 10,
-            increment: 0.001,
-          },
-          gradientDifference: {
-            value: 0.1,
-            min: 0.1,
-            max: 1,
-            increment: 0.1,
-          },
-          maxIterations: {
-            value: 100,
-            min: 100,
-            max: 10000,
-            increment: 100,
-          },
-          errorTolerance: {
-            value: 0.001,
-            min: 0.001,
-            max: 1,
-            increment: 0.001,
-          },
-        },
-        initialValues: [
-            ['p0', 1, false], // p0
-            ['p1', 1, false], // p1
-        ],
-      },
+      initialValues: [
+          ['p0', 1, false],
+          ['p1', 1, false],
+      ],
     },
     'Zimm': {
       fit: 'Zimm',
@@ -216,39 +88,10 @@ export default {
       yLabel: "1/I(q)",
       xLabel: "q^2",
       note: "",
-      settings: {
-        parameters: {
-          damping: {
-            value: 0.001,
-            min: 0.001,
-            max: 10,
-            increment: 0.001,
-          },
-          gradientDifference: {
-            value: 0.1,
-            min: 0.1,
-            max: 1,
-            increment: 0.1,
-          },
-          maxIterations: {
-            value: 100,
-            min: 100,
-            max: 10000,
-            increment: 100,
-          },
-          errorTolerance: {
-            value: 0.001,
-            min: 0.001,
-            max: 1,
-            increment: 0.001,
-          },
-        },
-        initialValues: [
-            ['I0', 1, false], // I0
-            ['Cl', 1, false], // Cl
-            ['I0', 1, false], // I0
-        ],
-      },
+      initialValues: [
+          ['I0', 1, false],
+          ['Cl', 1, false],
+      ],
     },
     'Kratky': {
       fit: 'Kratky',
@@ -263,38 +106,10 @@ export default {
       yLabel: "q^2 \times log(I)",
       xLabel: "q",
       note: "",
-      settings: {
-        parameters: {
-          damping: {
-            value: 0.001,
-            min: 0.001,
-            max: 10,
-            increment: 0.001,
-          },
-          gradientDifference: {
-            value: 0.1,
-            min: 0.1,
-            max: 1,
-            increment: 0.1,
-          },
-          maxIterations: {
-            value: 100,
-            min: 100,
-            max: 10000,
-            increment: 100,
-          },
-          errorTolerance: {
-            value: 0.001,
-            min: 0.001,
-            max: 1,
-            increment: 0.001,
-          },
-        },
-        initialValues: [
-            ['m', 1, false], // m
-            ['b', 1, false], // b
-        ],
-      },
+      initialValues: [
+          ['m', 1, false],
+          ['b', 1, false],
+      ],
     },
     'Debye Beuche': {
       fit: 'Debye Beuche',
@@ -307,37 +122,9 @@ export default {
       yLabel: "sqrt(I)",
       xLabel: "Q^2",
       note: "",
-      settings: {
-        parameters: {
-          damping: {
-            value: 0.001,
-            min: 0.001,
-            max: 10,
-            increment: 0.001,
-          },
-          gradientDifference: {
-            value: 0.1,
-            min: 0.1,
-            max: 1,
-            increment: 0.1,
-          },
-          maxIterations: {
-            value: 100,
-            min: 100,
-            max: 10000,
-            increment: 100,
-          },
-          errorTolerance: {
-            value: 0.001,
-            min: 0.001,
-            max: 1,
-            increment: 0.001,
-          },
-        },
-        initialValues: [
-            ['m', 1, false], // m
-            ['I0', 1, false], // I0
-        ],
-      },
+      initialValues: [
+          ['m', 1, false],
+          ['I0', 1, false],
+      ],
     },
   }

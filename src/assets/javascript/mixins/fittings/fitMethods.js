@@ -12,13 +12,14 @@ export const fitMethods = {
     },
     created() {
         // Initialize the current configuration upon mounting to Linear settings
-        this.currentConfiguration = this.initConfig();
+        this.initConfig();
 
         eventBus.$on('revise-initial-values', this.reviseInitialValues);
     },
     methods: {
         initConfig() {
-            return this.$store.getters.getFirstConfig(this.ID);
+            this.currentConfiguration = this.$store.getters.getFirstConfig(this.ID);
+            this.currentConfiguration.settings = this.$store.getters.getFitSettings;
         },
         setFileToFit() {
             if (this.fileFitChoice.length > 0) this.fileFitChoice = this.fileFitChoice.slice(-1);
@@ -27,36 +28,30 @@ export const fitMethods = {
             // If fileToFit is set to Null, don't transform anything and reset the fit to none
             // console.log("File is being fit:", this.fileToFit);
             if (this.fileToFit === null) {
-                
-                this.$refs.fit_configurations.setFit('Linear');
-                this.setFitSettings(this.$store.getters.getFitSettings);
-                this.setFit("Linear");
+                this.initConfig();
             } else {
                 this.selectedData.forEach( el => {
                     el.dataTransformed = fd.transformData(el.data, this.currentConfiguration.transformations, this.field);
                 });
-
-                this.setParameters();
             }
+
+            this.setParameters();
         },
         setFitSettings(options) {
             this.fitSettings = options;
             this.setParameters();
         },
-        setEquation(eq) {
-            this.currentConfiguration.equation = eq;
-            this.setParameters();
-        },
         resetFileFitChoice() {
             this.fileFitChoice = [];
             this.fileToFit = null;
-            this.$refs.fit_configurations.setFit('Linear');
         },
-        setFit(fitname) {
-            // Deep clone because if you change the equation later, the original fit config's equation would be altered as well
-            this.currentConfiguration = _.cloneDeep(this.$store.getters.getFitConfigsByID(this.$route.name, fitname));
+        fitTransform(value) {
+            this.currentConfiguration.fit = value.fit;
+            this.currentConfiguration.xLabel = value.xLabel;
+            this.currentConfiguration.yLabel = value.yLabel;
+            this.currentConfiguration.note = value.note;
+            this.currentConfiguration.transformations = value.transformations;
 
-            // console.log("Current configurations changed!");
             if (this.currentConfiguration.transformations.x !== 'x' || this.currentConfiguration.transformations.y !== 'y') {
                 this.selectedData.forEach( el => {
                     el.dataTransformed = fd.transformData(el.data, this.currentConfiguration.transformations, this.field);
@@ -70,24 +65,17 @@ export const fitMethods = {
             this.setParameters();
         },
         resetFitSettings() {
-            this.currentConfiguration = _.cloneDeep(this.$store.getters.getFitConfigsByID(this.$route.name, this.currentConfiguration.fit));
-
-            this.setParameters();
-        },
-        updateInitialValues(v) {
-            // Function to accept user inputs of intial values
-            // console.log('update initial values', v);
-            this.currentConfiguration.settings.initialValues = _.cloneDeep(v);
+            this.currentConfiguration.settings = _.cloneDeep(this.$store.getters.getFitSettings);
 
             this.setParameters();
         },
         reviseInitialValues(v) {
             // Function to simply update intial values after fitting
             // console.log('Changing init values', v);
-            this.currentConfiguration.settings.initialValues = _.cloneDeep(v);
+            this.currentConfiguration.initialValues = _.cloneDeep(v);
         },
-        updateConfigParameters(v) {
-            this.currentConfiguration.settings.parameters = _.cloneDeep(v);
+        updateConfigSettings(v) {
+            this.currentConfiguration.settings = _.cloneDeep(v);
 
             this.setParameters();
         },

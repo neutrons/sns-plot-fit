@@ -1,85 +1,80 @@
 <template>
-  <div id="Plot2D" class="col-md-12">
-      <div class="container-fluid">
-      <div class="col-md-2">
-        <!-- Files Panel  -->
-        <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
-            <v-filter :id='ID' @update-filter='updateFilters'></v-filter>
+<div id="Plot2D" class="col-md-12">
+  <div class="container-fluid">
+    <div class="col-md-4">
+      <!-- Files Panel  -->
+      <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
+        <v-filter :id='ID' @update-filter='updateFilters' v-if='Object.keys(getUploaded).length > 0 || Object.keys(getFetched).length > 0'></v-filter>
 
-                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
-                    <div v-show="Object.keys(getFetched).length > 0">
-                        <v-table :fieldNames="['Plot', 'Filename', 'Group']">
-                            <template>
-                                <tr v-for='(f, key) in filteredFetch' :key='key' :class="isPlotted(key)">
-                                    <template>
-                                        <td class="td-check"><input type="checkbox" :value="key" v-model="filesToPlot" @change="setFileToPlot"></td>
-                                        <td class="td-name">{{key}}</td>
-                                        <td class="td-name">{{f.jobTitle}}</td>
-                                    </template>
-                                </tr>
-                            </template>
-                        </v-table>
-                    </div>
-                </v-panel>
+        <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline && Object.keys(getFetched).length > 0">
+          <div v-show="Object.keys(getFetched).length > 0">
+            <v-table :fieldNames="['Plot', 'Filename', 'Group']">
+              <template>
+                <tr v-for='(f, key) in filteredFetch' :key='key' :class="isPlotted(key)">
+                  <template>
+                    <td class="td-check"><input type="checkbox" :value="key" v-model="filesToPlot" @change="setFileToPlot"></td>
+                    <td class="td-name">{{key}}</td>
+                    <td class="td-name">{{f.jobTitle}}</td>
+                  </template>
+                </tr>
+              </template>
+            </v-table>
+          </div>
+        </v-panel>
 
-                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show='Object.keys(getUploaded).length > 0'>
-                     <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
-                            <template>
-                                <tr v-for='(f, key) in filteredUpload' :key='key' :class='isPlotted(key)'>
-                                    <template>
-                                        <td class="td-check"><input type="checkbox" :value="key" v-model="filesToPlot" @change="setFileToPlot"></td>
-                                        <td class="td-name">{{key}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(key)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
-                                    </template>
-                                </tr>
-                            </template>
-                        </v-table>
-                    </div>
-                </v-panel>
-            </v-panel-group>
+        <v-panel PANELTITLE="Uploaded" PANELTYPE="success" v-if='Object.keys(getUploaded).length > 0'>
+          <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
+            <template>
+              <tr v-for='(f, key) in filteredUpload' :key='key' :class='isPlotted(key)'>
+                <template>
+                  <td class="td-check"><input type="checkbox" :value="key" v-model="filesToPlot" @change="setFileToPlot"></td>
+                  <td class="td-name">{{key}}</td>
+                  <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile(key)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                </template>
+              </tr>
+            </template>
+          </v-table>
+        </v-panel>
+      </v-panel-group>
 
-        <!-- Controls Panel  -->
-        <v-panel-group MAINTITLE="Controls" PANELTYPE="primary">
+      <!-- Controls Panel  -->
+      <v-panel-group MAINTITLE="Controls" PANELTYPE="primary">
 
-            <v-panel PANELTITLE="Hexbin Settings" PANELTYPE="success">
-                <fieldset :disabled="currentData.length === 0">
-                    <label>Bin Size: <span class="damping-output">{{ tempBinSize }}</span></label>
+        <v-panel PANELTITLE="Hexbin Settings" PANELTYPE="success">
+          <fieldset :disabled="currentData.length === 0">
+            <label>Bin Size: <span class="damping-output">{{ tempBinSize }}</span></label>
 
-                    <input type="range" min="5" max="25" step="1" 
-                        v-model.number="tempBinSize" 
-                        @mouseup="setHexSettings"
-                        @keyup="setHexSettings" 
-                        @touchend="setHexSettings"> 
+            <input type="range" min="5" max="25" step="1" v-model.number="tempBinSize" @mouseup="setHexSettings" @keyup="setHexSettings"
+              @touchend="setHexSettings">
 
-                    <br>
+            <br>
 
-                    <!-- Intensity Transformation Selection -->
-                    <div class="input-group">
-                        <span class="input-group-addon">Intensity Scale</span>
-                        <select class="form-control" v-model="tempTransform" @change="setHexSettings"> 
+            <!-- Intensity Transformation Selection -->
+            <div class="input-group">
+              <span class="input-group-addon">Intensity Scale</span>
+              <select class="form-control" v-model="tempTransform" @change="setHexSettings"> 
                             <option>Log</option>
                             <option>Linear</option>
                         </select>
-                    </div>
-                    
-                    <button id="btn-reset-hex-settings" class="btn btn-warning btn-sm" @click="resetSettings"><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
-                </fieldset>
-            </v-panel>
+            </div>
 
-        </v-panel-group>
-      </div>
-
-      <div class="col-md-10" id="plot-2d-col">
-        <v-panel PANELTITLE="SANS 2D Plot" PANELTYPE="primary">
-            <!-- Plot reset button inserted into panel heading  -->
-            <v-reset-button :onClick="resetChart" v-if="currentData.length > 0" slot="header-content">Reset Chart</v-reset-button>
-            
-            <div :id="'chart-' + ID"></div>
+            <button id="btn-reset-hex-settings" class="btn btn-warning btn-sm" @click="resetSettings"><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
+          </fieldset>
         </v-panel>
-      </div>
-</div>
+
+      </v-panel-group>
+    </div>
+
+    <div class="col-md-8" id="plot-2d-col">
+      <v-panel PANELTITLE="SANS 2D Plot" PANELTYPE="primary">
+        <!-- Plot reset button inserted into panel heading  -->
+        <v-reset-button :onClick="resetChart" v-if="currentData.length > 0" slot="header-content">Reset Chart</v-reset-button>
+
+        <div :id="'chart-' + ID"></div>
+      </v-panel>
+    </div>
   </div>
+</div>
 </template>
 
 <script>

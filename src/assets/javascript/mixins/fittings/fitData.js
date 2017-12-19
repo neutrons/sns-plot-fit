@@ -93,6 +93,7 @@ fd.fitData = function (data, equation, fitsettings) {
 
     // First, grab initial values and check for constants and swap them out in equation
     fitsettings = _.cloneDeep(fitsettings);
+    // console.log('fit data', fitsettings);
 
     let initValues = _.cloneDeep(fitsettings.initialValues);
     // console.log("INIT VALUES:", initValues);
@@ -121,8 +122,9 @@ fd.fitData = function (data, equation, fitsettings) {
     var parameter_names_to_fit = nodes_to_fit.map(function (node) {
         return node.name;
     });
-    
-    // console.log('param names:', parameter_names_to_fit);
+
+    // reduce duplicate coefficients to one unique value
+    parameter_names_to_fit = _.uniq(parameter_names_to_fit);
 
     // If parameter names is an empty array, then all values are constant
     // Just evaluate with mathjs and return values
@@ -145,10 +147,10 @@ fd.fitData = function (data, equation, fitsettings) {
     let tempSettings = {};
 
     tempSettings = {
-        damping: fitsettings.parameters.damping.value,
-        gradientDifference: fitsettings.parameters.gradientDifference.value,
-        maxIterations: fitsettings.parameters.maxIterations.value,
-        errorTolerance: fitsettings.parameters.errorTolerance.value,
+        damping: fitsettings.settings.damping.value,
+        gradientDifference: fitsettings.settings.gradientDifference.value,
+        maxIterations: fitsettings.settings.maxIterations.value,
+        errorTolerance: fitsettings.settings.errorTolerance.value,
         initialValues: fitsettings.initialValues,
     }
 

@@ -4,6 +4,7 @@
 
 <script>
 import axios from 'axios';
+import pathParse from 'path-parse';
 
 // The eventBus serves as the means to communicating between components.
 // e.g., If files are uploaded in 'fileUpload.vue', an event is emitted
@@ -45,8 +46,8 @@ export default {
             let temp = {};
 
             data.forEach(file => {
-                let filename = file.url.replace(/\/external\/files\/tas\//, '').replace(/.dat/g, '');
-                
+                let filename = pathParse(file.url).name;
+
                 temp[filename] = {
                     filename: filename,
                     url: file.url,

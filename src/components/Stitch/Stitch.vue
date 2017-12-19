@@ -8,16 +8,16 @@
         </v-modal>
 
         <!-- Left Sidebar for Controls and File List  -->
-        <div class="col-md-2">
+        <div class="col-md-4">
             <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
             <button class='btn btn-success btn-xs pull-left'
                 @click='showModal = true' slot='title-content'
                 v-if='isFilesAvailable'
             >Quick Plot</button>
 
-            <v-filter :id='ID' @update-filter='updateFilters'></v-filter>
+            <v-filter :id='ID' @update-filter='updateFilters' v-if='Object.keys(getUploaded).length > 0 || Object.keys(getFetched).length > 0'></v-filter>
 
-                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
+                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline && Object.keys(getFetched).length > 0">
                     <div v-show='Object.keys(getFetched).length > 0'>
                         <v-table :fieldNames="['Plot', 'Filename', 'Group']">
                             <template>
@@ -33,20 +33,18 @@
                     </div>
                 </v-panel>
 
-                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show='Object.keys(getUploaded).length > 0'>
-                     <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
-                            <template>
-                                <tr v-for="(f, index) in filteredUpload" :key='index' :class="isPlotted(f.filename)">
-                                    <template>
-                                        <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change='setFilesToPlot'></td>
-                                        <td class="td-name">{{f.filename}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile('Stitch', f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
-                                    </template>
-                                </tr>
-                            </template>
-                        </v-table>
-                    </div>
+                <v-panel PANELTITLE="Uploaded" PANELTYPE="success" v-if='Object.keys(getUploaded).length > 0'>
+                    <v-table :fieldNames="['Plot', 'Filename', 'Delete']">
+                        <template>
+                            <tr v-for="(f, index) in filteredUpload" :key='index' :class="isPlotted(f.filename)">
+                                <template>
+                                    <td class="td-check"><input type="checkbox" :value="f.filename" v-model="filesToPlot" @change='setFilesToPlot'></td>
+                                    <td class="td-name">{{f.filename}}</td>
+                                    <td class="td-name"><button class="btn btn-danger btn-xs" @click="removeFile('Stitch', f.filename)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                </template>
+                            </tr>
+                        </template>
+                    </v-table>
                 </v-panel>
             </v-panel-group>
 
@@ -62,7 +60,7 @@
                     </v-scales>
                 </v-panel>
 
-                <v-panel PANELTITLE="Edit Tools" PANELTYPE="info">
+                <v-panel PANELTITLE="Tools" PANELTYPE="success">
                      <v-switch 
                         leftID="zoom" 
                         rightID="brush" 

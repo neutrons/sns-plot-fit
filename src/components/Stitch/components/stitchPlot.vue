@@ -1,39 +1,37 @@
 <template>
-  <div id="plot-stitch-col" class="col-md-10">
+<div id="plot-stitch-col" class="col-md-8">
 
-            <!-- Plot Panel  -->
-            <v-panel PANELTITLE="Stitch Plot" PANELTYPE="primary">
-                <!-- Plot reset button inserted into panel heading  -->
-                <!-- <button class="btn btn-success btn-xs pull-left btn-reset" @click="resetPlot" v-if="currentData.length > 0" slot="header-content">Reset Plot</button> -->
-                <v-reset-button :onClick="resetChart" v-if="!DISABLE" slot="header-content">Reset Chart</v-reset-button>
-                
-                <!-- <button class="btn btn-primary" @click="removeBrushes">Remove Brushes</button> -->
-                <div :id="'chart-' + ID"></div>
-                  
-                  <!-- Fit Results Table to add fit results -->
-              <div id="brush-selection-table" class="table table-condensed table-responsive" v-if="isBrushes">          
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Selections</th>
-                                <th>X-Min</th>
-                                <th>X-Max</th>
-                            </tr>
-                        </thead>
-                    
-                        <tbody>
-                        
-                        <tr v-for="(value, key) in selections">
-                            <td>{{key}}</td>
-                            <td>{{value.converted[0].toExponential(4)}}</td>
-                            <td>{{value.converted[1].toExponential(4)}}</td>
-                        </tr>
+  <!-- Plot Panel  -->
+  <v-panel PANELTITLE="Stitch Plot" PANELTYPE="primary">
+    <!-- Plot reset button inserted into panel heading  -->
+    <v-reset-button :onClick="resetChart" v-if="!DISABLE" slot="header-content">Reset Chart</v-reset-button>
 
-                        </tbody>
-                    </table>
-                </div>
-            </v-panel>
-  </div>
+    <div :id="'chart-' + ID"></div>
+
+    <!-- Fit Results Table to add fit results -->
+    <div id="brush-selection-table" class="table table-condensed table-responsive" v-if="isBrushes">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Selections</th>
+            <th>X-Min</th>
+            <th>X-Max</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr v-for="(value, key) in selections">
+            <td>{{key}}</td>
+            <td>{{value.converted[0].toExponential(4)}}</td>
+            <td>{{value.converted[1].toExponential(4)}}</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </v-panel>
+</div>
 </template>
 
 <script>

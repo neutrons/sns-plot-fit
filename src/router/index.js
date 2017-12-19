@@ -30,25 +30,25 @@ export default new Router({
       path: '/SANS1D',
       name: 'SANS1D',
       component: SANS1D,
-      meta: {title: 'SANS1D'}
+      meta: {title: 'SANS1D', group: 'SANS'}
     },
     {
       path: '/SANS2D',
       name: 'SANS2D',
       component: SANS2D,
-      meta: {title: 'SANS2D'}
+      meta: {title: 'SANS2D', group: 'SANS'}
     },
     {
       path: '/Stitch',
       name: 'Stitch',
       component: Stitch,
-      meta: {title: 'Stitch'}
+      meta: {title: 'Stitch', group: 'SANS'}
     },
     {
       path: '/TAS',
       name: 'TAS',
       component: TAS,
-      meta: {title: 'TAS'}
+      meta: {title: 'TAS', group: 'TAS'}
     },
   ],
   linkActiveClass: "active",

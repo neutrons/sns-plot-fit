@@ -10,7 +10,7 @@
             ></v-quick-plot>
         </v-modal>
 
-      <div class="col-md-2">
+      <div class="col-md-4">
         
         <!-- Files Main Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
@@ -19,58 +19,44 @@
             v-if='isFilesAvailable'
         >Quick Plot</button>
 
-        <v-filter :id='ID' @update-filter='updateFilters'></v-filter>
+        <v-filter :id='ID' @update-filter='updateFilters' v-if='Object.keys(getUploaded).length > 0 || Object.keys(getFetched).length > 0'></v-filter>
 
             <!-- Fetched Data Panel  -->
-                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
-                    <div v-show='Object.keys(getFetched).length > 0'>
-                        <v-table :fieldNames="['Fit', 'Plot', 'Filename']">
-                            <template>
-                                <tr v-for='(f,key) in filteredFetch' :key='key' :class="isPlotted(key)">
-                                    <template>
-                                        <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled=" (isPlotted(key) == 'success' ? false : true)"
-                            @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="key + '-FetchTAS'" type="checkbox" :value="key" v-model="filesToPlot" @change="setFilesToPlot"></td>
-                                        <td class="td-name">{{key}}</td>
-                                    </template>
-                                </tr>
-                            </template>
-                        </v-table>
-                    </div>
+                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline && Object.keys(getFetched).length > 0">
+                    <v-table :fieldNames="['Fit', 'Plot', 'Filename']">
+                        <template>
+                            <tr v-for='(f,key) in filteredFetch' :key='key' :class="isPlotted(key)">
+                                <template>
+                                    <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled=" (isPlotted(key) == 'success' ? false : true)"
+                        @change="setFileToFit"></td>
+                                    <td class="td-check"><input :id="key + '-FetchTAS'" type="checkbox" :value="key" v-model="filesToPlot" @change="setFilesToPlot"></td>
+                                    <td class="td-name">{{key}}</td>
+                                </template>
+                            </tr>
+                        </template>
+                    </v-table>
                 </v-panel>
 
             <!-- Uploaded Data Panel  -->
-                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show='Object.keys(getUploaded).length > 0'>
-                     <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
-                            <template>
-                                <tr v-for='(f,key) in filteredUpload' :key='key' :class="isPlotted(key)">
-                                    <template>
-                                        <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled=" (isPlotted(key) == 'success' ? false : true)"
-                            @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="key + '-UploadTAS'" type="checkbox" :value="key" v-model="filesToPlot" @change="setFilesToPlot"></td>
-                                        <td class="td-name">{{key}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="remove1DFile(key)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
-                                    </template>
-                                </tr>
-                            </template>
-                        </v-table>
-                    </div>
+                <v-panel PANELTITLE="Uploaded" PANELTYPE="success" v-if='Object.keys(getUploaded).length > 0'>
+                    <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
+                        <template>
+                            <tr v-for='(f,key) in filteredUpload' :key='key' :class="isPlotted(key)">
+                                <template>
+                                    <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled=" (isPlotted(key) == 'success' ? false : true)"
+                        @change="setFileToFit"></td>
+                                    <td class="td-check"><input :id="key + '-UploadTAS'" type="checkbox" :value="key" v-model="filesToPlot" @change="setFilesToPlot"></td>
+                                    <td class="td-name">{{key}}</td>
+                                    <td class="td-name"><button class="btn btn-danger btn-xs" @click="remove1DFile(key)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                </template>
+                            </tr>
+                        </template>
+                    </v-table>
                 </v-panel>
             </v-panel-group>
 
         <!-- Controls Main Panel  -->
         <v-panel-group MAINTITLE="Controls" PANELTYPE="primary">
-            <!-- Field Name Panel -->
-            <v-panel PANELTITLE="Field Names" PANELTYPE="success" :COLLAPSE="false">
-                <v-field-list 
-                    :current-fields="currentFields"
-                    @update-fields="updateFields"
-                    ref="fields"
-                >
-                </v-field-list>
-            </v-panel>
-
             <!-- Scales Panel  -->
             <v-panel PANELTITLE="Scales" PANELTYPE="success" :COLLAPSE="false">
 
@@ -83,49 +69,48 @@
 
             </v-panel>
 
-            <!-- Fit Configuration Panel  -->
-            <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
-                <v-fit-config
-                    :disable="this.fileToFit === null"
-                    :equation="$data.currentConfiguration.equation"
-                    :initial-values='currentConfiguration.settings.initialValues'
-                    :data='selectedData'
-                    :file-to-fit='fileToFit'
-                    :field='field'
-                    :parameters='currentConfiguration.settings.parameters'
-                    :id='ID'
-                    @set-fit="setFit"
-                    @set-fit-setting="setFitSettings"
-                    @refit='setParameters'
-                    @set-equation="setEquation"
-                    @reset-file-fit-choice="resetFileFitChoice"
-                    @update-initial-values='updateInitialValues'
-                    ref="fit_configurations"
-                ></v-fit-config>
+            <!-- Field Name Panel -->
+            <v-panel PANELTITLE="Field Names" PANELTYPE="success" :COLLAPSE="true">
+                <v-field-list 
+                    :current-fields="currentFields"
+                    @update-fields="updateFields"
+                    ref="fields"
+                >
+                </v-field-list>
             </v-panel>
 
-            <!-- Fit Settings Panel  -->
-            <v-panel PANELTITLE="Levenberg–Marquardt Settings" PANELTYPE="info" :COLLAPSE="true">
-                <v-fit-settings-panel
-                    :disable='this.fileToFit === null'
-                    :data='selectedData'
-                    :file-to-fit='fileToFit'
-                    :field='field'
-                    :parameters='currentConfiguration.settings.parameters'
-                    :initial-values='currentConfiguration.settings.initialValues'
-                    @update-parameters='updateConfigParameters'
-                    @update-initial-values='updateInitialValues'
-                    @reset-fit-settings='resetFitSettings'
-                >
-                </v-fit-settings-panel>
-            </v-panel>
+            <!-- fit equation panel  -->
+            <div v-if='fileToFit !== null'>
+                <v-panel PANELTITLE='Fit Configuration' PANELTYPE='success' :COLLAPSE='false'>
+                    <v-fit-equation
+                        :equation.sync="$data.currentConfiguration.equation"
+                        :initial-values.sync='$data.currentConfiguration.initialValues'
+                        :data='selectedData'
+                        :file-to-fit='fileToFit'
+                        :field='field'
+                        :id='ID'
+                        @fit='setParameters'
+                    >
+                    </v-fit-equation>
+                </v-panel>
+
+                <!-- Fit Settings Panel  -->
+                <v-panel PANELTITLE='Levenberg–Marquardt Settings' PANELTYPE='success' :COLLAPSE='true'>
+                    <v-fit-settings-panel
+                        :parameters='currentConfiguration.settings'
+                        @update-fit-settings='updateConfigSettings'
+                        @reset-fit-settings='resetFitSettings'
+                    >
+                    </v-fit-settings-panel>
+                </v-panel>
+            </div>
 
         </v-panel-group>
       </div>
     
         <v-plot-TAS
             :DISABLE="disable"
-            :SHOWTABLE='fileToFit !== null && currentConfiguration.fit !== "None"'
+            :SHOWTABLE='fileToFit !== null'
             ref="plot_TAS">
 
             <v-metadata
@@ -150,7 +135,7 @@ import PanelGroup from '../BaseComponents/Panels/PanelGroup.vue';
 import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
-import FitConfiguration from '../BaseComponents/Fittings/FitConfigPanel.vue';
+import FitEquationPanel from '../BaseComponents/Fittings/FitEquationPanel.vue';
 import tasPlot from './components/tasPlot.vue';
 import FieldList from './components/FieldList.vue';
 import Metadata from './components/Metadata.vue';
@@ -188,11 +173,11 @@ export default {
         'v-plot-TAS': tasPlot,
         'v-field-list': FieldList,
         'v-metadata': Metadata,
-        'v-fit-config': FitConfiguration,
         'fit-results-table': FitTable,
         'v-fit-settings-panel': FitSettingsPanel,
         'v-modal': Modal,
         'v-quick-plot': QuickPlot,
+        'v-fit-equation': FitEquationPanel,
     },
     data() {
         return {

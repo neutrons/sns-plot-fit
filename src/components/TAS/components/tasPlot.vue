@@ -1,5 +1,5 @@
 <template>
-  <div id="plot-tas-col" class="col-md-10">
+  <div id="plot-tas-col" class="col-md-8">
 
     <v-panel PANELTITLE="TAS Plot" PANELTYPE="primary">
         <!-- Plot reset button inserted into panel heading  -->
@@ -166,7 +166,7 @@ export default {
             return this.fitData === null ? [0,0] : d3.extent(this.fitData, (d) => { return d.x; });
         },
         isFit() {
-            return this.plotParameters.fileToFit !== null && this.plotParameters.fitConfiguration.fit !== 'None';
+            return this.plotParameters.fileToFit !== null;
         }
     },
     methods: {
