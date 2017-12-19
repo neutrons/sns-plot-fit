@@ -1,22 +1,28 @@
 <template>
-  <div id="plot-1d-col" class="col-md-10">
+  <div id='plot-1d-col' class='col-md-8'>
     <!-- Plot Panel  -->
-    <v-panel PANELTITLE="SANS 1D Plot" PANELTYPE="primary">
+    <v-panel PANELTITLE='SANS 1D Plot' PANELTYPE='primary'>
         <!-- Plot reset button inserted into panel heading  -->
-        <v-reset-button :onClick="resetChart" v-if="!DISABLE" slot="header-content">Reset Chart</v-reset-button>
+        <v-reset-button :onClick='resetChart' v-if='!DISABLE' slot='header-content'>Reset Chart</v-reset-button>
         
-        <div :id="'chart-' + ID"></div>
+        <div :id='`chart-${ID}`'></div>
 
         <!-- Fit Results Table -->
-        <fit-results-table v-if='SHOWTABLE'
-            :ID='ID'
-            :plot-parameters='plotParameters'
-            :fit-range='fitRange'
-            :fit-count='fitCount'
-            :fit-error='fitError'
-            :x-scale='scale.x'
-            :x-brush-selection='brushObj.brushSelection[1]'
-        ></fit-results-table>
+        <v-panel
+            PANELTITLE='Fit Results'
+            PANELTYPE='default'
+            v-if='SHOWTABLE'
+        >
+            <fit-results-table
+                :ID='ID'
+                :plot-parameters='plotParameters'
+                :fit-range='fitRange'
+                :fit-count='fitCount'
+                :fit-error='fitError'
+                :x-scale='scale.x'
+                :x-brush-selection='brushObj.brushSelection[1]'
+            ></fit-results-table>
+        </v-panel>
     </v-panel>
   </div>
 </template>
@@ -116,7 +122,7 @@ export default {
             prevFit: null,
             prevTransform: undefined,
             isMathJax: true,
-            zoom: d3.zoom().on("zoom", this.zooming),
+            zoom: d3.zoom().on('zoom', this.zooming),
         }
 
     },
@@ -193,15 +199,15 @@ export default {
             
             if (vm.isFit) {
                 // Re-draw fitted line
-                vm.chart.g.select(".fitted-line")
-                    .attr("d", vm.line);
+                vm.chart.g.select('.fitted-line')
+                    .attr('d', vm.line);
             }
         }
     },
 }
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 @import '../style/plot-1D-styles.css';
 
 #selection-error {

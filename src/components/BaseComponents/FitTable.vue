@@ -1,10 +1,6 @@
 <template>
 <div :id='"fit-results-table-" + ID' class='fit-results-table table table-condensed table-responsive'>
   <table class='table table-bordered'>
-    <caption>
-      <h4>Fit Results:</h4>
-    </caption>
-
     <tbody>
       <tr>
         <td class='fit-file'><b>Fit File:</b> {{plotParameters.fileToFit}}</td>
@@ -22,15 +18,15 @@
       <tr>
         <td colspan='2' class='fit-configs'>
           <ul>
-            <li class='fit-damping'><b>Damping:</b> {{plotParameters.fitConfiguration.settings.parameters.damping.value}}</li>
-            <li class='fit-iterations'><b>No. Iterations:</b> {{plotParameters.fitConfiguration.settings.parameters.maxIterations.value}}</li>
-            <li class='fit-tolerance'><b>Error Tolerance:</b> {{plotParameters.fitConfiguration.settings.parameters.errorTolerance.value}}</li>
-            <li class='fit-gradient'><b>Gradient Difference:</b> {{plotParameters.fitConfiguration.settings.parameters.gradientDifference.value}}</li>
+            <li class='fit-damping'><b>Damping:</b> {{plotParameters.fitConfiguration.settings.damping.value}}</li>
+            <li class='fit-iterations'><b>No. Iterations:</b> {{plotParameters.fitConfiguration.settings.maxIterations.value}}</li>
+            <li class='fit-tolerance'><b>Error Tolerance:</b> {{plotParameters.fitConfiguration.settings.errorTolerance.value}}</li>
+            <li class='fit-gradient'><b>Gradient Difference:</b> {{plotParameters.fitConfiguration.settings.gradientDifference.value}}</li>
           </ul>
         </td>
         <td colspan='2' class='fit-coefficients'>
           <ul>
-            <li v-for='(item, index) in plotParameters.fitConfiguration.settings.initialValues' :key='index'>
+            <li v-for='(item, index) in plotParameters.fitConfiguration.initialValues' :key='index'>
               {{formatInitialValues(item)}}
             </li>
           </ul>

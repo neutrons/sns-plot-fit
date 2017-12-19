@@ -54,7 +54,7 @@ export const slider = {
             
             vm.dataToFit = vm.dataNest.filter(el => { if (el.key === vm.plotParameters.fileToFit)  return el.values; })[0].values;
             
-            vm.fitResults = fd.fitData(vm.dataToFit, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitConfiguration.settings);
+            vm.fitResults = fd.fitData(vm.dataToFit, vm.plotParameters.fitConfiguration.equation, {settings: vm.plotParameters.fitConfiguration.settings, initialValues: vm.plotParameters.fitConfiguration.initialValues});
             this.updateFitResults();
 
             vm.scale.x2.domain( extent(vm.dataNest, 'x') ).nice();
@@ -151,7 +151,7 @@ export const slider = {
                         }
                     })
         
-                vm.fitResults = fd.fitData(selectedData, vm.plotParameters.fitConfiguration.equation, vm.plotParameters.fitConfiguration.settings);
+                vm.fitResults = fd.fitData(selectedData, vm.plotParameters.fitConfiguration.equation, {settings: vm.plotParameters.fitConfiguration.settings, initialValues: vm.plotParameters.fitConfiguration.initialValues});
                 this.updateFitResults();
 
                 if(vm.fitData.length <= 0) {
@@ -177,7 +177,7 @@ export const slider = {
             let tempIV = [];
 
             // console.log('updateFitResults', this.fitResults.paramVals);
-            this.plotParameters.fitConfiguration.settings.initialValues = _.cloneDeep(this.fitResults.paramVals);
+            this.plotParameters.fitConfiguration.initialValues = _.cloneDeep(this.fitResults.paramVals);
             this.fitData = this.fitResults.fittedData;
             this.fitError = this.fitResults.error;
         }

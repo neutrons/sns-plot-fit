@@ -7,7 +7,7 @@
             data-picker='DataPicker1D'
         ></v-quick-plot>
       </v-modal>
-      <div class="col-md-2">
+      <div class="col-md-4">
         
         <!-- Files Main Panel  -->
         <v-panel-group MAINTITLE="Files" PANELTYPE="primary">
@@ -16,10 +16,10 @@
             v-if='isFilesAvailable'
         >Quick Plot</button>
 
-        <v-filter :id='ID' @update-filter='updateFilters'></v-filter>
+        <v-filter :id='ID' @update-filter='updateFilters' v-if='Object.keys(getUploaded).length > 0 || Object.keys(getFetched).length > 0'></v-filter>
     
             <!-- Fetched Data Panel  -->
-                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline">
+                <v-panel PANELTITLE="Fetched" PANELTYPE="success" v-if="!isOffline && Object.keys(getFetched).length > 0">
                     <div v-show="Object.keys(getFetched).length > 0">
                         <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Group']">
                             <template>
@@ -38,22 +38,20 @@
                 </v-panel>
 
             <!-- Uploaded Data Panel  -->
-                <v-panel PANELTITLE="Uploaded" PANELTYPE="success">
-                    <div v-show='Object.keys(getUploaded).length > 0'>
-                     <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
-                            <template>
-                                <tr v-for='(f, key) in filteredUpload' :key='key' :class='isPlotted(key)'>
-                                    <template>
-                                        <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled="(isPlotted(key) == 'success' ? false : true)"
-                            @change="setFileToFit"></td>
-                                        <td class="td-check"><input :id="key + '-Upload1D'" type="checkbox" :value="key" v-model="filesToPlot" @change='setFilesToPlot'></td>
-                                        <td class="td-name">{{key}}</td>
-                                        <td class="td-name"><button class="btn btn-danger btn-xs" @click="remove1DFile(key)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
-                                    </template>
-                                </tr>
-                            </template>
-                        </v-table>
-                    </div>
+                <v-panel PANELTITLE="Uploaded" PANELTYPE="success" v-if='Object.keys(getUploaded).length > 0'>
+                    <v-table :fieldNames="['Fit', 'Plot', 'Filename', 'Delete']">
+                        <template>
+                            <tr v-for='(f, key) in filteredUpload' :key='key' :class='isPlotted(key)'>
+                                <template>
+                                    <td class="td-check"><input type="checkbox" :value="key" v-model="fileFitChoice" :disabled="(isPlotted(key) == 'success' ? false : true)"
+                        @change="setFileToFit"></td>
+                                    <td class="td-check"><input :id="key + '-Upload1D'" type="checkbox" :value="key" v-model="filesToPlot" @change='setFilesToPlot'></td>
+                                    <td class="td-name">{{key}}</td>
+                                    <td class="td-name"><button class="btn btn-danger btn-xs" @click="remove1DFile(key)"><i class="fa fa-trash" aria-hidden="true"></i></button></td>
+                                </template>
+                            </tr>
+                        </template>
+                    </v-table>
                 </v-panel>
 
                 <div id="btn-selections" v-if="isFiles" class="btn-group btn-group-justified">
@@ -87,42 +85,32 @@
                 ></v-transformation>
             </v-panel>
 
-            <!-- Fit Configuration Panel  -->
-            <v-panel PANELTITLE="Fit Configurations" PANELTYPE="success" :COLLAPSE="true">
-                <v-fit-config
-                    :disable="this.fileToFit === null"
-                    :equation="$data.currentConfiguration.equation"
-                    :initial-values='currentConfiguration.settings.initialValues'
-                    :data='selectedData'
-                    :file-to-fit='fileToFit'
-                    :field='field'
-                    :parameters='currentConfiguration.settings.parameters'
-                    :id='ID'
-                    @set-fit="setFit"
-                    @set-fit-setting="setFitSettings"
-                    @refit='setParameters'
-                    @set-equation="setEquation"
-                    @reset-file-fit-choice="resetFileFitChoice"
-                    @update-initial-values='updateInitialValues'
-                    ref="fit_configurations"
-                ></v-fit-config>
-            </v-panel>
+            <!-- fit equation panel  -->
+            <div v-if='fileToFit !== null'>
+                <v-panel PANELTITLE='Fit Configuration' PANELTYPE='success' :COLLAPSE='false'>
+                    <v-fit-equation
+                        :equation.sync="$data.currentConfiguration.equation"
+                        :initial-values.sync='$data.currentConfiguration.initialValues'
+                        :data='selectedData'
+                        :file-to-fit='fileToFit'
+                        :field='field'
+                        :id='ID'
+                        @fit='fitTransform'
+                    >
+                    </v-fit-equation>
+                </v-panel>
 
-            <!-- Fit Settings Panel  -->
-            <v-panel PANELTITLE="Levenberg–Marquardt Settings" PANELTYPE="info" :COLLAPSE="true">
-                <v-fit-settings-panel
-                    :disable='this.fileToFit === null'
-                    :data='selectedData'
-                    :file-to-fit='fileToFit'
-                    :field='field'
-                    :parameters='currentConfiguration.settings.parameters'
-                    :initial-values='currentConfiguration.settings.initialValues'
-                    @update-parameters='updateConfigParameters'
-                    @update-initial-values='updateInitialValues'
-                    @reset-fit-settings='resetFitSettings'
-                >
-                </v-fit-settings-panel>
-            </v-panel>
+                <!-- Fit Settings Panel  -->
+                <v-panel PANELTITLE='Levenberg–Marquardt Settings' PANELTYPE='success' :COLLAPSE='true'>
+                    <v-fit-settings-panel
+                        :parameters='currentConfiguration.settings'
+                        @update-fit-settings='updateConfigSettings'
+                        @reset-fit-settings='resetFitSettings'
+                    >
+                    </v-fit-settings-panel>
+                </v-panel>
+            </div>
+
 
         </v-panel-group>
       </div>
@@ -148,7 +136,7 @@ import Table from '../BaseComponents/Table.vue';
 import Filter from '../BaseComponents/TableFilter.vue';
 import Scales from '../BaseComponents/Scales.vue';
 import Transformation from '../BaseComponents/Transformation.vue';
-import FitConfiguration from '../BaseComponents/Fittings/FitConfigPanel.vue';
+import FitEquationPanel from '../BaseComponents/Fittings/FitEquationPanel.vue';
 import Plot1D from './components/fitPlot.vue';
 import FitSettingsPanel from '../BaseComponents/Fittings/FitSettingsPanel.vue';
 import Modal from '../BaseComponents/Modal.vue';
@@ -182,12 +170,12 @@ export default {
       'v-table': Table,
       'v-filter': Filter,
       'v-scales': Scales,
-      'v-fit-config': FitConfiguration,
       'v-transformation': Transformation,
       'v-plot-1D': Plot1D,
       'v-fit-settings-panel': FitSettingsPanel,
       'v-modal': Modal,
       'v-quick-plot': QuickPlot,
+      'v-fit-equation': FitEquationPanel,
     },
     data: function () {
       return {

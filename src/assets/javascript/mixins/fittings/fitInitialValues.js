@@ -18,16 +18,16 @@ export const fitInitialValues = {
 
                 // First convert x,y fields to single arrays
                 let obj = this.identifyFields();
-                
+
                 result = exp === '' ? 1 : code.eval(obj);
                 // console.log('Result', result);
-                
+
                 // Catch that result is not an array for cases when user enters 'x+1'
                 // Math.JS treats that as operating on an array, so there isn't a reduced value
                 if (Array.isArray(result)) {
                     throw 'Function must return a single value, not an array.';
                 } else {
-                    this.currentConfiguration.settings.initialValues[i][1] = result;
+                    this.currentConfiguration.initialValues[i][1] = result;
                 }
                 
             } catch (error) {
@@ -49,9 +49,9 @@ export const fitInitialValues = {
             return obj;
         },
         prepConfiguration() {
-            for (let i = 0, L = this.currentConfiguration.settings.initialValues.length; i < L; i++) {
-                if (typeof this.currentConfiguration.settings.initialValues[i][1] === 'string') {
-                    this.enterInitialValue(this.currentConfiguration.settings.initialValues[i][1], i);
+            for (let i = 0, L = this.currentConfiguration.initialValues.length; i < L; i++) {
+                if (typeof this.currentConfiguration.initialValues[i][1] === 'string') {
+                    this.enterInitialValue(this.currentConfiguration.initialValues[i][1], i);
                 }
             };
 

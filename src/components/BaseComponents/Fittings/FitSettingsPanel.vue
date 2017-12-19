@@ -11,7 +11,7 @@
             :max='param.max'
             :step='param.increment'
             :value.sync='param.value'
-            @input='$emit("update-parameters", params)'
+            @input='$emit("update-fit-settings", params)'
         ></v-range-slider>
         <br>
         <button class='btn btn-warning btn-sm btn-block' 
@@ -29,33 +29,18 @@ import _ from 'lodash';
 export default {
     name: 'FitSettingsPanel',
     props: {
-        data: {
-            type: Array,
-        },
-        field: {
-            type: Object,
-        },
         parameters: {
             type: Object,
-        },
-        initialValues: {
-            type: Array,
         },
         disable: {
             type: Boolean,
             default: false,
-        },
-        fileToFit: {
-            type: String,
         },
     },
     components: {
         'v-range-slider': RangeSlider,
     },
     computed: {
-        initValues() {
-            return _.cloneDeep(this.initialValues);
-        },
         params() {
             return _.cloneDeep(this.parameters);
         }
