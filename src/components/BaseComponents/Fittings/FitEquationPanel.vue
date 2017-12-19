@@ -198,7 +198,6 @@ export default {
             if (Array.isArray(result)) {
                 throw 'Function must return a single value, not an array.';
             } else {
-                console.log('Result', result.toFixed(3));
                 return result.toFixed(3);
             }
             
@@ -224,7 +223,7 @@ export default {
     fit() {
         this.$emit('update:equation', this.finalEquation);
         this.$emit('update:initialValues', this.IV);
-
+        console.log('fit data');
         if (this.$route.meta.group === 'SANS') {
             this.$emit('fit', _.cloneDeep(this.selected[0]));
         } else {

@@ -34,8 +34,6 @@ export const fitMethods = {
                     el.dataTransformed = fd.transformData(el.data, this.currentConfiguration.transformations, this.field);
                 });
             }
-
-            this.setParameters();
         },
         setFitSettings(options) {
             this.fitSettings = options;
