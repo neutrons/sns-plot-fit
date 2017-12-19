@@ -223,7 +223,7 @@ export default {
     fit() {
         this.$emit('update:equation', this.finalEquation);
         this.$emit('update:initialValues', this.IV);
-        console.log('fit data');
+        
         if (this.$route.meta.group === 'SANS') {
             this.$emit('fit', _.cloneDeep(this.selected[0]));
         } else {
